@@ -1,0 +1,283 @@
+/* This file is part of the NidoMS Server.
+ * Copyright (C) 2009 - 2010  Flav <flav@nidoms.com>
+ *                            Hendi <hendi@nidoms.com>
+ *
+ *                            Patrick Huy <patrick.huy@frz.cc>
+ *                            Matthias Butz <matze@odinms.de>
+ *                            Jan Christian Meyer <vimes@odinms.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package server;
+
+import client.IItem;
+import client.Item;
+import client.ItemFactory;
+import client.MapleInventoryType;
+import client.MaplePet;
+import constants.InventoryConstants;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import provider.MapleData;
+import provider.MapleDataProvider;
+import provider.MapleDataProviderFactory;
+import provider.MapleDataTool;
+import tools.DatabaseConnection;
+import tools.Pair;
+
+public class CashShop {
+    public static class CashItem {
+        private int sn, itemId, price;
+        private short count;
+        private boolean onSale;
+
+        private CashItem(int sn, int itemId, int price, short count, boolean onSale) {
+            this.sn = sn;
+            this.itemId = itemId;
+            this.price = price;
+            this.count = count;
+            this.onSale = onSale;
+        }
+
+        public int getSN() {
+            return sn;
+        }
+
+        public int getItemId() {
+            return itemId;
+        }
+
+        public int getPrice() {
+            return price;
+        }
+
+        public short getCount() {
+            return count;
+        }
+
+        public boolean isOnSale() {
+            return onSale;
+        }
+
+        public IItem toItem() {
+            MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+            IItem item;
+            int petId = -1;
+
+            if (InventoryConstants.isPet(itemId))
+                petId = MaplePet.createPet(itemId);
+
+            if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP))
+                item = ii.getEquipById(itemId);
+            else
+                item = new Item(itemId, (byte) 0, count, petId);
+
+            item.setSN(sn);
+            return item;
+        }
+    }
+
+    public static class CashItemFactory {
+        private static Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
+        private static Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
+
+        static {
+            System.out.println("loading");
+            MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));
+
+            for (MapleData item : etc.getData("Commodity.img").getChildren()) {
+                int sn = MapleDataTool.getIntConvert("SN", item);
+                int itemId = MapleDataTool.getIntConvert("ItemId", item);
+                int price = MapleDataTool.getIntConvert("Price", item, 0);
+                short count = (short) MapleDataTool.getIntConvert("Count", item, 1);
+                boolean onSale = MapleDataTool.getIntConvert("OnSale", item, 0) == 1;
+                items.put(sn, new CashItem(sn, itemId, price, count, onSale));
+            }
+
+            for (MapleData cashPackage : etc.getData("CashPackage.img").getChildren()) {
+                List<Integer> cPackage = new ArrayList<Integer>();
+
+                for (MapleData item : cashPackage.getChildByPath("SN").getChildren())
+                    cPackage.add(Integer.parseInt(item.getData().toString()));
+
+                packages.put(Integer.parseInt(cashPackage.getName()), cPackage);
+            }
+        }
+
+        public static CashItem getItem(int sn) {
+            return items.get(sn);
+        }
+
+        public static List<IItem> getPackage(int itemId) {
+            List<IItem> cashPackage = new ArrayList<IItem>();
+
+            for (int sn : packages.get(itemId))
+                cashPackage.add(getItem(sn).toItem());
+
+            return cashPackage;
+        }
+    }
+
+
+    private int accountId, characterId, nxCredit, maplePoint, nxPrepaid;
+    private boolean opened;
+    private ItemFactory factory;
+    private List<IItem> inventory = new ArrayList<IItem>();
+    private List<Integer> wishList = new ArrayList<Integer>();
+
+    public CashShop(int accountId, int characterId, int jobType) throws SQLException {
+        this.accountId = accountId;
+        this.characterId = characterId;
+
+        if (jobType == 0)
+            factory = ItemFactory.CASH_EXPLORER;
+        else if (jobType == 1)
+            factory = ItemFactory.CASH_CYGNUS;
+        else if (jobType == 2)
+            factory = ItemFactory.CASH_ARAN;
+
+        Connection con = DatabaseConnection.getConnection();
+        PreparedStatement ps = con.prepareStatement("SELECT `nxCredit`, `maplePoint`, `nxPrepaid` FROM `accounts` WHERE `id` = ?");
+        ps.setInt(1, accountId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            this.nxCredit = rs.getInt("nxCredit");
+            this.maplePoint = rs.getInt("maplePoint");
+            this.nxPrepaid = rs.getInt("nxPrepaid");
+        }
+
+        rs.close();
+        ps.close();
+
+        for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false))
+            inventory.add(item.getLeft());
+
+        ps = con.prepareStatement("SELECT `sn` FROM `wishlists` WHERE `charid` = ?");
+        ps.setInt(1, characterId);
+        rs = ps.executeQuery();
+
+        while (rs.next())
+            wishList.add(rs.getInt("sn"));
+
+        rs.close();
+        ps.close();
+    }
+
+    public int getCash(int type) {
+        switch (type) {
+            case 1:
+                return nxCredit;
+            case 2:
+                return maplePoint;
+            case 4:
+                return nxPrepaid;
+        }
+
+        return 0;
+    }
+
+    public void gainCash(int type, int cash) {
+        switch (type) {
+            case 1:
+                nxCredit += cash;
+                break;
+            case 2:
+                maplePoint += cash;
+                break;
+            case 4:
+                nxPrepaid += cash;
+                break;
+        }
+    }
+
+    public boolean isOpened() {
+        return opened;
+    }
+
+    public void open(boolean b) {
+        opened = b;
+    }
+
+    public List<IItem> getInventory() {
+        return inventory;
+    }
+
+    public IItem findByCashId(long cashId) {
+        for (IItem item : inventory) {
+            if (item.getCashId() == cashId)
+                return item;
+        }
+
+        return null;
+    }
+
+    public void addToInventory(IItem item) {
+        inventory.add(item);
+    }
+
+    public void removeFromInventory(IItem item) {
+        inventory.remove(item);
+    }
+
+    public List<Integer> getWishList() {
+        return wishList;
+    }
+
+    public void clearWishList() {
+        wishList.clear();
+    }
+
+    public void addToWishList(int sn) {
+        wishList.add(sn);
+    }
+
+    public void save() throws SQLException {
+        Connection con = DatabaseConnection.getConnection();
+        PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `nxCredit` = ?, `maplePoint` = ?, `nxPrepaid` = ? WHERE `id` = ?");
+        ps.setInt(1, nxCredit);
+        ps.setInt(2, maplePoint);
+        ps.setInt(3, nxPrepaid);
+        ps.setInt(4, accountId);
+        ps.executeUpdate();
+        ps.close();
+        List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
+
+        for (IItem item : inventory)
+            itemsWithType.add(new Pair<IItem,
+                    MapleInventoryType>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
+
+        factory.saveItems(itemsWithType, accountId);
+        ps = con.prepareStatement("DELETE FROM `wishlists` WHERE `charid` = ?");
+        ps.setInt(1, characterId);
+        ps.executeUpdate();
+        ps = con.prepareStatement("INSERT INTO `wishlists` VALUES (DEFAULT, ?, ?)");
+        ps.setInt(1, characterId);
+
+        for (int sn : wishList) {
+            ps.setInt(2, sn);
+            ps.executeUpdate();
+        }
+
+        ps.close();
+    }
+}

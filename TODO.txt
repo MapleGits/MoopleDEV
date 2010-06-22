@@ -1,0 +1,19 @@
+[-] A lot
+[-] Normal usage of reports
+[-] All beginning tutorials
+[-] Fix/Remove all MetroMS bugs and exploits
+[-] Add full aran (Includes the movement too :O)
+
+
+[/] Proper usage of new npc chat methods.
+
+
+
+[+] No more characters can be created fix ._.
+[+] Complete link system :)
+[+] Using items
+[+] Pin/Pic System
+[+] Proper monster spawn and movement
+[+] Fix crash when you have an equip in inventory
+[+] Hit monsters and deal damage.
+[+] Correct drop positions
