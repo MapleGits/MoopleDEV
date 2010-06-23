@@ -1942,7 +1942,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         if (skill > 0) {
             lew.write(0x00);
             lew.writeInt(skill);
-            if (chr.getJob().isA(MapleJob.ARAN1) || chr.getJob().isA(MapleJob.LEGEND)) {
+            if (chr.getJob().isA(MapleJob.ARAN1) || chr.getJob().equals(MapleJob.LEGEND)) {
                 lew.writeShort(1);
             } else {
                 lew.writeShort(0);
@@ -1953,7 +1953,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         }
         
         lew.write(stance);
-        lew.write(direction); //Maybe need to fix rangedAttack
+        lew.write(direction);
         lew.write(0);
         lew.write(speed);
         lew.write(0x0A);
@@ -2037,7 +2037,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             mplew.write(0);
         }
         mplew.write(HexTool.getByteArrayFromHexString("01 00")); // add mode
+        if (type != MapleInventoryType.EQUIP) {
         mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.write(item.getPosition()); // slot id
         addItemInfo(mplew, item, true, false);
         return mplew.getPacket();
@@ -2056,7 +2060,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             mplew.write(0);
         }
         mplew.write(HexTool.getByteArrayFromHexString("01 01")); // update
+        if (type != MapleInventoryType.EQUIP) {
         mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.write(item.getPosition()); // slot id
         mplew.write(0); // ?
         mplew.writeShort(item.getQuantity());
@@ -2068,10 +2076,15 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     }
 
     public static MaplePacket moveInventoryItem(MapleInventoryType type, byte src, byte dst, byte equipIndicator) {
+        // 1D 00 01 01 02 00 F5 FF 01 00 01
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(HexTool.getByteArrayFromHexString("01 01 02"));
-        mplew.write(type.getType());
+        if (type != MapleInventoryType.EQUIP) {
+        mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.writeShort(src);
         mplew.writeShort(dst);
         if (equipIndicator != -1) {
@@ -2084,7 +2097,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(HexTool.getByteArrayFromHexString("01 02 03"));
-        mplew.write(type.getType());
+        if (type != MapleInventoryType.EQUIP) {
+        mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.writeShort(src);
         mplew.write(1); // merge mode?
         mplew.write(type.getType());
@@ -2097,7 +2114,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(HexTool.getByteArrayFromHexString("01 02 01"));
-        mplew.write(type.getType());
+        if (type != MapleInventoryType.EQUIP) {
+        mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.writeShort(src);
         mplew.writeShort(srcQ);
         mplew.write(HexTool.getByteArrayFromHexString("01"));
@@ -2108,12 +2129,19 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     }
 
     public static MaplePacket clearInventoryItem(MapleInventoryType type, byte slot, boolean fromDrop) {
+        //1D 00 00 01 03 01 F5 FF 02
+        //1D 00 00 01 03 FF F5 FF
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(fromDrop ? 1 : 0);
         mplew.write(HexTool.getByteArrayFromHexString("01 03"));
-        mplew.write(type.getType());
+        if (type != MapleInventoryType.EQUIP) {
+        mplew.write(type.getType()); // iv type
+        } else {
+        mplew.write(1); // iv type
+        }
         mplew.writeShort(slot);
+        if (!fromDrop) mplew.write(2);
         return mplew.getPacket();
     }
 
@@ -2897,13 +2925,13 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
      * @param speaker
      * @return
      */
-    public static MaplePacket getNPCTalk(int npc, byte msgType, String talk, String endBytes, boolean player) {
+    public static MaplePacket getNPCTalk(int npc, byte msgType, String talk, String endBytes, byte speaker) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.NPC_TALK.getValue());
         mplew.write(4); // ?
         mplew.writeInt(npc);
         mplew.write(msgType);
-        mplew.write(player ? 2 : 0);
+        mplew.write(speaker);
         mplew.writeMapleAsciiString(talk);
         mplew.write(HexTool.getByteArrayFromHexString(endBytes));
         return mplew.getPacket();

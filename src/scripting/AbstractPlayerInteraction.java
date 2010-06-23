@@ -174,6 +174,10 @@ public class AbstractPlayerInteraction {
         c.getSession().write(MaplePacketCreator.serverNotice(type, message));
     }
 
+    public void message(String message) {
+        getPlayer().message(message);
+    }
+
     public void mapMessage(int type, String message) {
         getPlayer().getMap().broadcastMessage(MaplePacketCreator.serverNotice(type, message));
     }
@@ -289,21 +293,41 @@ public class AbstractPlayerInteraction {
     }
 
     public void giveTutorialSkills() {
-        c.getSession().write(MaplePacketCreator.aranGodlyStats());
         if (getPlayer().getMapId() == 914000100) {
         ISkill skill = SkillFactory.getSkill(20000018);
         ISkill skill0 = SkillFactory.getSkill(20000017);
-        ISkill skill1 = SkillFactory.getSkill(20000014);
         getPlayer().changeSkillLevel(skill, 1, 1);
-        getPlayer().changeSkillLevel(skill0, 1, 1);
-        getPlayer().changeSkillLevel(skill1, 1, 1);
+        getPlayer().changeSkillLevel(skill0, 1, 1);        
         } else if (getPlayer().getMapId() == 914000200) {
         ISkill skill = SkillFactory.getSkill(20000015);
+        ISkill skill0 = SkillFactory.getSkill(20000014);
         getPlayer().changeSkillLevel(skill, 1, 1);
+        getPlayer().changeSkillLevel(skill0, 1, 1);
         } else if (getPlayer().getMapId() == 914000210) {
         ISkill skill = SkillFactory.getSkill(20000016);
         getPlayer().changeSkillLevel(skill, 1, 1);
         }
+    }
+
+     public void removeAranPoleArm() {
+        IItem tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
+	MapleInventoryManipulator.removeFromSlot(c.getPlayer().getClient(), MapleInventoryType.EQUIPPED, (byte) -11, tempItem.getQuantity(), false, true);
+       }
+
+    public void spawnGuide() {
+        c.getSession().write(MaplePacketCreator.spawnGuide(true));
+    }
+
+    public void removeGuide() {
+        c.getSession().write(MaplePacketCreator.spawnGuide(false));
+    }
+
+    public void displayGuide(int num) {
+       c.getSession().write(MaplePacketCreator.showInfo("UI/tutorial.img/" + num));
+    }
+
+    public void talkGuide(String message) {
+       c.getSession().write(MaplePacketCreator.talkGuide(message)); 
     }
 
     public void saveSquadMembers() {

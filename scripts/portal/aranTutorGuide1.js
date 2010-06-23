@@ -22,7 +22,9 @@
 /*
 By kevintjuh93
 */
-function enter(pi) { 
+function enter(pi) {     
+    pi.message("You can use Consecutive Attacks by pressing the Ctrl key multiple times.");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide2");   
+    pi.blockPortal();
     return true; 
 }  

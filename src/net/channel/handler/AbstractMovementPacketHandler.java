@@ -27,6 +27,7 @@ import java.util.List;
 import net.AbstractMaplePacketHandler;
 import server.maps.AnimatedMapleMapObject;
 import server.movement.AbsoluteLifeMovement;
+import server.movement.AranMovement;
 import server.movement.ChairMovement;
 import server.movement.ChangeEquip;
 import server.movement.JumpDownMovement;
@@ -118,6 +119,15 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     jdm.setPixelsPerSecond(new Point(xwobble, ywobble));
                     jdm.setFH(fh);
                     res.add(jdm);
+                    break;
+                }
+                case 19:
+                case 20:
+                case 21: {
+                    byte newstate = lea.readByte();
+                    short unk = lea.readShort();
+                    AranMovement am = new AranMovement(command, new Point(0, 0), unk, newstate);
+                    res.add(am);
                     break;
                 }
                 default:

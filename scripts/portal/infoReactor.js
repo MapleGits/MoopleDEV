@@ -24,5 +24,6 @@ By kevintjuh93
 */
 function enter(pi) { 
     pi.showInfo("UI/tutorial.img/22");   
+    pi.blockPortal();
     return true;
 }  

@@ -23,5 +23,5 @@
 importPackage(Packages.tools);
 
 function start(ms) {
-	ms.startExplorerIntro();	   	       
+	ms.displayAranIntro();	   	       
 }

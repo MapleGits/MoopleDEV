@@ -87,59 +87,59 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendNext(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", false));
-    }
-
-    public void sendCharNext(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", (byte) 0));
     }
 
     public void sendPrev(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", false));
-    }
-
-    public void sendCharPrev(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", (byte) 0));
     }
 
     public void sendNextPrev(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", false));
-    }
-
-    public void sendCharNextPrev(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", (byte) 0));
     }
 
     public void sendOk(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", false));
-    }
-
-    public void sendCharOk(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", (byte) 0));
     }
 
     public void sendYesNo(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 1, text, "", false));
-    }
-
-    public void sendCharYesNo(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 1, text, "", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 1, text, "", (byte) 0));
     }
 
     public void sendAcceptDecline(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", false));
-    }
-
-    public void sendCharAcceptDecline(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", true));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", (byte) 0));
     }
 
     public void sendSimple(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 4, text, "", false));
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 4, text, "", (byte) 0));
     }
 
-    public void sendCharSimple(String text) {
-        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 4, text, "", true));
+    public void sendNext(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", speaker));
+    }
+
+    public void sendPrev(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", speaker));
+    }
+
+    public void sendNextPrev(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", speaker));
+    }
+
+    public void sendOk(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", speaker));
+    }
+
+    public void sendYesNo(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 1, text, "", speaker));
+    }
+
+    public void sendAcceptDecline(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", speaker));
+    }
+
+    public void sendSimple(String text, byte speaker) {
+        getClient().getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 4, text, "", speaker));
     }
 
     public void sendStyle(String text, int styles[]) {

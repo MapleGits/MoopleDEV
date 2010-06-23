@@ -22,11 +22,7 @@
 	Author: kevintjuh93
 */
 function enter(pi) {
-	if (!pi.isQuestStarted(21001)) {
-		pi.warp(914000220, 2);
-		return true;
-	} else {
-		pi.warp(914000400, 2);
-		return true;
-	}
+	pi.talkGuide("You're very close to town. I'll head over there first since I have some things to take care of. You take your time.");
+	pi.blockPortal();
+	return true;
 }

@@ -22,7 +22,8 @@
 /*
 By kevintjuh93
 */
-function enter(pi) { 
-    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon6");   
+function enter(pi) {   
+    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon6");
+    pi.blockPortal();   
     return true; 
 }  

@@ -39,8 +39,8 @@ public enum ItemFactory {
 	INVENTORY(1, false), //Maybe type 0 is better? :O
 	STORAGE(2, true),
 	CASH_EXPLORER(3, true),
-	CASH_CYGNUS(4, true),
-        CASH_ARAN(5, true);
+	CASH_CYGNUS(4, false),
+        CASH_ARAN(5, false);
 
 	private int value;
 	private boolean account;

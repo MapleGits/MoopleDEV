@@ -24,5 +24,6 @@ By kevintjuh93
 */
 function enter(pi) { 
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon2");   
+    pi.blockPortal();    
     return true; 
 }  

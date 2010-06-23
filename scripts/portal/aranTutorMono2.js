@@ -23,6 +23,7 @@
 By kevintjuh93
 */
 function enter(pi) { 
-    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon3");   
+    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon3");  
+    pi.blockPortal(); 
     return true; 
 }  

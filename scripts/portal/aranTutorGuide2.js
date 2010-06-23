@@ -23,6 +23,8 @@
 By kevintjuh93
 */
 function enter(pi) { 
+    pi.blockPortal();
+    pi.message("You can use a Command Attack by pressing both the arrow key and the attack key after a Consecutive Attack.");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide3");   
     return true; 
 }  

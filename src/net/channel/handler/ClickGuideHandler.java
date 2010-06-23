@@ -22,23 +22,23 @@
 
 package net.channel.handler;
 
-import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleJob;
 import net.AbstractMaplePacketHandler;
-import tools.MaplePacketCreator;
+import scripting.npc.NPCScriptManager;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class AranComboHandler extends AbstractMaplePacketHandler {
+/**
+ *
+ * @author kevintjuh93
+ */
+public class ClickGuideHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (player.getJob().isA(MapleJob.ARAN1) || player.getJob().equals(MapleJob.LEGEND)) {
-            if (System.currentTimeMillis() > player.getLastAttack()) {
-                player.setComboCounter(1);
-            } else 
-             player.setLastAttack(System.currentTimeMillis() + 3000);
-             player.setComboCounter(player.getComboCounter() + 1);
-            c.getSession().write(MaplePacketCreator.showCombo(player.getComboCounter()));
-        }
+        if (c.getPlayer().getJob().equals(MapleJob.NOBLESSE)) {
+                NPCScriptManager.getInstance().start(c, 1101008, null, null);
+            } else {
+                NPCScriptManager.getInstance().start(c, 1202000, null, null);
+            }
     }
+
 }

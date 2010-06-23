@@ -22,8 +22,14 @@
 /*
 By kevintjuh93
 */
-function enter(pi) { 
-    pi.showIntro("Effect/Direction1.img/aranTutorial/Child");
-    pi.showIntro("Effect/Direction1.img/aranTutorial/ClickChild");  
-    return true; 
+function enter(pi) {
+	if (!pi.isQuestStarted(21001)) {
+    		pi.showIntro("Effect/Direction1.img/aranTutorial/Child");
+    		pi.showIntro("Effect/Direction1.img/aranTutorial/ClickChild");
+    		pi.blockPortal();
+		return true;   
+	} else {
+    		pi.blockPortal();
+		return false;   
+	}
 }  

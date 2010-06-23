@@ -36,4 +36,12 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
     public MaplePortal getPortal() {
         return portal;
     }
+
+        public void blockPortal() {
+            c.getPlayer().blockPortal(getPortal().getScriptName());
+        }
+
+        public void unblockPortal() {
+            c.getPlayer().unblockPortal(getPortal().getScriptName());
+        }
 }

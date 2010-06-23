@@ -23,6 +23,8 @@
 By kevintjuh93
 */
 function enter(pi) { 
+    pi.blockPortal();
+    pi.message("To use a Regular Attack on monsters, press the Ctrl key.");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide1");   
     return true; 
 }  

@@ -22,11 +22,10 @@
 	Author: kevintjuh93
 */
 function enter(pi) {
-	if (!pi.isQuestStarted(21001)) {
-		pi.warp(914000220, 2);
-		return true;
-	} else {
-		pi.warp(914000400, 2);
-		return true;
+	if (!pi.isQuestCompleted(21012)) {
+		pi.message("You must complete the quest before proceeding to the next map..");
+		return false;
 	}
+	pi.warp(140090400, 1);
+	return true;
 }

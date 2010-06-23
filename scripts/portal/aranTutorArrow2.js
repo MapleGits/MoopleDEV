@@ -23,7 +23,7 @@
 By kevintjuh93
 */
 function enter(pi) { 
-    pi.getPlayer().portalDelay(5000);
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialArrow1");   
+    pi.blockPortal();   
     return true; 
 }  

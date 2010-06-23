@@ -208,6 +208,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.COCONUT, new CoconutHandler());
             registerHandler(RecvOpcode.TEMP_SKILL, new TempSkillHandler());
             registerHandler(RecvOpcode.ARAN_COMBO_COUNTER, new AranComboHandler());
+            registerHandler(RecvOpcode.CLICK_GUIDE, new ClickGuideHandler());
         }
     }
 }

@@ -25,13 +25,13 @@ package client;
  * @author Matze
  */
 public enum MapleInventoryType {
-    UNDEFINED(0),
-    EQUIP(1),
+    UNDEFINED(-1),
+    EQUIP(0), //Eww nexon made this 1 and equipped 1 o.o
+    EQUIPPED(1),
     USE(2),
     SETUP(3),
     ETC(4),
-    CASH(5),
-    EQUIPPED(-1);
+    CASH(5);
     final byte type;
 
     private MapleInventoryType(int type) {

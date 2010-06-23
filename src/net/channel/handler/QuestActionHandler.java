@@ -64,7 +64,11 @@ public final class QuestActionHandler extends AbstractMaplePacketHandler {
             //System.out.println(slea.toString());
             int npc = slea.readInt();
             slea.readInt();
+            if (quest == 21001) {
+            QuestScriptManager.getInstance().start(c, 1209006, quest);
+            } else {
             QuestScriptManager.getInstance().start(c, npc, quest);
+            }
         } else if (action == 5) { // scripted end quests
             //System.out.println(slea.toString());
             int npc = slea.readInt();

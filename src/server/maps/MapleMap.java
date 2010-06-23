@@ -485,7 +485,6 @@ public class MapleMap {
     }
 
     public boolean damageMonster(MapleCharacter chr, MapleMonster monster, int damage) {
-        chr.setLastAttack(System.currentTimeMillis());
         if (monster.getId() == 8800000) {
             for (MapleMapObject object : chr.getMap().getMapObjects()) {
                 MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
@@ -1198,6 +1197,14 @@ public class MapleMap {
         }
         if (mapEffect != null) {
             mapEffect.sendStartData(chr.getClient());
+        }
+        if (mapid == 914000200 || mapid == 914000210 || mapid == 914000220) {
+                TimerManager.getInstance().schedule(new Runnable() {
+                    @Override
+                        public void run() {
+                           chr.getClient().getSession().write(MaplePacketCreator.aranGodlyStats());
+                        }
+                }, 1000);
         }
         if (chr.getEnergyBar() >= 10000) {
             broadcastMessage(chr, (MaplePacketCreator.giveForeignEnergyCharge(chr.getId(), 10000)));

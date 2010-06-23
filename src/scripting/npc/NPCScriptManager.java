@@ -45,7 +45,11 @@ public class NPCScriptManager extends AbstractScriptManager {
     public void start(MapleClient c, int npc, String filename, MapleCharacter chr) {
         try {
             NPCConversationManager cm = new NPCConversationManager(c, npc);
+            if (npc == 1202000) {
+                action(c, (byte) 1, (byte) 0, 0);
+            }
             if (cms.containsKey(c)) {
+                dispose(c);
                 return;
             }
             cms.put(c, cm);

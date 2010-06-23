@@ -1,4 +1,4 @@
-/*
+/* 
 	This file is part of the OdinMS Maple Story Server
     Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
 		       Matthias Butz <matze@odinms.de>
@@ -57,7 +57,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -258,6 +257,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long portaldelay = 0;
     private int combocounter = 1;
     private long lastattack = 0;
+    private List<String> blockedPortals = new ArrayList<String>();
+    private boolean continueNpc = false;
     // event
     private Map<MapleCharacter, Integer> coconutteams = new LinkedHashMap<MapleCharacter, Integer>();
     private MapleFitness fitness;
@@ -3631,42 +3632,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return coolDowns.containsKey(Integer.valueOf(skillId));
     }
 
-    public void startIntro() {
-        client.getSession().write(MaplePacketCreator.disableUI(true));
-	client.getSession().write(MaplePacketCreator.lockUI(true));
-        switch(getJobType()) {
-            case 0:
-            if (getGender() == 0) {
-                client.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene0"));
-            } else {
-                client.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene1"));
-            }
-            
-        TimerManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                client.getPlayer().changeMap(10000);
-            }
-        }, 14200);
-
-            case 2: //WRONG
-        TimerManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-               // client.getPlayer().changeMap(10000);
-            }
-        }, 0);
-            default:
-            client.getSession().write(MaplePacketCreator.enableActions());
-        }
-    }
-
-    public void spawnGuide() {
-        client.getSession().write(MaplePacketCreator.spawnGuide(true));
-        client.getSession().write(MaplePacketCreator.talkGuide("Welcome to Maple World! I'm Mimo. I'm in charge of guiding you until you reach Lv. 10 and become a Knight-In-Training. Double-click for further information!"));
-        client.getSession().write(MaplePacketCreator.enableActions());
-    }
-
     public void startFullnessSchedule(final int decrease, final MaplePet pet, int petSlot) {
         ScheduledFuture<?> schedule = TimerManager.getInstance().register(new Runnable() {
             @Override
@@ -3870,6 +3835,30 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public long portalDelay() {
         return portaldelay;
+    }
+
+    public void blockPortal(String scriptName) {
+            if (!blockedPortals.contains(scriptName) && scriptName != null) {
+                blockedPortals.add(scriptName);
+                client.getSession().write(MaplePacketCreator.enableActions());
+            }
+    }
+
+    public void unblockPortal(String scriptName) {
+            if (blockedPortals.contains(scriptName) && scriptName != null)
+                blockedPortals.remove(scriptName);
+    }
+
+    public List<String> getBlockedPortals() {
+            return blockedPortals;
+    }
+
+    public boolean continueNpc() {
+        return continueNpc;
+    }
+
+    public void continueNpc(boolean yes) {
+        this.continueNpc = yes;
     }
 
     //EVENTS
