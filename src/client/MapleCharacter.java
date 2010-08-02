@@ -2141,7 +2141,16 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             maxmp += rand(18, 23);
         } else if (job.isA(MapleJob.ARAN1)) {
             maxhp += rand(44, 48);
-            maxmp += rand(4, 8) + Math.floor(0.1);
+            int aids = rand(4, 8);
+            maxmp += aids + Math.floor(aids * 0.1);
+        }
+        if(getLevel() < 11){
+            if (getLevel() < 6) {
+                str += 5;
+            } else {
+                str += 4;
+                dex += 1;
+            }
         }
         if (improvingMaxHPLevel > 0 && (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.PIRATE) || job.isA(MapleJob.DAWNWARRIOR1))) {
             maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getX();

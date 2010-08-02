@@ -1936,12 +1936,12 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         lew.write(numAttackedAndDamage);
         lew.write(0);
         lew.write(skilllevel);
-        if (skill > 0) {
+        if (skilllevel > 0) {
             lew.writeInt(skill);
         }
         lew.write(display);
-        lew.write(stance);
         lew.write(direction);
+        lew.write(stance);
         lew.write(speed);
         lew.write(0x0A);
         lew.writeInt(projectile);
