@@ -46,7 +46,6 @@ import client.MapleClient;
 import client.MapleDisease;
 import client.MapleInventory;
 import client.MapleInventoryType;
-import client.MapleJob;
 import client.MapleKeyBinding;
 import client.MapleMount;
 import client.MaplePet;
@@ -62,7 +61,6 @@ import constants.skills.Marauder;
 import constants.skills.ThunderBreaker;
 import constants.skills.WindArcher;
 import java.rmi.RemoteException;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -774,7 +772,7 @@ public class MaplePacketCreator {
         for (MapleCharacter chr : chars) {
             addCharEntry(mplew, chr);
         }
-        if (ServerConstants.ENABLE_PIC)
+        if (ServerConstants.ENABLE_PIC) //actually useless, if it's disabled you cannot delete any character f7
         mplew.write(c.getPic() == null || c.getPic().equals("") ? 0 : 1);
         else {
         mplew.write(2);        
@@ -1765,6 +1763,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(chr.getPosition().y);
         mplew.write(chr.getStance());
         mplew.writeShort(chr.getFh());
+        mplew.write(0);
         mplew.write(0);
         if (chr.getMount() == null) {
             mplew.writeInt(1); // mob level
