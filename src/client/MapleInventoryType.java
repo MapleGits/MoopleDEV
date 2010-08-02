@@ -25,9 +25,9 @@ package client;
  * @author Matze
  */
 public enum MapleInventoryType {
-    EQUIPPED(-1),
-    UNDEFINED(0),
-    EQUIP(1),
+    UNDEFINED(-1),
+    EQUIP(0),
+    EQUIPPED(1),
     USE(2),
     SETUP(3),
     ETC(4),

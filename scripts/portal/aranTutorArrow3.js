@@ -22,13 +22,13 @@
 /*
 By kevintjuh93
 */
-function enter(pi) { 	
-    if (pi.getAranIntroState("arr0=o")) {
-	pi.blockPortal();
-	return false;
-    }
-    pi.updateAranIntroState("arr0=o;mo1=o;mo2=o;mo3=o");
-    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialArrow3");   
+function enter(pi) { 
+	if (pi.getAranIntroState("arr3=o")) {
+		pi.blockPortal();
+		return false;
+	}
+	pi.updateAranIntroState("cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o");
+    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialArrow1");   
     pi.blockPortal();   
     return true; 
 }  

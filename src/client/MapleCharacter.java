@@ -259,6 +259,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long lastattack = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     private boolean continueNpc = false;
+    public ArrayList<String> area_data = new ArrayList<String>();
     // event
     private Map<MapleCharacter, Integer> coconutteams = new LinkedHashMap<MapleCharacter, Integer>();
     private MapleFitness fitness;
@@ -1592,7 +1593,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public int getFh() {
-        return getMap().getFootholds().findBelow(getPosition()).getId();
+        if (getMap().getFootholds().findBelow(this.getPosition()) == null)
+            return 0;
+        else
+            return getMap().getFootholds().findBelow(this.getPosition()).getId();
     }
 
     public MapleMap getMap() {
@@ -3831,6 +3835,47 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void continueNpc(boolean yes) {
         this.continueNpc = yes;
     }
+
+
+    public boolean getAranIntroState(String mode) {
+            if (area_data.contains(mode)) {
+                return true;
+            }
+            return false;
+        }
+
+    public void addAreaData(int quest, String data) {
+            if (!this.area_data.contains(data)) {
+                this.area_data.add(data);
+                try {
+                    Connection con = DatabaseConnection.getConnection();
+                    PreparedStatement ps = con.prepareStatement("INSERT INTO char_area_info VALUES (DEFAULT, ?, ?, ?)");
+                    ps.setInt(1, getId());
+                    ps.setInt(2, quest);
+                    ps.setString(3, data);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException ex) {
+                    System.out.println("[AREA DATA] An error has occured.");
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+
+    public void removeAreaData() {
+        this.area_data.clear();
+            try {
+                Connection con = DatabaseConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement("DELETE FROM char_area_info WHERE charid = ?");
+                ps.setInt(1, getId());
+                ps.executeUpdate();
+                ps.close();
+            } catch (SQLException ex) {
+                System.out.println("[AREA DATA] An error has occured.");
+                ex.printStackTrace();
+            }
+        }
 
     //EVENTS
     public int getCoconutTeam(MapleCharacter chr) {

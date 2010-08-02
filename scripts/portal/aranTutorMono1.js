@@ -23,6 +23,12 @@
 By kevintjuh93
 */
 function enter(pi) { 
+	if (pi.getAranIntroState("mo2=o")) {
+		pi.blockPortal();
+		return false;
+	}
+	pi.mapSound("Aran/balloon");
+	pi.updateAranIntroState("mo1=o;mo2=o");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon2");   
     pi.blockPortal();    
     return true; 

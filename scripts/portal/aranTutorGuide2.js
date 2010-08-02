@@ -23,6 +23,11 @@
 By kevintjuh93
 */
 function enter(pi) { 
+	if (pi.getAranIntroState("cmd=o")) {
+		pi.blockPortal();
+		return false;
+	}
+	pi.updateAranIntroState("cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o");
     pi.blockPortal();
     pi.message("You can use a Command Attack by pressing both the arrow key and the attack key after a Consecutive Attack.");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide3");   

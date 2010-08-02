@@ -28,6 +28,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class HealOvertimeHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readInt();
+        slea.readByte();
         short healHP = slea.readShort();
         if (healHP != 0) {
             if (healHP > 140) {
@@ -36,6 +37,7 @@ public final class HealOvertimeHandler extends AbstractMaplePacketHandler {
             c.getPlayer().addHP(healHP);
             c.getPlayer().checkBerserk();
         }
+        slea.readByte();
         short healMP = slea.readShort();
         if (healMP != 0 && healMP < 1000) {
             c.getPlayer().addMP(healMP);

@@ -40,6 +40,7 @@ import java.sql.SQLException;
 import net.world.MapleParty;
 import net.world.MaplePartyCharacter;
 import net.world.guild.MapleGuild;
+import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.maps.MapleMap;
@@ -106,6 +107,11 @@ public class AbstractPlayerInteraction {
 
     public boolean canHold(int itemid) {
         return c.getPlayer().getInventory(MapleItemInformationProvider.getInstance().getInventoryType(itemid)).getNextFreeSlot() > -1;
+    }
+
+    public void openNpc(int npcid) {
+        NPCScriptManager.getInstance().dispose(c);
+        NPCScriptManager.getInstance().start(c, npcid, null, null);
     }
 
     public void updateQuest(int questid, String status) {
@@ -184,6 +190,10 @@ public class AbstractPlayerInteraction {
 
     public void mapEffect(String path) {
        c.getSession().write(MaplePacketCreator.mapEffect(path));
+    }
+
+    public void mapSound(String path) {
+       c.getSession().write(MaplePacketCreator.mapSound(path));
     }
 
     public void showIntro(String path) {
@@ -328,6 +338,23 @@ public class AbstractPlayerInteraction {
 
     public void talkGuide(String message) {
        c.getSession().write(MaplePacketCreator.talkGuide(message)); 
+    }
+
+    public void updateAranIntroState(String mode) {
+       c.getPlayer().addAreaData(21002, mode);
+       c.getSession().write(MaplePacketCreator.updateIntroState(mode, 21002));
+    }
+
+    public void updateAranIntroState2(String mode) {
+       c.getPlayer().addAreaData(21019, mode);
+       c.getSession().write(MaplePacketCreator.updateIntroState(mode, 21019));
+    }
+
+    public boolean getAranIntroState(String mode) {
+       if (c.getPlayer().area_data.contains(mode)) {
+           return true;
+       }
+       return false;
     }
 
     public void saveSquadMembers() {

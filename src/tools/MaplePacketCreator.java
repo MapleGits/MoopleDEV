@@ -1763,7 +1763,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(chr.getPosition().y);
         mplew.write(chr.getStance());
         mplew.writeShort(chr.getFh());
-        mplew.write(0);
+        mplew.write(0); //pets niggs
         mplew.write(0);
         if (chr.getMount() == null) {
             mplew.writeInt(1); // mob level
@@ -1874,7 +1874,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         return mplew.getPacket();
     }
 
-    public static MaplePacket moveMonster(int useskill, int skill, int skill_1, int skill_2, int skill_3, int oid, Point startPos, List<LifeMovementFragment> moves) {
+    public static MaplePacket moveMonster(int useskill, int skill, int skill_1, int skill_2, int skill_3, int skill_4, int oid, Point startPos, List<LifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MOVE_MONSTER.getValue());
         mplew.writeInt(oid);
@@ -1884,7 +1884,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.write(skill_1);
         mplew.write(skill_2);
         mplew.write(skill_3);
-        mplew.write(0); //skill_4
+        mplew.write(skill_4); //skill_4
         mplew.writeShort(startPos.x);
         mplew.writeShort(startPos.y);
         serializeMovementList(mplew, moves);
@@ -3749,6 +3749,14 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         return mplew.getPacket();
     }
 
+    public static MaplePacket mapSound(String path) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MAP_EFFECT.getValue());
+        mplew.write(4);
+        mplew.writeMapleAsciiString(path);
+        return mplew.getPacket();
+    }
+
     public static MaplePacket showGuildInfo(MapleCharacter c) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GUILD_OPERATION.getValue());
@@ -5440,6 +5448,15 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeMapleAsciiString(chr.getFamily().getFamilyName());
         mplew.writeInt(0);
         mplew.writeShort(0);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket updateIntroState(String mode, int quest) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(12);
+        mplew.write(quest);
+        mplew.writeMapleAsciiString(mode);
         return mplew.getPacket();
     }
 

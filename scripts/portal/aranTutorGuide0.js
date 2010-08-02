@@ -23,6 +23,11 @@
 By kevintjuh93
 */
 function enter(pi) { 
+	if (pi.getAranIntroState("normal=o")) {
+		pi.blockPortal();
+		return false;
+	}
+	pi.updateAranIntroState("normal=o;arr0=o;mo1=o;mo2=o;mo3=o");
     pi.blockPortal();
     pi.message("To use a Regular Attack on monsters, press the Ctrl key.");
     pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide1");   

@@ -124,6 +124,16 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/pirate/Scene" + c.getPlayer().getGender()));
     }
 
+
+    public void enterRien() {
+        if (c.getPlayer().getJob().getId() == 2100 && !c.getPlayer().getAranIntroState("ck=1")) {
+            c.getPlayer().addAreaData(21019, "miss=o;arr=o;ck=1;helper=clear");
+            c.getSession().write(MaplePacketCreator.updateIntroState("miss=o;arr=o;ck=1;helper=clear", 21019));
+            c.getSession().write(MaplePacketCreator.lockUI(false));
+            c.getSession().write(MaplePacketCreator.disableUI(false));
+        }
+    }
+
     public void startExplorerIntro() {
         c.getSession().write(MaplePacketCreator.disableUI(true));
 	c.getSession().write(MaplePacketCreator.lockUI(true));

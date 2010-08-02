@@ -50,7 +50,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
         int skill_1 = slea.readByte() & 0xFF;
         byte skill_2 = slea.readByte();
         byte skill_3 = slea.readByte();
-        slea.readByte();
+        byte skill_4 = slea.readByte();
         MobSkill toUse = null;
         if (skillByte == 1 && monster.getNoSkills() > 0) {
             int random = Randomizer.getInstance().nextInt(monster.getNoSkills());
@@ -96,7 +96,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             monster.setControllerKnowsAboutAggro(true);
         }
         if (res != null) {
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.moveMonster(skillByte, skill, skill_1, skill_2, skill_3, objectid, startPos, res), monster.getPosition());
+            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.moveMonster(skillByte, skill, skill_1, skill_2, skill_3, skill_4, objectid, startPos, res), monster.getPosition());
             updatePosition(res, monster, -1);
             c.getPlayer().getMap().moveMonster(monster, monster.getPosition());
         }

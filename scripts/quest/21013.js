@@ -45,7 +45,7 @@ function start(mode, type, selection) {
 		}
 	} else if (status == 2) {
 	qm.forceStartQuest();
-	qm.sendNext("The parts of the gift have been packed inside a box nearby. Sorry to trouble you, but could you break the box and bring me a #bPiece of Bamboo #kand some #bWood#k? I'll assemble them for you right away.", 9);
+	qm.sendNext("The parts of the gift have been packed inside a box nearby. Sorry to trouble you, but could you break the box and bring me a #b#t4032309##k and some #b#t4032310##k? I'll assemble them for you right away.", 9);
     } else if (status == 5) { 
 	qm.displayGuide(18); 
 	qm.dispose();

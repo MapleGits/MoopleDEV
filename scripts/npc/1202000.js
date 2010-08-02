@@ -23,7 +23,7 @@
 var status = -1;
 
 function start() {
-	if (cm.getPlayer().continueNpc()) {
+	if (cm.getAranIntroState("helper=clear")) {
 	status = 5;
 	action(1, 0, 0);
 	} else {
@@ -53,7 +53,7 @@ function action(mode, type, selection) {
 		} else if (status == 5) {
 			cm.showIntro("Effect/Direction1.img/aranTutorial/face");
 			cm.showIntro("Effect/Direction1.img/aranTutorial/ClickLilin");
-			cm.getPlayer().continueNpc(true);
+			cm.updateAranIntroState("helper=clear");
 			cm.dispose();
 		} else if (status == 6) {
 			cm.sendNextPrev("Are you alright?");
