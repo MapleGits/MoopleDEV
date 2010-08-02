@@ -2,18 +2,16 @@
 Navicat MySQL Data Transfer
 
 Source Server         : gms
-Source Server Version : 50144
+Source Server Version : 50089
 Source Host           : localhost:3306
 Source Database       : MoopleDEV
 
 Target Server Type    : MYSQL
-Target Server Version : 50144
+Target Server Version : 50089
 File Encoding         : 65001
 
-Date: 2010-06-18 23:40:00
+Date: 2010-06-23 15:59:43
 */
-
-SET FOREIGN_KEY_CHECKS=0;
 --
 -- Create schema MoopleDEV
 --
@@ -21,32 +19,33 @@ SET FOREIGN_KEY_CHECKS=0;
 CREATE DATABASE IF NOT EXISTS MoopleDEV;
 USE MoopleDEV;
 
+SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for `accounts`
 -- ----------------------------
 DROP TABLE IF EXISTS `accounts`;
 CREATE TABLE `accounts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(13) NOT NULL DEFAULT '',
-  `password` varchar(128) NOT NULL DEFAULT '',
-  `salt` varchar(128) DEFAULT NULL,
-  `pin` varchar(10) DEFAULT NULL,
-  `pic` varchar(26) DEFAULT NULL,
-  `loggedin` tinyint(4) NOT NULL DEFAULT '0',
-  `lastlogin` timestamp NULL DEFAULT NULL,
-  `createdat` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `birthday` date NOT NULL DEFAULT '0000-00-00',
-  `banned` tinyint(1) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(13) NOT NULL default '',
+  `password` varchar(128) NOT NULL default '',
+  `salt` varchar(128) default NULL,
+  `pin` varchar(10) default NULL,
+  `pic` varchar(26) default NULL,
+  `loggedin` tinyint(4) NOT NULL default '0',
+  `lastlogin` timestamp NULL default NULL,
+  `createdat` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `birthday` date NOT NULL default '0000-00-00',
+  `banned` tinyint(1) NOT NULL default '0',
   `banreason` text,
-  `gm` tinyint(1) NOT NULL DEFAULT '0',
+  `gm` tinyint(1) NOT NULL default '0',
   `macs` tinytext,
-  `nxCredit` int(11) DEFAULT NULL,
-  `maplePoint` int(11) DEFAULT NULL,
-  `nxPrepaid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  `nxCredit` int(11) default NULL,
+  `maplePoint` int(11) default NULL,
+  `nxPrepaid` int(11) default NULL,
+  PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of accounts
@@ -57,21 +56,21 @@ CREATE TABLE `accounts` (
 -- ----------------------------
 DROP TABLE IF EXISTS `alliance`;
 CREATE TABLE `alliance` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `name` varchar(13) NOT NULL,
-  `notice` varchar(128) NOT NULL DEFAULT '',
-  `capacity` int(10) unsigned NOT NULL DEFAULT '2',
-  `rank_title1` varchar(45) NOT NULL DEFAULT 'Master',
-  `rank_title2` varchar(45) NOT NULL DEFAULT 'Jr.Master',
-  `rank_title3` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank_title4` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank_title5` varchar(45) NOT NULL DEFAULT 'Member',
-  `guild1` int(10) NOT NULL DEFAULT '-1',
-  `guild2` int(10) NOT NULL DEFAULT '-1',
-  `guild3` int(10) NOT NULL DEFAULT '-1',
-  `guild4` int(10) NOT NULL DEFAULT '-1',
-  `guild5` int(10) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`)
+  `notice` varchar(128) NOT NULL default '',
+  `capacity` int(10) unsigned NOT NULL default '2',
+  `rank_title1` varchar(45) NOT NULL default 'Master',
+  `rank_title2` varchar(45) NOT NULL default 'Jr.Master',
+  `rank_title3` varchar(45) NOT NULL default 'Member',
+  `rank_title4` varchar(45) NOT NULL default 'Member',
+  `rank_title5` varchar(45) NOT NULL default 'Member',
+  `guild1` int(10) NOT NULL default '-1',
+  `guild2` int(10) NOT NULL default '-1',
+  `guild3` int(10) NOT NULL default '-1',
+  `guild4` int(10) NOT NULL default '-1',
+  `guild5` int(10) NOT NULL default '-1',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -83,12 +82,12 @@ CREATE TABLE `alliance` (
 -- ----------------------------
 DROP TABLE IF EXISTS `bbs_replies`;
 CREATE TABLE `bbs_replies` (
-  `replyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `replyid` int(10) unsigned NOT NULL auto_increment,
   `threadid` int(10) unsigned NOT NULL,
   `postercid` int(10) unsigned NOT NULL,
   `timestamp` bigint(20) unsigned NOT NULL,
-  `content` varchar(26) NOT NULL DEFAULT '',
-  PRIMARY KEY (`replyid`)
+  `content` varchar(26) NOT NULL default '',
+  PRIMARY KEY  (`replyid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -100,16 +99,16 @@ CREATE TABLE `bbs_replies` (
 -- ----------------------------
 DROP TABLE IF EXISTS `bbs_threads`;
 CREATE TABLE `bbs_threads` (
-  `threadid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `threadid` int(10) unsigned NOT NULL auto_increment,
   `postercid` int(10) unsigned NOT NULL,
-  `name` varchar(26) NOT NULL DEFAULT '',
+  `name` varchar(26) NOT NULL default '',
   `timestamp` bigint(20) unsigned NOT NULL,
   `icon` smallint(5) unsigned NOT NULL,
-  `replycount` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `replycount` smallint(5) unsigned NOT NULL default '0',
   `startpost` text NOT NULL,
   `guildid` int(10) unsigned NOT NULL,
   `localthreadid` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`threadid`)
+  PRIMARY KEY  (`threadid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -121,12 +120,12 @@ CREATE TABLE `bbs_threads` (
 -- ----------------------------
 DROP TABLE IF EXISTS `buddies`;
 CREATE TABLE `buddies` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `characterid` int(11) NOT NULL,
   `buddyid` int(11) NOT NULL,
-  `pending` tinyint(4) NOT NULL DEFAULT '0',
-  `group` varchar(13) DEFAULT '0',
-  PRIMARY KEY (`id`),
+  `pending` tinyint(4) NOT NULL default '0',
+  `group` varchar(13) default '0',
+  PRIMARY KEY  (`id`),
   KEY `buddies_ibfk_1` (`characterid`),
   CONSTRAINT `buddies_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -140,11 +139,11 @@ CREATE TABLE `buddies` (
 -- ----------------------------
 DROP TABLE IF EXISTS `channelconfig`;
 CREATE TABLE `channelconfig` (
-  `channelconfigid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `channelid` int(10) unsigned NOT NULL DEFAULT '0',
+  `channelconfigid` int(10) unsigned NOT NULL auto_increment,
+  `channelid` int(10) unsigned NOT NULL default '0',
   `name` tinytext NOT NULL,
   `value` tinytext NOT NULL,
-  PRIMARY KEY (`channelconfigid`),
+  PRIMARY KEY  (`channelconfigid`),
   KEY `channelid` (`channelid`),
   CONSTRAINT `channelconfig_ibfk_1` FOREIGN KEY (`channelid`) REFERENCES `channels` (`channelid`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
@@ -177,11 +176,11 @@ INSERT INTO `channelconfig` VALUES ('19', '20', 'channel.net.port', '7604');
 -- ----------------------------
 DROP TABLE IF EXISTS `channels`;
 CREATE TABLE `channels` (
-  `channelid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `world` int(11) NOT NULL DEFAULT '0',
-  `number` int(11) DEFAULT NULL,
-  `key` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`channelid`)
+  `channelid` int(10) unsigned NOT NULL auto_increment,
+  `world` int(11) NOT NULL default '0',
+  `number` int(11) default NULL,
+  `key` varchar(40) NOT NULL default '',
+  PRIMARY KEY  (`channelid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -213,77 +212,74 @@ INSERT INTO `channels` VALUES ('20', '0', '20', '9a071c700e4c051c354817f7e2482d1
 -- ----------------------------
 DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `accountid` int(11) NOT NULL DEFAULT '0',
-  `world` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(13) NOT NULL DEFAULT '',
-  `level` int(11) NOT NULL DEFAULT '0',
-  `exp` int(11) NOT NULL DEFAULT '0',
-  `str` int(11) NOT NULL DEFAULT '0',
-  `dex` int(11) NOT NULL DEFAULT '0',
-  `luk` int(11) NOT NULL DEFAULT '0',
-  `int` int(11) NOT NULL DEFAULT '0',
-  `hp` int(11) NOT NULL DEFAULT '0',
-  `mp` int(11) NOT NULL DEFAULT '0',
-  `maxhp` int(11) NOT NULL DEFAULT '0',
-  `maxmp` int(11) NOT NULL DEFAULT '0',
-  `meso` int(11) NOT NULL DEFAULT '0',
-  `hpMpUsed` int(11) unsigned NOT NULL DEFAULT '0',
-  `job` int(11) NOT NULL DEFAULT '0',
-  `skincolor` int(11) NOT NULL DEFAULT '0',
-  `gender` int(11) NOT NULL DEFAULT '0',
-  `fame` int(11) NOT NULL DEFAULT '0',
-  `hair` int(11) NOT NULL DEFAULT '0',
-  `face` int(11) NOT NULL DEFAULT '0',
-  `ap` int(11) NOT NULL DEFAULT '0',
-  `sp` int(11) NOT NULL DEFAULT '0',
-  `map` int(11) NOT NULL DEFAULT '0',
-  `spawnpoint` int(11) NOT NULL DEFAULT '0',
-  `gm` tinyint(1) NOT NULL DEFAULT '0',
-  `party` int(11) NOT NULL DEFAULT '0',
-  `buddyCapacity` int(11) NOT NULL DEFAULT '25',
-  `createdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `rank` int(10) unsigned NOT NULL DEFAULT '1',
-  `rankMove` int(11) NOT NULL DEFAULT '0',
-  `jobRank` int(10) unsigned NOT NULL DEFAULT '1',
-  `jobRankMove` int(11) NOT NULL DEFAULT '0',
-  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
-  `guildrank` int(10) unsigned NOT NULL DEFAULT '5',
-  `messengerid` int(10) unsigned NOT NULL DEFAULT '0',
-  `messengerposition` int(10) unsigned NOT NULL DEFAULT '4',
-  `reborns` int(11) NOT NULL DEFAULT '0',
-  `mountlevel` int(9) NOT NULL DEFAULT '1',
-  `mountexp` int(9) NOT NULL DEFAULT '0',
-  `mounttiredness` int(9) NOT NULL DEFAULT '0',
-  `omokwins` int(11) NOT NULL DEFAULT '0',
-  `omoklosses` int(11) NOT NULL DEFAULT '0',
-  `omokties` int(11) NOT NULL DEFAULT '0',
-  `matchcardwins` int(11) NOT NULL DEFAULT '0',
-  `matchcardlosses` int(11) NOT NULL DEFAULT '0',
-  `matchcardties` int(11) NOT NULL DEFAULT '0',
-  `MerchantMesos` int(11) DEFAULT '0',
-  `HasMerchant` tinyint(1) DEFAULT '0',
-  `equipslots` int(11) NOT NULL DEFAULT '24',
-  `useslots` int(11) NOT NULL DEFAULT '24',
-  `setupslots` int(11) NOT NULL DEFAULT '24',
-  `etcslots` int(11) NOT NULL DEFAULT '24',
-  `familyId` int(11) NOT NULL DEFAULT '-1',
-  `monsterbookcover` int(11) NOT NULL DEFAULT '0',
-  `cygnuslink` int(11) NOT NULL DEFAULT '0',
-  `watchedcygnusintro` int(11) NOT NULL DEFAULT '0',
-  `allianceRank` int(10) NOT NULL DEFAULT '5',
-  `vanquisherStage` int(11) unsigned NOT NULL DEFAULT '0',
-  `dojoPoints` int(11) unsigned NOT NULL DEFAULT '0',
-  `lastDojoStage` int(10) unsigned NOT NULL DEFAULT '0',
-  `finishedDojoTutorial` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `vanquisherKills` int(11) unsigned NOT NULL DEFAULT '0',
-  `summonValue` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
+  `id` int(11) NOT NULL auto_increment,
+  `accountid` int(11) NOT NULL default '0',
+  `world` int(11) NOT NULL default '0',
+  `name` varchar(13) NOT NULL default '',
+  `level` int(11) NOT NULL default '0',
+  `exp` int(11) NOT NULL default '0',
+  `str` int(11) NOT NULL default '0',
+  `dex` int(11) NOT NULL default '0',
+  `luk` int(11) NOT NULL default '0',
+  `int` int(11) NOT NULL default '0',
+  `hp` int(11) NOT NULL default '0',
+  `mp` int(11) NOT NULL default '0',
+  `maxhp` int(11) NOT NULL default '0',
+  `maxmp` int(11) NOT NULL default '0',
+  `meso` int(11) NOT NULL default '0',
+  `hpMpUsed` int(11) unsigned NOT NULL default '0',
+  `job` int(11) NOT NULL default '0',
+  `skincolor` int(11) NOT NULL default '0',
+  `gender` int(11) NOT NULL default '0',
+  `fame` int(11) NOT NULL default '0',
+  `hair` int(11) NOT NULL default '0',
+  `face` int(11) NOT NULL default '0',
+  `ap` int(11) NOT NULL default '0',
+  `sp` int(11) NOT NULL default '0',
+  `map` int(11) NOT NULL default '0',
+  `spawnpoint` int(11) NOT NULL default '0',
+  `gm` tinyint(1) NOT NULL default '0',
+  `party` int(11) NOT NULL default '0',
+  `buddyCapacity` int(11) NOT NULL default '25',
+  `createdate` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `rank` int(10) unsigned NOT NULL default '1',
+  `rankMove` int(11) NOT NULL default '0',
+  `jobRank` int(10) unsigned NOT NULL default '1',
+  `jobRankMove` int(11) NOT NULL default '0',
+  `guildid` int(10) unsigned NOT NULL default '0',
+  `guildrank` int(10) unsigned NOT NULL default '5',
+  `messengerid` int(10) unsigned NOT NULL default '0',
+  `messengerposition` int(10) unsigned NOT NULL default '4',
+  `mountlevel` int(9) NOT NULL default '1',
+  `mountexp` int(9) NOT NULL default '0',
+  `mounttiredness` int(9) NOT NULL default '0',
+  `omokwins` int(11) NOT NULL default '0',
+  `omoklosses` int(11) NOT NULL default '0',
+  `omokties` int(11) NOT NULL default '0',
+  `matchcardwins` int(11) NOT NULL default '0',
+  `matchcardlosses` int(11) NOT NULL default '0',
+  `matchcardties` int(11) NOT NULL default '0',
+  `MerchantMesos` int(11) default '0',
+  `HasMerchant` tinyint(1) default '0',
+  `equipslots` int(11) NOT NULL default '24',
+  `useslots` int(11) NOT NULL default '24',
+  `setupslots` int(11) NOT NULL default '24',
+  `etcslots` int(11) NOT NULL default '24',
+  `familyId` int(11) NOT NULL default '-1',
+  `monsterbookcover` int(11) NOT NULL default '0',
+  `allianceRank` int(10) NOT NULL default '5',
+  `vanquisherStage` int(11) unsigned NOT NULL default '0',
+  `dojoPoints` int(11) unsigned NOT NULL default '0',
+  `lastDojoStage` int(10) unsigned NOT NULL default '0',
+  `finishedDojoTutorial` tinyint(1) unsigned NOT NULL default '0',
+  `vanquisherKills` int(11) unsigned NOT NULL default '0',
+  `summonValue` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`),
   KEY `accountid` (`accountid`),
   KEY `party` (`party`),
   KEY `ranking1` (`level`,`exp`),
   KEY `ranking2` (`gm`,`job`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 PACK_KEYS=0;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=latin1 PACK_KEYS=0;
 
 -- ----------------------------
 -- Records of characters
@@ -294,12 +290,12 @@ CREATE TABLE `characters` (
 -- ----------------------------
 DROP TABLE IF EXISTS `cooldowns`;
 CREATE TABLE `cooldowns` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `charid` int(11) NOT NULL,
   `SkillID` int(11) NOT NULL,
   `length` bigint(20) unsigned NOT NULL,
   `StartTime` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -311,29 +307,29 @@ CREATE TABLE `cooldowns` (
 -- ----------------------------
 DROP TABLE IF EXISTS `dueyitems`;
 CREATE TABLE `dueyitems` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `PackageId` int(10) unsigned NOT NULL DEFAULT '0',
-  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
-  `quantity` int(10) unsigned NOT NULL DEFAULT '0',
-  `upgradeslots` int(11) DEFAULT '0',
-  `level` int(11) DEFAULT '0',
-  `str` int(11) DEFAULT '0',
-  `dex` int(11) DEFAULT '0',
-  `int` int(11) DEFAULT '0',
-  `luk` int(11) DEFAULT '0',
-  `hp` int(11) DEFAULT '0',
-  `mp` int(11) DEFAULT '0',
-  `watk` int(11) DEFAULT '0',
-  `matk` int(11) DEFAULT '0',
-  `wdef` int(11) DEFAULT '0',
-  `mdef` int(11) DEFAULT '0',
-  `acc` int(11) DEFAULT '0',
-  `avoid` int(11) DEFAULT '0',
-  `hands` int(11) DEFAULT '0',
-  `speed` int(11) DEFAULT '0',
-  `jump` int(11) DEFAULT '0',
-  `owner` varchar(13) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `PackageId` int(10) unsigned NOT NULL default '0',
+  `itemid` int(10) unsigned NOT NULL default '0',
+  `quantity` int(10) unsigned NOT NULL default '0',
+  `upgradeslots` int(11) default '0',
+  `level` int(11) default '0',
+  `str` int(11) default '0',
+  `dex` int(11) default '0',
+  `int` int(11) default '0',
+  `luk` int(11) default '0',
+  `hp` int(11) default '0',
+  `mp` int(11) default '0',
+  `watk` int(11) default '0',
+  `matk` int(11) default '0',
+  `wdef` int(11) default '0',
+  `mdef` int(11) default '0',
+  `acc` int(11) default '0',
+  `avoid` int(11) default '0',
+  `hands` int(11) default '0',
+  `speed` int(11) default '0',
+  `jump` int(11) default '0',
+  `owner` varchar(13) default NULL,
+  PRIMARY KEY  (`id`),
   KEY `PackageId` (`PackageId`),
   CONSTRAINT `dueyitems_ibfk_1` FOREIGN KEY (`PackageId`) REFERENCES `dueypackages` (`PackageId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -347,14 +343,14 @@ CREATE TABLE `dueyitems` (
 -- ----------------------------
 DROP TABLE IF EXISTS `dueypackages`;
 CREATE TABLE `dueypackages` (
-  `PackageId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `PackageId` int(10) unsigned NOT NULL auto_increment,
   `RecieverId` int(10) unsigned NOT NULL,
   `SenderName` varchar(13) NOT NULL,
-  `Mesos` int(10) unsigned DEFAULT '0',
+  `Mesos` int(10) unsigned default '0',
   `TimeStamp` varchar(10) NOT NULL,
-  `Checked` tinyint(1) unsigned DEFAULT '1',
+  `Checked` tinyint(1) unsigned default '1',
   `Type` tinyint(1) unsigned NOT NULL,
-  PRIMARY KEY (`PackageId`)
+  PRIMARY KEY  (`PackageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -366,13 +362,13 @@ CREATE TABLE `dueypackages` (
 -- ----------------------------
 DROP TABLE IF EXISTS `eventstats`;
 CREATE TABLE `eventstats` (
-  `eventstatid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `eventstatid` int(10) unsigned NOT NULL auto_increment,
   `event` varchar(30) NOT NULL,
   `instance` varchar(30) NOT NULL,
   `characterid` int(11) NOT NULL,
   `channel` int(11) NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`eventstatid`)
+  `time` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`eventstatid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -384,11 +380,11 @@ CREATE TABLE `eventstats` (
 -- ----------------------------
 DROP TABLE IF EXISTS `famelog`;
 CREATE TABLE `famelog` (
-  `famelogid` int(11) NOT NULL AUTO_INCREMENT,
-  `characterid` int(11) NOT NULL DEFAULT '0',
-  `characterid_to` int(11) NOT NULL DEFAULT '0',
-  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`famelogid`),
+  `famelogid` int(11) NOT NULL auto_increment,
+  `characterid` int(11) NOT NULL default '0',
+  `characterid_to` int(11) NOT NULL default '0',
+  `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`famelogid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `famelog_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -410,7 +406,7 @@ CREATE TABLE `family_character` (
   `name` varchar(255) NOT NULL,
   `juniorsadded` int(11) NOT NULL,
   `totalreputation` int(11) NOT NULL,
-  PRIMARY KEY (`cid`)
+  PRIMARY KEY  (`cid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -422,12 +418,12 @@ CREATE TABLE `family_character` (
 -- ----------------------------
 DROP TABLE IF EXISTS `gmlog`;
 CREATE TABLE `gmlog` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cid` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL auto_increment,
+  `cid` int(11) NOT NULL default '0',
   `command` tinytext NOT NULL,
-  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=latin1;
+  `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=414 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of gmlog
@@ -438,24 +434,24 @@ CREATE TABLE `gmlog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `guilds`;
 CREATE TABLE `guilds` (
-  `guildid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `leader` int(10) unsigned NOT NULL DEFAULT '0',
-  `GP` int(10) unsigned NOT NULL DEFAULT '0',
-  `logo` int(10) unsigned DEFAULT NULL,
-  `logoColor` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL auto_increment,
+  `leader` int(10) unsigned NOT NULL default '0',
+  `GP` int(10) unsigned NOT NULL default '0',
+  `logo` int(10) unsigned default NULL,
+  `logoColor` smallint(5) unsigned NOT NULL default '0',
   `name` varchar(45) NOT NULL,
-  `rank1title` varchar(45) NOT NULL DEFAULT 'Master',
-  `rank2title` varchar(45) NOT NULL DEFAULT 'Jr. Master',
-  `rank3title` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank4title` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank5title` varchar(45) NOT NULL DEFAULT 'Member',
-  `capacity` int(10) unsigned NOT NULL DEFAULT '10',
-  `logoBG` int(10) unsigned DEFAULT NULL,
-  `logoBGColor` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `notice` varchar(101) DEFAULT NULL,
-  `signature` int(11) NOT NULL DEFAULT '0',
-  `allianceId` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guildid`)
+  `rank1title` varchar(45) NOT NULL default 'Master',
+  `rank2title` varchar(45) NOT NULL default 'Jr. Master',
+  `rank3title` varchar(45) NOT NULL default 'Member',
+  `rank4title` varchar(45) NOT NULL default 'Member',
+  `rank5title` varchar(45) NOT NULL default 'Member',
+  `capacity` int(10) unsigned NOT NULL default '10',
+  `logoBG` int(10) unsigned default NULL,
+  `logoBGColor` smallint(5) unsigned NOT NULL default '0',
+  `notice` varchar(101) default NULL,
+  `signature` int(11) NOT NULL default '0',
+  `allianceId` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -467,30 +463,30 @@ CREATE TABLE `guilds` (
 -- ----------------------------
 DROP TABLE IF EXISTS `hiredmerchant`;
 CREATE TABLE `hiredmerchant` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ownerid` int(11) DEFAULT '0',
-  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
-  `quantity` int(10) unsigned NOT NULL DEFAULT '0',
-  `upgradeslots` int(11) DEFAULT '0',
-  `level` int(11) DEFAULT '0',
-  `str` int(11) DEFAULT '0',
-  `dex` int(11) DEFAULT '0',
-  `int` int(11) DEFAULT '0',
-  `luk` int(11) DEFAULT '0',
-  `hp` int(11) DEFAULT '0',
-  `mp` int(11) DEFAULT '0',
-  `watk` int(11) DEFAULT '0',
-  `matk` int(11) DEFAULT '0',
-  `wdef` int(11) DEFAULT '0',
-  `mdef` int(11) DEFAULT '0',
-  `acc` int(11) DEFAULT '0',
-  `avoid` int(11) DEFAULT '0',
-  `hands` int(11) DEFAULT '0',
-  `speed` int(11) DEFAULT '0',
-  `jump` int(11) DEFAULT '0',
-  `owner` varchar(13) DEFAULT '',
+  `id` int(11) NOT NULL auto_increment,
+  `ownerid` int(11) default '0',
+  `itemid` int(10) unsigned NOT NULL default '0',
+  `quantity` int(10) unsigned NOT NULL default '0',
+  `upgradeslots` int(11) default '0',
+  `level` int(11) default '0',
+  `str` int(11) default '0',
+  `dex` int(11) default '0',
+  `int` int(11) default '0',
+  `luk` int(11) default '0',
+  `hp` int(11) default '0',
+  `mp` int(11) default '0',
+  `watk` int(11) default '0',
+  `matk` int(11) default '0',
+  `wdef` int(11) default '0',
+  `mdef` int(11) default '0',
+  `acc` int(11) default '0',
+  `avoid` int(11) default '0',
+  `hands` int(11) default '0',
+  `speed` int(11) default '0',
+  `jump` int(11) default '0',
+  `owner` varchar(13) default '',
   `type` tinyint(1) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -502,12 +498,12 @@ CREATE TABLE `hiredmerchant` (
 -- ----------------------------
 DROP TABLE IF EXISTS `htsquads`;
 CREATE TABLE `htsquads` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `channel` int(10) unsigned NOT NULL,
-  `leaderid` int(10) unsigned NOT NULL DEFAULT '0',
-  `status` int(10) unsigned NOT NULL DEFAULT '0',
-  `members` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `leaderid` int(10) unsigned NOT NULL default '0',
+  `status` int(10) unsigned NOT NULL default '0',
+  `members` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -521,34 +517,34 @@ INSERT INTO `htsquads` VALUES ('2', '2', '0', '0', '0');
 -- ----------------------------
 DROP TABLE IF EXISTS `inventoryequipment`;
 CREATE TABLE `inventoryequipment` (
-  `inventoryequipmentid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `inventoryitemid` int(10) unsigned NOT NULL DEFAULT '0',
-  `upgradeslots` int(11) NOT NULL DEFAULT '0',
-  `level` int(11) NOT NULL DEFAULT '0',
-  `str` int(11) NOT NULL DEFAULT '0',
-  `dex` int(11) NOT NULL DEFAULT '0',
-  `int` int(11) NOT NULL DEFAULT '0',
-  `luk` int(11) NOT NULL DEFAULT '0',
-  `hp` int(11) NOT NULL DEFAULT '0',
-  `mp` int(11) NOT NULL DEFAULT '0',
-  `watk` int(11) NOT NULL DEFAULT '0',
-  `matk` int(11) NOT NULL DEFAULT '0',
-  `wdef` int(11) NOT NULL DEFAULT '0',
-  `mdef` int(11) NOT NULL DEFAULT '0',
-  `acc` int(11) NOT NULL DEFAULT '0',
-  `avoid` int(11) NOT NULL DEFAULT '0',
-  `hands` int(11) NOT NULL DEFAULT '0',
-  `speed` int(11) NOT NULL DEFAULT '0',
-  `jump` int(11) NOT NULL DEFAULT '0',
-  `ringid` int(11) NOT NULL DEFAULT '-1',
-  `locked` int(11) NOT NULL DEFAULT '0',
-  `vicious` int(11) unsigned NOT NULL DEFAULT '0',
-  `flag` int(11) NOT NULL DEFAULT '0',
-  `itemexp` int(11) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`inventoryequipmentid`),
+  `inventoryequipmentid` int(10) unsigned NOT NULL auto_increment,
+  `inventoryitemid` int(10) unsigned NOT NULL default '0',
+  `upgradeslots` int(11) NOT NULL default '0',
+  `level` int(11) NOT NULL default '0',
+  `str` int(11) NOT NULL default '0',
+  `dex` int(11) NOT NULL default '0',
+  `int` int(11) NOT NULL default '0',
+  `luk` int(11) NOT NULL default '0',
+  `hp` int(11) NOT NULL default '0',
+  `mp` int(11) NOT NULL default '0',
+  `watk` int(11) NOT NULL default '0',
+  `matk` int(11) NOT NULL default '0',
+  `wdef` int(11) NOT NULL default '0',
+  `mdef` int(11) NOT NULL default '0',
+  `acc` int(11) NOT NULL default '0',
+  `avoid` int(11) NOT NULL default '0',
+  `hands` int(11) NOT NULL default '0',
+  `speed` int(11) NOT NULL default '0',
+  `jump` int(11) NOT NULL default '0',
+  `ringid` int(11) NOT NULL default '-1',
+  `locked` int(11) NOT NULL default '0',
+  `vicious` int(11) unsigned NOT NULL default '0',
+  `flag` int(11) NOT NULL default '0',
+  `itemexp` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`inventoryequipmentid`),
   KEY `inventoryitemid` (`inventoryitemid`),
   CONSTRAINT `inventoryequipment_ibfk_1` FOREIGN KEY (`inventoryitemid`) REFERENCES `inventoryitems` (`inventoryitemid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1225 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryequipment
@@ -559,24 +555,25 @@ CREATE TABLE `inventoryequipment` (
 -- ----------------------------
 DROP TABLE IF EXISTS `inventoryitems`;
 CREATE TABLE `inventoryitems` (
-  `inventoryitemid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `type` tinyint(1) NOT NULL,
-  `characterid` int(11) DEFAULT NULL,
-  `accountid` int(11) DEFAULT NULL,
-  `itemid` int(11) NOT NULL DEFAULT '0',
-  `inventorytype` int(11) NOT NULL DEFAULT '0',
-  `position` int(11) NOT NULL DEFAULT '0',
-  `quantity` int(11) NOT NULL DEFAULT '0',
+  `inventoryitemid` int(10) unsigned NOT NULL auto_increment,
+  `type` int(11) NOT NULL default '1',
+  `characterid` int(11) default NULL,
+  `accountid` int(11) default NULL,
+  `itemid` int(11) NOT NULL default '0',
+  `inventorytype` int(11) NOT NULL default '0',
+  `position` int(11) NOT NULL default '0',
+  `quantity` int(11) NOT NULL default '0',
   `owner` tinytext NOT NULL,
-  `petid` int(11) NOT NULL DEFAULT '-1',
-  `expiredate` bigint(20) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`inventoryitemid`),
+  `petid` int(11) NOT NULL default '-1',
+  `expiredate` int(20) NOT NULL default '-1',
+  PRIMARY KEY  (`inventoryitemid`),
   KEY `inventoryitems_ibfk_1` (`characterid`),
   KEY `characterid` (`characterid`),
   KEY `inventorytype` (`inventorytype`),
+  KEY `storageid` (`accountid`),
   KEY `characterid_2` (`characterid`,`inventorytype`),
   CONSTRAINT `inventoryitems_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=458 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1903 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryitems
@@ -587,9 +584,9 @@ CREATE TABLE `inventoryitems` (
 -- ----------------------------
 DROP TABLE IF EXISTS `ipbans`;
 CREATE TABLE `ipbans` (
-  `ipbanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `ip` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`ipbanid`)
+  `ipbanid` int(10) unsigned NOT NULL auto_increment,
+  `ip` varchar(40) NOT NULL default '',
+  PRIMARY KEY  (`ipbanid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -601,15 +598,15 @@ CREATE TABLE `ipbans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `iplog`;
 CREATE TABLE `iplog` (
-  `iplogid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `accountid` int(11) NOT NULL DEFAULT '0',
-  `ip` varchar(30) NOT NULL DEFAULT '',
-  `login` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`iplogid`),
+  `iplogid` int(10) unsigned NOT NULL auto_increment,
+  `accountid` int(11) NOT NULL default '0',
+  `ip` varchar(30) NOT NULL default '',
+  `login` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`iplogid`),
   KEY `accountid` (`accountid`,`ip`),
   KEY `ip` (`ip`),
   CONSTRAINT `iplog_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1357 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1553 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of iplog
@@ -620,15 +617,15 @@ CREATE TABLE `iplog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `keymap`;
 CREATE TABLE `keymap` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `characterid` int(11) NOT NULL DEFAULT '0',
-  `key` int(11) NOT NULL DEFAULT '0',
-  `type` int(11) NOT NULL DEFAULT '0',
-  `action` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
+  `id` int(11) NOT NULL auto_increment,
+  `characterid` int(11) NOT NULL default '0',
+  `key` int(11) NOT NULL default '0',
+  `type` int(11) NOT NULL default '0',
+  `action` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
   KEY `keymap_ibfk_1` (`characterid`),
   CONSTRAINT `keymap_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3472 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12177 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of keymap
@@ -639,10 +636,10 @@ CREATE TABLE `keymap` (
 -- ----------------------------
 DROP TABLE IF EXISTS `loginserver`;
 CREATE TABLE `loginserver` (
-  `loginserverid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(40) NOT NULL DEFAULT '',
-  `world` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`loginserverid`)
+  `loginserverid` int(10) unsigned NOT NULL auto_increment,
+  `key` varchar(40) NOT NULL default '',
+  `world` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`loginserverid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -655,9 +652,9 @@ INSERT INTO `loginserver` VALUES ('1', 'd3703816f23fdee7fce6ba061244736b83c88fc5
 -- ----------------------------
 DROP TABLE IF EXISTS `macbans`;
 CREATE TABLE `macbans` (
-  `macbanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `macbanid` int(10) unsigned NOT NULL auto_increment,
   `mac` varchar(30) NOT NULL,
-  PRIMARY KEY (`macbanid`),
+  PRIMARY KEY  (`macbanid`),
   UNIQUE KEY `mac_2` (`mac`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -670,9 +667,9 @@ CREATE TABLE `macbans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `macfilters`;
 CREATE TABLE `macfilters` (
-  `macfilterid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `macfilterid` int(10) unsigned NOT NULL auto_increment,
   `filter` varchar(30) NOT NULL,
-  PRIMARY KEY (`macfilterid`)
+  PRIMARY KEY  (`macfilterid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -694,7 +691,7 @@ CREATE TABLE `makercreatedata` (
   `catalyst` int(11) NOT NULL,
   `quantity` smallint(6) NOT NULL,
   `tuc` tinyint(3) NOT NULL,
-  PRIMARY KEY (`id`,`itemid`)
+  PRIMARY KEY  (`id`,`itemid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -1539,7 +1536,7 @@ CREATE TABLE `makerrecipedata` (
   `itemid` int(11) NOT NULL,
   `req_item` int(11) NOT NULL,
   `count` smallint(6) NOT NULL,
-  PRIMARY KEY (`itemid`,`req_item`)
+  PRIMARY KEY  (`itemid`,`req_item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3468,8 +3465,8 @@ CREATE TABLE `makerrewarddata` (
   `itemid` int(11) NOT NULL,
   `rewardid` int(11) NOT NULL,
   `quantity` smallint(6) NOT NULL,
-  `prob` tinyint(3) unsigned NOT NULL DEFAULT '100',
-  PRIMARY KEY (`itemid`,`rewardid`)
+  `prob` tinyint(3) unsigned NOT NULL default '100',
+  PRIMARY KEY  (`itemid`,`rewardid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3579,10 +3576,10 @@ INSERT INTO `makerrewarddata` VALUES ('4251402', '4251402', '1', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `marriages`;
 CREATE TABLE `marriages` (
-  `marriageid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `husbandid` int(10) unsigned NOT NULL DEFAULT '0',
-  `wifeid` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`marriageid`)
+  `marriageid` int(10) unsigned NOT NULL auto_increment,
+  `husbandid` int(10) unsigned NOT NULL default '0',
+  `wifeid` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`marriageid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3596,147 +3593,23 @@ DROP TABLE IF EXISTS `monsterbook`;
 CREATE TABLE `monsterbook` (
   `charid` int(11) NOT NULL,
   `cardid` int(11) NOT NULL,
-  `level` int(1) DEFAULT '1'
+  `level` int(1) default '1'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
-INSERT INTO `monsterbook` VALUES ('103', '2388043', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388033', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388032', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388031', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388030', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388029', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388028', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388027', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388026', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388025', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388024', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388023', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388022', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388021', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388020', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388019', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388018', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388017', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388016', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388015', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388014', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388013', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388012', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388011', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388010', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388009', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388008', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388007', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388006', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388005', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388004', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388003', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388002', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388001', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2388000', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2384016', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2383031', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2382021', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2382020', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382019', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382018', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382017', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382016', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382015', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382014', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382013', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382012', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382011', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382010', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382009', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382008', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382007', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382006', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382005', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382004', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382003', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382002', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382001', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2382000', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381038', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381037', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381036', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381035', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381034', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381033', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381032', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381031', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381030', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381029', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381028', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381027', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381026', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381025', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381024', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381023', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381022', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381021', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381020', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381019', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381018', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381017', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381016', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381015', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381014', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381013', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381012', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381011', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381010', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381009', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381008', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381007', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381006', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381005', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381004', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381003', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381002', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381001', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2381000', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380013', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380012', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380011', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380010', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380009', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380008', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380007', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380006', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380005', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380004', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380003', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380002', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380001', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2380000', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2022368', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2022367', '2');
-INSERT INTO `monsterbook` VALUES ('30000', '2022366', '3');
-INSERT INTO `monsterbook` VALUES ('30000', '2022365', '4');
-INSERT INTO `monsterbook` VALUES ('30000', '2022364', '5');
-INSERT INTO `monsterbook` VALUES ('30000', '2022363', '2');
-INSERT INTO `monsterbook` VALUES ('30000', '2022362', '2');
-INSERT INTO `monsterbook` VALUES ('30006', '2380001', '1');
-INSERT INTO `monsterbook` VALUES ('30027', '2380000', '1');
-INSERT INTO `monsterbook` VALUES ('30027', '2381007', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2022361', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2022360', '1');
-INSERT INTO `monsterbook` VALUES ('30000', '2022359', '2');
+INSERT INTO `monsterbook` VALUES ('42', '2380000', '3');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
 -- ----------------------------
 DROP TABLE IF EXISTS `monstercarddata`;
 CREATE TABLE `monstercarddata` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cardid` int(11) NOT NULL DEFAULT '0',
-  `mobid` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`) USING BTREE,
+  `id` int(11) NOT NULL auto_increment,
+  `cardid` int(11) NOT NULL default '0',
+  `mobid` int(11) NOT NULL default '0',
+  PRIMARY KEY  USING BTREE (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=666 DEFAULT CHARSET=latin1;
 
@@ -4117,11 +3990,11 @@ INSERT INTO `monstercarddata` VALUES ('665', '2388066', '9420549');
 -- ----------------------------
 DROP TABLE IF EXISTS `monsterdrops`;
 CREATE TABLE `monsterdrops` (
-  `monsterdropid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `monsterid` int(11) NOT NULL DEFAULT '0',
-  `itemid` int(11) NOT NULL DEFAULT '0',
-  `chance` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`monsterdropid`)
+  `monsterdropid` int(10) unsigned NOT NULL auto_increment,
+  `monsterid` int(11) NOT NULL default '0',
+  `itemid` int(11) NOT NULL default '0',
+  `chance` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`monsterdropid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11346 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15326,10 +15199,10 @@ INSERT INTO `monsterdrops` VALUES ('11345', '9300018', '4031802', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `mts_cart`;
 CREATE TABLE `mts_cart` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `cid` int(11) NOT NULL,
   `itemid` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15341,42 +15214,42 @@ CREATE TABLE `mts_cart` (
 -- ----------------------------
 DROP TABLE IF EXISTS `mts_items`;
 CREATE TABLE `mts_items` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `tab` int(11) NOT NULL DEFAULT '0',
-  `type` int(11) NOT NULL DEFAULT '0',
-  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
-  `quantity` int(11) NOT NULL DEFAULT '1',
-  `seller` int(11) NOT NULL DEFAULT '0',
-  `price` int(11) NOT NULL DEFAULT '0',
-  `bid_incre` int(11) DEFAULT '0',
-  `buy_now` int(11) DEFAULT '0',
-  `position` int(11) DEFAULT '0',
-  `upgradeslots` int(11) DEFAULT '0',
-  `level` int(11) DEFAULT '0',
-  `str` int(11) DEFAULT '0',
-  `dex` int(11) DEFAULT '0',
-  `int` int(11) DEFAULT '0',
-  `luk` int(11) DEFAULT '0',
-  `hp` int(11) DEFAULT '0',
-  `mp` int(11) DEFAULT '0',
-  `watk` int(11) DEFAULT '0',
-  `matk` int(11) DEFAULT '0',
-  `wdef` int(11) DEFAULT '0',
-  `mdef` int(11) DEFAULT '0',
-  `acc` int(11) DEFAULT '0',
-  `avoid` int(11) DEFAULT '0',
-  `hands` int(11) DEFAULT '0',
-  `speed` int(11) DEFAULT '0',
-  `jump` int(11) DEFAULT '0',
-  `locked` int(11) DEFAULT '0',
-  `isequip` int(1) DEFAULT '0',
-  `owner` varchar(16) DEFAULT '',
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `tab` int(11) NOT NULL default '0',
+  `type` int(11) NOT NULL default '0',
+  `itemid` int(10) unsigned NOT NULL default '0',
+  `quantity` int(11) NOT NULL default '1',
+  `seller` int(11) NOT NULL default '0',
+  `price` int(11) NOT NULL default '0',
+  `bid_incre` int(11) default '0',
+  `buy_now` int(11) default '0',
+  `position` int(11) default '0',
+  `upgradeslots` int(11) default '0',
+  `level` int(11) default '0',
+  `str` int(11) default '0',
+  `dex` int(11) default '0',
+  `int` int(11) default '0',
+  `luk` int(11) default '0',
+  `hp` int(11) default '0',
+  `mp` int(11) default '0',
+  `watk` int(11) default '0',
+  `matk` int(11) default '0',
+  `wdef` int(11) default '0',
+  `mdef` int(11) default '0',
+  `acc` int(11) default '0',
+  `avoid` int(11) default '0',
+  `hands` int(11) default '0',
+  `speed` int(11) default '0',
+  `jump` int(11) default '0',
+  `locked` int(11) default '0',
+  `isequip` int(1) default '0',
+  `owner` varchar(16) default '',
   `sellername` varchar(16) NOT NULL,
   `sell_ends` varchar(16) NOT NULL,
-  `transfer` int(2) DEFAULT '0',
-  `vicious` int(2) unsigned NOT NULL DEFAULT '0',
-  `flag` int(2) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `transfer` int(2) default '0',
+  `vicious` int(2) unsigned NOT NULL default '0',
+  `flag` int(2) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15388,12 +15261,12 @@ CREATE TABLE `mts_items` (
 -- ----------------------------
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `to` varchar(13) NOT NULL DEFAULT '',
-  `from` varchar(13) NOT NULL DEFAULT '',
+  `id` int(11) NOT NULL auto_increment,
+  `to` varchar(13) NOT NULL default '',
+  `from` varchar(13) NOT NULL default '',
   `message` text NOT NULL,
   `timestamp` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15406,11 +15279,11 @@ CREATE TABLE `notes` (
 DROP TABLE IF EXISTS `nxcode`;
 CREATE TABLE `nxcode` (
   `code` varchar(15) NOT NULL,
-  `valid` int(11) NOT NULL DEFAULT '1',
-  `user` varchar(13) DEFAULT NULL,
-  `type` int(11) NOT NULL DEFAULT '0',
-  `item` int(11) NOT NULL DEFAULT '10000',
-  PRIMARY KEY (`code`)
+  `valid` int(11) NOT NULL default '1',
+  `user` varchar(13) default NULL,
+  `type` int(11) NOT NULL default '0',
+  `item` int(11) NOT NULL default '10000',
+  PRIMARY KEY  (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15422,13 +15295,13 @@ CREATE TABLE `nxcode` (
 -- ----------------------------
 DROP TABLE IF EXISTS `pets`;
 CREATE TABLE `pets` (
-  `petid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(13) DEFAULT NULL,
+  `petid` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(13) default NULL,
   `level` int(10) unsigned NOT NULL,
   `closeness` int(10) unsigned NOT NULL,
   `fullness` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`petid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`petid`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of pets
@@ -15439,12 +15312,12 @@ CREATE TABLE `pets` (
 -- ----------------------------
 DROP TABLE IF EXISTS `petsaves`;
 CREATE TABLE `petsaves` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `characterid` int(11) NOT NULL,
-  `petid1` int(10) NOT NULL DEFAULT '-1',
-  `petid2` int(10) NOT NULL DEFAULT '-1',
-  `petid3` int(10) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`)
+  `petid1` int(10) NOT NULL default '-1',
+  `petid2` int(10) NOT NULL default '-1',
+  `petid3` int(10) NOT NULL default '-1',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15456,21 +15329,21 @@ CREATE TABLE `petsaves` (
 -- ----------------------------
 DROP TABLE IF EXISTS `playernpcs`;
 CREATE TABLE `playernpcs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `name` varchar(13) NOT NULL,
   `hair` int(11) NOT NULL,
   `face` int(11) NOT NULL,
   `skin` int(11) NOT NULL,
   `x` int(11) NOT NULL,
-  `cy` int(11) NOT NULL DEFAULT '0',
+  `cy` int(11) NOT NULL default '0',
   `map` int(11) NOT NULL,
-  `gender` int(11) NOT NULL DEFAULT '0',
-  `dir` int(11) NOT NULL DEFAULT '0',
-  `ScriptId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Foothold` int(11) NOT NULL DEFAULT '0',
-  `rx0` int(11) NOT NULL DEFAULT '0',
-  `rx1` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`) USING BTREE
+  `gender` int(11) NOT NULL default '0',
+  `dir` int(11) NOT NULL default '0',
+  `ScriptId` int(10) unsigned NOT NULL default '0',
+  `Foothold` int(11) NOT NULL default '0',
+  `rx0` int(11) NOT NULL default '0',
+  `rx1` int(11) NOT NULL default '0',
+  PRIMARY KEY  USING BTREE (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15482,12 +15355,12 @@ CREATE TABLE `playernpcs` (
 -- ----------------------------
 DROP TABLE IF EXISTS `playernpcs_equip`;
 CREATE TABLE `playernpcs_equip` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `NpcId` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL auto_increment,
+  `NpcId` int(11) NOT NULL default '0',
   `equipid` int(11) NOT NULL,
-  `type` int(11) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL default '0',
   `equippos` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15499,11 +15372,11 @@ CREATE TABLE `playernpcs_equip` (
 -- ----------------------------
 DROP TABLE IF EXISTS `questactions`;
 CREATE TABLE `questactions` (
-  `questactionid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `questid` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '0',
+  `questactionid` int(10) unsigned NOT NULL auto_increment,
+  `questid` int(11) NOT NULL default '0',
+  `status` int(11) NOT NULL default '0',
   `data` blob NOT NULL,
-  PRIMARY KEY (`questactionid`)
+  PRIMARY KEY  (`questactionid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15515,11 +15388,11 @@ CREATE TABLE `questactions` (
 -- ----------------------------
 DROP TABLE IF EXISTS `questrequirements`;
 CREATE TABLE `questrequirements` (
-  `questrequirementid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `questid` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '0',
+  `questrequirementid` int(10) unsigned NOT NULL auto_increment,
+  `questid` int(11) NOT NULL default '0',
+  `status` int(11) NOT NULL default '0',
   `data` blob NOT NULL,
-  PRIMARY KEY (`questrequirementid`)
+  PRIMARY KEY  (`questrequirementid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15531,16 +15404,16 @@ CREATE TABLE `questrequirements` (
 -- ----------------------------
 DROP TABLE IF EXISTS `queststatus`;
 CREATE TABLE `queststatus` (
-  `queststatusid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `characterid` int(11) NOT NULL DEFAULT '0',
-  `quest` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) NOT NULL DEFAULT '0',
-  `time` int(11) NOT NULL DEFAULT '0',
-  `forfeited` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`queststatusid`),
+  `queststatusid` int(10) unsigned NOT NULL auto_increment,
+  `characterid` int(11) NOT NULL default '0',
+  `quest` int(11) NOT NULL default '0',
+  `status` int(11) NOT NULL default '0',
+  `time` int(11) NOT NULL default '0',
+  `forfeited` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`queststatusid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `queststatus_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1047 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatus
@@ -15551,14 +15424,14 @@ CREATE TABLE `queststatus` (
 -- ----------------------------
 DROP TABLE IF EXISTS `queststatusmobs`;
 CREATE TABLE `queststatusmobs` (
-  `queststatusmobid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `queststatusid` int(10) unsigned NOT NULL DEFAULT '0',
-  `mob` int(11) NOT NULL DEFAULT '0',
-  `count` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`queststatusmobid`),
+  `queststatusmobid` int(10) unsigned NOT NULL auto_increment,
+  `queststatusid` int(10) unsigned NOT NULL default '0',
+  `mob` int(11) NOT NULL default '0',
+  `count` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`queststatusmobid`),
   KEY `queststatusid` (`queststatusid`),
   CONSTRAINT `queststatusmobs_ibfk_1` FOREIGN KEY (`queststatusid`) REFERENCES `queststatus` (`queststatusid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatusmobs
@@ -15569,25 +15442,25 @@ CREATE TABLE `queststatusmobs` (
 -- ----------------------------
 DROP TABLE IF EXISTS `reactordrops`;
 CREATE TABLE `reactordrops` (
-  `reactordropid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `reactordropid` int(10) unsigned NOT NULL auto_increment,
   `reactorid` int(11) NOT NULL,
   `itemid` int(11) NOT NULL,
   `chance` int(11) NOT NULL,
-  PRIMARY KEY (`reactordropid`),
+  PRIMARY KEY  (`reactordropid`),
   KEY `reactorid` (`reactorid`)
-) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of reactordrops
 -- ----------------------------
-INSERT INTO `reactordrops` VALUES ('1', '2000', '4031161', '1');
-INSERT INTO `reactordrops` VALUES ('2', '2000', '4031162', '1');
-INSERT INTO `reactordrops` VALUES ('3', '2000', '2010009', '2');
-INSERT INTO `reactordrops` VALUES ('4', '2000', '2010000', '4');
-INSERT INTO `reactordrops` VALUES ('5', '2000', '2000000', '4');
-INSERT INTO `reactordrops` VALUES ('6', '2000', '2000001', '7');
-INSERT INTO `reactordrops` VALUES ('7', '2000', '2000002', '10');
-INSERT INTO `reactordrops` VALUES ('8', '2000', '2000003', '15');
+INSERT INTO `reactordrops` VALUES ('1', '2001', '4031161', '1');
+INSERT INTO `reactordrops` VALUES ('2', '2001', '4031162', '1');
+INSERT INTO `reactordrops` VALUES ('3', '2001', '2010009', '2');
+INSERT INTO `reactordrops` VALUES ('4', '2001', '2010000', '4');
+INSERT INTO `reactordrops` VALUES ('5', '2001', '2000000', '4');
+INSERT INTO `reactordrops` VALUES ('6', '2001', '2000001', '7');
+INSERT INTO `reactordrops` VALUES ('7', '2001', '2000002', '10');
+INSERT INTO `reactordrops` VALUES ('8', '2001', '2000003', '15');
 INSERT INTO `reactordrops` VALUES ('9', '1012000', '2000000', '6');
 INSERT INTO `reactordrops` VALUES ('10', '1012000', '4000003', '6');
 INSERT INTO `reactordrops` VALUES ('11', '1012000', '4031150', '3');
@@ -15701,18 +15574,19 @@ INSERT INTO `reactordrops` VALUES ('118', '9102005', '4001098', '50');
 INSERT INTO `reactordrops` VALUES ('119', '9102006', '4001099', '50');
 INSERT INTO `reactordrops` VALUES ('120', '9102007', '4001099', '50');
 INSERT INTO `reactordrops` VALUES ('121', '9102007', '4001100', '50');
+INSERT INTO `reactordrops` VALUES ('122', '1402000', '4032309', '1');
+INSERT INTO `reactordrops` VALUES ('123', '1402000', '4032310', '1');
 
 -- ----------------------------
 -- Table structure for `readable_gmlog`
 -- ----------------------------
 DROP TABLE IF EXISTS `readable_gmlog`;
 CREATE TABLE `readable_gmlog` (
-  `logentryid` int(11) NOT NULL DEFAULT '0',
-  `accountname` varchar(13) DEFAULT NULL,
-  `charname` varchar(13) DEFAULT NULL,
+  `logentryid` int(11) default NULL,
+  `accountname` varchar(13) default NULL,
+  `charname` varchar(13) default NULL,
   `command` tinytext,
-  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`logentryid`)
+  `when` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15724,15 +15598,14 @@ CREATE TABLE `readable_gmlog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `reports`;
 CREATE TABLE `reports` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `reporttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `reporttime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `reporterid` int(11) NOT NULL,
   `victimid` int(11) NOT NULL,
   `reason` tinyint(4) NOT NULL,
-  `description` text NOT NULL,
   `chatlog` text NOT NULL,
-  `status` text,
-  PRIMARY KEY (`id`)
+  `status` text NOT NULL,
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -15746,8 +15619,8 @@ DROP TABLE IF EXISTS `responses`;
 CREATE TABLE `responses` (
   `chat` text,
   `response` text,
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`)
+  `id` int(10) unsigned NOT NULL auto_increment,
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15759,12 +15632,12 @@ CREATE TABLE `responses` (
 -- ----------------------------
 DROP TABLE IF EXISTS `rings`;
 CREATE TABLE `rings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `partnerRingId` int(11) NOT NULL DEFAULT '0',
-  `partnerChrId` int(11) NOT NULL DEFAULT '0',
-  `itemid` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL auto_increment,
+  `partnerRingId` int(11) NOT NULL default '0',
+  `partnerChrId` int(11) NOT NULL default '0',
+  `itemid` int(11) NOT NULL default '0',
   `partnername` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY  USING BTREE (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15776,12 +15649,12 @@ CREATE TABLE `rings` (
 -- ----------------------------
 DROP TABLE IF EXISTS `savedlocations`;
 CREATE TABLE `savedlocations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `characterid` int(11) NOT NULL,
-  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','CYGNUSINTRO','ARIANT','EVENT') NOT NULL,
+  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','EVENT') NOT NULL,
   `map` int(11) NOT NULL,
   `portal` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY  (`id`),
   KEY `savedlocations_ibfk_1` (`characterid`),
   CONSTRAINT `savedlocations_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -15795,12 +15668,12 @@ CREATE TABLE `savedlocations` (
 -- ----------------------------
 DROP TABLE IF EXISTS `shopitems`;
 CREATE TABLE `shopitems` (
-  `shopitemid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `shopitemid` int(10) unsigned NOT NULL auto_increment,
   `shopid` int(10) unsigned NOT NULL,
   `itemid` int(11) NOT NULL,
   `price` int(11) NOT NULL,
   `position` int(11) NOT NULL COMMENT 'sort is an arbitrary field designed to give leeway when modifying shops. The lowest number is 104 and it increments by 4 for each item to allow decent space for swapping/inserting/removing items.',
-  PRIMARY KEY (`shopitemid`)
+  PRIMARY KEY  (`shopitemid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20021 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19233,9 +19106,9 @@ INSERT INTO `shopitems` VALUES ('20020', '1337', '1082149', '1', '54');
 -- ----------------------------
 DROP TABLE IF EXISTS `shops`;
 CREATE TABLE `shops` (
-  `shopid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `npcid` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`shopid`)
+  `shopid` int(10) unsigned NOT NULL auto_increment,
+  `npcid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`shopid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=10000000 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19345,15 +19218,15 @@ INSERT INTO `shops` VALUES ('1337', '11000');
 -- ----------------------------
 DROP TABLE IF EXISTS `skillmacros`;
 CREATE TABLE `skillmacros` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `characterid` int(11) NOT NULL DEFAULT '0',
-  `position` tinyint(1) NOT NULL DEFAULT '0',
-  `skill1` int(11) NOT NULL DEFAULT '0',
-  `skill2` int(11) NOT NULL DEFAULT '0',
-  `skill3` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(13) DEFAULT NULL,
-  `shout` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL auto_increment,
+  `characterid` int(11) NOT NULL default '0',
+  `position` tinyint(1) NOT NULL default '0',
+  `skill1` int(11) NOT NULL default '0',
+  `skill2` int(11) NOT NULL default '0',
+  `skill3` int(11) NOT NULL default '0',
+  `name` varchar(13) default NULL,
+  `shout` tinyint(1) NOT NULL default '0',
+  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19365,15 +19238,15 @@ CREATE TABLE `skillmacros` (
 -- ----------------------------
 DROP TABLE IF EXISTS `skills`;
 CREATE TABLE `skills` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `skillid` int(11) NOT NULL DEFAULT '0',
-  `characterid` int(11) NOT NULL DEFAULT '0',
-  `skilllevel` int(11) NOT NULL DEFAULT '0',
-  `masterlevel` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
+  `id` int(11) NOT NULL auto_increment,
+  `skillid` int(11) NOT NULL default '0',
+  `characterid` int(11) NOT NULL default '0',
+  `skilllevel` int(11) NOT NULL default '0',
+  `masterlevel` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
   KEY `skills_ibfk_1` (`characterid`),
   CONSTRAINT `skills_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of skills
@@ -19384,14 +19257,14 @@ CREATE TABLE `skills` (
 -- ----------------------------
 DROP TABLE IF EXISTS `storages`;
 CREATE TABLE `storages` (
-  `storageid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `accountid` int(11) NOT NULL DEFAULT '0',
-  `slots` int(11) NOT NULL DEFAULT '0',
-  `meso` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`storageid`),
+  `storageid` int(10) unsigned NOT NULL auto_increment,
+  `accountid` int(11) NOT NULL default '0',
+  `slots` int(11) NOT NULL default '0',
+  `meso` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`storageid`),
   KEY `accountid` (`accountid`),
   CONSTRAINT `storages_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of storages
@@ -19402,10 +19275,10 @@ CREATE TABLE `storages` (
 -- ----------------------------
 DROP TABLE IF EXISTS `trocklocations`;
 CREATE TABLE `trocklocations` (
-  `trockid` int(11) NOT NULL AUTO_INCREMENT,
+  `trockid` int(11) NOT NULL auto_increment,
   `characterid` int(11) NOT NULL,
   `mapid` int(11) NOT NULL,
-  PRIMARY KEY (`trockid`)
+  PRIMARY KEY  (`trockid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19417,27 +19290,48 @@ CREATE TABLE `trocklocations` (
 -- ----------------------------
 DROP TABLE IF EXISTS `wishlists`;
 CREATE TABLE `wishlists` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL auto_increment,
   `charid` int(11) NOT NULL,
   `sn` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of wishlists
 -- ----------------------------
+
+--
+-- Definition of table `char_area_info`
+--
+
+DROP TABLE IF EXISTS `char_area_info`;
+CREATE TABLE `char_area_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charid` int(11) NOT NULL,
+  `infoid` int(11) NOT NULL,
+  `area_data` varchar(120) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cid` (`charid`)
+) ENGINE=InnoDB AUTO_INCREMENT=912 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `char_area_info`
+--
+
+/*!40000 ALTER TABLE `char_area_info` DISABLE KEYS */;
+/*!40000 ALTER TABLE `char_area_info` ENABLE KEYS */;
 
 -- ----------------------------
 -- Table structure for `zaksquads`
 -- ----------------------------
 DROP TABLE IF EXISTS `zaksquads`;
 CREATE TABLE `zaksquads` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `channel` int(10) unsigned NOT NULL,
-  `leaderid` int(10) unsigned NOT NULL DEFAULT '0',
-  `status` int(10) unsigned NOT NULL DEFAULT '0',
-  `members` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `leaderid` int(10) unsigned NOT NULL default '0',
+  `status` int(10) unsigned NOT NULL default '0',
+  `members` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
