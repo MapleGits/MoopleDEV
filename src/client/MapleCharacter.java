@@ -255,7 +255,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private static int[] ariantroomslot = new int[3];
     private CashShop cashshop;
     private long portaldelay = 0;
-    private int combocounter = 1;
+    private int combocounter = 0;
     private long lastattack = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     private boolean continueNpc = false;
@@ -810,8 +810,23 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void changeSkillLevel(ISkill skill, int newLevel, int newMasterlevel) {
+        if (newLevel > -1) {
         skills.put(skill, new SkillEntry(newLevel, newMasterlevel));
         this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));
+        } else {
+            skills.remove(skill);
+            this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));               
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement("DELETE FROM skills WHERE skillid = ? AND characterid = ?");
+            ps.setInt(1, skill.getId());
+            ps.setInt(2, id);
+            ps.execute();
+            ps.close();
+        } catch (SQLException ex) {
+            System.out.print("Error deleting skill: " + ex);
+        }                     
+      }
     }
 
     public void changeTab(int tab) {
@@ -1435,6 +1450,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return gender;
     }
 
+    public boolean isMale() {
+        return getGender() == 0;
+    }
     public boolean getGMChat() {
         return whitechat;
     }
@@ -1571,6 +1589,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public int getLuk() {
         return luk;
+    }
+
+    public int getFh() {
+        return getMap().getFootholds().findBelow(getPosition()).getId();
     }
 
     public MapleMap getMap() {
@@ -2044,7 +2066,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return getJobType() == 1;
     }
 
-    public boolean isAran() {
+    public boolean isAran() { //Wrong when Evan comes out
         return getJobType() == 2;
     }
 
@@ -2084,7 +2106,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             remainingAp++;
         }
         remainingAp += 5;
-        if (job == MapleJob.BEGINNER || job == MapleJob.NOBLESSE) {
+        if (job == MapleJob.BEGINNER || job == MapleJob.NOBLESSE || job == MapleJob.LEGEND) {
             maxhp += rand(12, 16);
             maxmp += rand(10, 12);
         } else if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1)) {
@@ -2113,6 +2135,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             improvingMaxHPLevel = getSkillLevel(improvingMaxHP);
             maxhp += rand(22, 28);
             maxmp += rand(18, 23);
+        } else if (job.isA(MapleJob.ARAN1)) {
+            maxhp += rand(44, 48);
+            maxmp += rand(4, 8) + Math.floor(0.1);
         }
         if (improvingMaxHPLevel > 0 && (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.PIRATE) || job.isA(MapleJob.DAWNWARRIOR1))) {
             maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getX();
@@ -2992,60 +3017,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 }
             }
             ps.executeBatch();
-            /*
-            deleteWhereCharacterId(con, "DELETE FROM inventoryitems WHERE characterid = ?");
-            ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, petid, expiredate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            PreparedStatement pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            for (MapleInventory iv : inventory) {
-                ps.setInt(3, iv.getType().getType());
-                for (IItem item : iv.list()) {
-                    ps.setInt(1, id);
-                    ps.setInt(2, item.getItemId());
-                    ps.setInt(4, item.getPosition());
-                    ps.setInt(5, item.getQuantity());
-                    ps.setString(6, item.getOwner());
-                    ps.setInt(7, item.getPetId());
-                    ps.setLong(8, item.getExpiration());
-                    ps.executeUpdate();
-                    ResultSet rs = ps.getGeneratedKeys();
-                    int itemid;
-                    if (rs.next()) {
-                        itemid = rs.getInt(1);
-                    } else {
-                        rs.close();
-                        throw new RuntimeException("Inserting char failed.");
-                    }
-                    if (iv.getType().equals(MapleInventoryType.EQUIP) || iv.getType().equals(MapleInventoryType.EQUIPPED)) {
-                        pse.setInt(1, itemid);
-                        IEquip equip = (IEquip) item;
-                        pse.setInt(2, equip.getUpgradeSlots());
-                        pse.setInt(3, equip.getLevel());
-                        pse.setInt(4, equip.getStr());
-                        pse.setInt(5, equip.getDex());
-                        pse.setInt(6, equip.getInt());
-                        pse.setInt(7, equip.getLuk());
-                        pse.setInt(8, equip.getHp());
-                        pse.setInt(9, equip.getMp());
-                        pse.setInt(10, equip.getWatk());
-                        pse.setInt(11, equip.getMatk());
-                        pse.setInt(12, equip.getWdef());
-                        pse.setInt(13, equip.getMdef());
-                        pse.setInt(14, equip.getAcc());
-                        pse.setInt(15, equip.getAvoid());
-                        pse.setInt(16, equip.getHands());
-                        pse.setInt(17, equip.getSpeed());
-                        pse.setInt(18, equip.getJump());
-                        pse.setInt(19, equip.getRingId());
-                        pse.setInt(20, 0);
-                        pse.setInt(21, equip.getVicious());
-                        pse.setInt(22, item.getFlag());
-                        pse.setInt(23, equip.getItemExp());
-                        pse.executeUpdate();
-                    }
-                    rs.close();
-                }
-            }
-            pse.close(); */
                         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
 	                        for (MapleInventory iv : inventory) {

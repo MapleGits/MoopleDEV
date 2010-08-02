@@ -51,6 +51,7 @@ public interface LittleEndianWriter {
      */
     public void write(int b);
 
+    public void skip(int b);
     /**
      * Writes an integer to the sequence.
      *

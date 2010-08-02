@@ -42,12 +42,12 @@ function start(mode, type, selection) {
 		}
 	}
 	if (status == 0)
-			qm.sendAcceptDecline("Wait, where's the kid? Oh no, he must be stuck in the forest! We need to bring the kid back here before the ark leaves! Aran... please go in there and find the kid for me! I know it's a lot to ask considering you're injured... but you're our only hope!");
+			qm.sendAcceptDecline("Oh, no! I think there's still a child in the forest! Aran, I'm very sorry, but could you rescue the child? I know you're injured, but I don't have anyone else to ask!");
 		else if (status == 1) {
 			qm.forceStartQuest();
-			qm.sendNext("#bThe Child is probably somewhere deep in the forest!#k We have to escape before the Black Mage finds us. You must rush into the forest and bring the child back with you!");
+			qm.sendNext("#bThe Child is probably lost deep inside the forest!#k We have to escape before the Black Mage finds us. You must rush into the forest and bring the child back with you!");
 		} else if (status == 2) {
-			qm.sendNextPrev("Don't panic, Aran. If you wish to check the status of the quest, press #bQ #kand view the Quest window.");
+			qm.sendNextPrev("Don't panic, Aran. If you wish to check the status of the \r\nquest, press #bQ #kand view the Quest window.");
 		} else if (status == 3) {
 			qm.sendNextPrev("Please, Aran! I'm begging you. I can't bear to lose another person to the Black Mage!");
 		} else if (status == 4) {

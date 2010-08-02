@@ -69,7 +69,7 @@ import tools.data.input.LittleEndianAccessor;
 
 public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandler {
     public static class AttackInfo {
-        public int numAttacked, numDamage, numAttackedAndDamage, skill, stance, direction, rangedirection, charge, display;
+        public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, stance, direction, rangedirection, charge, display;
         public List<Pair<Integer, List<Integer>>> allDamage;
         public boolean isHH = false;
         public int speed = 4;
@@ -245,7 +245,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
         }
     }
-    protected AttackInfo parseDamage(LittleEndianAccessor lea, boolean ranged) {
+    protected AttackInfo parseDamage(LittleEndianAccessor lea, MapleCharacter chr, boolean ranged) {
         AttackInfo ret = new AttackInfo();
         lea.readByte();
         ret.numAttackedAndDamage = lea.readByte();
@@ -253,6 +253,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         ret.numDamage = ret.numAttackedAndDamage & 0xF;
         ret.allDamage = new ArrayList<Pair<Integer, List<Integer>>>();
         ret.skill = lea.readInt();
+        if (ret.skill > 0) {
+            ret.skilllevel = chr.getSkillLevel(ret.skill);
+        }
         if (ret.skill == FPArchMage.BIG_BANG || ret.skill == ILArchMage.BIG_BANG || ret.skill == Bishop.BIG_BANG || ret.skill == Gunslinger.GRENADE || ret.skill == Brawler.CORKSCREW_BLOW || ret.skill == ThunderBreaker.CORKSCREW_BLOW || ret.skill == NightWalker.POISON_BOMB) {
             ret.charge = lea.readInt();
         } else {
@@ -261,9 +264,10 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         if (ret.skill == Paladin.HEAVENS_HAMMER) {
             ret.isHH = true;
         }
-        lea.skip(9);
-        ret.stance = lea.readByte(); //maybe a short?
-        ret.direction = lea.readByte(); //v83
+        lea.skip(8);
+        ret.display = lea.readByte();
+        ret.direction = lea.readByte();
+        ret.stance = lea.readByte();
         if (ret.skill == ChiefBandit.MESO_EXPLOSION) {
             if (ret.numAttackedAndDamage == 0) {
                 lea.skip(10);

@@ -46,10 +46,10 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class RangedAttackHandler extends AbstractDealDamageHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        AttackInfo attack = parseDamage(slea, true);
         MapleCharacter player = c.getPlayer();
+        AttackInfo attack = parseDamage(slea, player, true);
         if (attack.skill == Buccaneer.ENERGY_ORB) {
-            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction, attack.display), false);
             applyAttack(attack, player, 1);
         } else {
             IItem weapon = player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
@@ -133,10 +133,10 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                     case 3221001: // Pierce
                     case 5221004: // Rapid Fire
                     case 13111002: // KoC Hurricane
-                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.rangedirection, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction);
+                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.rangedirection, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction, attack.display);
                         break;
                     default:
-                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.stance, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction);
+                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction, attack.display);
                         break;
                 }
                 player.getMap().broadcastMessage(player, packet, false, true);

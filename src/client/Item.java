@@ -78,10 +78,6 @@ public class Item implements IItem {
        public int getCashId() {
 	 if (cashId == 0)
 	      cashId = new Random().nextInt(Integer.MAX_VALUE) + 1;
-	 /* This is not really unique but the chance to have 2 items
-	 * with the same Cash Id is so low that we just don't care.
-	 */
-
 	 return cashId;
 	}
 

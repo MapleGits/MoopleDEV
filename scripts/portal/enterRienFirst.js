@@ -19,7 +19,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-function start(ms) {
-	ms.startExplorerIntro();	   	       
+function enter(pi) {
+	if (!pi.isQuestCompleted(21014))
+		pi.warp(140000000, 1);
+	else
+		pi.warp(140000000, 3);
+	return true;
 }

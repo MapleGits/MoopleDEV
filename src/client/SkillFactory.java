@@ -49,6 +49,7 @@ import constants.skills.Hunter;
 import constants.skills.ILArchMage;
 import constants.skills.ILMage;
 import constants.skills.ILWizard;
+import constants.skills.Legend;
 import constants.skills.Magician;
 import constants.skills.Marauder;
 import constants.skills.Marksman;
@@ -310,6 +311,10 @@ public class SkillFactory {
                 case ThunderBreaker.LIGHTNING_CHARGE:
                 case ThunderBreaker.SPEED_INFUSION:
                 case ThunderBreaker.TRANSFORMATION:
+                case Legend.AGILE_BODY:
+                case Legend.ECHO_OF_HERO:
+                case Legend.RECOVERY:
+                case Legend.MONSTER_RIDER:
                     isBuff = true;
                     break;
             }

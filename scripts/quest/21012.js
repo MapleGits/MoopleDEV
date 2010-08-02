@@ -78,7 +78,7 @@ function end(mode, type, selection) {
         }else
             qm.dropMessage(1,"Your inventory is full");  	
     } else if (status == 2) { 
-	qm.sendOk("#b(Even if you're really the hero everyone says you are... What good are you without any skills?)", 3);
-	qm.dispose();
-    }
+	qm.sendOk("#b(Even if you're really the hero everyone says you are... What good are you without any skills?)", 2);
+	qm.dispose();	
+	}
 }

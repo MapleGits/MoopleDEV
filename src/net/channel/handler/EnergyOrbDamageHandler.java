@@ -27,7 +27,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class EnergyOrbDamageHandler extends AbstractDealDamageHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (c.getPlayer().getEnergyBar() == 15000) {
-            applyAttack(parseDamage(slea, false), c.getPlayer(), 1);
+            applyAttack(parseDamage(slea, c.getPlayer(), false), c.getPlayer(), 1);
         }
     }
 }

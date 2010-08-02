@@ -92,6 +92,11 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
         bos.writeByte((byte) b);
     }
 
+    @Override
+    public void skip(int b) {
+        write(new byte[b]);
+    }
+
     /**
      * Write a short integer to the stream.
      *

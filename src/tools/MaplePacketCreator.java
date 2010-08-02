@@ -777,9 +777,8 @@ public class MaplePacketCreator {
         if (ServerConstants.ENABLE_PIC)
         mplew.write(c.getPic() == null || c.getPic().equals("") ? 0 : 1);
         else {
-        mplew.write(2);
+        mplew.write(2);        
         }
-
         mplew.writeInt(c.getCharacterSlots());
         return mplew.getPacket();
     }
@@ -1310,8 +1309,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(life.getPosition().x);
         mplew.writeShort(life.getPosition().y);
         mplew.write(life.getStance());
-	mplew.writeShort(life.getFh());
-        //mplew.writeShort(0); Makes monster looks like being vacced...
+	mplew.writeShort(0); //Origin FH
         mplew.writeShort(life.getFh());
         if (effect > 0) {
             mplew.write(effect);
@@ -1766,7 +1764,8 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(chr.getPosition().x);
         mplew.writeShort(chr.getPosition().y);
         mplew.write(chr.getStance());
-        mplew.writeInt(0);
+        mplew.writeShort(chr.getFh());
+        mplew.write(0);
         if (chr.getMount() == null) {
             mplew.writeInt(1); // mob level
             mplew.write0(8); // mob exp + tiredness
@@ -1880,12 +1879,13 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MOVE_MONSTER.getValue());
         mplew.writeInt(oid);
+        mplew.write(0);
         mplew.write(useskill);
         mplew.write(skill);
         mplew.write(skill_1);
         mplew.write(skill_2);
         mplew.write(skill_3);
-        mplew.write(0);
+        mplew.write(0); //skill_4
         mplew.writeShort(startPos.x);
         mplew.writeShort(startPos.y);
         serializeMovementList(mplew, moves);
@@ -1907,54 +1907,42 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         return mplew.getPacket();
     }
 
-    public static MaplePacket closeRangeAttack(MapleCharacter chr, int skill, int stance, int numAttackedAndDamage, List<Pair<Integer, List<Integer>>> damage, int speed, int direction) {
+    public static MaplePacket closeRangeAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, List<Pair<Integer, List<Integer>>> damage, int speed, int direction, int display) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CLOSE_RANGE_ATTACK.getValue());
-        if (skill == 4211006) {
-            addMesoExplosion(mplew, chr.getId(), skill, stance, numAttackedAndDamage, 0, damage, speed);
-        } else {
-            addAttackBody(mplew, chr, skill, stance, numAttackedAndDamage, 0, damage, speed, direction);
-        }
+        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, 0, damage, speed, direction, display);
         return mplew.getPacket();
     }
 
-    public static MaplePacket rangedAttack(MapleCharacter chr, int skill, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed, int direction) {
+    public static MaplePacket rangedAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed, int direction, int display) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.RANGED_ATTACK.getValue());
-        addAttackBody(mplew, chr, skill, stance, numAttackedAndDamage, projectile, damage, speed, direction);
+        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, projectile, damage, speed, direction, display);
         mplew.writeInt(0);
         return mplew.getPacket();
     }
 
-    public static MaplePacket magicAttack(MapleCharacter chr, int skill, int stance, int numAttackedAndDamage, List<Pair<Integer, List<Integer>>> damage, int charge, int speed, int direction) {
+    public static MaplePacket magicAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, List<Pair<Integer, List<Integer>>> damage, int charge, int speed, int direction, int display) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MAGIC_ATTACK.getValue());
-        addAttackBody(mplew, chr, skill, stance, numAttackedAndDamage, 0, damage, speed, direction);
+        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, 0, damage, speed, direction, display);
         if (charge != -1) {
             mplew.writeInt(charge);
         }
         return mplew.getPacket();
     }
 
-    private static void addAttackBody(LittleEndianWriter lew, MapleCharacter chr, int skill, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed, int direction) {
+    private static void addAttackBody(LittleEndianWriter lew, MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed, int direction, int display) {
         lew.writeInt(chr.getId());
         lew.write(numAttackedAndDamage);
+        lew.write(0);
+        lew.write(skilllevel);
         if (skill > 0) {
-            lew.write(0x00);
             lew.writeInt(skill);
-            if (chr.getJob().isA(MapleJob.ARAN1) || chr.getJob().equals(MapleJob.LEGEND)) {
-                lew.writeShort(1);
-            } else {
-                lew.writeShort(0);
-            }
-        } else {
-            lew.write(0);
-            lew.writeShort(0);
         }
-        
+        lew.write(display);
         lew.write(stance);
         lew.write(direction);
-        lew.write(0);
         lew.write(speed);
         lew.write(0x0A);
         lew.writeInt(projectile);
@@ -1962,28 +1950,6 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             if (oned.getRight() != null) {
                 lew.writeInt(oned.getLeft().intValue());
                 lew.write(0xFF);
-                for (Integer eachd : oned.getRight()) {
-                    lew.writeInt(eachd.intValue());
-                }
-            }
-        }
-    }
-
-    private static void addMesoExplosion(LittleEndianWriter lew, int cid, int skill, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed) {
-        lew.writeInt(cid);
-        lew.write(numAttackedAndDamage);
-        lew.write(0x1E);
-        lew.writeInt(skill);
-        lew.write(0);
-        lew.write(stance);
-        lew.write(speed);
-        lew.write(0x0A);
-        lew.writeInt(projectile);
-        for (Pair<Integer, List<Integer>> oned : damage) {
-            if (oned.getRight() != null) {
-                lew.writeInt(oned.getLeft().intValue());
-                lew.write(0xFF);
-                lew.write(oned.getRight().size());
                 for (Integer eachd : oned.getRight()) {
                     lew.writeInt(eachd.intValue());
                 }
@@ -2001,6 +1967,8 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(SendOpcode.OPEN_NPC_SHOP.getValue());
         mplew.writeInt(sid);
         mplew.writeShort(items.size()); // item count
+        mplew.writeLong(0); // v83 If I remember correctly: There should be an item ID and then the servers tells the discount :O?
+	mplew.writeInt(0); // v83
         for (MapleShopItem item : items) {
             mplew.writeInt(item.getItemId());
             mplew.writeInt(item.getPrice());
@@ -2994,13 +2962,14 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
         mplew.writeInt(cid); // ?
         if (skillid == Buccaneer.SUPER_TRANSFORMATION || skillid == Marauder.TRANSFORMATION || skillid == WindArcher.EAGLE_EYE || skillid == ThunderBreaker.TRANSFORMATION) {
-            mplew.write(1);
+            mplew.write(1); //Skill level >.>
             mplew.writeInt(skillid);
             mplew.write(direction);
+            mplew.write(1);
         } else {
             mplew.write(effectid); //buff level
             mplew.writeInt(skillid);
-            mplew.write(1);
+            mplew.write(2);
             if (direction != (byte) 3) {
                 mplew.write(direction);
             }
@@ -5312,7 +5281,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         return mplew.getPacket();
     }
 
-    public static void addCashItemInformation(MaplePacketLittleEndianWriter mplew, IItem item, int accountId) {
+    public static void addCashItemInformation(MaplePacketLittleEndianWriter mplew, IItem item, int accountId) {       
         mplew.writeLong(item.getCashId());
         mplew.writeInt(accountId);
         mplew.writeInt(0);
@@ -5321,10 +5290,9 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(item.getQuantity());
         mplew.write(0);
         // 01 20 C4 DD 15 00 00 00 00 38 A9 DD
-        for (int i = 0; i < 12; i++) {
+        mplew.skip(12);
         mplew.write(0);
-        }
-        addExpirationTime(mplew, item.getExpiration(), true);
+        addExpirationTime(mplew, item.getExpiration() == -1 ? 0 : item.getExpiration(), true);
         mplew.writeLong(0);
     }
 
@@ -5337,7 +5305,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     public static MaplePacket enableCSUse1() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
-        mplew.write(0x40); //v75
+        mplew.write(0x4D); //v83
         mplew.writeShort(0);
         return mplew.getPacket();
     }
@@ -5345,17 +5313,17 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     public static MaplePacket enableCSUse2() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
-        mplew.writeShort(0x3e); //v75
+        mplew.writeShort(0x4B); //v83
         mplew.write(0);
         mplew.writeShort(4);
-        mplew.writeShort(3);
+        mplew.writeShort(5);
         return mplew.getPacket();
     }
 
     public static MaplePacket enableCSUse3() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
-        mplew.write(0x42); //v75
+        mplew.write(0x4F); //v83
         mplew.write(new byte[40]);
         return mplew.getPacket();
     }

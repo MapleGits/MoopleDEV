@@ -36,10 +36,7 @@ function action(mode, type, selection) {
     if (status == 0) {
         cm.sendYesNo("Would you like to experience what it's like to be a Thief?");
     } else if (status == 1){
-        cm.showIntro("Effect/Direction3.img/rogue/Scene0");
+        cm.warp(1020400);
         cm.dispose();
-    } else {
-	cm.sendNext("If you wish to experience what it's like to be a Thief, come see me again.");
-	cm.dispose();
     }
 }

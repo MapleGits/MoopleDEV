@@ -28,7 +28,7 @@ function start(mode, type, selection) {
     status++;
     if (mode != 1) {
 	if(type == 1 && mode == 0) {
-		qm.sendOk("Hm... You don't think that would help? Think about it. It could help, you know...");
+		qm.sendNext("I'm sure it will come in handy during your journey. Please, don't decline my offer.");
 		qm.dispose();
 		return;
  	}else{
@@ -41,8 +41,8 @@ function start(mode, type, selection) {
 	qm.sendSimple("Ah, you're the hero. I've been dying to meet you. \r\n#b#L0#(Seems a bit shy...)#l");		
     else if (status == 1) {
 		if (selection == 0) {
-	qm.sendAcceptDecline("I have something I've been wanting to give you as a gift for a very long time... I know you're busy, especially since you're on your way to town, but will you accept my gift?");
-	}
+			qm.sendAcceptDecline("I have something I've been wanting to give you as a gift for a very long time... I know you're busy, especially since you're on your way to town, but will you accept my gift?");
+		}
 	} else if (status == 2) {
 	qm.forceStartQuest();
 	qm.sendNext("The parts of the gift have been packed inside a box nearby. Sorry to trouble you, but could you break the box and bring me a #bPiece of Bamboo #kand some #bWood#k? I'll assemble them for you right away.", 9);
@@ -67,15 +67,15 @@ function end(mode, type, selection) {
     if (status == 0)
 	qm.sendYesNo("Ah, you've brought all the components. Give me a few seconds to assemble them.. Like this.. And like that.. and...\r\n\r\n#fUI/UIWindow.img/QuestIcon/4/0#\r\n#v3010062# 1 #t3010062#\r\n\r\n#fUI/UIWindow.img/QuestIcon/8/0# 95 exp");
     else if (status == 1) {   
-        if(qm.isQuestCompleted(21013))
-            qm.dropMessage(1,"Unknown Error");		
-        else if(qm.canHold(3010062)){
+        if(qm.isQuestCompleted(21013)) {
+            qm.dropMessage(1,"Unknown Error");	
+		}	
+            qm.forceCompleteQuest();		
             qm.gainExp(95);
+			qm.gainItem(4032309, -1);
+			qm.gainItem(4032310, -1);
             qm.gainItem(3010062, 1);
-            qm.forceCompleteQuest();
-	    qm.sendNextPrev("Here, a fully-assembled chair, just for you! I've always wanted to give you a chair as a gift, because I know a hero can occasionally use some good rest. Tee hee.", 9);
-        }else
-            qm.dropMessage(1,"Your inventory is full");  	
+	    qm.sendNextPrev("Here, a fully-assembled chair, just for you! I've always wanted to give you a chair as a gift, because I know a hero can occasionally use some good rest. Tee hee.", 9);	
     } else if (status == 2) { 
 	qm.sendNext("A hero is not invincible. A hero is human. I'm sure you will face challenges and even fatter at times. But you are a hero because you have what it takes to overcome any obstacles you may encounter.", 9);
     } else if (status == 3) { 

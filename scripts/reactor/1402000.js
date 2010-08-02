@@ -19,7 +19,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* 
+ * @Author kevintjuh93
+*/
 
-function start(ms) {
-	ms.startExplorerIntro();	   	       
+function act() {
+    rm.dropItems(true, 2, 8, 15);
 }

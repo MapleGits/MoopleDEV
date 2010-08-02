@@ -49,9 +49,9 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
     }
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        AttackInfo attack = parseDamage(slea, false);
         MapleCharacter player = c.getPlayer();
-        player.getMap().broadcastMessage(player, MaplePacketCreator.closeRangeAttack(player, attack.skill, attack.stance, attack.numAttackedAndDamage, attack.allDamage, attack.speed, attack.direction), false, true);
+        AttackInfo attack = parseDamage(slea, player, false);
+        player.getMap().broadcastMessage(player, MaplePacketCreator.closeRangeAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, attack.allDamage, attack.speed, attack.direction, attack.display), false, true);
         int numFinisherOrbs = 0;
         Integer comboBuff = player.getBuffedValue(MapleBuffStat.COMBO);
         if (isFinisher(attack.skill)) {

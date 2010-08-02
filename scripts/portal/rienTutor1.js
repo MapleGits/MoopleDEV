@@ -23,7 +23,7 @@
 */
 function enter(pi) {
 	if (!pi.isQuestCompleted(21010)) {
-		pi.message("You must complete the quest before proceeding to the next map..");
+		pi.message("You must complete the quest before proceeding to the next map.");
 		return false;
 	}
 	pi.warp(140090200, 1);

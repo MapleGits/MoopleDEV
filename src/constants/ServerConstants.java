@@ -28,8 +28,8 @@ public class ServerConstants {
     public static byte MESO_RATE = 15;
     public static final byte DROP_RATE = 5;
     public static final byte BOSS_DROP_RATE = 2;
-    public static final byte QUEST_EXP_RATE = 12;
-    public static final byte QUEST_MESO_RATE = 7;
+    public static final byte QUEST_EXP_RATE = 4;
+    public static final byte QUEST_MESO_RATE = 3;
     // Login Configuration
     public static final byte FLAG = 3;
     public static final int CHANNEL_NUMBER = 2;

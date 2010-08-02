@@ -33,12 +33,13 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player.getJob().isA(MapleJob.ARAN1) || player.getJob().equals(MapleJob.LEGEND)) {
-            if (System.currentTimeMillis() > player.getLastAttack()) {
-                player.setComboCounter(1);
-            } else 
-             player.setLastAttack(System.currentTimeMillis() + 3000);
+            if (player.getLastAttack() > System.currentTimeMillis() + 3000) {
+                player.setComboCounter(0);
+            } else {
+             player.setLastAttack(System.currentTimeMillis());
              player.setComboCounter(player.getComboCounter() + 1);
             c.getSession().write(MaplePacketCreator.showCombo(player.getComboCounter()));
+            }
         }
     }
 }

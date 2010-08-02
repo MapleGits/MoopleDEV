@@ -36,11 +36,11 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MagicDamageHandler extends AbstractDealDamageHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        AttackInfo attack = parseDamage(slea, false);
         MapleCharacter player = c.getPlayer();
-        MaplePacket packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.stance, attack.numAttackedAndDamage, attack.allDamage, -1, attack.speed, attack.direction);
+        AttackInfo attack = parseDamage(slea, player, false);
+        MaplePacket packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, attack.allDamage, -1, attack.speed, attack.direction, attack.display);
         if (attack.skill == 2121001 || attack.skill == 2221001 || attack.skill == 2321001) {
-            packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.stance, attack.numAttackedAndDamage, attack.allDamage, attack.charge, attack.speed, attack.direction);
+            packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, attack.allDamage, attack.charge, attack.speed, attack.direction, attack.display);
         }
         player.getMap().broadcastMessage(player, packet, false, true);
         MapleStatEffect effect = attack.getAttackEffect(player, null);

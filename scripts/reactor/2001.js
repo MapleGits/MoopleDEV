@@ -19,7 +19,11 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* @Author Lerk Hi :()
+ * 
+ * 2001.js: Maple Island Box - drops various items, notably quest items Old Wooden Board and Rusty Screw
+*/
 
-function start(ms) {
-	ms.startExplorerIntro();	   	       
+function act() {
+    rm.dropItems(true, 2, 8, 15);
 }
