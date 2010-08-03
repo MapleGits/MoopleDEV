@@ -25,12 +25,11 @@ By kevintjuh93
 function enter(pi) {
 	if (pi.getAranIntroState("fin=o")) {
 		pi.blockPortal();
-		return false;
+		return true;
 	}
 	pi.updateAranIntroState("cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o");
     		pi.showIntro("Effect/Direction1.img/aranTutorial/Child");
     		pi.showIntro("Effect/Direction1.img/aranTutorial/ClickChild");
     		pi.blockPortal();
 		return true;    
-	}
 }  

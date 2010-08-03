@@ -342,12 +342,12 @@ public class AbstractPlayerInteraction {
 
     public void updateAranIntroState(String mode) {
        c.getPlayer().addAreaData(21002, mode);
-       c.getSession().write(MaplePacketCreator.updateIntroState(mode, 21002));
+       c.getSession().write(MaplePacketCreator.updateAreaInfo(mode, 21002));
     }
 
     public void updateAranIntroState2(String mode) {
        c.getPlayer().addAreaData(21019, mode);
-       c.getSession().write(MaplePacketCreator.updateIntroState(mode, 21019));
+       c.getSession().write(MaplePacketCreator.updateAreaInfo(mode, 21019));
     }
 
     public boolean getAranIntroState(String mode) {

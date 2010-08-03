@@ -10,8 +10,9 @@ Target Server Type    : MYSQL
 Target Server Version : 50089
 File Encoding         : 65001
 
-Date: 2010-06-23 15:59:43
+Date: 2010-08-03 17:07:14
 */
+
 --
 -- Create schema MoopleDEV
 --
@@ -45,7 +46,7 @@ CREATE TABLE `accounts` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of accounts
@@ -208,6 +209,23 @@ INSERT INTO `channels` VALUES ('19', '0', '19', '51a2bb10ecf4e2e28fe62b405106baa
 INSERT INTO `channels` VALUES ('20', '0', '20', '9a071c700e4c051c354817f7e2482d148380d574');
 
 -- ----------------------------
+-- Table structure for `char_area_info`
+-- ----------------------------
+DROP TABLE IF EXISTS `char_area_info`;
+CREATE TABLE `char_area_info` (
+  `id` int(11) NOT NULL auto_increment,
+  `charid` int(11) NOT NULL,
+  `infoid` int(11) NOT NULL,
+  `area_data` varchar(120) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `cid` (`charid`)
+) ENGINE=InnoDB AUTO_INCREMENT=931 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of char_area_info
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for `characters`
 -- ----------------------------
 DROP TABLE IF EXISTS `characters`;
@@ -279,7 +297,7 @@ CREATE TABLE `characters` (
   KEY `party` (`party`),
   KEY `ranking1` (`level`,`exp`),
   KEY `ranking2` (`gm`,`job`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=latin1 PACK_KEYS=0;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=latin1 PACK_KEYS=0;
 
 -- ----------------------------
 -- Records of characters
@@ -296,7 +314,7 @@ CREATE TABLE `cooldowns` (
   `length` bigint(20) unsigned NOT NULL,
   `StartTime` bigint(20) unsigned NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of cooldowns
@@ -423,7 +441,7 @@ CREATE TABLE `gmlog` (
   `command` tinytext NOT NULL,
   `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=414 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of gmlog
@@ -544,7 +562,7 @@ CREATE TABLE `inventoryequipment` (
   PRIMARY KEY  (`inventoryequipmentid`),
   KEY `inventoryitemid` (`inventoryitemid`),
   CONSTRAINT `inventoryequipment_ibfk_1` FOREIGN KEY (`inventoryitemid`) REFERENCES `inventoryitems` (`inventoryitemid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1225 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1857 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryequipment
@@ -556,7 +574,7 @@ CREATE TABLE `inventoryequipment` (
 DROP TABLE IF EXISTS `inventoryitems`;
 CREATE TABLE `inventoryitems` (
   `inventoryitemid` int(10) unsigned NOT NULL auto_increment,
-  `type` int(11) NOT NULL default '1',
+  `type` tinyint(3) unsigned NOT NULL,
   `characterid` int(11) default NULL,
   `accountid` int(11) default NULL,
   `itemid` int(11) NOT NULL default '0',
@@ -565,15 +583,13 @@ CREATE TABLE `inventoryitems` (
   `quantity` int(11) NOT NULL default '0',
   `owner` tinytext NOT NULL,
   `petid` int(11) NOT NULL default '-1',
-  `expiredate` int(20) NOT NULL default '-1',
+  `expiration` bigint(20) NOT NULL default '-1',
   PRIMARY KEY  (`inventoryitemid`),
-  KEY `inventoryitems_ibfk_1` (`characterid`),
-  KEY `characterid` (`characterid`),
-  KEY `inventorytype` (`inventorytype`),
-  KEY `storageid` (`accountid`),
-  KEY `characterid_2` (`characterid`,`inventorytype`),
-  CONSTRAINT `inventoryitems_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1903 DEFAULT CHARSET=latin1;
+  KEY `FK_inventoryitems_2` (`accountid`),
+  KEY `FK_inventoryitems_1` (`characterid`),
+  CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_inventoryitems_2` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=819 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryitems
@@ -606,7 +622,7 @@ CREATE TABLE `iplog` (
   KEY `accountid` (`accountid`,`ip`),
   KEY `ip` (`ip`),
   CONSTRAINT `iplog_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1553 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1654 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of iplog
@@ -625,7 +641,7 @@ CREATE TABLE `keymap` (
   PRIMARY KEY  (`id`),
   KEY `keymap_ibfk_1` (`characterid`),
   CONSTRAINT `keymap_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12177 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=21463 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of keymap
@@ -3599,7 +3615,6 @@ CREATE TABLE `monsterbook` (
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
-INSERT INTO `monsterbook` VALUES ('42', '2380000', '3');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
@@ -15301,7 +15316,7 @@ CREATE TABLE `pets` (
   `closeness` int(10) unsigned NOT NULL,
   `fullness` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`petid`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of pets
@@ -15413,7 +15428,7 @@ CREATE TABLE `queststatus` (
   PRIMARY KEY  (`queststatusid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `queststatus_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1047 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1696 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatus
@@ -15431,7 +15446,7 @@ CREATE TABLE `queststatusmobs` (
   PRIMARY KEY  (`queststatusmobid`),
   KEY `queststatusid` (`queststatusid`),
   CONSTRAINT `queststatusmobs_ibfk_1` FOREIGN KEY (`queststatusid`) REFERENCES `queststatus` (`queststatusid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatusmobs
@@ -19246,7 +19261,7 @@ CREATE TABLE `skills` (
   PRIMARY KEY  (`id`),
   KEY `skills_ibfk_1` (`characterid`),
   CONSTRAINT `skills_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2913 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of skills
@@ -19299,27 +19314,6 @@ CREATE TABLE `wishlists` (
 -- ----------------------------
 -- Records of wishlists
 -- ----------------------------
-
---
--- Definition of table `char_area_info`
---
-
-DROP TABLE IF EXISTS `char_area_info`;
-CREATE TABLE `char_area_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `charid` int(11) NOT NULL,
-  `infoid` int(11) NOT NULL,
-  `area_data` varchar(120) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `cid` (`charid`)
-) ENGINE=InnoDB AUTO_INCREMENT=912 DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `char_area_info`
---
-
-/*!40000 ALTER TABLE `char_area_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `char_area_info` ENABLE KEYS */;
 
 -- ----------------------------
 -- Table structure for `zaksquads`

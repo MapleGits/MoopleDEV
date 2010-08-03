@@ -1,5 +1,6 @@
 function start(ms) {
-	if (ms.getPlayer().isAran() && !ms.getPlayer().firstTimeRien) {
-	ms.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialArrow3");  
-	} 
+	if (ms.getAranIntroState2("arr=o")) {
+		ms.updateAranIntroState("miss=o;arr=o;helper=clear");
+		ms.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialArrow3");
+	}
 }

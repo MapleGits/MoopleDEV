@@ -5,12 +5,12 @@ function start() {
 
 function action(mode, type, selection) {
     if (mode == -1) {
+	cm.sendNext("Enjoy your trip.");
         cm.dispose();
     } else {
         if (status == 0 && mode == 0) {
-			cm.sendNext("Enjoy your trip.");
-			cm.dispose();
-            return;
+		cm.sendNext("Enjoy your trip.");
+		cm.dispose();
         }
         if (mode == 1)
             status++;
@@ -18,7 +18,7 @@ function action(mode, type, selection) {
             status--;
         if (status == 0) 
 			cm.sendYesNo("Would you like to skip the tutorials and head straight to Lith Harbor?");
-		if (status == 1){
+	else if (status == 1){
 			cm.warp(104000000);
 			cm.dispose();
 		}

@@ -36,7 +36,7 @@ import tools.Pair;
  * @author Flav
  */
 public enum ItemFactory {
-	INVENTORY(1, false), //Maybe type 0 is better? :O
+	INVENTORY(1, false),
 	STORAGE(2, true),
 	CASH_EXPLORER(3, true),
 	CASH_CYGNUS(4, false),

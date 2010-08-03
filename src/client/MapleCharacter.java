@@ -2177,7 +2177,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         hp = maxhp;
         mp = maxmp;
         recalcLocalStats();
-        List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(8);
+        List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(10);
         statup.add(new Pair<MapleStat, Integer>(MapleStat.AVAILABLEAP, remainingAp));
         statup.add(new Pair<MapleStat, Integer>(MapleStat.HP, localmaxhp));
         statup.add(new Pair<MapleStat, Integer>(MapleStat.MP, localmaxmp));
@@ -2185,6 +2185,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         statup.add(new Pair<MapleStat, Integer>(MapleStat.LEVEL, level));
         statup.add(new Pair<MapleStat, Integer>(MapleStat.MAXHP, maxhp));
         statup.add(new Pair<MapleStat, Integer>(MapleStat.MAXMP, maxmp));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.STR, str));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.DEX, dex));
         if (job.getId() % 1000 > 0) {
             remainingSp += 3;
             statup.add(new Pair<MapleStat, Integer>(MapleStat.AVAILABLESP, remainingSp));

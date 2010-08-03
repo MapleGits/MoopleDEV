@@ -128,7 +128,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     public void enterRien() {
         if (c.getPlayer().getJob().getId() == 2100 && !c.getPlayer().getAranIntroState("ck=1")) {
             c.getPlayer().addAreaData(21019, "miss=o;arr=o;ck=1;helper=clear");
-            c.getSession().write(MaplePacketCreator.updateIntroState("miss=o;arr=o;ck=1;helper=clear", 21019));
+            c.getSession().write(MaplePacketCreator.updateAreaInfo("miss=o;arr=o;ck=1;helper=clear", 21019));
             c.getSession().write(MaplePacketCreator.lockUI(false));
             c.getSession().write(MaplePacketCreator.disableUI(false));
         }
@@ -140,7 +140,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
-                c.getPlayer().changeMap(10000);
+                c.getPlayer().changeMap(10000, 4);
             }
         }, 14200);
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene" + c.getPlayer().getGender()));

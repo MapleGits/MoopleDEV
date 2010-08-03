@@ -49,14 +49,15 @@ import tools.Pair;
 
 public class CashShop {
     public static class CashItem {
-        private int sn, itemId, price;
+        private int sn, itemId, price, period;
         private short count;
         private boolean onSale;
 
-        private CashItem(int sn, int itemId, int price, short count, boolean onSale) {
+        private CashItem(int sn, int itemId, int price, int period, short count, boolean onSale) {
             this.sn = sn;
             this.itemId = itemId;
             this.price = price;
+            this.period = period;
             this.count = count;
             this.onSale = onSale;
         }
@@ -95,6 +96,13 @@ public class CashShop {
                 item = new Item(itemId, (byte) 0, count, petId);
 
             item.setSN(sn);
+            if (InventoryConstants.isPet(itemId)) {
+            item.setExpiration(System.currentTimeMillis() + (90 * 24 * 60 * 60 * 1000));    
+            } else {
+            item.setExpiration(System.currentTimeMillis() + (period == 1 ?
+		    System.currentTimeMillis() + (period * 4 * 60 * 60 * 1000) :
+		    System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000)));
+            }
             return item;
         }
     }
@@ -104,16 +112,16 @@ public class CashShop {
         private static Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
 
         static {
-            System.out.println("loading");
             MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));
 
             for (MapleData item : etc.getData("Commodity.img").getChildren()) {
                 int sn = MapleDataTool.getIntConvert("SN", item);
                 int itemId = MapleDataTool.getIntConvert("ItemId", item);
                 int price = MapleDataTool.getIntConvert("Price", item, 0);
+                int period = MapleDataTool.getIntConvert("Price", item, 0);
                 short count = (short) MapleDataTool.getIntConvert("Count", item, 1);
                 boolean onSale = MapleDataTool.getIntConvert("OnSale", item, 0) == 1;
-                items.put(sn, new CashItem(sn, itemId, price, count, onSale));
+                items.put(sn, new CashItem(sn, itemId, price, period, count, onSale));
             }
 
             for (MapleData cashPackage : etc.getData("CashPackage.img").getChildren()) {
