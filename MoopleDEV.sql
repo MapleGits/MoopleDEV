@@ -46,7 +46,7 @@ CREATE TABLE `accounts` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of accounts
@@ -219,7 +219,7 @@ CREATE TABLE `char_area_info` (
   `area_data` varchar(120) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `cid` (`charid`)
-) ENGINE=InnoDB AUTO_INCREMENT=931 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of char_area_info
@@ -297,7 +297,7 @@ CREATE TABLE `characters` (
   KEY `party` (`party`),
   KEY `ranking1` (`level`,`exp`),
   KEY `ranking2` (`gm`,`job`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=latin1 PACK_KEYS=0;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 PACK_KEYS=0;
 
 -- ----------------------------
 -- Records of characters
@@ -314,7 +314,7 @@ CREATE TABLE `cooldowns` (
   `length` bigint(20) unsigned NOT NULL,
   `StartTime` bigint(20) unsigned NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of cooldowns
@@ -432,6 +432,25 @@ CREATE TABLE `family_character` (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for `gifts`
+-- ----------------------------
+DROP TABLE IF EXISTS `gifts`;
+CREATE TABLE `gifts` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `to` int(11) NOT NULL,
+  `from` varchar(13) NOT NULL,
+  `message` tinytext NOT NULL,
+  `sn` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `FK_gifts_1` (`to`),
+  CONSTRAINT `FK_gifts_1` FOREIGN KEY (`to`) REFERENCES `characters` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of gifts
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for `gmlog`
 -- ----------------------------
 DROP TABLE IF EXISTS `gmlog`;
@@ -441,7 +460,7 @@ CREATE TABLE `gmlog` (
   `command` tinytext NOT NULL,
   `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of gmlog
@@ -562,7 +581,7 @@ CREATE TABLE `inventoryequipment` (
   PRIMARY KEY  (`inventoryequipmentid`),
   KEY `inventoryitemid` (`inventoryitemid`),
   CONSTRAINT `inventoryequipment_ibfk_1` FOREIGN KEY (`inventoryitemid`) REFERENCES `inventoryitems` (`inventoryitemid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1857 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=339 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryequipment
@@ -584,12 +603,13 @@ CREATE TABLE `inventoryitems` (
   `owner` tinytext NOT NULL,
   `petid` int(11) NOT NULL default '-1',
   `expiration` bigint(20) NOT NULL default '-1',
+  `giftFrom` varchar(26) NOT NULL,
   PRIMARY KEY  (`inventoryitemid`),
   KEY `FK_inventoryitems_2` (`accountid`),
   KEY `FK_inventoryitems_1` (`characterid`),
   CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_inventoryitems_2` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=819 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=403 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryitems
@@ -622,7 +642,7 @@ CREATE TABLE `iplog` (
   KEY `accountid` (`accountid`,`ip`),
   KEY `ip` (`ip`),
   CONSTRAINT `iplog_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1654 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of iplog
@@ -641,7 +661,7 @@ CREATE TABLE `keymap` (
   PRIMARY KEY  (`id`),
   KEY `keymap_ibfk_1` (`characterid`),
   CONSTRAINT `keymap_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21463 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2731 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of keymap
@@ -15316,7 +15336,7 @@ CREATE TABLE `pets` (
   `closeness` int(10) unsigned NOT NULL,
   `fullness` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`petid`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of pets
@@ -15428,7 +15448,7 @@ CREATE TABLE `queststatus` (
   PRIMARY KEY  (`queststatusid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `queststatus_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1696 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatus
@@ -15446,7 +15466,7 @@ CREATE TABLE `queststatusmobs` (
   PRIMARY KEY  (`queststatusmobid`),
   KEY `queststatusid` (`queststatusid`),
   CONSTRAINT `queststatusmobs_ibfk_1` FOREIGN KEY (`queststatusid`) REFERENCES `queststatus` (`queststatusid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatusmobs
@@ -19261,7 +19281,7 @@ CREATE TABLE `skills` (
   PRIMARY KEY  (`id`),
   KEY `skills_ibfk_1` (`characterid`),
   CONSTRAINT `skills_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2913 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of skills
@@ -19279,7 +19299,7 @@ CREATE TABLE `storages` (
   PRIMARY KEY  (`storageid`),
   KEY `accountid` (`accountid`),
   CONSTRAINT `storages_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of storages

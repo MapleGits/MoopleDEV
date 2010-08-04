@@ -58,7 +58,7 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         c.getPlayer().getMap().removePlayer(c.getPlayer());
        // c.getSession().write(MaplePacketCreator.warpCS(c, true));
         c.getPlayer().setInMTS(true);
-        c.getSession().write(MaplePacketCreator.enableCSUse0());
+        c.getSession().write(MaplePacketCreator.enableCSUse());
         c.getSession().write(MaplePacketCreator.MTSWantedListingOver(0, 0));
         c.getSession().write(MaplePacketCreator.showMTSCash(c.getPlayer()));
         List<MTSItemInfo> items = new ArrayList<MTSItemInfo>();

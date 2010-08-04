@@ -80,6 +80,8 @@ public class Equip extends Item implements IEquip {
         ret.log = new LinkedList<String>(log);
         ret.setOwner(getOwner());
         ret.setQuantity(getQuantity());
+	ret.setExpiration(getExpiration());
+	ret.setGiftFrom(getGiftFrom());
         return ret;
     }
 

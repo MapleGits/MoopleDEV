@@ -83,9 +83,7 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
         } else {
             //c.getSession().write(MaplePacketCreator.wrongCouponCode());
         }
-        c.getSession().write(MaplePacketCreator.enableCSUse0());
-        c.getSession().write(MaplePacketCreator.enableCSUse1());
-        c.getSession().write(MaplePacketCreator.enableCSUse2());
+        c.getSession().write(MaplePacketCreator.enableCSUse());
     }
 
     private int getNXCode(String code, String type) {

@@ -35,6 +35,7 @@ public class Item implements IItem {
     protected List<String> log;
     private byte flag;
     private long expiration = -1;
+    private String giftFrom = "";
 
     public Item(int id, byte position, short quantity) {
         this.id = id;
@@ -136,7 +137,7 @@ public class Item implements IItem {
         this.flag = b;
     }
 
-    @Override
+ 
     public long getExpiration() {
         return expiration;
     }
@@ -145,14 +146,22 @@ public class Item implements IItem {
         this.expiration = expire;
     }
 
-    @Override
+
     public int getSN() {
         return sn;
     }
     
-    @Override
+
     public void setSN(int sn) {
         this.sn = sn;
+    }
+
+    public String getGiftFrom() {
+	return giftFrom;
+    }
+
+    public void setGiftFrom(String giftFrom) {
+	this.giftFrom = giftFrom;
     }
 
 }

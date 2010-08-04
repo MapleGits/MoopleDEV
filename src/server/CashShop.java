@@ -96,12 +96,12 @@ public class CashShop {
                 item = new Item(itemId, (byte) 0, count, petId);
 
             item.setSN(sn);
-            if (InventoryConstants.isPet(itemId)) {
+            if (petId > -1) {
             item.setExpiration(System.currentTimeMillis() + (90 * 24 * 60 * 60 * 1000));    
             } else {
-            item.setExpiration(System.currentTimeMillis() + (period == 1 ?
+            item.setExpiration(period == 1 ?
 		    System.currentTimeMillis() + (period * 4 * 60 * 60 * 1000) :
-		    System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000)));
+		    System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000));
             }
             return item;
         }
@@ -118,7 +118,7 @@ public class CashShop {
                 int sn = MapleDataTool.getIntConvert("SN", item);
                 int itemId = MapleDataTool.getIntConvert("ItemId", item);
                 int price = MapleDataTool.getIntConvert("Price", item, 0);
-                int period = MapleDataTool.getIntConvert("Price", item, 0);
+                int period = MapleDataTool.getIntConvert("Period", item, 0);
                 short count = (short) MapleDataTool.getIntConvert("Count", item, 1);
                 boolean onSale = MapleDataTool.getIntConvert("OnSale", item, 0) == 1;
                 items.put(sn, new CashItem(sn, itemId, price, period, count, onSale));
@@ -138,14 +138,18 @@ public class CashShop {
             return items.get(sn);
         }
 
-        public static List<IItem> getPackage(int itemId) {
+	public static List<IItem> getPackage(int itemId) {
             List<IItem> cashPackage = new ArrayList<IItem>();
 
             for (int sn : packages.get(itemId))
-                cashPackage.add(getItem(sn).toItem());
+		cashPackage.add(getItem(sn).toItem());
 
-            return cashPackage;
-        }
+		return cashPackage;
+	}
+
+	public static boolean isPackage(int itemId) {
+		return packages.containsKey(itemId);
+	}
     }
 
 
@@ -233,13 +237,13 @@ public class CashShop {
         return inventory;
     }
 
-    public IItem findByCashId(long cashId) {
-        for (IItem item : inventory) {
-            if (item.getCashId() == cashId)
-                return item;
-        }
+    public IItem findByCashId(int cashId) {
+	for (IItem item : inventory) {
+		if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
+                    return item;
+	}
 
-        return null;
+	return null;
     }
 
     public void addToInventory(IItem item) {
@@ -261,6 +265,58 @@ public class CashShop {
     public void addToWishList(int sn) {
         wishList.add(sn);
     }
+
+	public void gift(int recipient, String from, String message, int sn) {
+		try {
+			PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?)");
+			ps.setInt(1, recipient);
+			ps.setString(2, from);
+			ps.setString(3, message);
+			ps.setInt(4, sn);
+			ps.executeUpdate();
+			ps.close();
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+		}
+	}
+
+	public List<Pair<IItem, String>> loadGifts() {
+		List<Pair<IItem, String>> gifts = new ArrayList<Pair<IItem, String>>();
+		Connection con = DatabaseConnection.getConnection();
+
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM `gifts` WHERE `to` = ?");
+			ps.setInt(1, characterId);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
+				IItem item = cItem.toItem();
+				item.setGiftFrom(rs.getString("from"));
+				gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
+
+				if (CashItemFactory.isPackage(cItem.getItemId())) {
+					for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
+						packageItem.setGiftFrom(rs.getString("from"));
+						addToInventory(packageItem);
+					}
+				} else {
+					addToInventory(item);
+				}
+			}
+
+			rs.close();
+			ps.close();
+			ps = con.prepareStatement("DELETE FROM `gifts` WHERE `to` = ?");
+			ps.setInt(1, characterId);
+			ps.executeUpdate();
+			ps.close();
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+		}
+
+		return gifts;
+	}
 
     public void save() throws SQLException {
         Connection con = DatabaseConnection.getConnection();

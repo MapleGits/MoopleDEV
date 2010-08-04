@@ -99,10 +99,14 @@ public enum ItemFactory {
                             equip.setUpgradeSlots((byte) rs.getInt("upgradeslots"));
                             equip.setLevel((byte) rs.getInt("level"));
                             equip.setItemExp(rs.getInt("itemexp"));
+                            equip.setExpiration(rs.getLong("expiration"));
+                            equip.setGiftFrom(rs.getString("giftFrom"));
 				items.add(new Pair<IItem, MapleInventoryType>(equip, mit));
 			} else {
                             Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getInt("petid"));
                             item.setOwner(rs.getString("owner"));
+                            item.setExpiration(rs.getLong("expiration"));
+                            item.setGiftFrom(rs.getString("giftFrom"));
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
 		}
@@ -124,7 +128,7 @@ public enum ItemFactory {
 		ps.setInt(2, id);
 		ps.executeUpdate();
 		ps.close();
-		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 		for (Pair<IItem, MapleInventoryType> pair : items) {
@@ -140,6 +144,7 @@ public enum ItemFactory {
 			ps.setString(8, item.getOwner());
 			ps.setInt(9, item.getPetId());
 			ps.setLong(10, item.getExpiration());
+                        ps.setString(11, item.getGiftFrom());
 			ps.executeUpdate();
 
 			if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {

@@ -41,4 +41,7 @@ public interface IItem extends Comparable<IItem> {
     void setExpiration(long expiration);
     void setSN(int sn);
     int getSN();
+    String getGiftFrom();
+    void setGiftFrom(String giftFrom);
+
 }

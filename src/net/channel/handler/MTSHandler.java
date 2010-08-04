@@ -202,10 +202,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                     c.getPlayer().gainMeso(-5000, false);
                     c.getSession().write(MaplePacketCreator.MTSConfirmSell());
                     c.getSession().write(getMTS(1, 0, 0));
-                    c.getSession().write(MaplePacketCreator.enableCSUse0());
-                    c.getSession().write(MaplePacketCreator.enableCSUse1());
-                    c.getSession().write(MaplePacketCreator.enableCSUse2());
-                    c.getSession().write(MaplePacketCreator.enableCSUse3());
+                    c.getSession().write(MaplePacketCreator.enableCSUse());
                     c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
                     c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
                 }
@@ -231,7 +228,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                 }
                 c.getPlayer().changeTab(tab);
                 c.getPlayer().changeType(type);
-                c.getSession().write(MaplePacketCreator.enableCSUse0());
+                c.getSession().write(MaplePacketCreator.enableCSUse());
                 c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
                 c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
             } else if (op == 6) { //search
@@ -244,7 +241,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().changeTab(tab);
                 c.getPlayer().changeType(type);
                 c.getPlayer().changeCI(ci);
-                c.getSession().write(MaplePacketCreator.enableCSUse0());
+                c.getSession().write(MaplePacketCreator.enableCSUse());
                 c.getSession().write(MaplePacketCreator.enableActions());
                 c.getSession().write(getMTSSearch(tab, type, ci, search, c.getPlayer().getCurrentPage()));
                 c.getSession().write(MaplePacketCreator.showMTSCash(c.getPlayer()));
@@ -266,7 +263,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                c.getSession().write(MaplePacketCreator.enableCSUse0());
+                c.getSession().write(MaplePacketCreator.enableCSUse());
                 c.getSession().write(getMTS(c.getPlayer().getCurrentTab(), c.getPlayer().getCurrentType(), c.getPlayer().getCurrentPage()));
                 c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
                 c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
@@ -319,7 +316,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                         pse.executeUpdate();
                         pse.close();
                         MapleInventoryManipulator.addFromDrop(c, i, false);
-                        c.getSession().write(MaplePacketCreator.enableCSUse0());
+                        c.getSession().write(MaplePacketCreator.enableCSUse());
                         c.getSession().write(getCart(c.getPlayer().getId()));
                         c.getSession().write(getMTS(c.getPlayer().getCurrentTab(), c.getPlayer().getCurrentType(), c.getPlayer().getCurrentPage()));
                         c.getSession().write(MaplePacketCreator.MTSConfirmTransfer(i.getQuantity(), i.getPosition()));
@@ -357,7 +354,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                     e.printStackTrace();
                 }
                 c.getSession().write(getMTS(c.getPlayer().getCurrentTab(), c.getPlayer().getCurrentType(), c.getPlayer().getCurrentPage()));
-                c.getSession().write(MaplePacketCreator.enableCSUse0());
+                c.getSession().write(MaplePacketCreator.enableCSUse());
                 c.getSession().write(MaplePacketCreator.enableActions());
                 c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
                 c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
@@ -374,7 +371,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                     e.printStackTrace();
                 }
                 c.getSession().write(getCart(c.getPlayer().getId()));
-                c.getSession().write(MaplePacketCreator.enableCSUse0());
+                c.getSession().write(MaplePacketCreator.enableCSUse());
                 c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
                 c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
             } else if (op == 12) { //put item up for auction
@@ -424,7 +421,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                             pse.executeUpdate();
                             pse.close();
                             c.getPlayer().getCashShop().gainCash(4, -price);
-                            c.getSession().write(MaplePacketCreator.enableCSUse0());
+                            c.getSession().write(MaplePacketCreator.enableCSUse());
                             c.getSession().write(getMTS(c.getPlayer().getCurrentTab(), c.getPlayer().getCurrentType(), c.getPlayer().getCurrentPage()));
                             c.getSession().write(MaplePacketCreator.MTSConfirmBuy());
                             c.getSession().write(MaplePacketCreator.showMTSCash(c.getPlayer()));
@@ -482,7 +479,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                             pse.close();
                             c.getPlayer().getCashShop().gainCash(4, -price);
                             c.getSession().write(getCart(c.getPlayer().getId()));
-                            c.getSession().write(MaplePacketCreator.enableCSUse0());
+                            c.getSession().write(MaplePacketCreator.enableCSUse());
                             c.getSession().write(MaplePacketCreator.MTSConfirmBuy());
                             c.getSession().write(MaplePacketCreator.showMTSCash(c.getPlayer()));
                             c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));

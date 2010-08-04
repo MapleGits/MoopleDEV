@@ -1279,6 +1279,36 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return buddylist;
     }
 
+	public static Map<String, String> getCharacterFromDatabase(String name) {
+		Map<String, String> character = new LinkedHashMap<String, String>();
+
+		try {
+			PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT `id`, `accountid`, `name` FROM `characters` WHERE `name` = ?");
+			ps.setString(1, name);
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
+			}
+
+			for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++)
+				character.put(rs.getMetaData().getColumnLabel(i), rs.getString(i));
+
+			rs.close();
+			ps.close();
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+		}
+
+		return character;
+	}
+
+	public static boolean isInUse(String name) {
+		return getCharacterFromDatabase(name) != null;
+	}
+
     public Long getBuffedStarttime(MapleBuffStat effect) {
         MapleBuffStatValueHolder mbsvh = effects.get(effect);
         if (mbsvh == null) {
