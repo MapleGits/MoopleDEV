@@ -31,7 +31,7 @@ public enum MapleInventoryType {
     SETUP(3),
     ETC(4),
     CASH(5),
-    EQUIPPED(-1);
+    EQUIPPED(-1); //Seems nexon screwed something when removing an item T_T
     final byte type;
 
     private MapleInventoryType(int type) {

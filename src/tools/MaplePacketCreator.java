@@ -2012,7 +2012,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(fromDrop ? 1 : 0);
         mplew.write(HexTool.getByteArrayFromHexString("01 00")); // add mode
-        mplew.write(type.getType()); // iv type
+        mplew.write(type.equals(MapleInventoryType.EQUIPPED) ? 1 : type.getType()); // iv type
         mplew.write(item.getPosition()); // slot id
         addItemInfo(mplew, item, true, false);
         return mplew.getPacket();
@@ -2031,11 +2031,19 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             mplew.write(0);
         }
         mplew.write(HexTool.getByteArrayFromHexString("01 01")); // update
-        mplew.write(type.getType()); // iv type
+        mplew.write(type.equals(MapleInventoryType.EQUIPPED) ? 1 : type.getType()); // iv type
         mplew.write(item.getPosition()); // slot id
         mplew.write(0); // ?
         mplew.writeShort(item.getQuantity());
         return mplew.getPacket();
+    }
+
+    public static MaplePacket updateInventorySlotLimit(int type, int newLimit) {
+	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.UPDATE_INVENTORY_SLOTS.getValue());
+	mplew.write(type);
+	mplew.write(newLimit);
+	return mplew.getPacket();
     }
 
     public static MaplePacket moveInventoryItem(MapleInventoryType type, byte src, byte dst) {
@@ -2088,7 +2096,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(fromDrop ? 1 : 0);
         mplew.write(HexTool.getByteArrayFromHexString("01 03"));
-        mplew.write(type.getType()); // iv type
+        mplew.write(type.equals(MapleInventoryType.EQUIPPED) ? 1 : type.getType()); // iv type
         mplew.writeShort(slot);
         if (!fromDrop) mplew.write(2);
         return mplew.getPacket();

@@ -70,7 +70,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
 			}
                         cs.gainCash(useNX, -cItem.getPrice());
                         c.getSession().write(MaplePacketCreator.showCash(chr));
-        } else if (action == 4) {
+        } else if (action == 0x04) {
             int birthday = slea.readInt();
             CashItem cItem = CashItemFactory.getItem(slea.readInt());
             Map<String, String> recipient = MapleCharacter.getCharacterFromDatabase(slea.readMapleAsciiString());
@@ -117,6 +117,61 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
                 showCS(c);
             }
+		} else if (action == 0x06) { // Increase Inventory Slots
+			slea.skip(1);
+			int cash = slea.readInt();
+			byte mode = slea.readByte();
+
+			if (mode == 0) {
+				byte type = slea.readByte();
+
+				if (cs.getCash(cash) < 4000)
+					return;
+
+				if (chr.gainSlots(type, 4, false)) {
+					c.getSession().write(MaplePacketCreator.showBoughtInventorySlots(type, chr.getSlots(type)));
+					cs.gainCash(cash, -4000);
+					c.getSession().write(MaplePacketCreator.showCash(chr));
+				}
+			} else {
+				CashItem cItem = CashItemFactory.getItem(slea.readInt());
+				int type = (cItem.getItemId() - 9110000) / 1000;
+
+				if (!canBuy(cItem, cs.getCash(cash)))
+					return;
+
+				if (chr.gainSlots(type, 8, false)) {
+					c.getSession().write(MaplePacketCreator.showBoughtInventorySlots(type, chr.getSlots(type)));
+					cs.gainCash(cash, -cItem.getPrice());
+					c.getSession().write(MaplePacketCreator.showCash(chr));
+				}
+			}
+		} else if (action == 0x07) { // Increase Storage Slots
+			slea.skip(1);
+			int cash = slea.readInt();
+			byte mode = slea.readByte();
+
+			if (mode == 0) {
+				if (cs.getCash(cash) < 4000)
+					return;
+
+				if (chr.getStorage().gainSlots(4)) {
+					c.getSession().write(MaplePacketCreator.showBoughtStorageSlots(chr.getStorage().getSlots()));
+					cs.gainCash(cash, -4000);
+					c.getSession().write(MaplePacketCreator.showCash(chr));
+				}
+			} else {
+				CashItem cItem = CashItemFactory.getItem(slea.readInt());
+
+				if (!canBuy(cItem, cs.getCash(cash)))
+					return;
+
+				if (chr.getStorage().gainSlots(8)) {
+					c.getSession().write(MaplePacketCreator.showBoughtStorageSlots(chr.getStorage().getSlots()));
+					cs.gainCash(cash, -cItem.getPrice());
+					c.getSession().write(MaplePacketCreator.showCash(chr));
+				}
+			}
     		} else if (action == 0x0D) { // Take from Cash Inventory
 			IItem item = cs.findByCashId(slea.readInt());
 

@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import client.IEquip;
 import client.IItem;
 import client.ItemFactory;
 import client.MapleClient;
@@ -97,14 +96,20 @@ public class MapleStorage {
         return ret;
     }
 
-    public int getSlots() {
-        return slots;
+    public byte getSlots() {
+	return slots;
     }
 
-    public void gainSlots(byte gain) {
-        setSlots((byte) (gain + getSlots()));
-    }
+    public boolean gainSlots(int slots) {
+	slots += this.slots;
 
+	if (slots <= 48) {
+            this.slots = (byte) slots;
+            return true;
+	}
+
+	return false;
+    }
     public void setSlots(byte set) {
         this.slots = set;
     }

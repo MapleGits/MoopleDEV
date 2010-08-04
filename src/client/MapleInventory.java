@@ -22,10 +22,6 @@
 package client;
 
 import constants.InventoryConstants;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,9 +29,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import server.MapleItemInformationProvider;
-import tools.DatabaseConnection;
-import tools.MaplePacketCreator;
 
 /**
  *
@@ -43,95 +36,13 @@ import tools.MaplePacketCreator;
  */
 public class MapleInventory implements Iterable<IItem> {
     private Map<Byte, IItem> inventory = new LinkedHashMap<Byte, IItem>();
-    private byte slotLimit = 96;
+    private byte slotLimit;
     private MapleInventoryType type;
 
-    public MapleInventory(MapleInventoryType type) {
+    public MapleInventory(MapleInventoryType type, byte slotLimit) {
         this.inventory = new LinkedHashMap<Byte, IItem>();
         this.type = type;
-    }
-
-    public void loadInventory(MapleCharacter player) throws SQLException {
-        loadInventory(player, (byte) (player.gmLevel() > 0 ? 96 : 24));
-    }
-
-    public void loadInventory(MapleCharacter player, byte slots) throws SQLException {
-        this.slotLimit = slots;
-        Connection con = DatabaseConnection.getConnection();
-        PreparedStatement ps;
-        if (isEquipInventory()) {
-            ps = con.prepareStatement("SELECT * FROM inventoryitems LEFT JOIN inventoryequipment USING (inventoryitemid) WHERE characterid = ? AND inventorytype = ?");
-        } else {
-            ps = con.prepareStatement("SELECT * FROM inventoryitems WHERE characterid = ? AND inventorytype = ?");
-        }
-        ps.setInt(1, player.getId());
-        ps.setInt(2, type.getType()); // Yes kill me, we're loading each invent separately
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            long currenttime = System.currentTimeMillis();
-            long expiration = rs.getLong("expiredate");
-            Item toAdd;
-            if (isEquipInventory()) {
-                int itemid = rs.getInt("itemid");
-                int ringId = rs.getInt("ringid");
-                if (ringId > 0 && type.equals(MapleInventoryType.EQUIPPED)) {
-                    MapleRing ring = MapleRing.loadFromDb(ringId);
-                    if (ring != null) {
-                        if (itemid >= 1112001 && itemid <= 1112006) {
-                            player.addCrushRing(ring);
-                        } else if (itemid >= 1112800 && itemid <= 1112802) {
-                            player.addFriendshipRing(ring);
-                        } else if (itemid >= 1112803 && itemid <= 1112807 || itemid == 1112809) {
-                            player.addMarriageRing(ring);
-                        }
-                    }
-                }
-                Equip equip = new Equip(itemid, (byte) rs.getInt("position"), rs.getInt("ringid"));
-                equip.setOwner(rs.getString("owner"));
-                equip.setQuantity((short) rs.getInt("quantity"));
-                equip.setAcc((short) rs.getInt("acc"));
-                equip.setAvoid((short) rs.getInt("avoid"));
-                equip.setDex((short) rs.getInt("dex"));
-                equip.setHands((short) rs.getInt("hands"));
-                equip.setHp((short) rs.getInt("hp"));
-                equip.setInt((short) rs.getInt("int"));
-                equip.setJump((short) rs.getInt("jump"));
-                equip.setVicious((short) rs.getInt("vicious"));
-                equip.setFlag((byte) rs.getInt("flag"));
-                equip.setLuk((short) rs.getInt("luk"));
-                equip.setMatk((short) rs.getInt("matk"));
-                equip.setMdef((short) rs.getInt("mdef"));
-                equip.setMp((short) rs.getInt("mp"));
-                equip.setSpeed((short) rs.getInt("speed"));
-                equip.setStr((short) rs.getInt("str"));
-                equip.setWatk((short) rs.getInt("watk"));
-                equip.setWdef((short) rs.getInt("wdef"));
-                equip.setUpgradeSlots((byte) rs.getInt("upgradeslots"));
-                equip.setLevel((byte) rs.getInt("level"));
-                equip.setItemExp(rs.getInt("itemexp"));
-                toAdd = equip;
-            } else {
-                Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getInt("petid"));
-                item.setOwner(rs.getString("owner"));
-                toAdd = item;
-            }
-            if (expiration != -1) {
-                if (currenttime < expiration) {
-                    toAdd.setExpiration(expiration);
-                } else {
-                    // can't we send the expireditem packet ?
-                    player.getClient().getSession().write(MaplePacketCreator.serverNotice(5, MapleItemInformationProvider.getInstance().getName(toAdd.getItemId()) + " has expired from your inventory."));
-                    continue;
-                }
-            }
-            addFromDB(toAdd);
-        }
-        rs.close();
-        ps.close();
-    }
-
-    public void saveInventory(MapleCharacter player) throws SQLException {
-        // cbfff...
+        this.slotLimit = slotLimit;
     }
 
     public boolean isExtendableInventory() { // not sure about cash, basing this on the previous one.
@@ -143,14 +54,11 @@ public class MapleInventory implements Iterable<IItem> {
     }
 
     public byte getSlotLimit() {
-        return slotLimit;
+	return slotLimit;
     }
 
-    public void increaseSlotLimit(byte amount) {
-        if (!isExtendableInventory()) {
-            throw new RuntimeException("Extending a non extendable inventory."); // might need to unstuck people :|
-        }
-        slotLimit += amount;
+    public void setSlotLimit(int newLimit) {
+	slotLimit = (byte) newLimit;
     }
 
     public IItem findById(int itemId) {
@@ -298,12 +206,16 @@ public class MapleInventory implements Iterable<IItem> {
         return Collections.unmodifiableCollection(inventory.values()).iterator();
     }
 
-        public IItem findByCashId(int cashId) {
-	      for (IItem item : inventory.values()) {
-	           if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
-	                return item;
-	           }
+    public Collection<MapleInventory> allInventories() {
+	return Collections.singletonList(this);
+    }
 
-	      return null;
-	}
+    public IItem findByCashId(int cashId) {
+	for (IItem item : inventory.values()) {
+            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
+                 return item;
+            }
+
+	return null;
+    }
 }

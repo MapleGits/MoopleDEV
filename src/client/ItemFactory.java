@@ -109,7 +109,7 @@ public enum ItemFactory {
                             item.setGiftFrom(rs.getString("giftFrom"));
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
-		}
+            }
 
 		rs.close();
 		ps.close();

@@ -71,7 +71,6 @@ function action(mode, type, selection) {
 			cm.sendNextPrev("I've said too much. It's okay if you don't really understand everything I just told you. You'll get it eventually. For now, #byou should head to town#k. I'll stay by your side and help you until you get there.");
 		} else if (status == 13) {
 			cm.warp(140090100);
-			cm.getPlayer().continueNpc(false);
 			cm.spawnGuide();
 			cm.dispose();
 		}		

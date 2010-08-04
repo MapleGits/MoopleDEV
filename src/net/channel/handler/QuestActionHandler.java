@@ -51,7 +51,7 @@ public final class QuestActionHandler extends AbstractMaplePacketHandler {
             MapleQuest.getInstance(quest).start(player, npc);
         } else if (action == 2) { // Complete Quest
             int npc = slea.readInt();
-            slea.readInt();
+            slea.readShort(); //Short?
             if (slea.available() >= 4) {
                 int selection = slea.readInt();
                 MapleQuest.getInstance(quest).complete(player, npc, selection);
