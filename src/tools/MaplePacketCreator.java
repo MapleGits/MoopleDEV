@@ -15,7 +15,6 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -1978,11 +1977,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeShort(SendOpcode.OPEN_NPC_SHOP.getValue());
         mplew.writeInt(sid);
         mplew.writeShort(items.size()); // item count
-        mplew.writeLong(0); // v83 If I remember correctly: There should be an item ID and then the servers tells the discount :O?
-	mplew.writeInt(0); // v83
         for (MapleShopItem item : items) {
             mplew.writeInt(item.getItemId());
             mplew.writeInt(item.getPrice());
+            mplew.writeLong(0); // v83 If I remember correctly: There should be an item ID and then the servers tells the discount :O?
+            mplew.writeInt(0); // v83
             if (!InventoryConstants.isRechargable(item.getItemId())) {
                 mplew.writeShort(1); // stacksize o.o
                 mplew.writeShort(item.getBuyable());
