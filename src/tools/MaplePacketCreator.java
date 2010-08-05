@@ -1273,7 +1273,7 @@ public class MaplePacketCreator {
      * @param effect The spawn effect to use.
      * @return The spawn/control packet.
      */
-private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean requestController, boolean newSpawn, boolean aggro, int effect, boolean makeInvis) {
+    private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean requestController, boolean newSpawn, boolean aggro, int effect, boolean makeInvis) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (makeInvis) {
             mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
@@ -1292,28 +1292,26 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             mplew.writeShort(SendOpcode.SPAWN_MONSTER.getValue());
         }
         mplew.writeInt(life.getObjectId());
-        mplew.write(5); // ????!? either 5 or 1?
+        mplew.write(life.getController() == null ? 5 : 1);
         mplew.writeInt(life.getId());
         mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
         mplew.writeShort(life.getPosition().x);
         mplew.writeShort(life.getPosition().y);
         mplew.write(life.getStance());
-	mplew.writeShort(0); //Origin FH
+	mplew.writeShort(life.getStartFh()); //Origin FH
         mplew.writeShort(life.getFh());
         if (effect > 0) {
             mplew.write(effect);
             mplew.write(0);
             mplew.writeShort(0);
+            if (effect == 15) {
+                mplew.write(0);
+            }
         }
         if (newSpawn) {
             mplew.writeShort(-2);
         } else {
-            if (effect > 0) {
-                mplew.write(0);
-                mplew.write(-1);
-            } else {
-                mplew.writeShort(-1);
-            }
+            mplew.writeShort(-1);
         }
         mplew.writeInt(0);
         return mplew.getPacket();
@@ -1333,7 +1331,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeInt(life.getObjectId());
         mplew.write(5);
         mplew.writeInt(life.getId());
-        mplew.writeInt(0);
+        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
         mplew.writeShort(life.getPosition().x);
         mplew.writeShort(life.getPosition().y);
         mplew.write(life.getStance());
@@ -1980,8 +1978,8 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         for (MapleShopItem item : items) {
             mplew.writeInt(item.getItemId());
             mplew.writeInt(item.getPrice());
-            mplew.writeLong(0); // v83 If I remember correctly: There should be an item ID and then the servers tells the discount :O?
-            mplew.writeInt(0); // v83
+            mplew.writeLong(0);
+            mplew.writeInt(0); 
             if (!InventoryConstants.isRechargable(item.getItemId())) {
                 mplew.writeShort(1); // stacksize o.o
                 mplew.writeShort(item.getBuyable());
@@ -2381,8 +2379,25 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeInt(chr.getMonsterBook().getSpecialCard());
         mplew.writeInt(chr.getMonsterBook().getTotalCards());
         mplew.writeInt(chr.getMonsterBookCover() > 0 ? MapleItemInformationProvider.getInstance().getCardMobId(chr.getMonsterBookCover()) : 0);
-        mplew.writeInt(0); // something with medals
-        mplew.writeShort(0); // something with medals
+        IItem medal = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -49);
+        if (medal != null) {
+            mplew.writeInt(medal.getItemId());
+        } else {
+            mplew.writeInt(0);
+        }
+        ArrayList<Integer> medalQuests = new ArrayList<Integer>();
+        List<MapleQuestStatus> completed = chr.getCompletedQuests();
+        for (MapleQuestStatus q : completed) {
+            if ((q.getQuest().getId() >= 29900) && (q.getQuest().getId() <= 29923)) {
+                medalQuests.add((Integer) q.getQuest().getId());
+            }
+        }
+
+        Collections.sort(medalQuests);
+        mplew.writeShort(medalQuests.size());
+        for (Integer i : medalQuests) {
+            mplew.writeShort(i);
+        }
         return mplew.getPacket();
     }
 
@@ -2401,13 +2416,22 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
         long mask = getLongMask(statups);
-        if (bufflength % 10000000 != 1004 && bufflength != 5221006) {
+        boolean isFirst = false;
+        for (Pair<MapleBuffStat, Integer> statup : statups) {
+            if (statup.getLeft().isFirst()) {
+                isFirst = true;
+                break;
+            }
+        }
+        if (isFirst) {
+            mplew.writeLong(mask);
             mplew.writeLong(0);
+        } else if (bufflength % 10000000 != 1004 && bufflength != 5221006) { //Maybe change to isRiderSkill or w/e :)
+            mplew.writeLong(0);
+            mplew.writeLong(mask);
         } else {
             mplew.writeInt(0);
-        }
-        mplew.writeLong(mask);
-        if (bufflength % 10000000 == 1004 || bufflength == 5221006) {
+            mplew.writeLong(mask);
             mplew.writeInt(0);
         }
         for (Pair<MapleBuffStat, Integer> statup : statups) {
@@ -2493,7 +2517,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeInt(0); //Server Tick value.
         mplew.writeShort(0);
         mplew.write(0);
-        mplew.write(1); //Times you have been buffed
+        mplew.write(0); //Times you have been buffed
         return mplew.getPacket();
     }
 
@@ -2674,15 +2698,18 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CANCEL_BUFF.getValue());
         long mask = getLongMaskFromList(statups);
-        long mask2 = 42949673024L;
-        if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.DASH.getValue() || mask == mask2) {
-            mplew.writeInt(0);
+        if (!isFirstLong(statups)) {
+            if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.BATTLESHIP.getValue()) {
+                mplew.writeInt(0);
+                mplew.writeLong(mask);
+                mplew.writeInt(0);
+            } else {
+                mplew.writeLong(0);
+                mplew.writeLong(mask);
+            }
         } else {
+            mplew.writeLong(mask);
             mplew.writeLong(0);
-        }
-        mplew.writeLong(mask);
-        if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.DASH.getValue() || mask == mask2) {
-            mplew.writeInt(0);
         }
         mplew.write(mask == MapleBuffStat.DASH.getValue() ? 4 : 3);
         return mplew.getPacket();
@@ -2695,6 +2722,15 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         mplew.writeLong(getLongMaskFromListD(statups));
         mplew.write(0);
         return mplew.getPacket();
+    }
+
+    private static boolean isFirstLong(List<MapleBuffStat> statups) {
+        for (MapleBuffStat stat : statups) {
+            if (stat.isFirst()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static MaplePacket getPlayerShopChat(MapleCharacter c, String chat, boolean owner) {
@@ -3422,7 +3458,7 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     public static MaplePacket applyMonsterStatus(int oid, Map<MonsterStatus, Integer> stats, int skill, boolean monsterSkill, int delay) {
         return applyMonsterStatus(oid, stats, skill, monsterSkill, delay, null);
     }
-
+    //F2 00 80 01 00 00 00 10 00 00 82 00 6E 00 05 00 00 00 00 00 01 < crash xD
     public static MaplePacket applyMonsterStatusTest(int oid, int mask, int delay, MobSkill mobskill, int value) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
@@ -3454,6 +3490,8 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
         mplew.writeInt(oid);
+        mplew.writeLong(0);
+        mplew.writeInt(0);
         int mask = 0;
         for (MonsterStatus stat : stats.keySet()) {
             mask |= stat.getValue();
@@ -3467,10 +3505,11 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
             } else {
                 mplew.writeInt(skill);
             }
-            mplew.writeShort(0); // as this looks similar to giveBuff this
+            mplew.writeShort(-1); // as this looks similar to giveBuff this
         }
         mplew.writeShort(delay); // delay in ms
-        mplew.write(1); // ?
+        mplew.writeInt(0);
+        //mplew.write(stats.size()); // ?
         return mplew.getPacket();
     }
 
@@ -3478,6 +3517,8 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CANCEL_MONSTER_STATUS.getValue());
         mplew.writeInt(oid);
+        mplew.writeLong(0);
+        mplew.writeInt(0);
         int mask = 0;
         for (MonsterStatus stat : stats.keySet()) {
             mask |= stat.getValue();
@@ -4970,19 +5011,17 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveSpeedInfusion(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
+public static MaplePacket giveSpeedInfusion(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        long mask = getLongMask(statups);
-        mplew.writeLong(mask);
-        mplew.writeLong(0);
-        mplew.writeShort(0);
+        mplew.writeLong(getLongMask(statups));
+        mplew.write0(10);
         mplew.writeInt(statups.get(0).getRight().intValue());
         mplew.writeInt(buffid);
-        mplew.writeLong(0);
-        mplew.writeShort(0);
+        mplew.write0(10);
         mplew.writeShort(bufflength);
-        mplew.writeShort(0);
+        mplew.write(0x58);
+        mplew.write(0x02);
         return mplew.getPacket();
     }
 
@@ -5417,13 +5456,15 @@ private static MaplePacket spawnMonsterInternal(MapleMonster life, boolean reque
     public static MaplePacket giveEnergyCharge(int barammount) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        mplew.writeInt(0);
-        mplew.writeLong(MapleBuffStat.ENERGY_CHARGE.getValue()); //energy charge buffstat
-        mplew.writeShort(0);
-        mplew.writeInt(0);
-        mplew.writeShort(barammount); // 0=no bar, 10000=full bar
-        mplew.writeShort(0);
+        long mask = 0;
+        mask |= MapleBuffStat.ENERGY_CHARGE.getValue();
+        mplew.writeLong(mask);
         mplew.writeLong(0);
+        mplew.writeShort(0);
+        mplew.writeShort(barammount); // 0 = no bar, 10000 = full bar
+        mplew.writeLong(0);
+        mplew.writeInt(0);
+        mplew.writeShort(0);
         mplew.write(0);
         mplew.writeInt(50);
         return mplew.getPacket();

@@ -44,6 +44,7 @@ import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.InventoryConstants;
+import constants.skills.Aran;
 import constants.skills.Assassin;
 import constants.skills.Bandit;
 import constants.skills.Beginner;
@@ -219,7 +220,7 @@ public class MapleStatEffect implements Serializable {
                 // BEGINNER
                 case Beginner.RECOVERY:
                 case Noblesse.RECOVERY:
-                    case Legend.RECOVERY:
+                case Legend.RECOVERY:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.RECOVERY, Integer.valueOf(x)));
                     break;
                 case Beginner.ECHO_OF_HERO:
@@ -238,6 +239,7 @@ public class MapleStatEffect implements Serializable {
                     break;
                 case Beginner.INVINCIBLE_BARRIER:
                 case Noblesse.INVINCIBLE_BARRIER:
+                case Legend.INVICIBLE_BARRIER:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DIVINE_BODY, Integer.valueOf(1)));
                     break;
                 case Fighter.POWER_GUARD:
@@ -358,8 +360,6 @@ public class MapleStatEffect implements Serializable {
                 // PIRATE
                 case Pirate.DASH:
                 case ThunderBreaker.DASH:
-//                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, Integer.valueOf(x)));
-//                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH2, Integer.valueOf(ret.y)));
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPEED, Integer.valueOf(ret.x)));
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.JUMP, Integer.valueOf(ret.y)));
                     break;
@@ -375,6 +375,9 @@ public class MapleStatEffect implements Serializable {
                 case Corsair.BATTLE_SHIP:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MONSTER_RIDING, Integer.valueOf(sourceid)));
                     break;
+                case ThunderBreaker.SPARK:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPARK, Integer.valueOf(x)));
+                    break;
                 // GM
                 case GM.HIDE:
                 case SuperGM.HIDE:
@@ -383,6 +386,7 @@ public class MapleStatEffect implements Serializable {
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, Integer.valueOf(x)));
                     break;
                 // MULTIPLE
+                case Aran.POLEARM_BOOSTER:
                 case Fighter.AXE_BOOSTER:
                 case Fighter.SWORD_BOOSTER:
                 case Page.BW_BOOSTER:
@@ -416,6 +420,7 @@ public class MapleStatEffect implements Serializable {
                 case Shadower.MAPLE_WARRIOR:
                 case Corsair.MAPLE_WARRIOR:
                 case Buccaneer.MAPLE_WARRIOR:
+                case Aran.MAPLE_WARRIOR:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MAPLE_WARRIOR, Integer.valueOf(ret.x)));
                     break;
                 // SUMMON
@@ -475,6 +480,7 @@ public class MapleStatEffect implements Serializable {
                 case Buccaneer.BARRAGE:
                 case Gunslinger.BLANK_SHOT:
                 case DawnWarrior.COMA:
+                case Aran.ROLLING_SPIN:
                     monsterStatus.put(MonsterStatus.STUN, Integer.valueOf(1));
                     break;
                 case NightLord.TAUNT:
@@ -495,6 +501,10 @@ public class MapleStatEffect implements Serializable {
                 case ILWizard.SLOW:
                 case BlazeWizard.SLOW:
                     monsterStatus.put(MonsterStatus.SPEED, Integer.valueOf(ret.x));
+                    break;
+                case Aran.SNOW_CHARGE:
+                    monsterStatus.put(MonsterStatus.SPEED, Integer.valueOf(x));
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.WK_CHARGE, Integer.valueOf(ret.y)));
                     break;
                 case FPWizard.POISON_BREATH:
                 case FPMage.ELEMENT_COMPOSITION:
@@ -598,11 +608,15 @@ public class MapleStatEffect implements Serializable {
             applyto.setHp(newHp);
             hpmpupdate.add(new Pair<MapleStat, Integer>(MapleStat.HP, Integer.valueOf(applyto.getHp())));
         }
+        int newMp = applyto.getMp() + mpchange;
         if (mpchange != 0) {
+            if (newMp < 1) { //Should fix the mpCon hack :)
+                return false;
+            }
             if (mpchange < 0 && -mpchange > applyto.getMp()) {
                 return false;
             }
-            applyto.setMp(applyto.getMp() + mpchange);
+            applyto.setMp(newMp);
             hpmpupdate.add(new Pair<MapleStat, Integer>(MapleStat.MP, Integer.valueOf(applyto.getMp())));
         }
         applyto.getClient().getSession().write(MaplePacketCreator.updatePlayerStats(hpmpupdate, true));
@@ -969,6 +983,7 @@ public class MapleStatEffect implements Serializable {
         switch (sourceid) {
             case Beginner.ECHO_OF_HERO:
             case Noblesse.ECHO_OF_HERO:
+            case Legend.ECHO_OF_HERO:
             case SuperGM.HEAL_PLUS_DISPEL:
             case SuperGM.HASTE:
             case SuperGM.HOLY_SYMBOL:
@@ -1107,6 +1122,7 @@ public class MapleStatEffect implements Serializable {
                 case NightLord.HEROS_WILL:
                 case Shadower.HEROS_WILL:
                 case Buccaneer.PIRATES_RAGE:
+                case Aran.HEROS_WILL:
                     return true;
                 default:
                     return false;

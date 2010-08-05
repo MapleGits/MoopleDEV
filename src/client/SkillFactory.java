@@ -21,6 +21,7 @@
 */
 package client;
 
+import constants.skills.Aran;
 import constants.skills.Archer;
 import constants.skills.Assassin;
 import constants.skills.Bandit;
@@ -144,6 +145,8 @@ public class SkillFactory {
                 case NightWalker.SHADOW_WEB:
                 case NightWalker.POISON_BOMB:
                 case NightWalker.VAMPIRE:
+                case Aran.COMBO_PENRIL:
+                case Aran.COMBO_SMASH:
                     isBuff = false;
                     break;
                 case Beginner.RECOVERY:
@@ -308,13 +311,22 @@ public class SkillFactory {
                 case ThunderBreaker.ENERGY_DRAIN:
                 case ThunderBreaker.KNUCKLER_BOOSTER:
                 case ThunderBreaker.LIGHTNING:
+                case ThunderBreaker.SPARK:
                 case ThunderBreaker.LIGHTNING_CHARGE:
                 case ThunderBreaker.SPEED_INFUSION:
                 case ThunderBreaker.TRANSFORMATION:
+                case Legend.BLESSING_OF_THE_FAIRY:
                 case Legend.AGILE_BODY:
                 case Legend.ECHO_OF_HERO:
                 case Legend.RECOVERY:
                 case Legend.MONSTER_RIDER:
+                case Aran.MAPLE_WARRIOR:
+                case Aran.HEROS_WILL:
+                case Aran.POLEARM_BOOSTER:
+                case Aran.COMBO_DRAIN:
+                case Aran.SNOW_CHARGE:
+                case Aran.BODY_PRESSURE:
+                case Aran.SMART_KNOCKBACK:
                     isBuff = true;
                     break;
             }

@@ -32,8 +32,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public class AranComboHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        if (player.getJob().isA(MapleJob.ARAN1) || player.getJob().equals(MapleJob.LEGEND)) {
-            if (player.getLastAttack() > System.currentTimeMillis() + 3000) {
+        if (player.getJob().isA(MapleJob.LEGEND)) { //Should work right :O
+            if ((System.currentTimeMillis() + 3000) < player.getLastAttack()) {
                 player.setComboCounter(0);
             } else {
              player.setLastAttack(System.currentTimeMillis());

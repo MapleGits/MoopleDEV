@@ -40,18 +40,11 @@ public final class QuestActionHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = c.getPlayer();
         if (action == 1) { //Start Quest
             int npc = slea.readInt();
-            if (slea.available() >= 4) {
-                slea.readInt();
-            } else if (npc == 1090000) {
-                slea.readShort();
-                slea.readShort();
-            } else {
-                slea.readShort();
-            }
+            slea.readInt(); //Weird, when I add 2 bytes it works.. so let's always readInt.
             MapleQuest.getInstance(quest).start(player, npc);
         } else if (action == 2) { // Complete Quest
             int npc = slea.readInt();
-            slea.readShort(); //Short?
+            slea.readShort(); //Works? :O
             if (slea.available() >= 4) {
                 int selection = slea.readInt();
                 MapleQuest.getInstance(quest).complete(player, npc, selection);

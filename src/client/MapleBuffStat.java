@@ -25,18 +25,12 @@ import java.io.Serializable;
 import net.LongValueHolder;
 
 public enum MapleBuffStat implements LongValueHolder, Serializable {
-    HOMING_BEACON(0x1),
     MORPH(0x2),
     RECOVERY(0x4),
     MAPLE_WARRIOR(0x8),
-    ENERGY_CHARGE(0x8),
     STANCE(0x10),
     SHARP_EYES(0x20),
-    DASH(0x1000000000L),
-    DASH2(0x2000000000L),
     SHOWDASH(0x4000000000L),
-    SPEED_INFUSION(0x8000000000L),
-    MONSTER_RIDING(0x40),
     MANA_REFLECTION(0x40),
     SHADOW_CLAW(0x100),
     INFINITY(0x200),
@@ -82,16 +76,42 @@ public enum MapleBuffStat implements LongValueHolder, Serializable {
     PUPPET(0x800000000000000L),
     MESOGUARD(0x1000000000000000L),
     WEAKEN(0x4000000000000000L),
-    FINALATTACK(0x80000000);
+    FINALATTACK(0x80000000),
+    SPARK(0x20000000),
+    BATTLESHIP(0xA00000040L),
+    ELEMENTAL_RESET(0x200000000L, true), 
+    ARAN_COMBO(0x1000000000L, true),
+    COMBO_DRAIN(0x2000000000L, true),
+    COMBO_BARRIER(0x4000000000L, true),
+    BODY_PRESSURE(0x8000000000L, true),
+    SMART_KNOCKBACK(0x10000000000L, true),
+    PYRAMID_PQ(0x20000000000L, true),
+    DASH2(0x8000000000000L, true),
+    DASH(0x10000000000000L, true),
+    ENERGY_CHARGE(0x4000000000000L, true),
+    MONSTER_RIDING(0x20000000000000L, true),
+    HOMING_BEACON(0x80000000000000L, true),
+    SPEED_INFUSION(0x100000000000000L, true);
     static final long serialVersionUID = 0L;
     private final long i;
+    private final boolean isFirst;
+
+    private MapleBuffStat(long i, boolean isFirst) {
+        this.i = i;
+        this.isFirst = isFirst;
+    }
 
     private MapleBuffStat(long i) {
         this.i = i;
+        this.isFirst = false;
     }
 
     @Override
     public long getValue() {
         return i;
+    }
+
+    public boolean isFirst() {
+        return isFirst;
     }
 }
