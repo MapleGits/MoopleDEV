@@ -212,7 +212,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         c.getSession().write(MaplePacketCreator.updateGender(player));
         player.checkMessenger();
         c.getSession().write(MaplePacketCreator.enableReport());
-        player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), player.getLinkedLevel() / 10, 20);
+        player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), player.getLinkedLevel() / 10, 20, -1);
         player.checkBerserk();
         player.expirationTask();
         player.setRates();

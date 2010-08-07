@@ -51,7 +51,7 @@ public final class DistributeSPHandler extends AbstractMaplePacketHandler {
                 player.setRemainingSp(player.getRemainingSp() - 1);
             }
             player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
-            player.changeSkillLevel(skill, curLevel + 1, player.getMasterLevel(skill));
+            player.changeSkillLevel(skill, curLevel + 1, player.getMasterLevel(skill), player.getSkillExpiration(skill));
         }
     }
 }

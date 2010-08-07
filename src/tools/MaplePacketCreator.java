@@ -2934,6 +2934,7 @@ public class MaplePacketCreator {
         mplew.write(4); // ?
         mplew.writeInt(npc);
         mplew.write(7);
+        mplew.write(0); //speaker
         mplew.writeMapleAsciiString(talk);
         mplew.write(styles.length);
         for (int i = 0; i < styles.length; i++) {
@@ -2948,6 +2949,7 @@ public class MaplePacketCreator {
         mplew.write(4); // ?
         mplew.writeInt(npc);
         mplew.write(3);
+        mplew.write(0); //speaker
         mplew.writeMapleAsciiString(talk);
         mplew.writeInt(def);
         mplew.writeInt(min);
@@ -2962,6 +2964,7 @@ public class MaplePacketCreator {
         mplew.write(4); // Doesn't matter
         mplew.writeInt(npc);
         mplew.write(2);
+        mplew.write(0); //speaker
         mplew.writeMapleAsciiString(talk);
         mplew.writeInt(0);
         mplew.writeInt(0);
@@ -3030,8 +3033,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateSkill(int skillid, int level, int masterlevel) {
-        //24 00 01 01 00 0C 00 00 00 00 00 00 00 14 00 00 00 00 80 05 BB 46 E6 17 02 01
+    public static MaplePacket updateSkill(int skillid, int level, int masterlevel, long expiration) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_SKILLS.getValue());
         mplew.write(1);
@@ -3039,7 +3041,7 @@ public class MaplePacketCreator {
         mplew.writeInt(skillid);
         mplew.writeInt(level);
         mplew.writeInt(masterlevel);
-        addExpirationTime(mplew, 0); //TODO: SKILL EXPIRATION
+        addExpirationTime(mplew, expiration); //TODO: SKILL EXPIRATION
         mplew.write(1);
         return mplew.getPacket();
     }

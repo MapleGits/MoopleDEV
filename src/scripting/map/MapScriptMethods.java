@@ -91,11 +91,11 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     public void arriveIceCave() {
         c.getSession().write(MaplePacketCreator.lockUI(false));
         c.getSession().write(MaplePacketCreator.disableUI(false));
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000014), -1, 0);
-	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000015), -1, 0);
-	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000016), -1, 0);
-	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000017), -1, 0);
-	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000018), -1, 0);
+        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000014), -1, 0, -1);
+	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000015), -1, 0, -1);
+	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000016), -1, 0, -1);
+	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000017), -1, 0, -1);
+	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000018), -1, 0, -1);
         c.getPlayer().setRemainingSp(0);
         c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/ClickLilin"));
     }

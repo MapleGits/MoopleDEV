@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import client.ISkill;
+import client.ISkill;
 import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.SkillFactory;
@@ -109,6 +110,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             return;
         }
         if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT) {
+            return;
+        }
+        if (attackEffect.getMobCount() > attack.numAttacked) {
             return;
         }
         int totDamage = 0;

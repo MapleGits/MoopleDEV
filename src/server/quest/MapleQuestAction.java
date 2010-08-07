@@ -186,7 +186,7 @@ public class MapleQuestAction {
                     skillLevel = Math.max(skillLevel, c.getSkillLevel(skillObject));
                     masterLevel = Math.max(masterLevel, c.getMasterLevel(skillObject));
                     if (shouldLearn) {
-                        c.changeSkillLevel(skillObject, skillLevel, masterLevel);
+                        c.changeSkillLevel(skillObject, skillLevel, masterLevel, -1);
                     }
                 }
                 break;

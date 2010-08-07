@@ -79,8 +79,8 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     int curLevel = player.getSkillLevel(skillSPTo);
                     int curLevelSPFrom = player.getSkillLevel(skillSPFrom);
                     if ((curLevel < skillSPTo.getMaxLevel()) && curLevelSPFrom > 0) {
-                        player.changeSkillLevel(skillSPFrom, curLevelSPFrom - 1, player.getMasterLevel(skillSPFrom));
-                        player.changeSkillLevel(skillSPTo, curLevel + 1, player.getMasterLevel(skillSPTo));
+                        player.changeSkillLevel(skillSPFrom, curLevelSPFrom - 1, player.getMasterLevel(skillSPFrom), -1);
+                        player.changeSkillLevel(skillSPTo, curLevel + 1, player.getMasterLevel(skillSPTo), -1);
                     }
                 } else {
                     List<Pair<MapleStat, Integer>> statupdate = new ArrayList<Pair<MapleStat, Integer>>(2);

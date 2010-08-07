@@ -306,16 +306,16 @@ public class AbstractPlayerInteraction {
         if (getPlayer().getMapId() == 914000100) {
         ISkill skill = SkillFactory.getSkill(20000018);
         ISkill skill0 = SkillFactory.getSkill(20000017);
-        getPlayer().changeSkillLevel(skill, 1, 1);
-        getPlayer().changeSkillLevel(skill0, 1, 1);        
+        getPlayer().changeSkillLevel(skill, 1, 1, -1);
+        getPlayer().changeSkillLevel(skill0, 1, 1, -1);
         } else if (getPlayer().getMapId() == 914000200) {
         ISkill skill = SkillFactory.getSkill(20000015);
         ISkill skill0 = SkillFactory.getSkill(20000014);
-        getPlayer().changeSkillLevel(skill, 1, 1);
-        getPlayer().changeSkillLevel(skill0, 1, 1);
+        getPlayer().changeSkillLevel(skill, 1, 1, -1);
+        getPlayer().changeSkillLevel(skill0, 1, 1, -1);
         } else if (getPlayer().getMapId() == 914000210) {
         ISkill skill = SkillFactory.getSkill(20000016);
-        getPlayer().changeSkillLevel(skill, 1, 1);
+        getPlayer().changeSkillLevel(skill, 1, 1, -1);
         }
     }
 

@@ -122,7 +122,7 @@ public enum RecvOpcode {
     NOTE_ACTION(0x83),
     USE_DOOR(0x85),
     CHANGE_KEYMAP(0x87),
-    RING_ACTION(0x89),//not sure
+    RING_ACTION(0x89),
     OPEN_FAMILY(0x92),
     ADD_FAMILY(0x93),
     ACCEPT_FAMILY(0x96),
@@ -134,7 +134,7 @@ public enum RecvOpcode {
     USE_SOLOMON_ITEM(0x9E),
     CLICK_GUIDE(0xA2),
     ARAN_COMBO_COUNTER(0xA3),
-    MOVE_PET(0xAC),//Not sure about pet
+    MOVE_PET(0xAC),
     PET_CHAT(0xAD),
     PET_COMMAND(0xAE),
     PET_LOOT(0xAF),
@@ -161,16 +161,16 @@ public enum RecvOpcode {
     MONSTER_CARNIVAL(0xDA),
     PARTY_SEARCH_REGISTER(0xDC),
     PARTY_SEARCH_START(0xDE),
-    PLAYER_UPDATE(0xDF), //Not sure
+    PLAYER_UPDATE(0xDF),
     CHECK_CASH(0xE4),
     CASHSHOP_OPERATION(0xE5),
     COUPON_CODE(0xE6),
     OPEN_ITEMUI(0xEB),
     CLOSE_ITEMUI(0xEC),
     USE_ITEMUI(0xED),
-    MTS_OP(0xFFFF),//Dont know yet
-    USE_MAPLELIFE(0xFFFF),//Dont know yet
-    USE_HAMMER(0xFFFF);//Dont know yet
+    MTS_OP(0xFA),
+    USE_MAPLELIFE(0xFE),
+    USE_HAMMER(0x104);
     private int code = -2;
 
     private RecvOpcode(int code) {

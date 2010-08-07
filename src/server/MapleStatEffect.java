@@ -823,7 +823,7 @@ public class MapleStatEffect implements Serializable {
             MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups);
             if (isDash()) {
                 if ((applyto.getJob().getId() / 100) % 10 != 5) {
-                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10);
+                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10, -1);
                 } else {
                     applyto.getClient().getSession().write(MaplePacketCreator.giveDash(Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1)), sourceid, localX, localY, seconds));
                 }
@@ -881,7 +881,7 @@ public class MapleStatEffect implements Serializable {
         if (primary) {
             if (isDash()) {
                 if ((applyto.getJob().getId() / 100) % 10 != 5) {
-                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10);
+                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10, -1);
                 } else {
                     applyto.getClient().getSession().write(MaplePacketCreator.giveDash(Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1)), sourceid, localX, localY, seconds));
                 }
@@ -1269,6 +1269,10 @@ public class MapleStatEffect implements Serializable {
 
     public int getAttackCount() {
         return attackCount;
+    }
+
+    public int getMobCount() {
+        return mobCount;
     }
 
     public int getBulletCount() {

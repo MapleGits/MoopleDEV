@@ -210,7 +210,7 @@ public class Commands {
             for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
                 try {
                     ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
-                    player.changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel());
+                    player.changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel(), -1);
                 } catch (NumberFormatException nfe) {
                     break;
                 } catch (NullPointerException npe) {

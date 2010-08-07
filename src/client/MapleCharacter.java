@@ -21,6 +21,7 @@
 */
 package client;
 
+import client.IItem;
 import constants.ExpTable;
 import constants.ServerConstants;
 import constants.skills.Bishop;
@@ -57,6 +58,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -806,13 +808,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         this.currentPage = page;
     }
 
-    public void changeSkillLevel(ISkill skill, int newLevel, int newMasterlevel) {
+    public void changeSkillLevel(ISkill skill, int newLevel, int newMasterlevel, long expiration) {
         if (newLevel > -1) {
-        skills.put(skill, new SkillEntry(newLevel, newMasterlevel));
-        this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));
+        skills.put(skill, new SkillEntry(newLevel, newMasterlevel, expiration));
+        this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel, expiration));
         } else {
             skills.remove(skill);
-            this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));               
+            this.client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel, -1)); //Shouldn't use expiration anymore :)
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("DELETE FROM skills WHERE skillid = ? AND characterid = ?");
@@ -1146,6 +1148,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void expirationTask() {
         long expiration, currenttime = System.currentTimeMillis();
+
+
+        Set keys = getSkills().keySet();
+        for (Iterator i = keys.iterator(); i.hasNext();) { //Should work right xD
+            ISkill key = (ISkill) i.next();
+            SkillEntry skill = getSkills().get(key);
+            if (skill.expiration != -1) {
+                changeSkillLevel(key, -1, 0, -1);
+            }
+
+        }
+
         List<IItem> toberemove = new ArrayList<IItem>(); // This is here to prevent deadlock.
         for (MapleInventory inv : inventory) {
             for (IItem item : inv.list()) {
@@ -1865,6 +1879,21 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return skills.get(skill).skillevel;
     }
 
+    public long getSkillExpiration(int skill) {
+        SkillEntry ret = skills.get(SkillFactory.getSkill(skill));
+        if (ret == null) {
+            return -1;
+        }
+        return ret.expiration;
+    }
+
+    public long getSkillExpiration(ISkill skill) {
+        if (skills.get(skill) == null) {
+            return -1;
+        }
+        return skills.get(skill).expiration;
+    }
+
     public MapleSkinColor getSkinColor() {
         return skinColor;
     }
@@ -2384,11 +2413,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 rs.close();
                 ps.close();
                 pse.close();
-                ps = con.prepareStatement("SELECT skillid,skilllevel,masterlevel FROM skills WHERE characterid = ?");
+                ps = con.prepareStatement("SELECT skillid,skilllevel,masterlevel,expiration FROM skills WHERE characterid = ?");
                 ps.setInt(1, charid);
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    ret.skills.put(SkillFactory.getSkill(rs.getInt("skillid")), new SkillEntry(rs.getInt("skilllevel"), rs.getInt("masterlevel")));
+                    ret.skills.put(SkillFactory.getSkill(rs.getInt("skillid")), new SkillEntry(rs.getInt("skilllevel"), rs.getInt("masterlevel"), rs.getLong("expiration")));
                 }
                 rs.close();
                 ps.close();
@@ -3073,12 +3102,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
 	                        ItemFactory.INVENTORY.saveItems(itemsWithType, id);
             deleteWhereCharacterId(con, "DELETE FROM skills WHERE characterid = ?");
-            ps = con.prepareStatement("INSERT INTO skills (characterid, skillid, skilllevel, masterlevel) VALUES (?, ?, ?, ?)");
+            ps = con.prepareStatement("INSERT INTO skills (characterid, skillid, skilllevel, masterlevel, expiration) VALUES (?, ?, ?, ?, ?)");
             ps.setInt(1, id);
             for (Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
                 ps.setInt(2, skill.getKey().getId());
                 ps.setInt(3, skill.getValue().skillevel);
                 ps.setInt(4, skill.getValue().masterlevel);
+                ps.setLong(5, skill.getValue().expiration);
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -3657,10 +3687,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public static class SkillEntry {
         public int skillevel, masterlevel;
+        public long expiration;
 
-        public SkillEntry(int skillevel, int masterlevel) {
+        public SkillEntry(int skillevel, int masterlevel, long expiration) {
             this.skillevel = skillevel;
             this.masterlevel = masterlevel;
+            this.expiration = expiration;
         }
 
         @Override

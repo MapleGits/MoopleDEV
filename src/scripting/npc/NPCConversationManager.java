@@ -342,7 +342,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             try {
                 ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
                 if ((skill.getId() / 10000 % 10 == 2 || (getClient().getPlayer().isCygnus() && skill.getId() / 10000 % 10 == 1)) && getPlayer().getSkillLevel(skill) < 1) {
-                    getPlayer().changeSkillLevel(skill, 0, skill.getMaxLevel());
+                    getPlayer().changeSkillLevel(skill, 0, skill.getMaxLevel(), -1);
                 }
             } catch (NumberFormatException nfe) {
                 break;
