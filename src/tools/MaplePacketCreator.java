@@ -106,14 +106,13 @@ public class MaplePacketCreator {
     private final static byte[] CHAR_INFO_MAGIC = new byte[]{(byte) 0xff, (byte) 0xc9, (byte) 0x9a, 0x3b};
     public static final List<Pair<MapleStat, Integer>> EMPTY_STATUPDATE = Collections.emptyList();
     private final static byte[] ITEM_MAGIC = new byte[]{(byte) 0x80, 5};
-    private final static int NO_MAP = 999999999;
-    private final static long REAL_YEAR2000 = 946681229830l;
     private final static int ITEM_YEAR2000 = -1085019342;
+    private final static long REAL_YEAR2000 = 946681229830l;
 
-	public static int getItemTimestamp(long realTimestamp) {
-		int time = (int) ((realTimestamp - REAL_YEAR2000) / 1000 / 60); // convert to minutes
-		return (int) (time * 35.762787) + ITEM_YEAR2000;
-	}
+    public static int getItemTimestamp(long realTimestamp) {
+        int time = (int) ((realTimestamp - REAL_YEAR2000) / 1000 / 60); // convert to minutes
+        return (int) (time * 35.762787) + ITEM_YEAR2000;
+    }
 
     private static int getQuestTimestamp(long realTimestamp) {
         return (int) (((int) (realTimestamp / 1000 / 60)) * 0.1396987) + 27111908;
@@ -282,7 +281,7 @@ public class MaplePacketCreator {
             mplew.writeInt(400967355);
             mplew.write(2);
         } else {
-            mplew.writeInt(getItemTimestamp(time)); //figure out what timestamp xD
+            mplew.writeInt(getItemTimestamp(time));
             mplew.write(1);
         }
     }
@@ -342,7 +341,7 @@ public class MaplePacketCreator {
             mplew.write(pet.getFullness());
             mplew.writeLong(getKoreanTimestamp((long) (System.currentTimeMillis() * 1.2)));
             mplew.writeInt(0);
-            mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00")); //wonder what this is
+            mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00")); //wonder what this is
             return;
         }
 	if (equip == null) {
@@ -1007,6 +1006,7 @@ public class MaplePacketCreator {
         mplew.writeInt(summon.getOwner().getId());
         mplew.writeInt(summon.getObjectId()); // Supposed to be Object ID, but this works too! <3
         mplew.writeInt(summon.getSkill());
+        mplew.write(0x0A); //v83
         mplew.write(skillLevel);
         mplew.writeShort(summon.getPosition().x);
         mplew.writeShort(summon.getPosition().y);
@@ -1751,7 +1751,8 @@ public class MaplePacketCreator {
         mplew.writeShort(chr.getPosition().y);
         mplew.write(chr.getStance());
         mplew.writeShort(chr.getFh());
-        mplew.write(0); //pets niggs
+        mplew.write(0);
+        //pets
         mplew.write(0);
         if (chr.getMount() == null) {
             mplew.writeInt(1); // mob level
@@ -2995,10 +2996,8 @@ public class MaplePacketCreator {
         } else {
             mplew.write(effectid); //buff level
             mplew.writeInt(skillid);
-            mplew.write(2);
-            if (direction != (byte) 3) {
-                mplew.write(direction);
-            }
+            mplew.write(direction);
+            mplew.write(1);
         }
         return mplew.getPacket();
     }
@@ -3008,6 +3007,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         mplew.write(effectid);
         mplew.writeInt(skillid);
+        mplew.write(0xA9);
         mplew.write(1); // probably buff level but we don't know it and it doesn't really matter
         return mplew.getPacket();
     }
@@ -3017,6 +3017,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         mplew.write(1);
         mplew.writeInt(1320006);
+        mplew.write(0xA9);
         mplew.write(skilllevel);
         mplew.write(Berserk ? 1 : 0);
         return mplew.getPacket();
@@ -3028,6 +3029,7 @@ public class MaplePacketCreator {
         mplew.writeInt(cid);
         mplew.write(1);
         mplew.writeInt(1320006);
+        mplew.write(0xA9);
         mplew.write(skilllevel);
         mplew.write(Berserk ? 1 : 0);
         return mplew.getPacket();
@@ -4227,9 +4229,9 @@ public class MaplePacketCreator {
         mplew.write(pet.getLevel());
         mplew.writeShort(pet.getCloseness());
         mplew.write(pet.getFullness());
-        mplew.write(0);
-        mplew.write(ITEM_MAGIC);
-        mplew.write(HexTool.getByteArrayFromHexString("BB 46 E6 17 02 00 00 00 00 50 46 00 00"));
+        addExpirationTime(mplew, pet.getExpiration());
+        mplew.writeInt(0);
+        mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00"));
         return mplew.getPacket();
     }
 

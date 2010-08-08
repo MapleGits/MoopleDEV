@@ -3795,7 +3795,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         cancelFullnessSchedule(getPetIndex(pet));
         getMap().broadcastMessage(this, MaplePacketCreator.showPet(this, pet, true, hunger), true);
-        updateSingleStat(MapleStat.PET, 0);
+        //updateSingleStat(MapleStat.PET, 0);
         client.getSession().write(MaplePacketCreator.petStatUpdate(this));
         client.getSession().write(MaplePacketCreator.enableActions());
         removePet(pet, shift_left);
