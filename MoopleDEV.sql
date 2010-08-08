@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50089
 File Encoding         : 65001
 
-Date: 2010-08-03 17:07:14
+Date: 2010-08-08 12:33:44
 */
 
 --
@@ -219,11 +219,48 @@ CREATE TABLE `char_area_info` (
   `area_data` varchar(120) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `cid` (`charid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of char_area_info
 -- ----------------------------
+INSERT INTO `char_area_info` VALUES ('1', '2', '21002', 'mo1=o');
+INSERT INTO `char_area_info` VALUES ('2', '2', '21002', 'mo1=o;mo2=o');
+INSERT INTO `char_area_info` VALUES ('3', '2', '21002', 'mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('4', '2', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('5', '2', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('6', '2', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('7', '2', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('8', '2', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('9', '2', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('10', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('11', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('12', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('13', '3', '21002', 'mo1=o');
+INSERT INTO `char_area_info` VALUES ('14', '3', '21002', 'mo1=o;mo2=o');
+INSERT INTO `char_area_info` VALUES ('15', '3', '21002', 'mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('16', '3', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('17', '3', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('18', '3', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('19', '3', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('20', '3', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('21', '3', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('22', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('23', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('24', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('25', '4', '21002', 'mo1=o');
+INSERT INTO `char_area_info` VALUES ('26', '4', '21002', 'mo1=o;mo2=o');
+INSERT INTO `char_area_info` VALUES ('27', '4', '21002', 'mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('28', '4', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('29', '4', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
+INSERT INTO `char_area_info` VALUES ('30', '4', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('31', '4', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('32', '4', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('33', '4', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('34', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('35', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('36', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
+INSERT INTO `char_area_info` VALUES ('37', '4', '21002', 'helper=clear');
 
 -- ----------------------------
 -- Table structure for `characters`
@@ -297,7 +334,7 @@ CREATE TABLE `characters` (
   KEY `party` (`party`),
   KEY `ranking1` (`level`,`exp`),
   KEY `ranking2` (`gm`,`job`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 PACK_KEYS=0;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 PACK_KEYS=0;
 
 -- ----------------------------
 -- Records of characters
@@ -460,7 +497,7 @@ CREATE TABLE `gmlog` (
   `command` tinytext NOT NULL,
   `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of gmlog
@@ -581,7 +618,7 @@ CREATE TABLE `inventoryequipment` (
   PRIMARY KEY  (`inventoryequipmentid`),
   KEY `inventoryitemid` (`inventoryitemid`),
   CONSTRAINT `inventoryequipment_ibfk_1` FOREIGN KEY (`inventoryitemid`) REFERENCES `inventoryitems` (`inventoryitemid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=339 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryequipment
@@ -609,7 +646,7 @@ CREATE TABLE `inventoryitems` (
   KEY `FK_inventoryitems_1` (`characterid`),
   CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_inventoryitems_2` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=403 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryitems
@@ -642,7 +679,7 @@ CREATE TABLE `iplog` (
   KEY `accountid` (`accountid`,`ip`),
   KEY `ip` (`ip`),
   CONSTRAINT `iplog_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of iplog
@@ -661,7 +698,7 @@ CREATE TABLE `keymap` (
   PRIMARY KEY  (`id`),
   KEY `keymap_ibfk_1` (`characterid`),
   CONSTRAINT `keymap_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2731 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of keymap
@@ -3635,6 +3672,10 @@ CREATE TABLE `monsterbook` (
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
+INSERT INTO `monsterbook` VALUES ('1', '2380007', '3');
+INSERT INTO `monsterbook` VALUES ('1', '2380002', '5');
+INSERT INTO `monsterbook` VALUES ('1', '2380001', '5');
+INSERT INTO `monsterbook` VALUES ('1', '2380000', '5');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
@@ -15448,7 +15489,7 @@ CREATE TABLE `queststatus` (
   PRIMARY KEY  (`queststatusid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `queststatus_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatus
@@ -15466,7 +15507,7 @@ CREATE TABLE `queststatusmobs` (
   PRIMARY KEY  (`queststatusmobid`),
   KEY `queststatusid` (`queststatusid`),
   CONSTRAINT `queststatusmobs_ibfk_1` FOREIGN KEY (`queststatusid`) REFERENCES `queststatus` (`queststatusid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatusmobs
@@ -19278,10 +19319,11 @@ CREATE TABLE `skills` (
   `characterid` int(11) NOT NULL default '0',
   `skilllevel` int(11) NOT NULL default '0',
   `masterlevel` int(11) NOT NULL default '0',
+  `expiration` bigint(20) NOT NULL default '-1',
   PRIMARY KEY  (`id`),
   KEY `skills_ibfk_1` (`characterid`),
   CONSTRAINT `skills_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2133 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of skills
@@ -19299,7 +19341,7 @@ CREATE TABLE `storages` (
   PRIMARY KEY  (`storageid`),
   KEY `accountid` (`accountid`),
   CONSTRAINT `storages_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of storages

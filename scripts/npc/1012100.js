@@ -89,6 +89,7 @@ function action(mode, type, selection) {
         else if (status == 3) {
             if (cm.getJobId()==0)
                 cm.changeJobById(300);
+
             cm.gainItem(1452002, 1);
             cm.gainItem(2060000, 1000);
             cm.sendOk("So be it! Now go, and go with pride.");

@@ -105,14 +105,14 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     player.getClient().getSession().write(MaplePacketCreator.enableActions());
                 }
             }
+            if (attack.numAttacked > attackEffect.getMobCount()) {
+                return;
+            }
         }
         if (!player.isAlive()) {
             return;
         }
         if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT) {
-            return;
-        }
-        if (attackEffect.getMobCount() > attack.numAttacked) {
             return;
         }
         int totDamage = 0;
