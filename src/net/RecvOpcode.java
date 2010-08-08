@@ -69,6 +69,7 @@ public enum RecvOpcode {
     NPC_SHOP(0x3D),
     STORAGE(0x3E),
     HIRED_MERCHANT_REQUEST(0x3F),
+    FREDRICK_ACTION(0x40),
     DUEY_ACTION(0x41),
     ITEM_SORT(0x45),
     ITEM_SORT2(0x46),

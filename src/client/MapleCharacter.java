@@ -203,6 +203,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private String search = null;
     private AtomicInteger exp = new AtomicInteger();
     private AtomicInteger meso = new AtomicInteger();
+    private int merchantmeso;
     private BuddyList buddylist;
     private EventInstanceManager eventInstance = null;
     private HiredMerchant hiredMerchant = null;
@@ -1688,6 +1689,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return meso.get();
     }
 
+    public int getMerchantMeso() {
+        return merchantmeso;
+    }
+
     public int getMesoRate() {
         return mesoRate;
     }
@@ -2286,6 +2291,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.remainingSp = rs.getInt("sp");
             ret.remainingAp = rs.getInt("ap");
             ret.meso.set(rs.getInt("meso"));
+            ret.merchantmeso = rs.getInt("MerchantMesos");
             ret.gmLevel = rs.getInt("gm");
             ret.skinColor = MapleSkinColor.getById(rs.getInt("skincolor"));
             ret.gender = rs.getInt("gender");
@@ -3378,6 +3384,19 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             return;
         }
         hasMerchant = set;
+    }
+
+    public void setMerchantMeso(int set) {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = ? WHERE id = ?");
+            ps.setInt(1, set);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            return;
+        }
+        merchantmeso = set;
     }
 
     public void setHiredMerchant(HiredMerchant merchant) {

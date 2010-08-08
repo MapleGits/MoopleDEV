@@ -24,7 +24,7 @@ package scripting.npc;
 import client.Equip;
 import client.IItem;
 import client.ISkill;
-import client.Item;
+import client.ItemFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import constants.ExpTable;
@@ -41,7 +41,6 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import net.channel.ChannelServer;
@@ -275,37 +274,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().getGender();
     }
 
-    public int getHiredMerchantMesos(boolean zero) {
-        int mesos = 0;
-        PreparedStatement ps = null;
-        Connection con = DatabaseConnection.getConnection();
-        try {
-            ps = con.prepareStatement("SELECT MerchantMesos FROM characters WHERE id = ?");
-            ps.setInt(1, getPlayer().getId());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                mesos = rs.getInt("MerchantMesos");
-            }
-            rs.close();
-            ps.close();
-            if (zero) {
-                ps = con.prepareStatement("UPDATE characters SET MerchantMesos = 0 WHERE id = ?");
-                ps.setInt(1, getPlayer().getId());
-                ps.executeUpdate();
-                ps.close();
-            }
-        } catch (SQLException e) {
-        } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-            } catch (SQLException ex) {
-            }
-        }
-        return mesos;
-    }
-
     public void changeJobById(int a) {
         getPlayer().changeJob(MapleJob.getById(a));
     }
@@ -469,57 +437,27 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         }
     }
 
-    public void removeHiredMerchantItem(int id) {
-        try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("DELETE FROM hiredmerchant WHERE id = ?");
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            ps.close();
-        } catch (Exception e) {
+    public boolean hasMerchant() {
+        return getPlayer().hasMerchant();
+    }
+
+    public boolean hasMerchantItems() {
+            try {
+                if (!ItemFactory.MERCHANT.loadItems(getPlayer().getId(), false).isEmpty())
+                    return true;
+
+            } catch (SQLException e) {
+                return false;
+            }
+        if (getPlayer().getMerchantMeso() == 0) {
+            return false;
+        } else {
+            return true;
         }
     }
 
-    public List<Pair<Integer, IItem>> getHiredMerchantItems() {
-        List<Pair<Integer, IItem>> items = new ArrayList<Pair<Integer, IItem>>();
-        try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM hiredmerchant WHERE ownerid = ?");
-            ps.setInt(1, getPlayer().getId());
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                if (rs.getInt("type") == 1) {
-                    Equip eq = new Equip(rs.getInt("itemid"), (byte) 0, -1);
-                    eq.setUpgradeSlots((byte) rs.getInt("upgradeslots"));
-                    eq.setLevel((byte) rs.getInt("level"));
-                    eq.setStr((short) rs.getInt("str"));
-                    eq.setDex((short) rs.getInt("dex"));
-                    eq.setInt((short) rs.getInt("int"));
-                    eq.setLuk((short) rs.getInt("luk"));
-                    eq.setHp((short) rs.getInt("hp"));
-                    eq.setMp((short) rs.getInt("mp"));
-                    eq.setWatk((short) rs.getInt("watk"));
-                    eq.setMatk((short) rs.getInt("matk"));
-                    eq.setWdef((short) rs.getInt("wdef"));
-                    eq.setMdef((short) rs.getInt("mdef"));
-                    eq.setAcc((short) rs.getInt("acc"));
-                    eq.setAvoid((short) rs.getInt("avoid"));
-                    eq.setHands((short) rs.getInt("hands"));
-                    eq.setSpeed((short) rs.getInt("speed"));
-                    eq.setJump((short) rs.getInt("jump"));
-                    eq.setOwner(rs.getString("owner"));
-                    items.add(new Pair<Integer, IItem>(rs.getInt("id"), eq));
-                } else {
-                    Item newItem = new Item(rs.getInt("itemid"), (byte) 0, (short) rs.getInt("quantity"));
-                    newItem.setOwner(rs.getString("owner"));
-                    items.add(new Pair<Integer, IItem>(rs.getInt("id"), newItem));
-                }
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException se) {
-            se.printStackTrace();
-            return null;
-        }
-        return items;
+    public void showFredrick() {
+        c.getSession().write(MaplePacketCreator.getFredrick(getPlayer()));
     }
 
     public int partyMembersInMap() {

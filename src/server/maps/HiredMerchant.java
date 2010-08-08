@@ -21,22 +21,25 @@
 */
 package server.maps;
 
-import client.Equip;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import client.IItem;
+import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleInventoryType;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import tools.DatabaseConnection;
 import net.MaplePacket;
 import server.MapleInventoryManipulator;
 import server.MaplePlayerShopItem;
 import server.TimerManager;
 import tools.MaplePacketCreator;
+import tools.Pair;
 
 /**
  *
@@ -160,12 +163,17 @@ public class HiredMerchant extends AbstractMapleMapObject {
             ps.executeUpdate();
             ps.close();
             for (MaplePlayerShopItem mpsi : getItems()) {
-                if (mpsi.getBundles() > 2) {
-                    MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), mpsi.getBundles(), null, -1);
+                if (mpsi.getBundles() > 1) {
+                    MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getItem().getQuantity() * mpsi.getBundles()), null, -1);
                 } else if (mpsi.isExist()) {
                     MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), true);
                 }
             }
+        } catch (Exception e) {
+        }
+        items.clear();
+        try {
+            this.saveItems();
         } catch (Exception e) {
         }
         schedule.cancel(false);
@@ -229,44 +237,15 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public void saveItems() throws SQLException {
-        PreparedStatement ps;
+        List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
+
         for (MaplePlayerShopItem pItems : items) {
+            pItems.getItem().setQuantity((short) (pItems.getItem().getQuantity() * pItems.getBundles()));
             if (pItems.getBundles() > 0) {
-                if (pItems.getItem().getType() == 1) {
-                    ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO hiredmerchant (ownerid, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
-                    Equip eq = (Equip) pItems.getItem();
-                    ps.setInt(2, eq.getItemId());
-                    ps.setInt(3, 1);
-                    ps.setInt(4, eq.getUpgradeSlots());
-                    ps.setInt(5, eq.getLevel());
-                    ps.setInt(6, eq.getStr());
-                    ps.setInt(7, eq.getDex());
-                    ps.setInt(8, eq.getInt());
-                    ps.setInt(9, eq.getLuk());
-                    ps.setInt(10, eq.getHp());
-                    ps.setInt(11, eq.getMp());
-                    ps.setInt(12, eq.getWatk());
-                    ps.setInt(13, eq.getMatk());
-                    ps.setInt(14, eq.getWdef());
-                    ps.setInt(15, eq.getMdef());
-                    ps.setInt(16, eq.getAcc());
-                    ps.setInt(17, eq.getAvoid());
-                    ps.setInt(18, eq.getHands());
-                    ps.setInt(19, eq.getSpeed());
-                    ps.setInt(20, eq.getJump());
-                    ps.setString(21, eq.getOwner());
-                } else {
-                    ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO hiredmerchant (ownerid, itemid, quantity, owner, type) VALUES (?, ?, ?, ?, ?)");
-                    ps.setInt(2, pItems.getItem().getItemId());
-                    ps.setInt(3, pItems.getBundles());
-                    ps.setString(4, pItems.getItem().getOwner());
-                    ps.setInt(5, pItems.getItem().getType());
-                }
-                ps.setInt(1, getOwnerId());
-                ps.executeUpdate();
-                ps.close();
+                itemsWithType.add(new Pair<IItem, MapleInventoryType>(pItems.getItem(), MapleInventoryType.getByType(pItems.getItem().getType())));
             }
         }
+        ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }
 
     @Override

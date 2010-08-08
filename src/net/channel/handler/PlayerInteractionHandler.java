@@ -479,7 +479,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 MaplePlayerShopItem item = merchant.getItems().get(slot);
                 if (item.getBundles() > 0) {
                     IItem iitem = item.getItem();
-                    iitem.setQuantity(item.getBundles());
+                    iitem.setQuantity((short) (iitem.getQuantity() * item.getBundles()));
                     MapleInventoryManipulator.addFromDrop(c, iitem, true);
                 }
                 merchant.removeFromSlot(slot);
@@ -494,6 +494,10 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             }
         } else if (mode == Action.MAINTENANCE_OFF.getCode()) {
             HiredMerchant merchant = c.getPlayer().getHiredMerchant();
+            if (merchant.getItems().isEmpty() && merchant.isOwner(c.getPlayer())) {
+                merchant.closeShop(c);
+                c.getPlayer().setHasMerchant(false);
+            }
             if (merchant != null && merchant.isOwner(c.getPlayer())) {
                 merchant.setOpen(true);
             }

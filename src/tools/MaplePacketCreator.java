@@ -39,6 +39,7 @@ import client.IEquip.ScrollResult;
 import client.IItem;
 import client.ISkill;
 import client.Item;
+import client.ItemFactory;
 import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
@@ -4791,6 +4792,53 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
+    public static MaplePacket fredrickMessage(byte operation) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.FREDRICK_MESSAGE.getValue());
+	mplew.write(operation);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket getFredrick(byte op) {
+	final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.FREDRICK.getValue());
+	mplew.write(op);
+
+	switch (op) {
+	    case 0x24:
+		mplew.write0(8);
+		break;
+	    default:
+		mplew.write(0);
+		break;
+	}
+
+	return mplew.getPacket();
+    }
+
+    public static MaplePacket getFredrick(MapleCharacter chr) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.FREDRICK.getValue());
+	mplew.write(0x23);
+	mplew.writeInt(9030000); // Fredrick
+	mplew.writeInt(32272); //id
+	mplew.write0(5);
+	mplew.writeInt(chr.getMerchantMeso());
+	mplew.write(0);
+        try {
+            List<Pair<IItem, MapleInventoryType>> items = ItemFactory.MERCHANT.loadItems(chr.getId(), false);
+            mplew.write(items.size());
+
+            for (int i = 0; i < items.size(); i++) {
+                addItemInfo(mplew, items.get(i).getLeft(), true, true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+	mplew.write0(3);
+        return mplew.getPacket();
+    }
+
     public static MaplePacket addOmokBox(MapleCharacter c, int ammount, int type) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_CHAR_BOX.getValue());
@@ -4843,7 +4891,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket hiredMerchantBox() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(0x2F); // header.
+        mplew.writeShort(SendOpcode.SEND_TITLE_BOX.getValue()); // header.
         mplew.write(0x07);
         return mplew.getPacket();
     }
@@ -4891,7 +4939,7 @@ public class MaplePacketCreator {
     public static MaplePacket updateHiredMerchant(HiredMerchant hm) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(0x17);
+        mplew.write(0x19);
         mplew.writeInt(0);
         mplew.write(hm.getItems().size());
         for (MaplePlayerShopItem item : hm.getItems()) {

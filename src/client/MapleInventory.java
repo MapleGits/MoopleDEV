@@ -197,6 +197,19 @@ public class MapleInventory implements Iterable<IItem> {
         return -1;
     }
 
+    public byte getNumFreeSlot() {
+	if (isFull()) {
+	    return 0;
+	}
+	byte free = 0;
+	for (byte i = 1; i <= slotLimit; i++) {
+            if (!inventory.keySet().contains(i)) {
+		free++;
+	    }
+	}
+	return free;
+    }
+
     public MapleInventoryType getType() {
         return type;
     }
