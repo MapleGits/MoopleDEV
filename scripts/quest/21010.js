@@ -58,7 +58,7 @@ function start(mode, type, selection) {
     } else if (status == 5) {
 	qm.sendNextPrev("#b(How do I drink the potion? I don't remember..)", 3);
     } else if (status == 6) {	
-	qm.displayGuide(14);
+	qm.guideHint(14);
         qm.dispose();		
 		}	
 }
@@ -95,7 +95,7 @@ function end(mode, type, selection) {
     } else if (status == 3) {
 	qm.sendNextPrev("#b(Everyone's been so nice to me, but I just can't remember anything. Am I really a hero? I should check my skills and see. But how do I check them?)", 3);
     } else if (status == 4) {
-	qm.displayGuide(15);
+	qm.guideHint(15);
 	qm.dispose();
     }
 }

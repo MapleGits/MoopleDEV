@@ -47,7 +47,7 @@ function start(mode, type, selection) {
 	qm.forceStartQuest();
 	qm.sendNext("The parts of the gift have been packed inside a box nearby. Sorry to trouble you, but could you break the box and bring me a #b#t4032309##k and some #b#t4032310##k? I'll assemble them for you right away.", 9);
     } else if (status == 5) { 
-	qm.displayGuide(18); 
+	qm.guideHint(18); 
 	qm.dispose();
     }
 }
@@ -79,7 +79,7 @@ function end(mode, type, selection) {
     } else if (status == 2) { 
 	qm.sendNext("A hero is not invincible. A hero is human. I'm sure you will face challenges and even fatter at times. But you are a hero because you have what it takes to overcome any obstacles you may encounter.", 9);
     } else if (status == 3) { 
-	qm.displayGuide(19);
+	qm.guideHint(19);
 	qm.dispose();
     }
 }

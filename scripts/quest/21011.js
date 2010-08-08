@@ -84,7 +84,7 @@ function end(mode, type, selection) {
 	}else
 		qm.dropMessage(1,"Your inventory is full");   
 	} else if (status == 6) {
-		qm.displayGuide(16); 
+		qm.guideHint(16); 
 		qm.dispose();
     }
 }

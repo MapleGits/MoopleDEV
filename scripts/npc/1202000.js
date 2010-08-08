@@ -94,19 +94,19 @@ function action(mode, type, selection) {
 					cm.displayGuide(14);
 					cm.dispose();
 				} else if(selection == 5) {
-					cm.displayGuide(15);
+					cm.guideHint(15);
 					cm.dispose();
 				} else if(selection == 6) {
-					cm.displayGuide(16);
+					cm.guideHint(16);
 					cm.dispose();
 				} else if(selection == 7) {
-					cm.displayGuide(17);
+					cm.guideHint(17);
 					cm.dispose();
 				} else if(selection == 8) {
-					cm.displayGuide(18);
+					cm.guideHint(18);
 					cm.dispose();
 				} else if(selection == 9) {
-					cm.displayGuide(19);
+					cm.guideHint(19);
 					cm.dispose();
 				}									
 		}

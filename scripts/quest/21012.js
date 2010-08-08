@@ -48,7 +48,7 @@ function start(mode, type, selection) {
     } else if (status == 4) { 
 	qm.sendNextPrev("Ah, you've alse forgotten how to use your skills? #bPlace skills in the quick slots for easy acces. #kYou can also place consumable items in the slots, so use the slots to your advantage.") ;  
     } else if (status == 5) { 
-	qm.displayGuide(17); 
+	qm.guideHint(17); 
 	qm.dispose();
     }
 }

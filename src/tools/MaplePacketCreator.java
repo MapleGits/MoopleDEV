@@ -1447,8 +1447,6 @@ public class MaplePacketCreator {
      * @return The exp gained packet.
      */
     public static MaplePacket getShowExpGain(int gain, boolean inChat, boolean white) {
-        //27 00 03 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        //27 00 03 01 C8 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(3); // 3 = exp, 4 = fame, 5 = mesos, 6 = guildpoints
@@ -6416,6 +6414,15 @@ public static MaplePacket giveSpeedInfusion(int buffid, int bufflength, List<Pai
             mplew.write(0);
             mplew.writeMapleAsciiString(talk);
             mplew.write(HexTool.getByteArrayFromHexString("C8 00 00 00 A0 0F 00 00"));
+            return mplew.getPacket();
+        }
+
+        public static MaplePacket guideHint(int hint) {
+            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+            mplew.writeShort(SendOpcode.TALK_GUIDE.getValue());
+            mplew.write(1);
+            mplew.writeInt(hint);
+            mplew.writeInt(7000);
             return mplew.getPacket();
         }
 

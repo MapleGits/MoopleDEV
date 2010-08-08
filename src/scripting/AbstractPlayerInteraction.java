@@ -340,6 +340,10 @@ public class AbstractPlayerInteraction {
        c.getSession().write(MaplePacketCreator.talkGuide(message)); 
     }
 
+    public void guideHint(int hint) {
+       c.getSession().write(MaplePacketCreator.guideHint(hint));
+    }
+
     public void updateAranIntroState(String mode) {
        c.getPlayer().addAreaData(21002, mode);
        c.getSession().write(MaplePacketCreator.updateAreaInfo(mode, 21002));
