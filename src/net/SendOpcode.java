@@ -114,7 +114,7 @@ public enum SendOpcode {
     BOSS_ENV(0x89),
     BLOCK_PORTAL(0x8A), //What the fuck is this?
     BLOCK_PORTAL_SHOP(0x8B), 
-    MAP_EFFECT(0x8A),
+    MAP_EFFECT(0x8E),
     HPQ_MOON(0x8F),
     GM_PACKET(0x90),
     OX_QUIZ(0x91),

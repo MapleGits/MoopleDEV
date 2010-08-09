@@ -270,7 +270,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     c.getPlayer().setMiniGame(null);
                     if (game.isOwner(c.getPlayer())) {
                         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeCharBox(c.getPlayer()));
-                        game.broadcastToVisitor(MaplePacketCreator.getMiniGameClose((byte) 0));
+                        game.broadcastToVisitor(MaplePacketCreator.getMiniGameClose());
                     } else {
                         game.removeVisitor(c.getPlayer());
                     }

@@ -23,7 +23,7 @@
 var status = -1;
 
 function start() {
-	if (cm.getAranIntroState("helper=clear")) {
+	if (cm.getAranIntroState("helper=clear") && cm.getPlayer().getMapId() == 140090000) {
 	status = 5;
 	action(1, 0, 0);
 	} else {

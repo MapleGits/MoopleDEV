@@ -76,7 +76,7 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         int numAttacked = slea.readByte();
         for (int x = 0; x < numAttacked; x++) {
             int monsterOid = slea.readInt(); // attacked oid
-            slea.skip(14); // who knows
+            slea.skip(18); // who knows
             int damage = slea.readInt();
             allDamage.add(new SummonAttackEntry(monsterOid, damage));
         }

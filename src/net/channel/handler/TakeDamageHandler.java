@@ -28,6 +28,7 @@ import client.MapleClient;
 import client.MapleInventoryType;
 import client.MapleStat;
 import client.SkillFactory;
+import client.status.MonsterStatus;
 import constants.skills.Corsair;
 import net.AbstractMaplePacketHandler;
 import server.life.MapleMonster;
@@ -60,6 +61,9 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
             monsteridfrom = slea.readInt();
             oid = slea.readInt();
             attacker = (MapleMonster) player.getMap().getMapObject(oid);
+            if (attacker.isBuffed(MonsterStatus.NEUTRALIZE)) {
+                return;
+            }
             if ((player.getMap().getMonsterById(monsteridfrom) == null || attacker == null) && monsteridfrom != 9300166) {
                 return;
             } else if (monsteridfrom == 9300166) {

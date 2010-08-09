@@ -551,7 +551,7 @@ public class MapleClient {
                 player.setMiniGame(null);
                 if (game.isOwner(player)) {
                     player.getMap().broadcastMessage(MaplePacketCreator.removeCharBox(player));
-                    game.broadcastToVisitor(MaplePacketCreator.getMiniGameClose((byte) 0));
+                    game.broadcastToVisitor(MaplePacketCreator.getMiniGameClose());
                 } else {
                     game.removeVisitor(player);
                 }

@@ -45,7 +45,7 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
         if (c.getPlayer().getInventory(MapleItemInformationProvider.getInstance().getInventoryType(ob.getObjectId())).getNextFreeSlot() > -1) {
             if (c.getPlayer().getMapId() > 209000000 && c.getPlayer().getMapId() < 209000016) {//happyville trees
                 MapleMapItem mapitem = (MapleMapItem) ob;
-                if (mapitem.getDropper() == c.getPlayer()) {
+                if (mapitem.getDropper() == c.getPlayer() || c.getPlayer().getParty() != null && c.getPlayer().getParty().containsMembers((MaplePartyCharacter) mapitem.getDropper())) {
                     if (MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), false)) {
                         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, c.getPlayer().getId()), mapitem.getPosition());
                         c.getPlayer().getMap().removeMapObject(ob);

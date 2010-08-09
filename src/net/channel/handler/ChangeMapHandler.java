@@ -84,11 +84,14 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
                         player.setStance(0);
                     }
                     player.setHp(50);
+                    player.setComboCounter(0);
                     player.changeMap(to, to.getPortal(0));
                 }
-            } else if (targetid != -1 && (player.isGM() || (player.getAllowWarpToId() == targetid && player.getAllowWarpToId() >= 0))) {
+            } else if (targetid != -1 && player.isGM()) {
+                player.setComboCounter(0);
                 player.changeMap(targetid, 0);
             } else if (portal != null) {
+                player.setComboCounter(0);
                 portal.enterPortal(c);
             } else {
                 c.getSession().write(MaplePacketCreator.enableActions());

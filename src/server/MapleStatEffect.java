@@ -132,7 +132,7 @@ public class MapleStatEffect implements Serializable {
     private int x, y;
     private double prop;
     private int itemCon, itemConNo;
-    private int damage, attackCount, bulletCount, bulletConsume;
+    private int damage, attackCount, bulletCount, bulletConsume, fixdamage;
     private Point lt, rb;
     private int mobCount;
     private int moneyCon;
@@ -207,6 +207,7 @@ public class MapleStatEffect implements Serializable {
         ret.x = x;
         ret.y = MapleDataTool.getInt("y", source, 0);
         ret.damage = MapleDataTool.getIntConvert("damage", source, 100);
+        ret.fixdamage = MapleDataTool.getIntConvert("fixdamage", source, -1);
         ret.attackCount = MapleDataTool.getIntConvert("attackCount", source, 1);
         ret.bulletCount = MapleDataTool.getIntConvert("bulletCount", source, 1);
         ret.bulletConsume = MapleDataTool.getIntConvert("bulletConsume", source, 0);
@@ -277,6 +278,7 @@ public class MapleStatEffect implements Serializable {
                 case Hero.STANCE:
                 case Paladin.STANCE:
                 case DarkKnight.STANCE:
+                case Aran.FREEZE_STANDING:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.STANCE, Integer.valueOf(iprop)));
                     break;
                 case DawnWarrior.FINAL_ATTACK:
@@ -494,6 +496,7 @@ public class MapleStatEffect implements Serializable {
                 case Sniper.BLIZZARD:
                 case Outlaw.ICE_SPLITTER:
                 case FPArchMage.PARALYZE:
+                case Aran.COMBO_TEMPEST:
                     monsterStatus.put(MonsterStatus.FREEZE, Integer.valueOf(1));
                     ret.duration *= 2; // freezing skills are a little strange
                     break;
@@ -501,10 +504,6 @@ public class MapleStatEffect implements Serializable {
                 case ILWizard.SLOW:
                 case BlazeWizard.SLOW:
                     monsterStatus.put(MonsterStatus.SPEED, Integer.valueOf(ret.x));
-                    break;
-                case Aran.SNOW_CHARGE:
-                    monsterStatus.put(MonsterStatus.SPEED, Integer.valueOf(x));
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.WK_CHARGE, Integer.valueOf(ret.y)));
                     break;
                 case FPWizard.POISON_BREATH:
                 case FPMage.ELEMENT_COMPOSITION:
@@ -525,6 +524,26 @@ public class MapleStatEffect implements Serializable {
                 case ILArchMage.ICE_DEMON:
                     monsterStatus.put(MonsterStatus.POISON, Integer.valueOf(1));
                     monsterStatus.put(MonsterStatus.FREEZE, Integer.valueOf(1));
+                    break;
+                //ARAN
+                case Aran.COMBO_ABILITY: //test
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ARAN_COMBO, 100));
+                    break;
+                case Aran.COMBO_BARRIER:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO_BARRIER, ret.x));
+                    break;
+                case Aran.COMBO_DRAIN:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO_DRAIN, ret.x));
+                    break;
+                case Aran.SMART_KNOCKBACK:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SMART_KNOCKBACK, ret.x));
+                    break;
+                case Aran.BODY_PRESSURE:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.BODY_PRESSURE, ret.x));
+                    break;
+                case Aran.SNOW_CHARGE:
+                    monsterStatus.put(MonsterStatus.SPEED, ret.x);
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.WK_CHARGE, ret.y));
                     break;
                 default:
                     break;
@@ -590,7 +609,7 @@ public class MapleStatEffect implements Serializable {
         List<Pair<MapleStat, Integer>> hpmpupdate = new ArrayList<Pair<MapleStat, Integer>>(2);
         if (!primary && isResurrection()) {
             hpchange = applyto.getMaxHp();
-            applyto.setStance(0); //TODO fix death bug, player doesnt spawn on other screen
+            applyto.setStance(0);
         }
         if (isDispel() && makeChanceResult()) {
             applyto.dispelDebuffs();
@@ -774,6 +793,16 @@ public class MapleStatEffect implements Serializable {
                 tosummon.addHP(x);
             }
         }
+    }
+
+    public final void applyComboBuff(final MapleCharacter applyto, int combo) {
+	final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ARAN_COMBO, combo));
+	applyto.getClient().getSession().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat));
+
+	final long starttime = System.currentTimeMillis();
+//	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
+//	final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + 99999) - System.currentTimeMillis()));
+	applyto.registerEffect(this, starttime, null);
     }
 
     private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary) {
@@ -1273,6 +1302,10 @@ public class MapleStatEffect implements Serializable {
 
     public int getMobCount() {
         return mobCount;
+    }
+
+    public int getFixDamage() {
+        return fixdamage;
     }
 
     public int getBulletCount() {

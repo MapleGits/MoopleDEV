@@ -19,46 +19,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package client.status;
+package net.channel.handler;
 
-import java.io.Serializable;
-import net.IntValueHolder;
+import client.MapleBuffStat;
+import client.MapleClient;
+import tools.data.input.SeekableLittleEndianAccessor;
 
-public enum MonsterStatus implements IntValueHolder, Serializable {
-    WATK(0x1),
-    WDEF(0x2),
-    MATK(0x4),
-    MDEF(0x8),
-    ACC(0x10),
-    AVOID(0x20),
-    SPEED(0x40),
-    STUN(0x80),
-    FREEZE(0x100),
-    POISON(0x200),
-    SEAL(0x400),
-    SHOWDOWN(0x800),
-    NEUTRALIZE(0x02),
-    WEAPON_ATTACK_UP(0x1000),
-    WEAPON_DEFENSE_UP(0x2000),
-    MAGIC_ATTACK_UP(0x4000),
-    MAGIC_DEFENSE_UP(0x8000),
-    DOOM(0x10000),
-    SHADOW_WEB(0x20000),
-    WEAPON_IMMUNITY(0x40000),
-    NINJA_AMBUSH(0x400000),
-    MAGIC_IMMUNITY(0x80000),
-    VENOMOUS_WEAPON(0x100000),
-    INERTMOB(0x10000000),
-    WEAPON_REFLECT(0x20000000),
-    MAGIC_REFLECT(0x40000000);
-    private final int i;
-
-    private MonsterStatus(int i) {
-        this.i = i;
-    }
-
-    @Override
-    public int getValue() {
-        return i;
+public final class TouchMonsterDamageHandler extends AbstractDealDamageHandler {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        if (c.getPlayer().getEnergyBar() == 15000 || c.getPlayer().getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
+            applyAttack(parseDamage(slea, c.getPlayer(), false), c.getPlayer(), 1);
+        }
     }
 }

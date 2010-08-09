@@ -147,6 +147,7 @@ public class SkillFactory {
                 case NightWalker.VAMPIRE:
                 case Aran.COMBO_PENRIL:
                 case Aran.COMBO_SMASH:
+                case Aran.COMBO_TEMPEST:
                     isBuff = false;
                     break;
                 case Beginner.RECOVERY:
@@ -327,6 +328,8 @@ public class SkillFactory {
                 case Aran.SNOW_CHARGE:
                 case Aran.BODY_PRESSURE:
                 case Aran.SMART_KNOCKBACK:
+                case Aran.COMBO_BARRIER:
+                case Aran.COMBO_ABILITY:
                     isBuff = true;
                     break;
             }

@@ -1036,7 +1036,8 @@ public class MapleMap {
 
     public void spawnItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean expire) {
         final Point droppos = calcDropPos(pos, pos);
-        final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner);
+
+        final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, (MapleCharacter) (owner.getParty() == null ? owner : owner.getParty().getMembers()));
         spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
             public void sendPackets(MapleClient c) {
                 c.getSession().write(MaplePacketCreator.dropItemFromMapObject(item.getItemId(), drop.getObjectId(), 0, ffaDrop ? 0 : owner.getId(), dropper.getPosition(), droppos, (byte) 1));

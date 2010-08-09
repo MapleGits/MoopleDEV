@@ -54,6 +54,9 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
                     return;
                 }
+                if (mapitem.getDropper() == c.getPlayer()) {
+                    return;
+                }
                 if (mapitem.getMeso() > 0) {
                     if (c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).findById(1812000) != null) {
                         c.getPlayer().gainMeso(mapitem.getMeso(), true, true, false);

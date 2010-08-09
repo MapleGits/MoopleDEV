@@ -21,7 +21,6 @@
 */
 package client;
 
-import client.IItem;
 import constants.ExpTable;
 import constants.ServerConstants;
 import constants.skills.Bishop;
@@ -510,6 +509,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void setComboCounter(int count) {
+        if (combocounter != 30000)
         combocounter = count;  
     } 
 
