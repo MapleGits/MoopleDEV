@@ -239,11 +239,14 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     }
                 }
                 if (attack.isHH && !monster.isBoss()) {
+                    player.setLastAttack(System.currentTimeMillis() + 3000);
                     map.damageMonster(player, monster, monster.getHp() - 1);
                 } else if (attack.isHH) {
+                    player.setLastAttack(System.currentTimeMillis() + 3000);
                     int HHDmg = (player.calculateMaxBaseDamage(player.getTotalWatk()) * (SkillFactory.getSkill(Paladin.HEAVENS_HAMMER).getEffect(player.getSkillLevel(SkillFactory.getSkill(Paladin.HEAVENS_HAMMER))).getDamage() / 100));
                     map.damageMonster(player, monster, (int) (Math.floor(Math.random() * (HHDmg / 5) + HHDmg * .8)));
                 } else {
+                    player.setLastAttack(System.currentTimeMillis() + 3000);
                     map.damageMonster(player, monster, totDamageToOneMonster);
                 }
             }

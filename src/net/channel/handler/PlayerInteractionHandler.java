@@ -45,7 +45,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
  * @author Matze
  */
 public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
-    private enum Action {
+    public enum Action {
         CREATE(0),
         INVITE(2),
         DECLINE(3),

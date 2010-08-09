@@ -32,11 +32,10 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public class AranComboHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        if (player.getJob().isA(MapleJob.LEGEND)) { //Should work right :O
-            if ((System.currentTimeMillis() + 3000) < player.getLastAttack()) {
+        if (player.getJobType() == 2) { //Keep it this till Evan comes in Private Servers.
+            if (System.currentTimeMillis() > player.getLastAttack()) {
                 player.setComboCounter(0);
-            } else {
-             player.setLastAttack(System.currentTimeMillis());
+            } else {             
              player.setComboCounter(player.getComboCounter() + 1);
             c.getSession().write(MaplePacketCreator.showCombo(player.getComboCounter()));
             }
