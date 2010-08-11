@@ -54,7 +54,7 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
 		    SkillFactory.getSkill(21000000).getEffect(combo / 10).applyComboBuff(player, combo);
 		    break;
 	    }
-                //player.setLastAttack(System.currentTimeMillis());
+                player.setLastAttack(System.currentTimeMillis());
                 player.setCombo(combo);
                 c.getSession().write(MaplePacketCreator.showCombo(combo));
             }

@@ -485,7 +485,6 @@ public class MapleMap {
     }
 
     public boolean damageMonster(MapleCharacter chr, MapleMonster monster, int damage) {
-        chr.setLastAttack(System.currentTimeMillis());
         if (monster.getId() == 8800000) {
             for (MapleMapObject object : chr.getMap().getMapObjects()) {
                 MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());

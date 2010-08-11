@@ -57,7 +57,6 @@ import server.MaplePortal;
 import server.events.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
-import server.life.MapleMonsterStats;
 import server.life.MapleNPC;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
@@ -77,7 +76,14 @@ public class Commands {
             for (int i : array) {
                 SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
             }
-
+        } else if (sub[0].equals("spawn")) {
+            if (sub[2].length() != 0) {
+            for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
+                player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
+            }
+            } else {
+                player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());  
+            }
         } else if (sub[0].equals("chattype")) {
             player.toggleGMChat();
             player.message("You now chat in " + (player.getGMChat() ? "white." : "black."));
