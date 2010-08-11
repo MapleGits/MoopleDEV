@@ -28,6 +28,7 @@ import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
 import client.MapleStat;
 import client.SkillFactory;
+import constants.skills.Aran;
 import constants.skills.Brawler;
 import constants.skills.Buccaneer;
 import constants.skills.Corsair;
@@ -47,6 +48,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+
         slea.readInt();
         int skillid = slea.readInt();
         Point pos = null;
@@ -70,6 +72,7 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
         }
         if (skillid == Hero.MONSTER_MAGNET || skillid == Paladin.MONSTER_MAGNET || skillid == DarkKnight.MONSTER_MAGNET) { // Monster Magnet
             int num = slea.readInt();
+            slea.skip(3);
             int mobId;
             byte success;
             for (int i = 0; i < num; i++) {

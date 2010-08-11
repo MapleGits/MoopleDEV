@@ -4076,7 +4076,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket skillEffect(MapleCharacter from, int skillId, int level, byte flags, int speed) {
+    public static MaplePacket skillEffect(MapleCharacter from, int skillId, int level, byte flags, int speed, byte direction) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SKILL_EFFECT.getValue());
         mplew.writeInt(from.getId());
@@ -4084,6 +4084,7 @@ public class MaplePacketCreator {
         mplew.write(level);
         mplew.write(flags);
         mplew.write(speed);
+        mplew.write(direction); //Mmmk
         return mplew.getPacket();
     }
 
@@ -4100,6 +4101,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_MAGNET.getValue());
         mplew.writeInt(mobid);
         mplew.write(success);
+        mplew.write0(10); //Mmmk
         return mplew.getPacket();
     }
 

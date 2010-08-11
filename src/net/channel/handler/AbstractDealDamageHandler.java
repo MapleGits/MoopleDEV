@@ -112,7 +112,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         if (!player.isAlive()) {
             return;
         }
-        if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST) {
+        if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST) {
             return;
         }
         int totDamage = 0;
@@ -174,16 +174,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                             delay += 100;
                         }
                     }
-                if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
-                    if (player.getHp() == player.getMaxHp()){
-                        return;
-                    }
-                    ISkill cdrain = SkillFactory.getSkill(Aran.COMBO_DRAIN);
-                    int gainhp;
-                    gainhp = (int) ((double) Math.min(30000, 50000) * (double) cdrain.getEffect(player.getSkillLevel(cdrain)).getX() / 100.0);
-                    gainhp = Math.min(monster.getMaxHp(), Math.min(gainhp, player.getMaxHp() / 10));
-                    player.addHP(gainhp);
-                }
                 } else if (attack.skill == Marksman.SNIPE) {
                     totDamageToOneMonster = 195000 + Randomizer.getInstance().nextInt(5000);
                 } else if (attack.skill == Marauder.ENERGY_DRAIN || attack.skill == ThunderBreaker.ENERGY_DRAIN || attack.skill == NightWalker.VAMPIRE || attack.skill == Assassin.DRAIN) {
@@ -229,12 +219,15 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                         }
                     }
                 } else if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
-				final ISkill skill = SkillFactory.getSkill(21101003);
-				final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+			final ISkill skill = SkillFactory.getSkill(21101003);
+			final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
-				if (eff.makeChanceResult()) {
-				    monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALIZE, 1), skill, false), false, eff.getX() * 1000, false);
+			if (eff.makeChanceResult()) {
+                            monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALIZE, 1), skill, false), false, eff.getX() * 1000, false);
 			}
+                } else if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
+			final ISkill skill = SkillFactory.getSkill(21100005);
+			player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
                 } else if (id == 412 || id == 422 || id == 1411) {
                     ISkill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
                     if (player.getSkillLevel(type) > 0) {
@@ -258,7 +251,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     if (attackEffect.makeChanceResult()) {
                         monster.applyStatus(player, new MonsterStatusEffect(attackEffect.getMonsterStati(), theSkill, false), attackEffect.isPoison(), attackEffect.getDuration());
                     }
-                }                
+                }
+                player.setLastAttack(System.currentTimeMillis());
                 if (attack.isHH && !monster.isBoss()) {
                     map.damageMonster(player, monster, monster.getHp() - 1);
                 } else if (attack.isHH) {

@@ -21,10 +21,10 @@
 */
 package net.channel.handler;
 
-import java.net.InetAddress;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import net.AbstractMaplePacketHandler;
 import net.channel.ChannelServer;
@@ -36,14 +36,14 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ChangeMapHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (slea.available() == 0) {
+        MapleCharacter chr = c.getPlayer();
+        if (slea.available() == 0) { //is this even used?
             String ip = ChannelServer.getInstance(c.getChannel()).getIP(c.getChannel());
             String[] socket = ip.split(":");
-            player.saveToDB(true);
-            player.getCashShop().open(false);
-            player.setInMTS(false);
-            ChannelServer.getInstance(c.getChannel()).removePlayer(player);
+            chr.saveToDB(true);
+            chr.getCashShop().open(false);
+            chr.setInMTS(false);
+            ChannelServer.getInstance(c.getChannel()).removePlayer(chr);
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
             try {
                 c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
@@ -51,11 +51,11 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            slea.readByte(); // 1 = from dying 2 = regular portals
-            int targetid = slea.readInt(); // FF FF FF FF
+        } else { 
+            slea.readByte(); // 1 = from dying 2 = regular portals < Fking wrong fkers
+            int targetid = slea.readInt();
             String startwp = slea.readMapleAsciiString();
-            MaplePortal portal = player.getMap().getPortal(startwp);
+            MaplePortal portal = chr.getMap().getPortal(startwp);
             slea.readByte();
             boolean wheel = slea.readShort() > 0;
             if (!portal.getPortalStatus()) {
@@ -63,40 +63,44 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
             }
-            if (player.getMapId() == 109040004) {
-                player.getFitness().resetTimes();
+            if (chr.getMapId() == 109040004) {
+                chr.getFitness().resetTimes();
             }
-            if (player.getMapId() == 109030003 || player.getMapId() == 109030103) {
-                player.getOla().resetTimes();
+            if (chr.getMapId() == 109030003 || chr.getMapId() == 109030103) {
+                chr.getOla().resetTimes();
             }
-            if (targetid != -1 && !player.isAlive()) {
-                boolean executeStandardPath = true;
-                if (player.getEventInstance() != null) {
-                    executeStandardPath = player.getEventInstance().revivePlayer(player);
-                }
-                if (executeStandardPath) {
-                    MapleMap to = player.getMap();
-                    if (wheel && player.getItemQuantity(5510000, false) > 0) {
-                        MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
-                    } else {
-                        player.cancelAllBuffs();
-                        to = player.getMap().getReturnMap();
-                        player.setStance(0);
-                    }
-                    player.setHp(50);
-                    player.setComboCounter(0);
-                    player.changeMap(to, to.getPortal(0));
-                }
-            } else if (targetid != -1 && player.isGM()) {
-                player.setComboCounter(0);
-                player.changeMap(targetid, 0);
-            } else if (portal != null) {
-                player.setComboCounter(0);
-                portal.enterPortal(c);
-            } else {
-                c.getSession().write(MaplePacketCreator.enableActions());
-            }
+            if (targetid != -1 && !chr.isAlive()) {
+		if (chr.getEventInstance() != null) {
+		    chr.getEventInstance().revivePlayer(chr);
+		}
+		chr.setStance(0);
+
+		if (!wheel) {
+		    chr.setHp(50);
+
+		    final MapleMap to = chr.getMap().getReturnMap();
+		    chr.changeMap(to, to.getPortal(0));
+		} else {
+		    if (chr.haveItem(5510000)) { // Wheel of Fortune
+			chr.setHp((chr.getMaxHp() / 100) * 40);
+			MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
+
+			final MapleMap to = chr.getMap();
+			chr.changeMap(to, to.getPortal(0));
+		    }
+		}
+	    } else if (targetid != -1 && chr.isGM()) { //WHY DOESN'T THIS FKING WORKS -RAGE QUIT-
+		final MapleMap to = ChannelServer.getInstance(c.getChannel()).getMapFactory().getMap(targetid);
+		chr.changeMap(to, to.getPortal(0));
+	    } else {
+		if (portal != null) {
+		    portal.enterPortal(c);
+		} else {
+		    c.getSession().write(MaplePacketCreator.enableActions());
+		}
+	    }
+            chr.setRates();
         }
-        player.setRates();
+
     }
 }

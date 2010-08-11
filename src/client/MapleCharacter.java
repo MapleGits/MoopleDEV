@@ -503,21 +503,28 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void cancelBuffStats(MapleBuffStat stat) {
+        if (!effects.containsKey(stat))
+            return;
+
         List<MapleBuffStat> buffStatList = Arrays.asList(stat);
         deregisterBuffStats(buffStatList);
         cancelPlayerBuffs(buffStatList);
     }
 
-    public void setComboCounter(int count) {
-        if (combocounter != 30000)
-        combocounter = count;  
+    public void setCombo(int count) {
+        if (combocounter > 30000) {
+            combocounter = 30000;
+            return;
+        }
+        combocounter = count;
+
     } 
 
     public void setLastAttack(long time) { 
         lastattack = time; 
     } 
 
-    public int getComboCounter() { 
+    public int getCombo() { 
         return combocounter; 
     } 
 

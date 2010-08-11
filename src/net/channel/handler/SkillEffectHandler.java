@@ -27,12 +27,15 @@ import constants.skills.Bowmaster;
 import constants.skills.Brawler;
 import constants.skills.ChiefBandit;
 import constants.skills.Corsair;
+import constants.skills.DarkKnight;
 import constants.skills.FPArchMage;
 import constants.skills.FPMage;
 import constants.skills.Gunslinger;
+import constants.skills.Hero;
 import constants.skills.ILArchMage;
 import constants.skills.Marksman;
 import constants.skills.NightWalker;
+import constants.skills.Paladin;
 import constants.skills.ThunderBreaker;
 import constants.skills.WindArcher;
 import net.AbstractMaplePacketHandler;
@@ -45,6 +48,7 @@ public final class SkillEffectHandler extends AbstractMaplePacketHandler {
         int level = slea.readByte();
         byte flags = slea.readByte();
         int speed = slea.readByte();
+        byte aids = slea.readByte();//Mmmk
         switch (skillId) {
             case FPMage.EXPLOSION:
             case FPArchMage.BIG_BANG:
@@ -59,7 +63,10 @@ public final class SkillEffectHandler extends AbstractMaplePacketHandler {
             case WindArcher.HURRICANE:
             case NightWalker.POISON_BOMB:
             case ThunderBreaker.CORKSCREW_BLOW:
-                c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.skillEffect(c.getPlayer(), skillId, level, flags, speed), false);
+            case Paladin.MONSTER_MAGNET:
+            case DarkKnight.MONSTER_MAGNET:
+            case Hero.MONSTER_MAGNET:
+                c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.skillEffect(c.getPlayer(), skillId, level, flags, speed, aids), false);
                 return;
             default:
                 System.out.println(c.getPlayer() + " entered SkillEffectHandler without being handled using " + skillId + ".");

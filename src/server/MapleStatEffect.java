@@ -526,7 +526,7 @@ public class MapleStatEffect implements Serializable {
                     monsterStatus.put(MonsterStatus.FREEZE, Integer.valueOf(1));
                     break;
                 //ARAN
-                case Aran.COMBO_ABILITY: //test
+                case Aran.COMBO_ABILITY: 
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ARAN_COMBO, 100));
                     break;
                 case Aran.COMBO_BARRIER:
@@ -615,6 +615,10 @@ public class MapleStatEffect implements Serializable {
             applyto.dispelDebuffs();
         } else if (isHeroWill()) {
             applyto.dispelSeduce();
+        }
+        if (isComboReset()) {
+            applyto.setCombo(0);
+            applyto.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
         }
         if (hpchange != 0) {
             if (hpchange < 0 && (-hpchange) > applyto.getHp()) {
@@ -1178,6 +1182,10 @@ public class MapleStatEffect implements Serializable {
 
     private boolean isMorph() {
         return morphId > 0;
+    }
+
+    private boolean isComboReset() {
+        return sourceid == Aran.COMBO_BARRIER || sourceid == Aran.COMBO_DRAIN;
     }
 
     private int getFatigue() {

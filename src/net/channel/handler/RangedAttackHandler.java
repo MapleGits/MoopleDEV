@@ -32,6 +32,7 @@ import client.MapleInventoryType;
 import client.MapleWeaponType;
 import client.SkillFactory;
 import constants.InventoryConstants;
+import constants.skills.Aran;
 import constants.skills.Buccaneer;
 import constants.skills.NightWalker;
 import constants.skills.ThunderBreaker;
@@ -52,6 +53,21 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
         if (attack.skill == Buccaneer.ENERGY_ORB || attack.skill == ThunderBreaker.SPARK) {
             player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction, attack.display), false);
             applyAttack(attack, player, 1);
+        } else if (attack.skill == Aran.COMBO_SMASH || attack.skill == Aran.COMBO_PENRIL || attack.skill == Aran.COMBO_TEMPEST) {
+            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction, attack.display), false);            
+            if (attack.skill == Aran.COMBO_SMASH && player.getCombo() >= 30) {
+                player.setCombo(0);
+                player.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
+                applyAttack(attack, player, 1);
+            } else if (attack.skill == Aran.COMBO_PENRIL && player.getCombo() >= 100) {
+                player.setCombo(0);
+                player.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
+                applyAttack(attack, player, 2);
+            } else if (attack.skill == Aran.COMBO_TEMPEST && player.getCombo() >= 200) {
+                player.setCombo(0);
+                player.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
+                applyAttack(attack, player, 4);    
+            }
         } else {
             IItem weapon = player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
             MapleWeaponType type = MapleItemInformationProvider.getInstance().getWeaponType(weapon.getItemId());
