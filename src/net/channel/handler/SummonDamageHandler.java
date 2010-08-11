@@ -55,6 +55,7 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
     }
 
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        //B0 00 F1 00 00 00 32 8E EA 00 84 01 54 04 AE 01 40 04 A9 01 EE 00 00 00 FC BE 8F 00 06 00 01 01 86 03 26 02 82 03 26 02 F8 07 2F 3C 00 00 19 51 B9 18
         int oid = slea.readInt();
         MapleCharacter player = c.getPlayer();
         if (!player.isAlive()) {
@@ -75,6 +76,7 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         List<SummonAttackEntry> allDamage = new ArrayList<SummonAttackEntry>();
         int numAttacked = slea.readByte();
         for (int x = 0; x < numAttacked; x++) {
+            slea.skip(8);
             int monsterOid = slea.readInt(); // attacked oid
             slea.skip(18); // who knows
             int damage = slea.readInt();

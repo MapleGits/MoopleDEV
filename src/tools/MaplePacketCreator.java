@@ -3519,7 +3519,6 @@ public class MaplePacketCreator {
         //mplew.write(stats.size()); // ?
         return mplew.getPacket();
     }
-
     public static MaplePacket cancelMonsterStatus(int oid, Map<MonsterStatus, Integer> stats) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CANCEL_MONSTER_STATUS.getValue());
@@ -3531,7 +3530,7 @@ public class MaplePacketCreator {
             mask |= stat.getValue();
         }
         mplew.writeInt(mask);
-        mplew.write(1);
+        mplew.write(0); //012345676586863483795632?
         return mplew.getPacket();
     }
 
@@ -4941,7 +4940,7 @@ public class MaplePacketCreator {
         }
         mplew.writeMapleAsciiString(hm.getDescription());
         mplew.write(0x10);
-        mplew.writeInt(0);
+        mplew.writeInt(hm.isOwner(chr) ? hm.owner().getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
         if (hm.getItems().size() == 0) {
             mplew.write(0);
@@ -4960,7 +4959,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.UPDATE_MERCHANT.getCode());
-        mplew.writeInt(0);
+        mplew.writeInt(hm.owner().getMerchantMeso());
         mplew.write(hm.getItems().size());
         for (MaplePlayerShopItem item : hm.getItems()) {
             mplew.writeShort(item.getBundles());
@@ -4991,21 +4990,20 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket hiredMerchantForceLeave2() {
+    public static MaplePacket hiredMerchantOwnerLeave() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(PlayerInteractionHandler.Action.EXIT.getCode());
+        mplew.write(PlayerInteractionHandler.Action.REAL_CLOSE_MERCHANT.getCode());
         mplew.write(0);
-        mplew.write(0x10);
         return mplew.getPacket();
     }
 
-    public static MaplePacket hiredMerchantForceLeave1() {
+    public static MaplePacket leaveHiredMerchant(int slot, int status2) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.EXIT.getCode());
-        mplew.write(0x01);
-        mplew.write(0x0D);
+        mplew.write(slot);
+        mplew.write(status2);
         return mplew.getPacket();
     }
 

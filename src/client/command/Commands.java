@@ -49,7 +49,6 @@ import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import scripting.npc.NPCScriptManager;
-import scripting.quest.QuestActionManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleOxQuiz;
@@ -58,6 +57,7 @@ import server.MaplePortal;
 import server.events.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
+import server.life.MapleMonsterStats;
 import server.life.MapleNPC;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
@@ -77,6 +77,7 @@ public class Commands {
             for (int i : array) {
                 SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
             }
+
         } else if (sub[0].equals("chattype")) {
             player.toggleGMChat();
             player.message("You now chat in " + (player.getGMChat() ? "white." : "black."));

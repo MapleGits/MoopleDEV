@@ -6,6 +6,7 @@
 package server.events;
 
 import client.MapleCharacter;
+import java.util.concurrent.ScheduledFuture;
 import server.TimerManager;
 import tools.MaplePacketCreator;
 
@@ -17,18 +18,11 @@ public class MapleOla {
        private MapleCharacter chr;
        private long time = 0;
        private long timeStarted = 0;
+       private ScheduledFuture<?> schedule = null;
 
-       public MapleOla(MapleCharacter chr) {
+       public MapleOla(final MapleCharacter chr) {
            this.chr = chr;
-       }
-
-       public void startOla() { // TODO: Messages
-           chr.getMap().startEvent();
-           chr.getClient().getSession().write(MaplePacketCreator.getClock(360));
-           this.timeStarted = System.currentTimeMillis();
-           this.time = 360000;
-
-           TimerManager.getInstance().schedule(new Runnable() {
+           this.schedule = TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
             if (chr.getMapId() >= 109030001 && chr.getMapId() <= 109030303)
@@ -36,6 +30,13 @@ public class MapleOla {
              resetTimes();
             }
            }, 360000);
+       }
+
+       public void startOla() { // TODO: Messages
+           chr.getMap().startEvent();
+           chr.getClient().getSession().write(MaplePacketCreator.getClock(360));
+           this.timeStarted = System.currentTimeMillis();
+           this.time = 360000;
 
            chr.getMap().getPortal("join00").setPortalStatus(true);
            chr.getClient().getSession().write(MaplePacketCreator.serverNotice(0, "The portal has now opened. Press the up arrow key at the portal to enter."));
@@ -52,7 +53,7 @@ public class MapleOla {
        public void resetTimes() {
            this.time = 0;
            this.timeStarted = 0;
-           TimerManager.getInstance().stop();
+           schedule.cancel(false);
        }
 
        public long getTimeLeft() {

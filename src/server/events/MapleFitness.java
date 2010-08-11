@@ -23,6 +23,7 @@
 package server.events;
 
 import client.MapleCharacter;
+import java.util.concurrent.ScheduledFuture;
 import server.TimerManager;
 import tools.MaplePacketCreator;
 
@@ -34,9 +35,18 @@ public class MapleFitness {
        private MapleCharacter chr;
        private long time = 0;
        private long timeStarted = 0;
+       private ScheduledFuture<?> schedule = null;
+       private ScheduledFuture<?> schedulemsg = null;
        
-       public MapleFitness(MapleCharacter chr) {
+       public MapleFitness(final MapleCharacter chr) {
            this.chr = chr;
+           this.schedule = TimerManager.getInstance().schedule(new Runnable() {
+            @Override
+            public void run() {
+            if (chr.getMapId() >= 109040000 && chr.getMapId() <= 109040004)
+             chr.changeMap(chr.getMap().getReturnMap());
+            }
+           }, 900000);
        }
        
        public void startFitness() {
@@ -44,16 +54,7 @@ public class MapleFitness {
            chr.getClient().getSession().write(MaplePacketCreator.getClock(900));
            this.timeStarted = System.currentTimeMillis();
            this.time = 900000;  
-           checkAndMessage();
-           
-           TimerManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-            if (chr.getMapId() >= 109040000 && chr.getMapId() <= 109040004)
-             chr.changeMap(chr.getMap().getReturnMap());
-             resetTimes();
-            }
-           }, 900000);
+           checkAndMessage();         
 
            chr.getMap().getPortal("join00").setPortalStatus(true);
            chr.getClient().getSession().write(MaplePacketCreator.serverNotice(0, "The portal has now opened. Press the up arrow key at the portal to enter."));
@@ -70,7 +71,8 @@ public class MapleFitness {
        public void resetTimes() {
            this.time = 0;
            this.timeStarted = 0;
-           TimerManager.getInstance().stop();
+           schedule.cancel(false);
+           schedulemsg.cancel(false);
        }
 
        public long getTimeLeft() {
@@ -78,7 +80,7 @@ public class MapleFitness {
        }
 
        public void checkAndMessage() {
-           TimerManager.getInstance().register(new Runnable() {
+           this.schedulemsg = TimerManager.getInstance().register(new Runnable() {
             @Override
             public void run() {
                 if (chr.getFitness() == null) {

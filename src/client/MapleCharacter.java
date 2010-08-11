@@ -503,9 +503,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void cancelBuffStats(MapleBuffStat stat) {
-        if (!effects.containsKey(stat))
-            return;
-
         List<MapleBuffStat> buffStatList = Arrays.asList(stat);
         deregisterBuffStats(buffStatList);
         cancelPlayerBuffs(buffStatList);

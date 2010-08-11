@@ -618,7 +618,6 @@ public class MapleStatEffect implements Serializable {
         }
         if (isComboReset()) {
             applyto.setCombo(0);
-            applyto.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
         }
         if (hpchange != 0) {
             if (hpchange < 0 && (-hpchange) > applyto.getHp()) {

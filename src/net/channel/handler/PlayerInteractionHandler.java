@@ -488,14 +488,18 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
         } else if (mode == Action.CLOSE_MERCHANT.getCode()) {
             HiredMerchant merchant = c.getPlayer().getHiredMerchant();
             if (merchant != null && merchant.isOwner(c.getPlayer())) {
-                c.getSession().write(MaplePacketCreator.hiredMerchantForceLeave2());
-                merchant.closeShop(c);
+                for (MaplePlayerShopItem item : merchant.getItems()) {
+                    item.getItem().setQuantity((short) (item.getBundles() * item.getItem().getQuantity())); //Should work f3
+                }
+                c.getSession().write(MaplePacketCreator.hiredMerchantOwnerLeave());
+                c.getSession().write(MaplePacketCreator.leaveHiredMerchant(0x00, 0x03));
+                merchant.closeShop(c, false);
                 c.getPlayer().setHasMerchant(false);
             }
         } else if (mode == Action.MAINTENANCE_OFF.getCode()) {
             HiredMerchant merchant = c.getPlayer().getHiredMerchant();
             if (merchant.getItems().isEmpty() && merchant.isOwner(c.getPlayer())) {
-                merchant.closeShop(c);
+                merchant.closeShop(c, false);
                 c.getPlayer().setHasMerchant(false);
             }
             if (merchant != null && merchant.isOwner(c.getPlayer())) {

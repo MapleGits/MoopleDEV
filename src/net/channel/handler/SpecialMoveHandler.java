@@ -72,7 +72,6 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
         }
         if (skillid == Hero.MONSTER_MAGNET || skillid == Paladin.MONSTER_MAGNET || skillid == DarkKnight.MONSTER_MAGNET) { // Monster Magnet
             int num = slea.readInt();
-            slea.skip(3);
             int mobId;
             byte success;
             for (int i = 0; i < num; i++) {
