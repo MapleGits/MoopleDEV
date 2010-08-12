@@ -2211,6 +2211,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             maxmp += aids + Math.floor(aids * 0.1);
         }
         if(getLevel() < 11){
+            remainingAp = 0;
             if (getLevel() < 6) {
                 str += 5;
             } else {

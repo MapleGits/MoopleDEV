@@ -81,7 +81,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
 		    final MapleMap to = chr.getMap().getReturnMap();
 		    chr.changeMap(to, to.getPortal(0));
 		} else {
-		    if (chr.haveItem(5510000)) { // Wheel of Fortune
+		    if (chr.haveItem(5510000)) { // Wheel
 			chr.setHp((chr.getMaxHp() / 100) * 40);
 			MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
 
@@ -89,7 +89,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
 			chr.changeMap(to, to.getPortal(0));
 		    }
 		}
-	    } else if (targetid != -1 && chr.isGM()) { //WHY DOESN'T THIS FKING WORKS -RAGE QUIT-
+	    } else if (targetid != -1 && chr.isGM()) {
 		final MapleMap to = ChannelServer.getInstance(c.getChannel()).getMapFactory().getMap(targetid);
 		chr.changeMap(to, to.getPortal(0));
 	    } else {

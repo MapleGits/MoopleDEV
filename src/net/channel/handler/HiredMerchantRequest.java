@@ -21,8 +21,12 @@
 */
 package net.channel.handler;
 
+import client.ItemFactory;
+import java.sql.SQLException;
 import java.util.Arrays;
 import client.MapleClient;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -36,7 +40,14 @@ public final class HiredMerchantRequest extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), 23000, Arrays.asList(MapleMapObjectType.HIRED_MERCHANT)).size() == 0 && c.getPlayer().getMapId() > 910000000 && c.getPlayer().getMapId() < 910000023) {
             if (!c.getPlayer().hasMerchant()) {
-                c.getSession().write(MaplePacketCreator.hiredMerchantBox());
+                try {
+                    if (ItemFactory.MERCHANT.loadItems(c.getPlayer().getId(), false).isEmpty()) {
+                        c.getSession().write(MaplePacketCreator.hiredMerchantBox());
+                    } else {
+                        c.getPlayer().dropMessage(1, "Please claim your items from Fredrick first.");
+                    }
+                } catch (SQLException ex) {
+                }
             } else {
                 c.getPlayer().dropMessage(1, "You already have a store open.");
             }

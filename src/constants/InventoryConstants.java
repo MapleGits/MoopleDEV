@@ -21,8 +21,6 @@
 */
 package constants;
 
-import server.MapleItemInformationProvider;
-
 /**
  *
  * @author Jay Estrella

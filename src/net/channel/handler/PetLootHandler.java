@@ -21,6 +21,7 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import client.MaplePet;
 import net.AbstractMaplePacketHandler;
@@ -30,6 +31,7 @@ import server.maps.MapleMapObject;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleInventoryType;
+import net.world.MaplePartyCharacter;
 
 /**
  * @author TheRamon
@@ -58,7 +60,26 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
                     return;
                 }
                 if (mapitem.getMeso() > 0) {
-                    if (c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).findById(1812000) != null) {
+                        if (c.getPlayer().getParty() != null) {
+                            int mesosamm = mapitem.getMeso();
+                            if (mesosamm > 50000 * c.getPlayer().getMesoRate()) {
+                                return;
+                            }
+                            int partynum = 0;
+                            for (MaplePartyCharacter partymem : c.getPlayer().getParty().getMembers()) {
+                                if (partymem.isOnline() && partymem.getMapid() == c.getPlayer().getMap().getId() && partymem.getChannel() == c.getChannel()) {
+                                    partynum++;
+                                }
+                            }
+                            for (MaplePartyCharacter partymem : c.getPlayer().getParty().getMembers()) {
+                                if (partymem.isOnline() && partymem.getMapid() == c.getPlayer().getMap().getId()) {
+                                    MapleCharacter somecharacter = c.getChannelServer().getPlayerStorage().getCharacterById(partymem.getId());
+                                    if (somecharacter != null) {
+                                        somecharacter.gainMeso(mesosamm / partynum, true, true, false);
+                                    }
+                                }
+                            }
+                        } else if (c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).findById(1812000) != null) {
                         c.getPlayer().gainMeso(mapitem.getMeso(), true, true, false);
                         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 5, c.getPlayer().getId(), true, c.getPlayer().getPetIndex(pet)), mapitem.getPosition());
                         c.getPlayer().getMap().removeMapObject(ob);

@@ -54,7 +54,7 @@ public class MapleQuestAction {
         this.quest = quest;
     }
 
-    public boolean check(MapleCharacter c) {
+    public boolean check(MapleCharacter c) { //LOL WTF IS THIS CRAP
         switch (type) {
             case MESO:
                 int mesos = MapleDataTool.getInt(data);

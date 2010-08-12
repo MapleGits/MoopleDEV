@@ -118,7 +118,7 @@ public class MapleQuest {
         return ret;
     }
 
-    private boolean canStart(MapleCharacter c, Integer npcid) {
+    private boolean canStart(MapleCharacter c, Integer npcid) { //FIX f5
         if (c.getQuest(this).getStatus() != Status.NOT_STARTED && !(c.getQuest(this).getStatus() == Status.COMPLETED && repeatable)) {
             return false;
         }
@@ -130,7 +130,7 @@ public class MapleQuest {
         return true;
     }
 
-    public boolean canComplete(MapleCharacter c, Integer npcid) {
+    public boolean canComplete(MapleCharacter c, Integer npcid) { //FIX TOO
         if (!c.getQuest(this).getStatus().equals(Status.STARTED)) {
             return false;
         }
@@ -143,7 +143,7 @@ public class MapleQuest {
     }
 
     public void start(MapleCharacter c, int npc) {
-        if ((autoStart || checkNPCOnMap(c, npc)) && canStart(c, npc)) {
+        if ((autoStart || checkNPCOnMap(c, npc))) { // && canStart(c, npc)
             for (MapleQuestAction a : startActs) {
                 a.run(c, null);
             }
@@ -160,11 +160,11 @@ public class MapleQuest {
 
     public void complete(MapleCharacter c, int npc, Integer selection) {
         if ((autoPreComplete || checkNPCOnMap(c, npc)) && canComplete(c, npc)) {
-            for (MapleQuestAction a : completeActs) {
+            /*for (MapleQuestAction a : completeActs) {
                 if (!a.check(c)) {
                     return;
                 }
-            }
+            } */
             for (MapleQuestAction a : completeActs) {
                 a.run(c, selection);
             }

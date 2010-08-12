@@ -79,7 +79,10 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                 case 7: // assaulter
                 case 8: // assassinate
                 case 9: // rush
-                case 14: {
+                case 14: // Before Jump Down - fixes item/mobs dissappears
+                    lea.skip(9);
+                    break;
+                /*case 14: {
                     short xpos = lea.readShort();
                     short ypos = lea.readShort();
                     short xwobble = lea.readShort();
@@ -89,7 +92,7 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     tm.setPixelsPerSecond(new Point(xwobble, ywobble));
                     res.add(tm);
                     break;
-                }
+                } */
                 case 10: // Change Equip
                     byte equip = lea.readByte();
                     res.add(new ChangeEquip(equip));

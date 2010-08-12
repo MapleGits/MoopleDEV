@@ -439,7 +439,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 }
             } else if (merchant != null && merchant.isOwner(c.getPlayer())) {
                 merchant.addItem(item);
-                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant));
+                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
             if (InventoryConstants.isRechargable(ivItem.getItemId())) {
                 MapleInventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
@@ -470,7 +470,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 shop.broadcast(MaplePacketCreator.getPlayerShopItemUpdate(shop));
             } else if (merchant != null) {
                 merchant.buy(c, item, quantity);
-                merchant.broadcastToVisitors(MaplePacketCreator.updateHiredMerchant(merchant));
+                merchant.broadcastToVisitors(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
         } else if (mode == Action.TAKE_ITEM_BACK.getCode()) {
             HiredMerchant merchant = c.getPlayer().getHiredMerchant();
@@ -483,7 +483,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     MapleInventoryManipulator.addFromDrop(c, iitem, true);
                 }
                 merchant.removeFromSlot(slot);
-                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant));
+                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
         } else if (mode == Action.CLOSE_MERCHANT.getCode()) {
             HiredMerchant merchant = c.getPlayer().getHiredMerchant();

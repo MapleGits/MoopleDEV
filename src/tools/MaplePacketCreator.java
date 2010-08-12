@@ -4955,7 +4955,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateHiredMerchant(HiredMerchant hm) {
+    public static MaplePacket updateHiredMerchant(HiredMerchant hm, MapleCharacter chr) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.UPDATE_MERCHANT.getCode());
