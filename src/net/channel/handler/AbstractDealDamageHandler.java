@@ -282,6 +282,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         if (ret.skill == Paladin.HEAVENS_HAMMER) {
             ret.isHH = true;
         }
+        ret.display = lea.readByte();
+	ret.direction = lea.readByte();
         lea.skip(9);
         ret.UNK80 = lea.readByte(); //don't ask
         ret.stance = lea.readByte();
@@ -327,7 +329,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             lea.readByte();
             ret.speed = lea.readByte();
             lea.readByte();
-            ret.direction = lea.readByte();
+            ret.rangedirection = lea.readByte();
             lea.skip(7);
             if (ret.skill == Bowmaster.HURRICANE || ret.skill == Marksman.PIERCING_ARROW || ret.skill == Corsair.RAPID_FIRE || ret.skill == WindArcher.HURRICANE) {
                 lea.skip(4);
