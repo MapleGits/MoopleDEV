@@ -259,15 +259,16 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public MapleCharacter owner() {
         return chr;
     }
-    public void saveItems() throws SQLException {
+     public void saveItems() throws SQLException {
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
         for (MaplePlayerShopItem pItems : items) {
-            itemsWithType.add(new Pair<IItem, MapleInventoryType>(pItems.getItem(), MapleItemInformationProvider.getInstance().getInventoryType(pItems.getItem().getItemId())));
+            pItems.getItem().copy().setQuantity(pItems.getBundles());
+            if (pItems.getBundles() > 0)
+                itemsWithType.add(new Pair<IItem, MapleInventoryType>(pItems.getItem(), MapleInventoryType.getByType(pItems.getItem().getType())));
         }
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }
-
     private static final boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
 	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 	for (MaplePlayerShopItem item : items) {
