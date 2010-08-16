@@ -75,7 +75,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         public List<Pair<Integer, List<Integer>>> allDamage;
         public boolean isHH = false;
         public int speed = 4;
-        public byte UNK80;
 
         public MapleStatEffect getAttackEffect(MapleCharacter chr, ISkill theSkill) {
             ISkill mySkill = theSkill;
@@ -274,6 +273,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         ret.numDamage = ret.numAttackedAndDamage & 0xF;
         ret.allDamage = new ArrayList<Pair<Integer, List<Integer>>>();
         ret.skill = lea.readInt();
+        if (ret.skill > 0) {
+            ret.skilllevel = chr.getSkillLevel(ret.skill);
+        }
         if (ret.skill == FPArchMage.BIG_BANG || ret.skill == ILArchMage.BIG_BANG || ret.skill == Bishop.BIG_BANG || ret.skill == Gunslinger.GRENADE || ret.skill == Brawler.CORKSCREW_BLOW || ret.skill == ThunderBreaker.CORKSCREW_BLOW || ret.skill == NightWalker.POISON_BOMB) {
             ret.charge = lea.readInt();
         } else {
@@ -282,10 +284,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         if (ret.skill == Paladin.HEAVENS_HAMMER) {
             ret.isHH = true;
         }
+        lea.skip(8);
         ret.display = lea.readByte();
-	ret.direction = lea.readByte();
-        lea.skip(9);
-        ret.UNK80 = lea.readByte(); //don't ask
+        ret.direction = lea.readByte();
         ret.stance = lea.readByte();
         if (ret.skill == ChiefBandit.MESO_EXPLOSION) {
             if (ret.numAttackedAndDamage == 0) {
@@ -300,13 +301,11 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             } else {
                 lea.skip(6);
             }
-
             for (int i = 0; i < ret.numAttacked + 1; i++) {
                 int oid = lea.readInt();
                 if (i < ret.numAttacked) {
                     lea.skip(12);
                     int bullets = lea.readByte();
-
                     List<Integer> allDamageNumbers = new ArrayList<Integer>();
                     for (int j = 0; j < bullets; j++) {
                         int damage = lea.readInt();
