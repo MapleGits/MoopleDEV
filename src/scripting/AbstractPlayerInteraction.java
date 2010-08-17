@@ -198,7 +198,6 @@ public class AbstractPlayerInteraction {
 
     public void showIntro(String path) {
        c.getSession().write(MaplePacketCreator.showIntro(path));
-       c.getSession().write(MaplePacketCreator.enableActions());
     }
 
     public void showInfo(String path) {
@@ -355,6 +354,18 @@ public class AbstractPlayerInteraction {
     }
 
     public boolean getAranIntroState(String mode) {
+       if (c.getPlayer().area_data.contains(mode)) {
+           return true;
+       }
+       return false;
+    }
+
+    public void updateCygnusIntroState(String mode) {
+       c.getPlayer().addAreaData(20021, mode);
+       c.getSession().write(MaplePacketCreator.updateAreaInfo(mode, 20021));
+    }
+
+    public boolean getCygnusIntroState(String mode) {
        if (c.getPlayer().area_data.contains(mode)) {
            return true;
        }

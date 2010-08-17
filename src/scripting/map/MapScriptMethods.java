@@ -35,8 +35,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     public void displayAranIntro() {
         switch (c.getPlayer().getMapId()) {
             case 914090010:
-                c.getSession().write(MaplePacketCreator.lockUI(true));
-                c.getSession().write(MaplePacketCreator.disableUI(true));
+                lockUI();
 		c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene0"));
                 TimerManager.getInstance().schedule(new Runnable() {
                     @Override
@@ -74,8 +73,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
                 }, 12000);
                 break;
             case 914090100:
-                c.getSession().write(MaplePacketCreator.lockUI(true));
-                c.getSession().write(MaplePacketCreator.disableUI(true));
+                lockUI();
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/HandedPoleArm" + c.getPlayer().getGender()));
                 
                 TimerManager.getInstance().schedule(new Runnable() {
@@ -89,8 +87,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     }
 
     public void arriveIceCave() {
-        c.getSession().write(MaplePacketCreator.lockUI(false));
-        c.getSession().write(MaplePacketCreator.disableUI(false));
+        unlockUI();
         c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000014), -1, 0, -1);
 	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000015), -1, 0, -1);
 	c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000016), -1, 0, -1);
@@ -101,26 +98,23 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     }
 
     public void startExplorerExperience() {
-        c.getSession().write(MaplePacketCreator.disableUI(true));
-	c.getSession().write(MaplePacketCreator.lockUI(true));
+        lockUI();
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
                 c.getPlayer().changeMap(1020000);
-                c.getSession().write(MaplePacketCreator.lockUI(false));
-                c.getSession().write(MaplePacketCreator.disableUI(false));
             }
-        }, (c.getPlayer().getMapId() == 120200 || c.getPlayer().getMapId() == 120500) ? 4000 : 3000);
+        }, (c.getPlayer().getMapId() == 1020200 || c.getPlayer().getMapId() == 1020500) ? 4000 : 3000);
         
-            if (c.getPlayer().getMapId() == 120100)  //Swordman
+            if (c.getPlayer().getMapId() == 1020100)  //Swordman
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/swordman/Scene" + c.getPlayer().getGender()));
-            else if (c.getPlayer().getMapId() == 120200) //Magician
+            else if (c.getPlayer().getMapId() == 1020200) //Magician
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/magician/Scene" + c.getPlayer().getGender()));
-            else if (c.getPlayer().getMapId() == 120300) //Archer
+            else if (c.getPlayer().getMapId() == 1020300) //Archer
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/archer/Scene" + c.getPlayer().getGender()));
-            else if (c.getPlayer().getMapId() == 120400) //Rogue
+            else if (c.getPlayer().getMapId() == 1020400) //Rogue
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/rogue/Scene" + c.getPlayer().getGender()));
-             else if (c.getPlayer().getMapId() == 120500) //Pirate
+             else if (c.getPlayer().getMapId() == 1020500) //Pirate
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/pirate/Scene" + c.getPlayer().getGender()));
     }
 
@@ -129,14 +123,12 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         if (c.getPlayer().getJob().getId() == 2100 && !c.getPlayer().getAranIntroState("ck=1")) {
             c.getPlayer().addAreaData(21019, "miss=o;arr=o;ck=1;helper=clear");
             c.getSession().write(MaplePacketCreator.updateAreaInfo("miss=o;arr=o;ck=1;helper=clear", 21019));
-            c.getSession().write(MaplePacketCreator.lockUI(false));
-            c.getSession().write(MaplePacketCreator.disableUI(false));
+            unlockUI();
         }
     }
 
-    public void startExplorerIntro() {
-        c.getSession().write(MaplePacketCreator.disableUI(true));
-	c.getSession().write(MaplePacketCreator.lockUI(true));
+    public void goAdventure() {
+        lockUI();
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
@@ -145,5 +137,28 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         }, 14200);
                 c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene" + c.getPlayer().getGender()));
     }
+
+    public void goLith() {
+        lockUI();
+        TimerManager.getInstance().schedule(new Runnable() {
+            @Override
+            public void run() {
+                c.getPlayer().changeMap(104000000);
+            }
+        }, 5000);
+                c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene" + c.getPlayer().getGender()));
+    }
+
+    public void lockUI() {
+        c.getSession().write(MaplePacketCreator.disableUI(true));
+	c.getSession().write(MaplePacketCreator.lockUI(true));
+    }
+
+    public void unlockUI() {
+        c.getSession().write(MaplePacketCreator.disableUI(false));
+	c.getSession().write(MaplePacketCreator.lockUI(false));
+    }
+
+
 }
 

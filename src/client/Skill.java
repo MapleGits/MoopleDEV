@@ -32,6 +32,7 @@ public class Skill implements ISkill {
     public List<MapleStatEffect> effects = new ArrayList<MapleStatEffect>();
     public Element element;
     public int animationTime;
+    public boolean action;
 
     public Skill(int id) {
         this.id = id;
@@ -70,5 +71,10 @@ public class Skill implements ISkill {
     @Override
     public boolean isBeginnerSkill() {
         return id % 10000000 < 10000;
+    }
+
+    @Override
+    public boolean getAction() {
+        return action;
     }
 }

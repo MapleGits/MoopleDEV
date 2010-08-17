@@ -85,6 +85,10 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             if (skillLevel == 0) {
                 return null;
             }
+            if (display > 80) { //Hmm
+                if (!theSkill.getAction())
+                    return null;
+            }
             return mySkill.getEffect(skillLevel);
         }
     }
@@ -118,6 +122,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         }
         int totDamage = 0;
         final MapleMap map = player.getMap();
+
         if (attack.skill == ChiefBandit.MESO_EXPLOSION) {
             int delay = 0;
             for (Pair<Integer, List<Integer>> oned : attack.allDamage) {

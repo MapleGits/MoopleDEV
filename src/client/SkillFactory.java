@@ -116,11 +116,27 @@ public class SkillFactory {
                 isBuff = true;
             }
         } else {
-            MapleData action = data.getChildByPath("action");
+            MapleData action_ = data.getChildByPath("action");
+            boolean action = false;
+	    if (action_ == null) {
+		if (data.getChildByPath("prepare/action") != null) {
+		    action = true;
+		} else {
+		    switch (id) {
+			case 5201001:
+			case 5221009:
+			    action = true;
+			    break;
+		    }
+		}
+	    } else {
+		action = true;
+	    }
+	    ret.action = action;
             MapleData hit = data.getChildByPath("hit");
             MapleData ball = data.getChildByPath("ball");
             isBuff = effect != null && hit == null && ball == null;
-            isBuff |= action != null && MapleDataTool.getString("0", action, "").equals("alert2");
+            isBuff |= action_ != null && MapleDataTool.getString("0", action_, "").equals("alert2");
             switch (id) {
                 case Hero.RUSH:
                 case Paladin.RUSH:

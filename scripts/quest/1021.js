@@ -54,9 +54,9 @@ function start(mode, type, selection) {
             qm.forceStartQuest();
             qm.sendNext("Surprised? If HP becomes 0, then you are in trouble. Now, I will give you #rRoger's Apple#k. Please take it. You will feel stronger. Open the Item window and double click to consume. Hey, it's very simple to open the Item window. Just press #bI#k on your keyboard.");
     } else if (status == 4) {
-        qm.sendPrev("Please take all Roger's Apples that I gave you. You will be able to see the HP bar increasing. Please talk to me again when you recover your HP 100%.");
+        qm.sendNextPrev("Please take all Roger's Apples that I gave you. You will be able to see the HP bar increasing. Please talk to me again when you recover your HP 100%.");
     } else if (status == 5) {
-	qm.showInfo("UI/tutorial.img/31");
+	qm.showInfo("UI/tutorial.img/28");
         qm.dispose();
     }
 }

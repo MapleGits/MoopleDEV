@@ -20,10 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-importPackage(Packages.tools);
-
 function start(ms) {
-	ms.getClient().getSession().write(MaplePacketCreator.disableUI(false));
-	ms.getClient().getSession().write(MaplePacketCreator.lockUI(false));	   	       
+	ms.unlockUI();   	       
 	ms.mapEffect("maplemap/enter/10000");
 }

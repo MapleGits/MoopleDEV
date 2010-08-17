@@ -30,6 +30,7 @@ public interface ISkill {
     int getMaxLevel();
     int getAnimationTime();
     public boolean isFourthJob();
+    public boolean getAction();
     public Element getElement();
     public boolean isBeginnerSkill();
 }
