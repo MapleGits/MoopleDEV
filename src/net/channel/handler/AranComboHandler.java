@@ -35,8 +35,7 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = c.getPlayer();
         if (player.getJobType() == 2) { //Keep it this till Evan comes in Private Servers.
             if (player.getCombo() > 0 && (System.currentTimeMillis() - player.getLastAttack() > 3000)) {
-                player.setCombo(1);
-                c.getSession().write(MaplePacketCreator.showCombo(1));
+                player.setCombo(0);
                 player.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
             } else {
                 int combo = player.getCombo() + 1;

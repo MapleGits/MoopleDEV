@@ -29,7 +29,6 @@ public class MapleCoconuts {
     private int id;
     private int hits = 0;
     private boolean hittable = false;
-    private boolean stopped = false;
     private long hittime = System.currentTimeMillis();
 
     public MapleCoconuts(int id) {
@@ -37,7 +36,7 @@ public class MapleCoconuts {
     }
 
     public void hit() {
-        this.hittime = System.currentTimeMillis() + 1000; // test
+        this.hittime = System.currentTimeMillis() + 750;
         hits++;
     }
 
@@ -55,14 +54,6 @@ public class MapleCoconuts {
 
     public void setHittable(boolean hittable) {
         this.hittable = hittable;
-    }
-
-    public boolean isStopped() {
-        return stopped;
-    }
-
-    public void setStopped(boolean stopped) {
-        this.stopped = stopped;
     }
 
     public long getHitTime() {

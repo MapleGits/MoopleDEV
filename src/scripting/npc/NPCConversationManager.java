@@ -22,7 +22,6 @@
 package scripting.npc;
 
 import client.Equip;
-import client.IItem;
 import client.ISkill;
 import client.ItemFactory;
 import java.sql.PreparedStatement;
@@ -39,7 +38,6 @@ import client.SkillFactory;
 import tools.Randomizer;
 import java.io.File;
 import java.rmi.RemoteException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,7 +60,6 @@ import server.events.MapleEvent;
 import server.maps.MapleMap;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
-import tools.Pair;
 
 /**
  *
@@ -197,10 +194,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public EventManager getEventManager(String event) {
         return getClient().getChannelServer().getEventSM().getEventManager(event);
-    }
-
-    public MapleEvent getEvent() {
-        return c.getChannelServer().getEvent();
     }
 
     public void showEffect(String effect) {
@@ -556,6 +549,16 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
                     chr.changeMap(map, map.getPortal(0));
                 }
             }
+        }
+    }
+
+    public MapleEvent getEvent() {
+        return c.getChannelServer().getEvent();
+    }
+
+    public void coconutTeam() {
+        if (getEvent() != null) {
+            getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }
     }
 }

@@ -1798,7 +1798,8 @@ public class MaplePacketCreator {
         } else {
             mplew.writeInt(0);
         }
-        mplew.writeShort(0); //Medals?? Teams??
+        mplew.write(0);
+        mplew.write(chr.getTeam());
         return mplew.getPacket();
     }
 
@@ -4352,7 +4353,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.FORCED_MAP_EQUIP.getValue());
         if (team > -1) {
-        mplew.writeShort(team);   // 00 = red, 01 = blue
+        mplew.write(team);   // 00 = red, 01 = blue
         }
         return mplew.getPacket();
     }
@@ -6449,7 +6450,7 @@ public class MaplePacketCreator {
            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
            mplew.writeShort(SendOpcode.HIT_COCONUT.getValue());
            if (spawn) {
-            mplew.write(HexTool.getByteArrayFromHexString("00 80 00 00 00"));
+            mplew.write(new byte[]{0, (byte) 0x80, 0, 0, 0}); //00 80 00 00 00
             } else {
             mplew.writeInt(id);
             mplew.write(type); // What action to do for the coconut.

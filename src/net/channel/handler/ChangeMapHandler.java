@@ -78,19 +78,18 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
 		if (!wheel) {
 		    chr.setHp(50);
 
-		    final MapleMap to = chr.getMap().getReturnMap();
+		    MapleMap to = chr.getMap().getReturnMap();
 		    chr.changeMap(to, to.getPortal(0));
 		} else {
 		    if (chr.haveItem(5510000)) { // Wheel
 			chr.setHp((chr.getMaxHp() / 100) * 40);
 			MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
 
-			final MapleMap to = chr.getMap();
-			chr.changeMap(to, to.getPortal(0));
+			chr.changeMap(chr.getMap(), chr.getMap().getPortal(0));
 		    }
 		}
 	    } else if (targetid != -1 && chr.isGM()) {
-		final MapleMap to = ChannelServer.getInstance(c.getChannel()).getMapFactory().getMap(targetid);
+		MapleMap to = c.getChannelServer().getMapFactory().getMap(targetid);
 		chr.changeMap(to, to.getPortal(0));
 	    } else {
 		if (portal != null) {

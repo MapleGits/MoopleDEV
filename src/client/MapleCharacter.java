@@ -262,7 +262,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
     // event
-    private Map<MapleCharacter, Integer> coconutteams = new LinkedHashMap<MapleCharacter, Integer>();
+    private int team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
 
@@ -2963,9 +2963,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             con.setAutoCommit(false);
             PreparedStatement ps;
             if (update) {
-                ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ?  WHERE id = ?");
+                ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ?  WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             } else {
-                ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpMpUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, mountlevel, mounttiredness, mountexp, equipslots, useslots, setupslots, etcslots, monsterbookcover, vanquisherStage, dojopoints, lastDojoStage, finishedDojoTutorial, vanquisherKills, matchcardwins, matchcardlosses, matchcardties, omokwins, omoklosses, omokties, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
+                ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpMpUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, mountlevel, mounttiredness, mountexp, equipslots, useslots, setupslots, etcslots, monsterbookcover, vanquisherStage, dojopoints, lastDojoStage, finishedDojoTutorial, vanquisherKills, matchcardwins, matchcardlosses, matchcardties, omokwins, omoklosses, omokties, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             }
             if (gmLevel < 1 && level > 199) {
                 ps.setInt(1, isCygnus() ? 120 : 200);
@@ -3991,12 +3991,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
 
     //EVENTS
-    public int getCoconutTeam(MapleCharacter chr) {
-        return coconutteams.get(chr);
+    public int getTeam() {
+        return team;
     }
 
-    public void setCoconutTeam(MapleCharacter chr, int team) {
-        coconutteams.put(chr, team);
+    public void setTeam(int team) {
+        this.team = team;
     }
 
     public MapleOla getOla() {

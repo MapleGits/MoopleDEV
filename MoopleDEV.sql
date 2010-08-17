@@ -15727,7 +15727,7 @@ DROP TABLE IF EXISTS `savedlocations`;
 CREATE TABLE `savedlocations` (
   `id` int(11) NOT NULL auto_increment,
   `characterid` int(11) NOT NULL,
-  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','EVENT') NOT NULL,
+  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','EVENT','SUNDAY_MARKET') NOT NULL,
   `map` int(11) NOT NULL,
   `portal` int(11) NOT NULL,
   PRIMARY KEY  (`id`),

@@ -51,6 +51,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
         byte skill_2 = slea.readByte();
         byte skill_3 = slea.readByte();
         byte skill_4 = slea.readByte();
+        slea.read(8);
         MobSkill toUse = null;
         if (skillByte == 1 && monster.getNoSkills() > 0) {
             int random = Randomizer.getInstance().nextInt(monster.getNoSkills());
@@ -72,9 +73,6 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
         short start_x = slea.readShort(); // hmm.. startpos?
         short start_y = slea.readShort(); // hmm...
         Point startPos = new Point(start_x, start_y);
-        slea.readShort(); //v83
-        slea.readShort(); //v83
-        slea.readInt(); //v83
         res = parseMovement(slea);
         if (monster.getController() != c.getPlayer()) {
             if (monster.isAttackedBy(c.getPlayer())) {// aggro and controller change

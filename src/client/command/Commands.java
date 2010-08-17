@@ -249,44 +249,44 @@ public class Commands {
         } else if (sub[0].equals("scheduleevent")) {
            if (c.getPlayer().getMap().hasEventNPC()) {
             if (sub[1].equals("treasure")) {
-                c.getChannelServer().setEvent(new MapleEvent(109010000));
+                c.getChannelServer().setEvent(new MapleEvent(109010000, 50));
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
             } else if (sub[1].equals("ox")) {
-                c.getChannelServer().setEvent(new MapleEvent(109020001));
+                c.getChannelServer().setEvent(new MapleEvent(109020001, 50));
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
             } else if (sub[1].equals("ola")) {
-                c.getChannelServer().setEvent(new MapleEvent(109030101)); // Wrong map but still Ola Ola
+                c.getChannelServer().setEvent(new MapleEvent(109030101, 50)); // Wrong map but still Ola Ola
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
             } else if (sub[1].equals("fitness")) {
-                c.getChannelServer().setEvent(new MapleEvent(109040000));
+                c.getChannelServer().setEvent(new MapleEvent(109040000, 50));
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
             } else if (sub[1].equals("snowball")) {
-                c.getChannelServer().setEvent(new MapleEvent(109060001));
+                c.getChannelServer().setEvent(new MapleEvent(109060001, 50));
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
             } else if (sub[1].equals("coconut")) {
-                c.getChannelServer().setEvent(new MapleEvent(109080000));
+                c.getChannelServer().setEvent(new MapleEvent(109080000, 50));
             try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(0, player.getMap().getEventNPC() == null ? joinStringFrom(sub, 2) : "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }

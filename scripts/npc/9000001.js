@@ -1,8 +1,8 @@
 /*
-	This file is part of the OdinMS Maple Story Server
+    This file is part of the OdinMS Maple Story Server
     Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+               Matthias Butz <matze@odinms.de>
+               Jan Christian Meyer <vimes@odinms.de>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -19,10 +19,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/* Author: Xterminator
-	NPC Name: 		Jean
-	Map(s): 		Victoria Road : Lith Harbour (104000000)
-	Description: 		Event Assistant
+/* Edited by: kevintjuh93
+    NPC Name:         Jean
+    Map(s):         Victoria Road : Lith Harbour (104000000)
+    Description:         Event Assistant
 */
 var status = 0;
 
@@ -53,8 +53,17 @@ function action(mode, type, selection) {
             } else if (selection == 1) {
                 cm.sendSimple("There are many games for this event. It will help you a lot to know how to play the game before you play it. Choose the one you want to know more of! #b\r\n#L0# Ola Ola#l\r\n#L1# MapleStory Maple Physical Fitness Test#l\r\n#L2# Snow Ball#l\r\n#L3# Coconut Harvest#l\r\n#L4# OX Quiz#l\r\n#L5# Treasure Hunt#l#k");
             } else if (selection == 2) {
+        if (cm.getEvent() != null && cm.getEvent().getLimit() > 0) {
+        cm.getPlayer().saveLocation("EVENT");
+        if (cm.getEvent().getMapId() == 109080000) {
+            cm.coconutTeam();
+        }
+                cm.getEvent().minusLimit();
+        cm.warp(cm.getEvent().getMapId());
+        cm.dispose();
+            } else {
                 cm.sendNext("Either the event has not been started, you already have the #bScroll of Secrets#k, or you have already participated in this event within the last 24 hours. Please try again later!");
-                cm.dispose();
+                cm.dispose();                
             }
         } else if (status == 4) {
             if (selection == 0) {
@@ -78,4 +87,5 @@ function action(mode, type, selection) {
             }
         }
     }
-}
+  }
+}  

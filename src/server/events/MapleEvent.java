@@ -1,8 +1,8 @@
 /*
-	This file is part of the OdinMS Maple Story Server
+    This file is part of the OdinMS Maple Story Server
     Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+               Matthias Butz <matze@odinms.de>
+               Jan Christian Meyer <vimes@odinms.de>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -27,13 +27,27 @@ package server.events;
  * @author kevintjuh93
  */
 public class MapleEvent {
-    private int mapid;;
+    private int mapid;
+    private int limit;
 
-    public MapleEvent(int mapid) {
+    public MapleEvent(int mapid, int limit) {
         this.mapid = mapid;
+        this.limit = limit;
     }
 
     public int getMapId() {
         return mapid;
     }
-}
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void minusLimit() {
+        this.limit--;
+    }
+
+    public void addLimit() {
+        this.limit++;
+    }
+}  

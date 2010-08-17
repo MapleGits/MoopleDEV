@@ -75,10 +75,12 @@ function end(mode, type, selection) {
             qm.gainItem(2000022, 10);
             qm.gainItem(2000023, 10);
             qm.forceCompleteQuest();
+	    qm.sendOk("#b(Even if you're really the hero everyone says you are... What good are you without any skills?)", 3);
         }else
-            qm.dropMessage(1,"Your inventory is full");  	
-    } else if (status == 2) { 
-	qm.sendOk("#b(Even if you're really the hero everyone says you are... What good are you without any skills?)", 2);
-	qm.dispose();	
-	}
+            qm.dropMessage(1,"Your inventory is full");  
+	    qm.dispose();	
+    } else if (status == 2) {
+	qm.guideHint(15);
+	qm.dispose();
+    }
 }

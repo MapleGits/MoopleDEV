@@ -66,6 +66,7 @@ import server.life.MapleNPC;
 import server.life.SpawnPoint;
 import tools.MaplePacketCreator;
 import server.MapleOxQuiz;
+import server.events.MapleCoconut;
 import server.events.MapleCoconuts;
 import server.events.MapleFitness;
 import server.events.MapleOla;
@@ -115,15 +116,9 @@ public class MapleMap {
     private boolean allowHPQSummon = false; // bad place to put this
     // events
     private boolean eventstarted = false;
-    private MapleSnowball snowball0 = null;
-    private MapleSnowball snowball1 = null;
-    private List<MapleCoconuts> coconuts = new LinkedList<MapleCoconuts>();
-    private boolean team;
-    private int coconutscore0 = 0;
-    private int coconutscore1 = 0;
-    private int countBombing = 80;
-    private int countFalling = 401;
-    private int countStopped = 20;
+    private MapleSnowball snowball0;
+    private MapleSnowball snowball1;
+    private MapleCoconut coconut;  
 
     public MapleMap(int mapid, int channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;
@@ -132,11 +127,6 @@ public class MapleMap {
         this.monsterRate = monsterRate;
         this.dropRate = ServerConstants.DROP_RATE;
         this.bossDropRate = ServerConstants.BOSS_DROP_RATE;
-      if (this.mapid == 109080000) {
-        for (int i = 0; i < 506; i++) {
-        coconuts.add(new MapleCoconuts(i));
-        }
-      }
     }
 
     public void broadcastMessage(MapleCharacter source, MaplePacket packet) {
@@ -1180,9 +1170,7 @@ public class MapleMap {
             }
             if (coconutEquip()) {
                 chr.getClient().getSession().write(MaplePacketCreator.coconutScore(0, 0));
-                int lolwat = chr.getMap().getAndSwitchTeam() ? 0 : 1;
-                chr.setCoconutTeam(chr, lolwat);
-                chr.getClient().getSession().write(MaplePacketCreator.showForcedEquip(lolwat));
+                chr.getClient().getSession().write(MaplePacketCreator.showForcedEquip(chr.getTeam()));
             }
             this.mapobjects.put(Integer.valueOf(chr.getObjectId()), chr);
         }
@@ -1841,81 +1829,22 @@ public class MapleMap {
         }
     }
 
-
-    public boolean getAndSwitchTeam() {
-        team = !team;
-        return team;
-    }
-
     private boolean coconutEquip() {
         return fieldType == 4;
     }
 
-    public MapleCoconuts getCoconut(int id) {
-        return coconuts.get(id);
+    public void setCoconut(MapleCoconut nut) {
+        this.coconut = nut;
     }
 
-
-    public List<MapleCoconuts> getAllCoconuts() {
-        return coconuts;
-    }
-
-
-    public void setHittable(boolean hittable) {
-        for (MapleCoconuts nut : coconuts) {
-            nut.setHittable(hittable);
-        }
-    }
-
-    public int getBombings() {
-        return countBombing;
-    }
-
-    public void bombCoconut() {
-        countBombing--;
-    }
-
-    public int getFalling() {
-        return countFalling;
-    }
-
-    public void fallCoconut() {
-        countFalling--;
-    }
-
-    public int getStopped() {
-        return countStopped;
-    }
-
-    public void stopCoconut() {
-        countStopped--;
-    }
-
-    public int getMapleScore() { // Team Maple, coconut event
-        return coconutscore0;
-    }
-
-    public int getStoryScore() { // Team Story, coconut event
-        return coconutscore1;
-    }
-
-    public void addMapleScore() { // Team Maple, coconut event
-        coconutscore0++;
-    }
-
-    public void addStoryScore() { // Team Story, coconut event
-        coconutscore1++;
-    }
-
-    public void resetCoconutScore() {
-        coconutscore0 = 0;
-        coconutscore1 = 0;
+    public MapleCoconut getCoconut() {
+        return coconut;
     }
 
     public void startEvent(final MapleCharacter chr) {
     if (this.mapid == 109080000) {
-        broadcastMessage(MaplePacketCreator.hitCoconut(true, 0, 0));
-        setHittable(true);
+        setCoconut(new MapleCoconut(this));
+        coconut.startEvent();
 
     } else if (this.mapid == 109040000) {
         chr.setFitness(new MapleFitness(chr));

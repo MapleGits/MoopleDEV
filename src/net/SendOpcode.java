@@ -111,7 +111,7 @@ public enum SendOpcode {
     MULTICHAT(0x86),
     WHISPER(0x87),
     SPOUSE_CHAT(0x88),
-    BOSS_ENV(0x89),
+    BOSS_ENV(0x8A),
     BLOCK_PORTAL(0x8A), //What the fuck is this?
     BLOCK_PORTAL_SHOP(0x8B), 
     MAP_EFFECT(0x8E),
