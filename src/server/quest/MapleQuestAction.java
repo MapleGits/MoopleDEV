@@ -94,6 +94,9 @@ public class MapleQuestAction {
                 if (status.getStatus() == MapleQuestStatus.Status.NOT_STARTED && status.getForfeited() > 0) {
                     break;
                 }
+                if (!c.isBeginner())
+                c.gainExp(MapleDataTool.getInt(data), true, true);
+                else
                 c.gainExp((MapleDataTool.getInt(data) * ServerConstants.QUEST_EXP_RATE), true, true);
                 break;
             case ITEM:

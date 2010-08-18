@@ -7,7 +7,9 @@ function enter(pi) {
 		pi.warp(1010300, 4);
 	else if (pi.isQuestStarted(1044))
 		pi.warp(1010400, 4);
-	else
-		pi.playerMessage("Only the adventurers that have been trained by Mai may enter.");
+	else {
+		pi.message("Only the adventurers that have been trained by Mai may enter.");
+		return false;
+	}
 	return true;
 }

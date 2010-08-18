@@ -40,13 +40,11 @@ function start(mode, type, selection) {
     if (status == 0) 
 	qm.sendSimple("Ah, you're the hero. I've been dying to meet you. \r\n#b#L0#(Seems a bit shy...)#l");		
     else if (status == 1) {
-		if (selection == 0) {
-			qm.sendAcceptDecline("I have something I've been wanting to give you as a gift for a very long time... I know you're busy, especially since you're on your way to town, but will you accept my gift?");
-		}
+	qm.sendAcceptDecline("I have something I've been wanting to give you as a gift for a very long time... I know you're busy, especially since you're on your way to town, but will you accept my gift?");
 	} else if (status == 2) {
 	qm.forceStartQuest();
 	qm.sendNext("The parts of the gift have been packed inside a box nearby. Sorry to trouble you, but could you break the box and bring me a #b#t4032309##k and some #b#t4032310##k? I'll assemble them for you right away.", 9);
-    } else if (status == 5) { 
+    } else if (status == 3) { 
 	qm.guideHint(18); 
 	qm.dispose();
     }

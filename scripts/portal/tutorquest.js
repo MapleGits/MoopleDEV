@@ -3,7 +3,7 @@ function enter(pi) {
 		if(pi.isQuestStarted(20010)){
 			pi.warp(130030002);
 		} else {
-			pi.playerMessage("Please click on the NPC first to receive a quest");
+			pi.message("Please click on the NPC first to receive a quest");
 		}
 	} else if(pi.getPlayer().getMapId() == 130030002){
 		pi.warp(130030003);

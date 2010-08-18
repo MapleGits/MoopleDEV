@@ -100,6 +100,7 @@ public enum SendOpcode {
     GM_POLICE(0x74),
     SILVER_BOX(0x75),
     UNKNOWN_MESSAGE2(0x76),
+    EARN_TITLE_MSG(0x7A),
     SKILL_MACRO(0x7C),
     WARP_TO_MAP(0x7D),
     MTS_OPEN(0x7E),

@@ -6710,4 +6710,11 @@ public class MaplePacketCreator {
         mplew.writeInt(count);
         return mplew.getPacket();
     }
+
+    public static MaplePacket earnTitleMessage(String msg) {
+	final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.EARN_TITLE_MSG.getValue());
+	mplew.writeMapleAsciiString(msg);
+	return mplew.getPacket();
+    }
 }

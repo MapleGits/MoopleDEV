@@ -112,8 +112,6 @@ public class MapleQuestRequirement {
                 return c.getMonsterBook().getTotalCards() >= MapleDataTool.getInt(getData());
             case NPC:
                 return npcid == null || npcid == MapleDataTool.getInt(getData());
-            case INFO_NUMBER:
-
             default:
                 return true;
         }

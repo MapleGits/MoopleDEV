@@ -146,7 +146,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
                 c.getPlayer().changeMap(104000000);
             }
         }, 5000);
-                c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene" + c.getPlayer().getGender()));
+                c.getSession().write(MaplePacketCreator.showIntro("Effect/Direction3.img/goLith/Scene" + c.getPlayer().getGender()));
     }
 
     public void lockUI() {

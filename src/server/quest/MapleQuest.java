@@ -50,6 +50,7 @@ public class MapleQuest {
     private boolean autoStart;
     private boolean autoPreComplete;
     private boolean repeatable = false;
+    private int npc;
     private static MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Quest.wz"));
     private static MapleData actions = questData.getData("Act.img");
     private static MapleData requirements = questData.getData("Check.img");
