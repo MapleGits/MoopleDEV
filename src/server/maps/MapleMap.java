@@ -309,7 +309,7 @@ public class MapleMap {
         }
         List<Integer> toDrop = new ArrayList<Integer>();
         for (int i = 0; i < maxDrops; i++) {
-            toDrop.add(monster.getDrop());
+            toDrop.add(monster.getDrop(dropOwner.getDropRate()));
         }
         Set<Integer> alreadyDropped = new HashSet<Integer>();
         int htpendants = 0;
@@ -337,7 +337,7 @@ public class MapleMap {
                 if (toDrop.get(i) == 2041200) {// stone
                     if (htstones > 2) {
                         toDrop.remove(i);
-                        toDrop.add(monster.getDrop());
+                        toDrop.add(monster.getDrop(dropOwner.getDropRate()));
                         i--;
                         continue;
                     } else {
@@ -346,7 +346,7 @@ public class MapleMap {
                 } else if (toDrop.get(i) == 1122000) {// pendant
                     if (htstones > 2) {
                         toDrop.remove(i);
-                        toDrop.add(monster.getDrop());
+                        toDrop.add(monster.getDrop(dropOwner.getDropRate()));
                         i--;
                         continue;
                     } else {

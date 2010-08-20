@@ -27,6 +27,9 @@ import client.MapleCharacter;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleQuestStatus;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import provider.MapleData;
 import provider.MapleDataTool;
 import server.MapleItemInformationProvider;
@@ -123,5 +126,20 @@ public class MapleQuestRequirement {
 
     private MapleData getData() {
         return data;
+    }
+
+    public List<Integer> getQuestItemsToShowOnlyIfQuestIsActivated() {
+	if (type != MapleQuestRequirementType.ITEM) {
+	    return null;
+	}
+	MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+	List<Integer> delta = new ArrayList<Integer>();
+	for (MapleData itemEntry : getData().getChildren()) {
+	    int itemId = MapleDataTool.getInt(itemEntry.getChildByPath("id"));
+	    if (ii.isQuestItem(itemId)) {
+		delta.add(itemId);
+	    }
+	}
+	return Collections.unmodifiableList(delta);
     }
 }

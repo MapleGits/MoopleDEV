@@ -57,6 +57,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1837,6 +1838,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return quests.get(quest);
     }
 
+    public List<Integer> getQuestItemsToShow() {
+        Set<Integer> delta = new HashSet<Integer>();
+        for (Map.Entry<MapleQuest, MapleQuestStatus> questEntry : this.quests.entrySet()) {
+            if (questEntry.getValue().getStatus() != MapleQuestStatus.Status.STARTED) {
+                delta.addAll(questEntry.getKey().getQuestItemsToShowOnlyIfQuestIsActivated());
+            }
+        }
+        List<Integer> returnThis = new ArrayList<Integer>();
+        returnThis.addAll(delta);
+        return Collections.unmodifiableList(returnThis);
+    }
+    
     public int getRank() {
         return rank;
     }

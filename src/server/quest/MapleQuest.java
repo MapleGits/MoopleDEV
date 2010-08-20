@@ -30,6 +30,9 @@ import java.util.Map;
 import client.MapleCharacter;
 import client.MapleQuestStatus;
 import client.MapleQuestStatus.Status;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -50,7 +53,6 @@ public class MapleQuest {
     private boolean autoStart;
     private boolean autoPreComplete;
     private boolean repeatable = false;
-    private int npc;
     private static MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Quest.wz"));
     private static MapleData actions = questData.getData("Act.img");
     private static MapleData requirements = questData.getData("Check.img");
@@ -209,5 +211,16 @@ public class MapleQuest {
 
     private boolean checkNPCOnMap(MapleCharacter player, int npcid) {
         return player.getMap().containsNPC(npcid);
+    }
+
+    public List<Integer> getQuestItemsToShowOnlyIfQuestIsActivated() {
+            Set<Integer> delta = new HashSet<Integer>();
+            for(MapleQuestRequirement mqr : this.completeReqs) {
+		if(mqr.getType() != MapleQuestRequirementType.ITEM) continue;
+                    delta.addAll(mqr.getQuestItemsToShowOnlyIfQuestIsActivated());
+            }
+            List<Integer> returnThis = new ArrayList<Integer>();
+            returnThis.addAll(delta);
+	return Collections.unmodifiableList(returnThis);
     }
 }

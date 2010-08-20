@@ -55,37 +55,34 @@ public class MapleMonsterInformationProvider {
         return instance;
     }
 
-    public List<DropEntry> retrieveDropChances(int monsterId) {
+public List<DropEntry> retrieveDropChances(int monsterId) {
         if (drops.containsKey(monsterId)) {
             return drops.get(monsterId);
         }
         List<DropEntry> ret = new LinkedList<DropEntry>();
         if (monsterId > 9300183 && monsterId < 9300216) {
             for (int i = 2022359; i < 2022367; i++) {
-                ret.add(new DropEntry(i, 10));
+                ret.add(new DropEntry(i, 10000));
             }
             drops.put(monsterId, ret);
             return ret;
         } else if (monsterId > 9300215 && monsterId < 9300269) {
             for (int i = 2022430; i < 2022434; i++) {
-                ret.add(new DropEntry(i, 3));
+                ret.add(new DropEntry(i, 3333));
             }
             drops.put(monsterId, ret);
             return ret;
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT itemid, chance, monsterid FROM monsterdrops WHERE (monsterid = ? AND chance >= 0) OR (monsterid <= 0)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT itemid, chance FROM monsterdrops WHERE (monsterid = ? AND chance >= 0) OR (monsterid <= 0)");
             ps.setInt(1, monsterId);
             ResultSet rs = ps.executeQuery();
-            MapleMonster theMonster = null;
+            MapleMonster theMonster = MapleLifeFactory.getMonster(monsterId);
             while (rs.next()) {
-                int rowMonsterId = rs.getInt("monsterid");
                 int chance = rs.getInt("chance");
-                if (rowMonsterId != monsterId && rowMonsterId != 0) {
-                    if (theMonster == null) {
-                        theMonster = MapleLifeFactory.getMonster(monsterId);
-                    }
-                    chance += theMonster.getLevel() * rowMonsterId;
+                chance = (int) ((double) (1 / chance) * 10000);
+                if (theMonster != null) {
+                    chance += theMonster.getLevel();
                 }
                 ret.add(new DropEntry(rs.getInt("itemid"), chance));
             }

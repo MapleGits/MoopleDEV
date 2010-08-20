@@ -187,7 +187,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 } else if (attack.skill == Bandit.STEAL) {
                     ISkill steal = SkillFactory.getSkill(Bandit.STEAL);
                     if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) {
-                        int toSteal = monster.getDrop();
+                        int toSteal = monster.getDrop(player.getDropRate());
                         MapleInventoryManipulator.addById(player.getClient(), toSteal, (short) 1);
                         monster.addStolen(toSteal);
                     }
