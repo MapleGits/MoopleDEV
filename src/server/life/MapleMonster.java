@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.life;
 
 import java.lang.ref.WeakReference;
@@ -55,6 +55,7 @@ import tools.MaplePacketCreator;
 import tools.Pair;
 
 public class MapleMonster extends AbstractLoadedMapleLife {
+
     private MapleMonsterStats stats;
     private int hp;
     private int mp;
@@ -111,7 +112,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         List<DropEntry> dl = mi.retrieveDropChances(getId());
         for (DropEntry d : dl) {
             d.assignedRangeStart = lastAssigned + 1;
-            d.assignedRangeLength = d.chance * (isBoss() ? 1 : droprate);
+            d.assignedRangeLength = (d.chance * (isBoss() ? 1 : droprate)) + getLevel();
             lastAssigned += d.assignedRangeLength;
         }
         if (lastAssigned > maxchance) {
@@ -196,6 +197,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
      *
      * @param from the player that dealt the damage
      * @param damage
+     * @param updateAttackTime
      */
     public void damage(MapleCharacter from, int damage, boolean updateAttackTime) {
         AttackerEntry attacker = null;
@@ -500,7 +502,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             MonsterStatusEffect oldEffect = stati.get(stat);
             if (oldEffect != null) {
                 oldEffect.removeActiveStatus(stat);
-                if (oldEffect.getStati().size() == 0) {
+                if (oldEffect.getStati().isEmpty()) {
                     oldEffect.getCancelTask().cancel(false);
                     oldEffect.cancelPoisonSchedule();
                     activeEffects.remove(oldEffect);
@@ -509,6 +511,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
         TimerManager timerManager = TimerManager.getInstance();
         final Runnable cancelTask = new Runnable() {
+
             @Override
             public void run() {
                 if (isAlive()) {
@@ -551,7 +554,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 }
                 int poisonDamage = 0;
                 for (int i = 0; i < getVenomMulti(); i++) {
-                    poisonDamage = poisonDamage + (Randomizer.getInstance().nextInt(gap) + minDmg);
+                    poisonDamage += (Randomizer.getInstance().nextInt(gap) + minDmg);
                 }
                 poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
                 status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
@@ -580,6 +583,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     public void applyMonsterBuff(final MonsterStatus status, final int x, int skillId, long duration, MobSkill skill) {
         TimerManager timerManager = TimerManager.getInstance();
         final Runnable cancelTask = new Runnable() {
+
             @Override
             public void run() {
                 if (isAlive()) {
@@ -678,6 +682,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         TimerManager tMan = TimerManager.getInstance();
         tMan.schedule(
                 new Runnable() {
+
                     @Override
                     public void run() {
                         mons.clearSkill(skillId, level);
@@ -711,6 +716,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private final class PoisonTask implements Runnable {
+
         private final int poisonDamage;
         private final MapleCharacter chr;
         private final MonsterStatusEffect status;
@@ -751,6 +757,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private class AttackingMapleCharacter {
+
         private MapleCharacter attacker;
         private long lastAttackTime;
 
@@ -770,6 +777,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private interface AttackerEntry {
+
         List<AttackingMapleCharacter> getAttackers();
 
         public void addDamage(MapleCharacter from, int damage, boolean updateAttackTime);
@@ -782,6 +790,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private class SingleAttackerEntry implements AttackerEntry {
+
         private int damage;
         private int chrid;
         private long lastAttackTime;
@@ -854,6 +863,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private static class OnePartyAttacker {
+
         public MapleParty lastKnownParty;
         public int damage;
         public long lastAttackTime;
@@ -866,6 +876,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private class PartyAttackerEntry implements AttackerEntry {
+
         private int totDamage;
         private Map<Integer, OnePartyAttacker> attackers;
         private ChannelServer cserv;
@@ -1023,6 +1034,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         if (!stats.getEffectiveness(e).equals(ElementalEffectiveness.WEAK)) {
             stats.setEffectiveness(e, ee);
             TimerManager.getInstance().schedule(new Runnable() {
+
                 public void run() {
                     stats.removeEffectiveness(fE);
                     stats.setEffectiveness(fE, fEE);
