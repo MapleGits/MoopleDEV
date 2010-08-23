@@ -504,7 +504,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 oldEffect.removeActiveStatus(stat);
                 if (oldEffect.getStati().isEmpty()) {
                     oldEffect.getCancelTask().cancel(false);
-                    oldEffect.cancelPoisonSchedule();
+                    oldEffect.cancelDamageSchedule();
                     activeEffects.remove(oldEffect);
                 }
             }
@@ -526,14 +526,14 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                     stati.remove(stat);
                 }
                 setVenomMulti(0);
-                status.cancelPoisonSchedule();
+                status.cancelDamageSchedule();
             }
         };
         if (poison) {
             int poisonLevel = from.getSkillLevel(status.getSkill());
             int poisonDamage = Math.min(Short.MAX_VALUE, (int) (getMaxHp() / (70.0 - poisonLevel) + 0.999));
             status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
-            status.setPoisonSchedule(timerManager.register(new PoisonTask(poisonDamage, from, status, cancelTask, false), 1000, 1000));
+            status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
         } else if (venom) {
             if (from.getJob() == MapleJob.NIGHTLORD || from.getJob() == MapleJob.SHADOWER || from.getJob().isA(MapleJob.NIGHTWALKER3)) {
                 int poisonLevel = 0;
@@ -558,13 +558,19 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 }
                 poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
                 status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
-                status.setPoisonSchedule(timerManager.register(new PoisonTask(poisonDamage, from, status, cancelTask, false), 1000, 1000));
+                status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
             } else {
                 return false;
             }
-        } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) // shadow web
-        {
-            status.setPoisonSchedule(timerManager.schedule(new PoisonTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, true), 3500));
+        } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) { //Shadow Web
+            status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
+        } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
+            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF)
+            if (ambushDamage < 1) {
+                ambushDamage = 1;
+            }
+            status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(ambushDamage));
+            status.setDamageSchedule(timerManager.register(new DamageTask(ambushDamage, from, status, cancelTask, 2), 1000, 1000));
         }
         for (MonsterStatus stat : status.getStati().keySet()) {
             stati.put(stat, status);
@@ -715,37 +721,38 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         return this.stats.getBuffToGive();
     }
 
-    private final class PoisonTask implements Runnable {
+    private final class DamageTask implements Runnable {
 
-        private final int poisonDamage;
+        private final int dealDamage;
         private final MapleCharacter chr;
         private final MonsterStatusEffect status;
         private final Runnable cancelTask;
-        private final boolean shadowWeb;
+        private final int type;
         private final MapleMap map;
 
-        private PoisonTask(int poisonDamage, MapleCharacter chr, MonsterStatusEffect status, Runnable cancelTask, boolean shadowWeb) {
-            this.poisonDamage = poisonDamage;
+        private DamageTask(int dealDamage, MapleCharacter chr, MonsterStatusEffect status, Runnable cancelTask, int type) {
+            this.dealDamage = dealDamage;
             this.chr = chr;
             this.status = status;
             this.cancelTask = cancelTask;
-            this.shadowWeb = shadowWeb;
+            this.type = type;
             this.map = chr.getMap();
         }
 
         @Override
         public void run() {
-            int damage = poisonDamage;
+            int damage = dealDamage;
             if (damage >= hp) {
                 damage = hp - 1;
-                if (!shadowWeb) {
+                if (type == 1 || type == 2) {
+                    map.broadcastMessage(MaplePacketCreator.damageMonster(getObjectId(), damage), getPosition());
                     cancelTask.run();
                     status.getCancelTask().cancel(false);
                 }
             }
             if (hp > 1 && damage > 0) {
                 damage(chr, damage, false);
-                if (shadowWeb) {
+                if (type == 1) {
                     map.broadcastMessage(MaplePacketCreator.damageMonster(getObjectId(), damage), getPosition());
                 }
             }

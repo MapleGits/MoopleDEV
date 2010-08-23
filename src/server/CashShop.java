@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server;
 
 import client.IItem;
@@ -46,9 +46,10 @@ import tools.Pair;
 /*
  * @author Flav
  */
-
 public class CashShop {
+
     public static class CashItem {
+
         private int sn, itemId, price, period;
         private short count;
         private boolean onSale;
@@ -87,27 +88,28 @@ public class CashShop {
             IItem item;
             int petId = -1;
 
-            if (InventoryConstants.isPet(itemId))
+            if (InventoryConstants.isPet(itemId)) {
                 petId = MaplePet.createPet(itemId);
+            }
 
-            if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP))
+            if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP)) {
                 item = ii.getEquipById(itemId);
-            else
+            } else {
                 item = new Item(itemId, (byte) 0, count, petId);
+            }
 
             item.setSN(sn);
             if (petId > -1) {
-            item.setExpiration(System.currentTimeMillis() + (90 * 24 * 60 * 60 * 1000));    
+                item.setExpiration(System.currentTimeMillis() + (long)(90 * 24 * 60 * 60 * 1000));
             } else {
-            item.setExpiration(period == 1 ?
-		    System.currentTimeMillis() + (period * 4 * 60 * 60 * 1000) :
-		    System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000));
+                item.setExpiration(period == 1 ? System.currentTimeMillis() + (long)(period * 4 * 60 * 60 * 1000) : System.currentTimeMillis() + (long)(period * 24 * 60 * 60 * 1000));
             }
             return item;
         }
     }
 
     public static class CashItemFactory {
+
         private static Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
         private static Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
 
@@ -127,8 +129,9 @@ public class CashShop {
             for (MapleData cashPackage : etc.getData("CashPackage.img").getChildren()) {
                 List<Integer> cPackage = new ArrayList<Integer>();
 
-                for (MapleData item : cashPackage.getChildByPath("SN").getChildren())
+                for (MapleData item : cashPackage.getChildByPath("SN").getChildren()) {
                     cPackage.add(Integer.parseInt(item.getData().toString()));
+                }
 
                 packages.put(Integer.parseInt(cashPackage.getName()), cPackage);
             }
@@ -138,21 +141,20 @@ public class CashShop {
             return items.get(sn);
         }
 
-	public static List<IItem> getPackage(int itemId) {
+        public static List<IItem> getPackage(int itemId) {
             List<IItem> cashPackage = new ArrayList<IItem>();
 
-            for (int sn : packages.get(itemId))
-		cashPackage.add(getItem(sn).toItem());
+            for (int sn : packages.get(itemId)) {
+                cashPackage.add(getItem(sn).toItem());
+            }
 
-		return cashPackage;
-	}
+            return cashPackage;
+        }
 
-	public static boolean isPackage(int itemId) {
-		return packages.containsKey(itemId);
-	}
+        public static boolean isPackage(int itemId) {
+            return packages.containsKey(itemId);
+        }
     }
-
-
     private int accountId, characterId, nxCredit, maplePoint, nxPrepaid;
     private boolean opened;
     private ItemFactory factory;
@@ -163,12 +165,13 @@ public class CashShop {
         this.accountId = accountId;
         this.characterId = characterId;
 
-        if (jobType == 0)
+        if (jobType == 0) {
             factory = ItemFactory.CASH_EXPLORER;
-        else if (jobType == 1)
+        } else if (jobType == 1) {
             factory = ItemFactory.CASH_CYGNUS;
-        else if (jobType == 2)
+        } else if (jobType == 2) {
             factory = ItemFactory.CASH_ARAN;
+        }
 
         Connection con = DatabaseConnection.getConnection();
         PreparedStatement ps = con.prepareStatement("SELECT `nxCredit`, `maplePoint`, `nxPrepaid` FROM `accounts` WHERE `id` = ?");
@@ -184,15 +187,17 @@ public class CashShop {
         rs.close();
         ps.close();
 
-        for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false))
+        for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false)) {
             inventory.add(item.getLeft());
+        }
 
         ps = con.prepareStatement("SELECT `sn` FROM `wishlists` WHERE `charid` = ?");
         ps.setInt(1, characterId);
         rs = ps.executeQuery();
 
-        while (rs.next())
+        while (rs.next()) {
             wishList.add(rs.getInt("sn"));
+        }
 
         rs.close();
         ps.close();
@@ -238,12 +243,13 @@ public class CashShop {
     }
 
     public IItem findByCashId(int cashId) {
-	for (IItem item : inventory) {
-		if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
-                    return item;
-	}
+        for (IItem item : inventory) {
+            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId) {
+                return item;
+            }
+        }
 
-	return null;
+        return null;
     }
 
     public void addToInventory(IItem item) {
@@ -266,57 +272,57 @@ public class CashShop {
         wishList.add(sn);
     }
 
-	public void gift(int recipient, String from, String message, int sn) {
-		try {
-			PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?)");
-			ps.setInt(1, recipient);
-			ps.setString(2, from);
-			ps.setString(3, message);
-			ps.setInt(4, sn);
-			ps.executeUpdate();
-			ps.close();
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-		}
-	}
+    public void gift(int recipient, String from, String message, int sn) {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?)");
+            ps.setInt(1, recipient);
+            ps.setString(2, from);
+            ps.setString(3, message);
+            ps.setInt(4, sn);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+        }
+    }
 
-	public List<Pair<IItem, String>> loadGifts() {
-		List<Pair<IItem, String>> gifts = new ArrayList<Pair<IItem, String>>();
-		Connection con = DatabaseConnection.getConnection();
+    public List<Pair<IItem, String>> loadGifts() {
+        List<Pair<IItem, String>> gifts = new ArrayList<Pair<IItem, String>>();
+        Connection con = DatabaseConnection.getConnection();
 
-		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM `gifts` WHERE `to` = ?");
-			ps.setInt(1, characterId);
-			ResultSet rs = ps.executeQuery();
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM `gifts` WHERE `to` = ?");
+            ps.setInt(1, characterId);
+            ResultSet rs = ps.executeQuery();
 
-			while (rs.next()) {
-				CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
-				IItem item = cItem.toItem();
-				item.setGiftFrom(rs.getString("from"));
-				gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
+            while (rs.next()) {
+                CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
+                IItem item = cItem.toItem();
+                item.setGiftFrom(rs.getString("from"));
+                gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
 
-				if (CashItemFactory.isPackage(cItem.getItemId())) {
-					for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
-						packageItem.setGiftFrom(rs.getString("from"));
-						addToInventory(packageItem);
-					}
-				} else {
-					addToInventory(item);
-				}
-			}
+                if (CashItemFactory.isPackage(cItem.getItemId())) {
+                    for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
+                        packageItem.setGiftFrom(rs.getString("from"));
+                        addToInventory(packageItem);
+                    }
+                } else {
+                    addToInventory(item);
+                }
+            }
 
-			rs.close();
-			ps.close();
-			ps = con.prepareStatement("DELETE FROM `gifts` WHERE `to` = ?");
-			ps.setInt(1, characterId);
-			ps.executeUpdate();
-			ps.close();
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-		}
+            rs.close();
+            ps.close();
+            ps = con.prepareStatement("DELETE FROM `gifts` WHERE `to` = ?");
+            ps.setInt(1, characterId);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+        }
 
-		return gifts;
-	}
+        return gifts;
+    }
 
     public void save() throws SQLException {
         Connection con = DatabaseConnection.getConnection();
@@ -329,9 +335,9 @@ public class CashShop {
         ps.close();
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
-        for (IItem item : inventory)
-            itemsWithType.add(new Pair<IItem,
-                    MapleInventoryType>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
+        for (IItem item : inventory) {
+            itemsWithType.add(new Pair<IItem, MapleInventoryType>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
+        }
 
         factory.saveItems(itemsWithType, accountId);
         ps = con.prepareStatement("DELETE FROM `wishlists` WHERE `charid` = ?");

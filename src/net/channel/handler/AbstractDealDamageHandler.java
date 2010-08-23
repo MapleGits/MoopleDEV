@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.channel.handler;
 
 import java.awt.Point;
@@ -46,6 +46,7 @@ import constants.skills.Gunslinger;
 import constants.skills.ILArchMage;
 import constants.skills.Marauder;
 import constants.skills.Marksman;
+import constants.skills.NightLord;
 import constants.skills.NightWalker;
 import constants.skills.Outlaw;
 import constants.skills.Paladin;
@@ -70,7 +71,9 @@ import tools.Pair;
 import tools.data.input.LittleEndianAccessor;
 
 public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandler {
+
     public static class AttackInfo {
+
         public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, stance, direction, rangedirection, charge, display;
         public List<Pair<Integer, List<Integer>>> allDamage;
         public boolean isHH = false;
@@ -86,8 +89,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 return null;
             }
             if (display > 80) { //Hmm
-                if (!theSkill.getAction())
+                if (!theSkill.getAction()) {
                     return null;
+                }
             }
             return mySkill.getEffect(skillLevel);
         }
@@ -117,7 +121,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         if (!player.isAlive()) {
             return;
         }
-        if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST) {
+        if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST && attack.skill != NightLord.NINJA_AMBUSH && attack.skill != Shadower.NINJA_AMBUSH) {
             return;
         }
         int totDamage = 0;
@@ -135,6 +139,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                                 return;
                             }
                             TimerManager.getInstance().schedule(new Runnable() {
+
                                 public void run() {
                                     map.removeMapObject(mapitem);
                                     map.broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 4, 0), mapitem.getPosition());
@@ -173,6 +178,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                             final MapleMonster tdmob = monster;
                             final MapleCharacter tdchar = player;
                             TimerManager.getInstance().schedule(new Runnable() {
+
                                 public void run() {
                                     tdmap.spawnMesoDrop(todrop, todrop, tdpos, tdmob, tdchar, false);
                                 }
@@ -225,16 +231,16 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                         }
                     }
                 } else if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
-			final ISkill skill = SkillFactory.getSkill(21101003);
-			final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                    final ISkill skill = SkillFactory.getSkill(21101003);
+                    final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
-			if (eff.makeChanceResult()) {
-                            monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALIZE, 1), skill, false), false, eff.getX() * 1000, false);
-			}
+                    if (eff.makeChanceResult()) {
+                        monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALIZE, 1), skill, false), false, eff.getX() * 1000, false);
+                    }
                 } else if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
-			final ISkill skill = SkillFactory.getSkill(21100005);
-			player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
-                        player.updateSingleStat(MapleStat.HP, player.getHp());
+                    final ISkill skill = SkillFactory.getSkill(21100005);
+                    player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
+                    player.updateSingleStat(MapleStat.HP, player.getHp());
                 } else if (id == 412 || id == 422 || id == 1411) {
                     ISkill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
                     if (player.getSkillLevel(type) > 0) {
@@ -251,8 +257,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     }
                 }
                 if (attack.skill != 0) {
-                    if (attackEffect.getFixDamage() != -1)
+                    if (attackEffect.getFixDamage() != -1) {
                         totDamageToOneMonster = attackEffect.getFixDamage();
+                    }
                 }
                 if (totDamageToOneMonster > 0 && attackEffect != null && attackEffect.getMonsterStati().size() > 0) {
                     if (attackEffect.makeChanceResult()) {
@@ -270,6 +277,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
         }
     }
+
     protected AttackInfo parseDamage(LittleEndianAccessor lea, MapleCharacter chr, boolean ranged) {
         AttackInfo ret = new AttackInfo();
         lea.readByte();
