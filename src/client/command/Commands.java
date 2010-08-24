@@ -77,11 +77,7 @@ public class Commands {
         boolean ret = false;
         String[] sp = text.split(" ");
         sp[0] = sp[0].substring(1);
-        if (executePlayerCommand(c, sp)) {
-            ret = true;
-        } else if (executeDonatorCommand(c, sp)) {
-            ret = true;
-        } else if (executeGMCommand(c, sp)) {
+        if (executeGMCommand(c, sp)) {
             ret = true;
         } else if (executeHeadGMCommand(c, sp)) {
             ret = true;
@@ -91,24 +87,16 @@ public class Commands {
         if (!ret) {
             switch (c.getPlayer().gmLevel()) {
                 case 0:
-                case 1:
-                    if (header == '@') {
-                        c.getPlayer().dropMessage(6, "Invalid syntax OR Command. Please type @commands for more information.");
-                    } else if (header == '#') {
-                        c.getPlayer().dropMessage(6, "Invalid syntax OR Command. Please type @dcommands for more information.");
-                    } else if (header == '!') {
+                    if (header == '!') {
                         c.getPlayer().dropMessage(6, "You do not have enought privillages to use these commands.");
                     }
                     break;
+                case 1:
                 case 2:
                 case 3:
                 case 4:
                 case 5:
-                    if (header == '@') {
-                        c.getPlayer().dropMessage(6, "Invalid syntax OR Command. Please type @commands for more information.");
-                    } else if (header == '#') {
-                        c.getPlayer().dropMessage(6, "Invalid syntax OR Command. Please type @dcommands for more information.");
-                    } else if (header == '!') {
+                    if (header == '!') {
                         c.getPlayer().dropMessage(6, "Invalid syntax OR Command OR You do not have enough privilege for the command.");
                     }
                     break;
@@ -136,191 +124,6 @@ public class Commands {
             }
         }
         return def;
-    }
-
-    public static boolean executePlayerCommand(MapleClient c, String[] splitted) {
-        MapleCharacter player = c.getPlayer();
-        if (splitted[0].equalsIgnoreCase("commands")) {
-            player.dropMessage(6, "============================================================");
-            player.dropMessage(6, "                 DevotionMs Commands");
-            player.dropMessage(6, "============================================================");
-            player.dropMessage(6, "@str,dex,int,luk <amount> ~ Adds to the amount of stats!");
-            player.dropMessage(6, "@commands ~ Shows you the list of player commands!");
-            player.dropMessage(6, "@dcommands ~ Shows you the list of donator commands!");
-            player.dropMessage(6, "@expfix ~ Fixes negative exp!");
-            player.dropMessage(6, "@gm ~ Sends a message to the GMs!");
-            player.dropMessage(6, "@donators ~ Shows you the list of Donators!");
-            player.dropMessage(6, "@servergms ~ Shows you the list of GMs!");
-            player.dropMessage(6, "@monsterhp ~ Shows you the hp of all mobs in your map!");
-            player.dropMessage(6, "@bosshp ~ Shows you the hp of all the bosses in your map!");
-            player.dropMessage(6, "@fm ~ Warps you to fm!");
-            player.dropMessage(6, "@henesys ~ Need a lift? Heres a free warp to henesys!");
-            player.dropMessage(6, "@goafk ~ Makes a chalkboard saying that you are afk!");
-            player.dropMessage(6, "@joinevent ~ Warps you the the map a event is held in!");
-            player.dropMessage(6, "@leaveevent ~ Warps you to henesys if you have used @joinevent!");
-            player.dropMessage(6, "@usepin ~ Enables/Disables using of Pin System!");
-            player.dropMessage(6, "@rebirth ~ Rebirth into a more powerfull based character at level 200!");
-            player.dropMessage(6, "@rebirthbuffs ~ Powered buffs for rebirthers!");
-        } else if (splitted[0].equalsIgnoreCase("dcommands")) {
-            player.dropMessage(6, "============================================================");
-            player.dropMessage(6, "                 DevotionMs Donator Commands");
-            player.dropMessage(6, "============================================================");
-            player.dropMessage(6, "#buffs ~ Gives buffs! Delay: 10min");
-            player.dropMessage(6, "#go ~ Warps you to certain maps! Delay: 5min");
-            player.dropMessage(6, "#whoson ~ Shows whos online!");
-            player.dropMessage(6, "#autoloot ~ Enable/Disable auto mesos looting!");
-        } else if (splitted[0].equalsIgnoreCase("str") || splitted[0].equalsIgnoreCase("dex") || splitted[0].equalsIgnoreCase("int") || splitted[0].equalsIgnoreCase("luk") || splitted[0].equalsIgnoreCase("hp") || splitted[0].equalsIgnoreCase("mp")) {
-            int x = optionalArgInt(splitted, 1, 1);
-            if (x > 0 && x <= player.getRemainingAp() && x < Integer.MAX_VALUE) {
-                if (splitted[0].equalsIgnoreCase("str") && x + player.getStr() < 30000) {
-                    player.addStat(1, x);
-                } else if (splitted[0].equalsIgnoreCase("dex") && x + player.getDex() < 30000) {
-                    player.addStat(2, x);
-                } else if (splitted[0].equalsIgnoreCase("int") && x + player.getInt() < 30000) {
-                    player.addStat(3, x);
-                } else if (splitted[0].equalsIgnoreCase("luk") && x + player.getLuk() < 30000) {
-                    player.addStat(4, x);
-                } else if (splitted[0].equalsIgnoreCase("hp") && x + player.getMaxHp() < 30000) {
-                    player.setMaxHp(c.getPlayer().addHP(c), true);
-                    player.updateSingleStat("MAXHP", player.getMaxHp());
-                } else if (splitted[0].equalsIgnoreCase("mp") && x + player.getMaxMp() < 30000) {
-                    player.setMaxMp(c.getPlayer().addMP(c), true);
-                    player.updateSingleStat("MAXMP", player.getMaxHp());
-                } else {
-                    player.dropMessage(6, "Make sure the stat you are trying to raise will not be over 30000.");
-                }
-                player.setRemainingAp(player.getRemainingAp() - x);
-                player.updateSingleStat("AVAILABLEAP", player.getRemainingAp());
-            } else {
-                player.dropMessage(6, "Please make sure your AP is valid.");
-            }
-        } else if (splitted[0].equalsIgnoreCase("expfix")) {
-            if (player.getExp() < 0) {
-                player.setExp(0);
-            } else {
-                player.dropMessage(6, "Only use this command if you have negative exp.");
-            }
-        } else if (splitted[0].equalsIgnoreCase("gm")) {
-            if (!player.getAntiCheat().Spam(300000, 0) || player.isGM()) {
-                try {
-                    c.getChannelServer().getWorldInterface().broadcastGMMessage(null, MaplePacketCreator.serverNotice(6, "Channel: " + c.getChannel() + "  " + player.getName() + ": " + joinString(splitted, 1)).getBytes());
-                } catch (RemoteException ex) {
-                    c.getChannelServer().reconnectWorld();
-                    ex.printStackTrace();
-                }
-                player.dropMessage(6, "Message Sent.");
-            } else {
-                player.dropMessage(6, "Please do not spam the GMs.");
-            }
-        } else if (splitted[0].equalsIgnoreCase("donators")) {
-            Connection con = DatabaseConnection.getConnection();
-            try {
-                PreparedStatement ps = con.prepareStatement("SELECT name FROM characters WHERE gm == 1");
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    player.dropMessage(6, rs.getString("name"));
-                }
-                rs.close();
-                ps.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } else if (splitted[0].equalsIgnoreCase("servergms")) {
-            Connection con = DatabaseConnection.getConnection();
-            try {
-                PreparedStatement ps = con.prepareStatement("SELECT name, gm FROM characters WHERE gm >= 2");
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    String gmType = "";
-                    int gmLevel = rs.getInt("gm");
-                    switch (gmLevel) {
-                        case 2:
-                            gmType = "DevotionMs GM";
-                            break;
-                        case 3:
-                            gmType = "DevotionMs Head-GM";
-                            break;
-                        case 4:
-                            gmType = "DevotionMs Admin";
-                            break;
-                        case 5:
-                            gmType = "DevotionMs Owner";
-                            break;
-                        default:
-                            gmType = "Error";
-                            break;
-                    }
-                    player.dropMessage(6, rs.getString("name") + "  :  " + gmType);
-                }
-                rs.close();
-                ps.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } else if (splitted[0].equalsIgnoreCase("monsterhp")) {
-            MapleMap map = player.getMap();
-            List<MapleMapObject> monsters = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
-            for (MapleMapObject monstermo : monsters) {
-                MapleMonster monster = (MapleMonster) monstermo;
-                player.dropMessage(6, monster.toString());
-            }
-        } else if (splitted[0].equalsIgnoreCase("bosshp")) {
-            MapleMap map = player.getMap();
-            List<MapleMapObject> monsters = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
-            for (MapleMapObject monstermo : monsters) {
-                MapleMonster monster = (MapleMonster) monstermo;
-                if (monster.isBoss()) {
-                    player.dropMessage(6, monster.toString());
-                }
-            }
-        } else if (splitted[0].equalsIgnoreCase("fm")) {
-            if (!(c.getPlayer().isAlive())) {
-                player.dropMessage(6, "I can't warp you. You are dead.");
-                c.getSession().write(MaplePacketCreator.enableActions());
-            } else if (c.getPlayer().getEventInstance() != null) {
-                player.dropMessage(6, "You are in a instanced map.");
-                c.getSession().write(MaplePacketCreator.enableActions());
-            } else {
-                if (c.getPlayer().getMapId() != 910000000) {
-                    c.getSession().write(MaplePacketCreator.enableActions());
-                    c.getPlayer().saveLocation("FREE_MARKET");
-                    c.getPlayer().changeMap(c.getChannelServer().getMapFactory().getMap(910000000), c.getChannelServer().getMapFactory().getMap(910000000).getPortal("out00"));
-                } else {
-                    player.dropMessage(6, "You are already in fm.");
-                    c.getSession().write(MaplePacketCreator.enableActions());
-                }
-            }
-        } else if (splitted[0].equalsIgnoreCase("henesys")) {
-            if (!(c.getPlayer().isAlive())) {
-                player.dropMessage(6, "I can't warp you. You are dead.");
-                c.getSession().write(MaplePacketCreator.enableActions());
-            } else if (c.getPlayer().getEventInstance() != null) {
-                player.dropMessage(6, "You are in a instanced map.");
-                c.getSession().write(MaplePacketCreator.enableActions());
-            } else {
-                if (c.getPlayer().getMapId() != 100000000) {
-                    c.getSession().write(MaplePacketCreator.enableActions());
-                    c.getPlayer().changeMap(c.getChannelServer().getMapFactory().getMap(100000000), c.getChannelServer().getMapFactory().getMap(100000000).getPortal(0));
-                } else {
-                    player.dropMessage(6, "You are already in henesys.");
-                    c.getSession().write(MaplePacketCreator.enableActions());
-                }
-            }
-        } else if (splitted[0].equalsIgnoreCase("goafk")) {
-            player.setChalkboard("Afk~ Vote for DevotionMs! ~Afk");
-            player.getMap().broadcastMessage(MaplePacketCreator.useChalkboard(player, false));
-        } else {
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean executeDonatorCommand(MapleClient c, String[] splitted) {
-        MapleCharacter player = c.getPlayer();
-        if (player.gmLevel() < 1) {
-            return false;
-        }
-        return true;
     }
 
     public static boolean executeGMCommand(MapleClient c, String[] splitted) {
