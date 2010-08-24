@@ -44,7 +44,7 @@ import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
-    private final boolean isFinisher(int skillId) {
+    private boolean isFinisher(int skillId) {
         return skillId > 1111002 && skillId < 1111007 || skillId == 11111002 || skillId == 11111003;
     }
 
@@ -101,7 +101,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
             } else {
                 player.setHp(1);
             }
-            player.updateSingleStat(MapleStat.HP, player.getHp());
+            player.updateSingleStat("HP", player.getHp());
             player.checkBerserk();
         }
         if (attack.numAttacked > 0 && attack.skill == 1211002) {

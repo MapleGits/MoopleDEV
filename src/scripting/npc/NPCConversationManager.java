@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package scripting.npc;
 
 import client.Equip;
@@ -33,7 +33,6 @@ import client.MapleInventoryType;
 import client.MapleJob;
 import client.MaplePet;
 import client.MapleSkinColor;
-import client.MapleStat;
 import client.SkillFactory;
 import tools.Randomizer;
 import java.io.File;
@@ -66,6 +65,7 @@ import tools.MaplePacketCreator;
  * @author Matze
  */
 public class NPCConversationManager extends AbstractPlayerInteraction {
+
     private int npc;
     private String getText;
 
@@ -206,19 +206,19 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void setHair(int hair) {
         getPlayer().setHair(hair);
-        getPlayer().updateSingleStat(MapleStat.HAIR, hair);
+        getPlayer().updateSingleStat("HAIR", hair);
         getPlayer().equipChanged();
     }
 
     public void setFace(int face) {
         getPlayer().setFace(face);
-        getPlayer().updateSingleStat(MapleStat.FACE, face);
+        getPlayer().updateSingleStat("FACE", face);
         getPlayer().equipChanged();
     }
 
     public void setSkin(int color) {
         getPlayer().setSkinColor(MapleSkinColor.getById(color));
-        getPlayer().updateSingleStat(MapleStat.SKIN, color);
+        getPlayer().updateSingleStat("SKIN", color);
         getPlayer().equipChanged();
     }
 
@@ -291,11 +291,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getPlayer().setLuk(4);
         getPlayer().setInt(4);
         getPlayer().setRemainingAp(totAp - 16);
-        getPlayer().updateSingleStat(MapleStat.STR, 4);
-        getPlayer().updateSingleStat(MapleStat.DEX, 4);
-        getPlayer().updateSingleStat(MapleStat.LUK, 4);
-        getPlayer().updateSingleStat(MapleStat.INT, 4);
-        getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, totAp);
+        getPlayer().updateSingleStat("STR", 4);
+        getPlayer().updateSingleStat("DEX", 4);
+        getPlayer().updateSingleStat("LUK", 4);
+        getPlayer().updateSingleStat("INT", 4);
+        getPlayer().updateSingleStat("AVAILABLEAP", totAp);
     }
 
     public void maxMastery() {
@@ -435,13 +435,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public boolean hasMerchantItems() {
-            try {
-                if (!ItemFactory.MERCHANT.loadItems(getPlayer().getId(), false).isEmpty())
-                    return true;
-
-            } catch (SQLException e) {
-                return false;
+        try {
+            if (!ItemFactory.MERCHANT.loadItems(getPlayer().getId(), false).isEmpty()) {
+                return true;
             }
+        } catch (SQLException e) {
+            return false;
+        }
         if (getPlayer().getMerchantMeso() == 0) {
             return false;
         } else {

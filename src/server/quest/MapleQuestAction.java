@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.quest;
 
 import java.util.HashMap;
@@ -28,7 +28,6 @@ import client.MapleCharacter;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleQuestStatus;
-import client.MapleStat;
 import client.SkillFactory;
 import constants.InventoryConstants;
 import constants.ServerConstants;
@@ -44,6 +43,7 @@ import tools.Randomizer;
  * @author Matze
  */
 public class MapleQuestAction {
+
     private MapleQuestActionType type;
     private MapleData data;
     private MapleQuest quest;
@@ -94,10 +94,11 @@ public class MapleQuestAction {
                 if (status.getStatus() == MapleQuestStatus.Status.NOT_STARTED && status.getForfeited() > 0) {
                     break;
                 }
-                if (!c.isBeginner())
-                c.gainExp(MapleDataTool.getInt(data), true, true);
-                else
-                c.gainExp((MapleDataTool.getInt(data) * ServerConstants.QUEST_EXP_RATE), true, true);
+                if (!c.isBeginner()) {
+                    c.gainExp(MapleDataTool.getInt(data), true, true);
+                } else {
+                    c.gainExp(MapleDataTool.getInt(data) * ServerConstants.QUEST_EXP_RATE, true, true);
+                }
                 break;
             case ITEM:
                 MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
@@ -199,7 +200,7 @@ public class MapleQuestAction {
                     break;
                 }
                 c.addFame(MapleDataTool.getInt(data));
-                c.updateSingleStat(MapleStat.FAME, c.getFame());
+                c.updateSingleStat("FAME", c.getFame());
                 int fameGain = MapleDataTool.getInt(data);
                 c.getClient().getSession().write(MaplePacketCreator.getShowFameGain(fameGain));
                 break;

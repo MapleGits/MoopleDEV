@@ -26,7 +26,6 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import client.MapleStat;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import constants.skills.Corsair;
@@ -161,8 +160,8 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         }
         if (!player.isHidden()) {
             player.getMap().broadcastMessage(player, MaplePacketCreator.damagePlayer(damagefrom, monsteridfrom, player.getId(), damage, fake, direction, is_pgmr, pgmr, is_pg, oid, pos_x, pos_y), false);
-            player.updateSingleStat(MapleStat.HP, player.getHp());
-            player.updateSingleStat(MapleStat.MP, player.getMp());
+            player.updateSingleStat("HP", player.getHp());
+            player.updateSingleStat("MP", player.getMp());
             player.checkBerserk();
         }
         if (player.getMap().getId() >= 925020000 && player.getMap().getId() < 925030000) {

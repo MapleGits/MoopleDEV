@@ -28,7 +28,6 @@ import java.util.List;
 import client.ISkill;
 import client.MapleBuffStat;
 import client.MapleCharacter;
-import client.MapleStat;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -100,6 +99,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
     protected synchronized void applyAttack(AttackInfo attack, MapleCharacter player, int attackCount) {
         ISkill theSkill = null;
         MapleStatEffect attackEffect = null;
+        player.getAntiCheat().checkAttack(attack.skill);
+        
         if (attack.skill != 0) {
             theSkill = SkillFactory.getSkill(attack.skill);
             attackEffect = attack.getAttackEffect(player, theSkill);
@@ -165,6 +166,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
                 totDamage += totDamageToOneMonster;
                 player.checkMonsterAggro(monster);
+                player.getAntiCheat().checkSameDamage(totDamage);
                 if (player.getBuffedValue(MapleBuffStat.PICKPOCKET) != null && (attack.skill == 0 || attack.skill == Rogue.DOUBLE_STAB || attack.skill == Bandit.SAVAGE_BLOW || attack.skill == ChiefBandit.ASSAULTER || attack.skill == ChiefBandit.BAND_OF_THIEVES || attack.skill == Shadower.ASSASSINATE || attack.skill == Shadower.TAUNT || attack.skill == Shadower.BOOMERANG_STEP)) {
                     ISkill pickpocket = SkillFactory.getSkill(ChiefBandit.PICKPOCKET);
                     int delay = 0;
@@ -240,7 +242,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 } else if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
                     final ISkill skill = SkillFactory.getSkill(21100005);
                     player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
-                    player.updateSingleStat(MapleStat.HP, player.getHp());
+                    player.updateSingleStat("HP", player.getHp());
                 } else if (id == 412 || id == 422 || id == 1411) {
                     ISkill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
                     if (player.getSkillLevel(type) > 0) {

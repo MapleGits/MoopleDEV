@@ -1,29 +1,30 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package client;
 
 import net.IntValueHolder;
 
 public enum MapleStat implements IntValueHolder {
+
     SKIN(0x1),
     FACE(0x2),
     HAIR(0x4),
@@ -73,6 +74,49 @@ public enum MapleStat implements IntValueHolder {
                 return INT;
             case 512:
                 return LUK;
+        }
+        return null;
+    }
+
+    public static MapleStat getByString(String type) {
+        if (type.equals("SKIN")) {
+            return SKIN;
+        } else if (type.equals("FACE")) {
+            return FACE;
+        } else if (type.equals("HAIR")) {
+            return HAIR;
+        } else if (type.equals("LEVEL")) {
+            return LEVEL;
+        } else if (type.equals("JOB")) {
+            return JOB;
+        } else if (type.equals("STR")) {
+            return STR;
+        } else if (type.equals("DEX")) {
+            return DEX;
+        } else if (type.equals("INT")) {
+            return INT;
+        } else if (type.equals("LUK")) {
+            return LUK;
+        } else if (type.equals("HP")) {
+            return HP;
+        } else if (type.equals("MAXHP")) {
+            return MAXHP;
+        } else if (type.equals("MP")) {
+            return MP;
+        } else if (type.equals("MAXMP")) {
+            return MAXMP;
+        } else if (type.equals("AVAILABLEAP")) {
+            return AVAILABLEAP;
+        } else if (type.equals("AVAILABLESP")) {
+            return AVAILABLESP;
+        } else if (type.equals("EXP")) {
+            return EXP;
+        } else if (type.equals("FAME")) {
+            return FAME;
+        } else if (type.equals("MESO")) {
+            return MESO;
+        } else if (type.equals("PET")) {
+            return PET;
         }
         return null;
     }
