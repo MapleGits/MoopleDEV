@@ -99,7 +99,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
     protected synchronized void applyAttack(AttackInfo attack, MapleCharacter player, int attackCount) {
         ISkill theSkill = null;
         MapleStatEffect attackEffect = null;
-        player.getAntiCheat().checkAttack(attack.skill);
         
         if (attack.skill != 0) {
             theSkill = SkillFactory.getSkill(attack.skill);
@@ -166,7 +165,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
                 totDamage += totDamageToOneMonster;
                 player.checkMonsterAggro(monster);
-                player.getAntiCheat().checkSameDamage(totDamage);
                 if (player.getBuffedValue(MapleBuffStat.PICKPOCKET) != null && (attack.skill == 0 || attack.skill == Rogue.DOUBLE_STAB || attack.skill == Bandit.SAVAGE_BLOW || attack.skill == ChiefBandit.ASSAULTER || attack.skill == ChiefBandit.BAND_OF_THIEVES || attack.skill == Shadower.ASSASSINATE || attack.skill == Shadower.TAUNT || attack.skill == Shadower.BOOMERANG_STEP)) {
                     ISkill pickpocket = SkillFactory.getSkill(ChiefBandit.PICKPOCKET);
                     int delay = 0;

@@ -34,13 +34,11 @@ public final class HealOvertimeHandler extends AbstractMaplePacketHandler {
             if (healHP > 140) {
                 return;
             }
-            c.getPlayer().getAntiCheat().checkHPRegen();
             c.getPlayer().addHP(healHP);
             c.getPlayer().checkBerserk();
         }
         short healMP = slea.readShort();
         if (healMP != 0 && healMP < 1000) {
-            c.getPlayer().getAntiCheat().checkMPRegen();
             c.getPlayer().addMP(healMP);
         }
     }

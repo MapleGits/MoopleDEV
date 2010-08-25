@@ -97,7 +97,6 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.moveMonster(skillByte, skill, skill_1, skill_2, skill_3, skill_4, objectid, startPos, res), monster.getPosition());
             updatePosition(res, monster, -1);
             c.getPlayer().getMap().moveMonster(monster, monster.getPosition());
-            c.getPlayer().getAntiCheat().checkMoveMonster(monster.getPosition());
         }
     }
 }

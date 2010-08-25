@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import client.anticheat.AntiCheat;
 import constants.ExpTable;
 import constants.ServerConstants;
 import constants.skills.Bishop;
@@ -268,9 +267,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private int team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
-    //AntiCheat
-    private AntiCheat anticheat;
-    private boolean hascheat = false;
 
     private MapleCharacter() {
         setStance(0);
@@ -2564,7 +2560,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ret.recalcLocalStats();
                 ret.resetBattleshipHp();
                 ret.silentEnforceMaxHpMp();
-                ret.anticheat = new AntiCheat(ret);
             }
             int mountid = ret.getJobType() * 10000000 + 1004;
             if (ret.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18) != null) {
@@ -4141,17 +4136,5 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void setFitness(MapleFitness fit) {
         this.fitness = fit;
-    }
-
-    public AntiCheat getAntiCheat() {
-        return this.anticheat;
-    }
-
-    public void setHasCheat(boolean has) {
-        hascheat = has;
-    }
-
-    public boolean getHasCheat() {
-        return hascheat;
     }
 }

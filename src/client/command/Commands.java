@@ -565,16 +565,6 @@ public class Commands {
         } else if (splitted[0].equalsIgnoreCase("chattype")) {
             player.toggleGMChat();
             player.message("You now chat in " + (player.getGMChat() ? "white." : "black."));
-        } else if (splitted[0].equalsIgnoreCase("cheaters")) {
-            player.dropMessage(6, "Cheaters:");
-            for (ChannelServer cs : ChannelServer.getAllInstances()) {
-                Collection<MapleCharacter> Players = cs.getPlayerStorage().getAllCharacters();
-                for (MapleCharacter chr : Players) {
-                    if (chr != null && chr.getHasCheat()) {
-                        player.dropMessage(6, chr.getName() + ": " + chr.getAntiCheat().getCheats());
-                    }
-                }
-            }
         } else {
             return false;
         }
