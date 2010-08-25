@@ -2564,6 +2564,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ret.recalcLocalStats();
                 ret.resetBattleshipHp();
                 ret.silentEnforceMaxHpMp();
+                ret.anticheat = new AntiCheat(ret);
             }
             int mountid = ret.getJobType() * 10000000 + 1004;
             if (ret.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18) != null) {
