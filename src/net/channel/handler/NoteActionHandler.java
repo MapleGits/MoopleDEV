@@ -21,8 +21,13 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import java.sql.PreparedStatement;
 import client.MapleClient;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tools.DatabaseConnection;
 import tools.data.input.SeekableLittleEndianAccessor;
 import net.AbstractMaplePacketHandler;
@@ -30,7 +35,15 @@ import net.AbstractMaplePacketHandler;
 public final class NoteActionHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int action = slea.readByte();
-        if (action == 1) {
+        if (action == 0) { //Yay for abuse
+            String charname = slea.readMapleAsciiString();
+            String message = slea.readMapleAsciiString();
+            try {
+                c.getPlayer().sendNote(charname, message);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else if (action == 1) {
             int num = slea.readByte();
             slea.readByte();
             slea.readByte();

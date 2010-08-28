@@ -120,7 +120,7 @@ public class CashShop {
                 int sn = MapleDataTool.getIntConvert("SN", item);
                 int itemId = MapleDataTool.getIntConvert("ItemId", item);
                 int price = MapleDataTool.getIntConvert("Price", item, 0);
-                int period = MapleDataTool.getIntConvert("Period", item, 0);
+                int period = MapleDataTool.getIntConvert("Period", item, 1);
                 short count = (short) MapleDataTool.getIntConvert("Count", item, 1);
                 boolean onSale = MapleDataTool.getIntConvert("OnSale", item, 0) == 1;
                 items.put(sn, new CashItem(sn, itemId, price, period, count, onSale));

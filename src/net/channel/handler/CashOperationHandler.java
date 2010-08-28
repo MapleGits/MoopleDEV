@@ -60,7 +60,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
 
             if (action == 0x03) { // Item
                 IItem item = cItem.toItem();
-                cs.addToInventory(item);
+                cs.addToInventory(item);               
                 c.getSession().write(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
             } else { // Package
                 List<IItem> cashPackage = CashItemFactory.getPackage(cItem.getItemId());
@@ -93,7 +93,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             c.getSession().write(MaplePacketCreator.showGiftSucceed(recipient.get("name"), cItem));
             cs.gainCash(4, -cItem.getPrice());
             c.getSession().write(MaplePacketCreator.showCash(chr));
-        } else if (action == 5) { // Modify wish list
+        } else if (action == 0x05) { // Modify wish list
             cs.clearWishList();
             for (byte i = 0; i < 10; i++) {
                 int sn = slea.readInt();
@@ -103,17 +103,6 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
             c.getSession().write(MaplePacketCreator.showWishList(chr, true));
-        } else if (action == 7) {
-            slea.readByte();
-            byte toCharge = slea.readByte();
-            int toIncrease = slea.readInt();
-            if (cs.getCash(toCharge) >= 4000 && c.getPlayer().getStorage().getSlots() < 48) { // 48 is max.
-                cs.gainCash(toCharge, -4000);
-                if (toIncrease == 0) {
-                    c.getPlayer().getStorage().gainSlots((byte) 4);
-                }
-                showCS(c);
-            }
         } else if (action == 0x06) { // Increase Inventory Slots
             slea.skip(1);
             int cash = slea.readInt();
@@ -165,6 +154,19 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     c.getSession().write(MaplePacketCreator.showCash(chr));
                 }
             }
+        } else if (action == 0x08) { // Increase Character Slots
+                slea.skip(1); //Wild guess that this is the world the character is in.
+                int cash = slea.readInt();
+                CashItem cItem = CashItemFactory.getItem(slea.readInt());
+
+                if (!canBuy(cItem, cs.getCash(cash)))
+                    return;
+
+                if (c.gainCharacterSlot()) {
+                    c.getSession().write(MaplePacketCreator.showBoughtCharacterSlot(c.getCharacterSlots()));
+                    cs.gainCash(cash, -cItem.getPrice());
+                    c.getSession().write(MaplePacketCreator.showCash(chr));
+                }
         } else if (action == 0x0D) { // Take from Cash Inventory
             IItem item = cs.findByCashId(slea.readInt());
             if (item == null) {
@@ -208,7 +210,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             } else {
                 c.getPlayer().dropMessage("The birthday you entered was incorrect.");
             }
-            showCS(c);
+            c.getSession().write(MaplePacketCreator.showCash(c.getPlayer()));
         } else if (action == 0x1F) { // everything is 1 meso...
             int itemId = CashItemFactory.getItem(slea.readInt()).getItemId();
             if (c.getPlayer().getMeso() > 0) {
@@ -218,7 +220,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     c.getSession().write(MaplePacketCreator.showBoughtQuestItem(itemId));
                 }
             }
-            showCS(c);
+            c.getSession().write(MaplePacketCreator.showCash(c.getPlayer()));
         } else if (action == 0x22) {
             if (checkBirthday(c, slea.readInt())) {
                 int payment = slea.readByte();
@@ -233,7 +235,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 if (partner == null) {
                     c.getPlayer().dropMessage("The partner you specified cannot be found.\r\nPlease make sure your partner is online and in the same channel.");
                 } else {
-                    // c.getSession().write(MaplePacketCreator.showBoughtCashItem(ring, c.getAccID()));
+                    c.getSession().write(MaplePacketCreator.showBoughtCashItem(ring.toItem(), c.getAccID()));
                     cs.gainCash(payment, -ring.getPrice());
                     MapleRing.createRing(ring.getItemId(), c.getPlayer(), partner, text);
                     c.getPlayer().getClient().getSession().write(MaplePacketCreator.serverNotice(1, "Successfully created a ring for both you and your partner!"));
@@ -241,16 +243,10 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             } else {
                 c.getPlayer().dropMessage("The birthday you entered was incorrect.");
             }
-            showCS(c);
+            c.getSession().write(MaplePacketCreator.showCash(c.getPlayer()));
         } else {
             System.out.println(slea);
         }
-    }
-
-    private static void showCS(MapleClient c) {
-        c.getSession().write(MaplePacketCreator.showCash(c.getPlayer()));
-        c.getSession().write(MaplePacketCreator.enableCSUse());
-        c.getSession().write(MaplePacketCreator.enableActions());
     }
 
     private boolean checkBirthday(MapleClient c, int idate) {

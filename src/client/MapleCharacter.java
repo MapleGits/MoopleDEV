@@ -273,7 +273,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         inventory = new MapleInventory[MapleInventoryType.values().length];
         savedLocations = new SavedLocation[SavedLocationType.values().length];
         for (MapleInventoryType type : MapleInventoryType.values()) {
-            inventory[type.ordinal()] = new MapleInventory(type, (byte) 96);
+            inventory[type.ordinal()] = new MapleInventory(type, (byte) 24);
         }
         for (int i = 0; i < SavedLocationType.values().length; i++) {
             savedLocations[i] = null;
@@ -300,6 +300,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         ret.accountid = c.getAccID();
         ret.buddylist = new BuddyList(20);
         ret.maplemount = null;
+        ret.getInventory(MapleInventoryType.EQUIP).setSlotLimit(24);
+        ret.getInventory(MapleInventoryType.USE).setSlotLimit(24);
+	ret.getInventory(MapleInventoryType.SETUP).setSlotLimit(24);
+	ret.getInventory(MapleInventoryType.ETC).setSlotLimit(24);
         int[] key = {18, 65, 2, 23, 3, 4, 5, 6, 16, 17, 19, 25, 26, 27, 31, 34, 35, 37, 38, 40, 43, 44, 45, 46, 50, 56, 59, 60, 61, 62, 63, 64, 57, 48, 29, 7, 24, 33, 41};
         int[] type = {4, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 5, 6, 6, 6, 6, 6, 6, 5, 4, 5, 4, 4, 4, 4};
         int[] action = {0, 106, 10, 1, 12, 13, 18, 24, 8, 5, 4, 19, 14, 15, 2, 17, 11, 3, 20, 16, 9, 50, 51, 6, 7, 53, 100, 101, 102, 103, 104, 105, 54, 22, 52, 21, 25, 26, 23};
@@ -3125,9 +3129,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ps.setInt(29, 0);
                 ps.setInt(30, 0);
             }
-            for (int i = 0; i < 4; i++) {
-                ps.setInt(i + 31, getSlots(i));
-            }
+            for (int i = 0; i < 4; i++)
+	          ps.setInt(i + 31, getSlots(i));
+            
             if (update) {
                 monsterbook.saveCards(getId());
             }
@@ -3711,12 +3715,31 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return gainSlots(type, slots, true);
     }
 
-    public boolean gainSlots(int type, int slots, boolean update) {
+    public boolean gainSlots(int type, int slots, boolean update) { //fix gay method
         slots += inventory[type].getSlotLimit();
 
         if (slots <= 96) {
             inventory[type].setSlotLimit(slots);
 
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps = null;
+            try {
+            if (type == MapleInventoryType.EQUIP.getType()) {
+                ps = con.prepareStatement("UPDATE characters SET equipslots = ? WHERE id = ?");
+            } else if (type == MapleInventoryType.USE.getType()) {
+                ps = con.prepareStatement("UPDATE characters SET useslots = ? WHERE id = ?");
+            } else if (type == MapleInventoryType.ETC.getType()) {
+                ps = con.prepareStatement("UPDATE characters SET etcslots = ? WHERE id = ?");
+            } else if (type == MapleInventoryType.SETUP.getType()) {
+                ps = con.prepareStatement("UPDATE characters SET setupslots = ? WHERE id = ?");
+            }
+            ps.setInt(1, slots);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+            ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             if (update) {
                 client.getSession().write(MaplePacketCreator.updateInventorySlotLimit(type, slots));
             }

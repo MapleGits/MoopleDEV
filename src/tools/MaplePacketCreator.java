@@ -288,6 +288,10 @@ public class MaplePacketCreator {
         }
     }
 
+    private static void addItemInfo(MaplePacketLittleEndianWriter mplew, IItem item, boolean zeroPosition) {
+        addItemInfo(mplew, item, zeroPosition, false, false);
+    }
+
     private static void addItemInfo(MaplePacketLittleEndianWriter mplew, IItem item, boolean zeroPosition, boolean leaveOut) {
         addItemInfo(mplew, item, zeroPosition, leaveOut, false);
     }
@@ -342,7 +346,7 @@ public class MaplePacketCreator {
             mplew.write(pet.getLevel());
             mplew.writeShort(pet.getCloseness());
             mplew.write(pet.getFullness());
-            mplew.writeLong(getKoreanTimestamp((long) (System.currentTimeMillis() * 1.2)));
+            mplew.writeLong(getTime((long) (System.currentTimeMillis() * 1.2)));
             mplew.writeInt(0);
             mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00")); //wonder what this is
             return;
@@ -380,14 +384,14 @@ public class MaplePacketCreator {
         mplew.writeShort(equip.getFlag()); //Item Flags
 
         if (isCash) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 11; i++) {
                 mplew.write(0x40);
             }
         } else {
             mplew.write(0);
             mplew.write(equip.getItemLevel());
             mplew.writeShort(0);
-            mplew.writeShort(0);// item exp
+            mplew.writeShort(1);// item exp
             mplew.writeShort(equip.getVicious());
             mplew.write(new byte[10]);
         }
@@ -6600,7 +6604,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x60);
+        mplew.write(0x5D);
         mplew.writeMapleAsciiString(to);
         mplew.writeInt(item.getItemId());
         mplew.writeShort(item.getCount());
@@ -6613,7 +6617,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x62);
+        mplew.write(0x60);
         mplew.write(type);
         mplew.writeShort(slots);
 
@@ -6624,7 +6628,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x64);
+        mplew.write(0x62);
         mplew.writeShort(slots);
 
         return mplew.getPacket();
@@ -6634,7 +6638,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x66);
+        mplew.write(0x64);
         mplew.writeShort(slots);
 
         return mplew.getPacket();
@@ -6646,7 +6650,7 @@ public class MaplePacketCreator {
 
         mplew.write(0x68);
         mplew.writeShort(item.getPosition());
-        addItemInfo(mplew, item, true, true, true);
+        addItemInfo(mplew, item, true);
 
         return mplew.getPacket();
     }

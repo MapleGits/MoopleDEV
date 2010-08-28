@@ -82,7 +82,7 @@ public class MapleClient {
     private Set<String> macs = new HashSet<String>();
     private Map<String, ScriptEngine> engines = new HashMap<String, ScriptEngine>();
     private ScheduledFuture<?> idleTask = null;
-    private int characterSlots = 5;
+    private short characterSlots = 5;
     private byte loginattempt = 0;
     private String pin = null;
     private int pinattempt = 0;
@@ -334,7 +334,7 @@ public class MapleClient {
         int loginok = 5;
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT id, password, salt, banned, gm, pin, pic FROM accounts WHERE name = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT id, password, salt, banned, gm, pin, pic, characterslots FROM accounts WHERE name = ?");
             ps.setString(1, login);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -344,6 +344,7 @@ public class MapleClient {
                 this.gmlevel = rs.getInt("gm");
                 pin = rs.getString("pin");
                 pic = rs.getString("pic");
+                characterSlots = (short) rs.getInt("characterslots");
                 String passhash = rs.getString("password");
                 String salt = rs.getString("salt");
                 if ((banned == 0 && !ipMacBanned) || banned == -1) {
@@ -777,11 +778,24 @@ public class MapleClient {
         }
     }
 
-    public int getCharacterSlots() {
+    public short getCharacterSlots() {
         return characterSlots;
     }
 
-    public void setCharacterSlots(int amount) {
-        this.characterSlots = amount;
+    public boolean gainCharacterSlot() {
+        if (characterSlots < 15) {
+            Connection con = DatabaseConnection.getConnection();
+            try {
+                PreparedStatement ps = con.prepareStatement("UPDATE accounts SET characterslots = ? WHERE id = ?");
+                ps.setInt(1, this.characterSlots += 1);
+                ps.setInt(2, accId);
+                ps.executeUpdate();
+                ps.close();  
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return true;
+        }
+            return false;
     }
 }

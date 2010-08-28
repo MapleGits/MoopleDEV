@@ -32,7 +32,7 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
         String text = slea.readMapleAsciiString();
         char header = text.charAt(0);
         c.getPlayer().addCommandToList(text);
-        if (header == '@' || header == '#' || header == '!') {
+        if (header == '/') {
             Commands.processCommand(c, text, header);
             return;
         }
