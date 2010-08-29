@@ -387,10 +387,12 @@ public class MapleItemInformationProvider {
             return null;
         }
         for (MapleData data : info.getChildren()) {
-            if (data.getName().startsWith("inc")) {
+            if (data.getName().startsWith("inc")) 
                 ret.put(data.getName().substring(3), MapleDataTool.getIntConvert(data));
-            }
+            else if (data.getName().startsWith("req"))
+	        ret.put(data.getName(), MapleDataTool.getIntConvert(data));
         }
+        ret.put("cash", MapleDataTool.getInt("cash", info, 0));
         ret.put("tuc", MapleDataTool.getInt("tuc", info, 0));
         ret.put("reqLevel", MapleDataTool.getInt("reqLevel", info, 0));
         ret.put("cursed", MapleDataTool.getInt("cursed", info, 0));
@@ -907,7 +909,7 @@ public class MapleItemInformationProvider {
         }
     }
 
-        public boolean isCash(int itemId) {
-	       return itemId / 1000000 == 5 || getEquipStats(itemId).get("cash") == 1;
-	}
+    public boolean isCash(int itemId) {
+        return itemId / 1000000 == 5 || getEquipStats(itemId).get("cash") == 1;
+    }
 }

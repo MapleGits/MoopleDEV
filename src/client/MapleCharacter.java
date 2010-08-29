@@ -658,13 +658,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (effect.isHide() && (MapleCharacter) getMap().getMapObject(getObjectId()) != null) {
                 this.hidden = false;
                 getMap().broadcastNONGMMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
-                for (int i = 0; i < 3; i++) {
-                    if (pets[i] != null) {
-                        getMap().broadcastNONGMMessage(this, MaplePacketCreator.showPet(this, pets[i], false, false), false);
-                    } else {
-                        break;
-                    }
-                }
             }
         }
     }
@@ -4026,9 +4019,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void sendSpawnData(MapleClient client) {
         if ((this.isHidden() && gmLevel > 0) || !this.isHidden()) {
             client.getSession().write(MaplePacketCreator.spawnPlayerMapobject(this));
-            for (int i = 0; pets[i] != null; i++) {
-                client.getSession().write(MaplePacketCreator.showPet(this, pets[i], false, false));
-            }
         }
     }
 

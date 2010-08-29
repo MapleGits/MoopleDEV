@@ -305,12 +305,6 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
         if (bDifferentGuild) {
             mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(cid), false);
             mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
-            MaplePet[] pets = mc.getPets();
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    mc.getMap().broadcastMessage(mc, MaplePacketCreator.showPet(mc, pets[i], false, false), false);
-                }
-            }
         }
     }
 

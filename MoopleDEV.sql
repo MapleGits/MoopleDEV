@@ -43,6 +43,7 @@ CREATE TABLE `accounts` (
   `nxCredit` int(11) default NULL,
   `maplePoint` int(11) default NULL,
   `nxPrepaid` int(11) default NULL,
+  `characterslots` tinyint(2) default 5,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)
