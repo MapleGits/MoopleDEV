@@ -6688,9 +6688,86 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket earnTitleMessage(String msg) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.EARN_TITLE_MSG.getValue());
         mplew.writeMapleAsciiString(msg);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket startCPQ() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_START.getValue());
+        mplew.write(0); //team
+        mplew.writeShort(0); //Obtained CP - Used CP
+        mplew.writeShort(0); //Total Obtained CP
+        mplew.writeShort(0); //Obtained CP - Used CP of the team
+        mplew.writeShort(0); //Total Obtained CP of the team
+        mplew.writeShort(0); //Obtained CP - Used CP of the team
+        mplew.writeShort(0); //Total Obtained CP of the team
+        mplew.writeShort(0); //Probably useless nexon shit
+        mplew.writeLong(0); //Probably useless nexon shit
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket obtainCP() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
+        mplew.writeShort(0); //Obtained CP - Used CP
+        mplew.writeShort(0); //Total Obtained CP
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket obtainPartyCP() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
+        mplew.write(0); //Team where the points are given to.
+        mplew.writeShort(0); //Obtained CP - Used CP
+        mplew.writeShort(0); //Total Obtained CP
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket CPQSummon() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
+        mplew.write(0); //Tab
+        mplew.writeShort(0); //Number of summon inside the tab
+        mplew.writeMapleAsciiString(""); //Name of the player that summons
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket CPQDied() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
+        mplew.write(0); //Team
+        mplew.writeMapleAsciiString(""); //Name of the player that died
+        mplew.write(0); //Lost CP
+        return mplew.getPacket();
+    }
+
+    /**
+     * Sends a CPQ Message
+     *
+     * Possible values for <code>message</code>:<br>
+     * 1: You don't have enough CP to continue.
+     * 2: You can no longer summon the Monster.
+     * 3: You can no longer summon the being.
+     * 4: This being is already summoned.
+     * 5:     This request has failed due to an unknown error.
+     *
+     * @param message Displays a message inside Carnival PQ
+     **/
+    public static MaplePacket CPQMessage(byte message) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_MESSAGE.getValue());
+        mplew.write(message); //Message
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket leaveCPQ() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_LEAVE.getValue());
+        mplew.write(0); //Team
+        mplew.writeMapleAsciiString(""); //Player name
         return mplew.getPacket();
     }
 }
