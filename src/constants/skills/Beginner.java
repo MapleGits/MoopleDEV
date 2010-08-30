@@ -36,4 +36,10 @@ public class Beginner {
     public static final int BAMBOO_RAIN = 1009;
     public static final int INVINCIBLE_BARRIER = 1010;
     public static final int BERSERK_FURY = 1011;
+    public static final int SPACESHIP = 1013;
+    public static final int SPACE_DASH = 1014;
+    public static final int YETI_MOUNT1 = 1017;
+    public static final int YETI_MOUNT2 = 1018;
+    public static final int WITCH_BROOMSTICK = 1019;
+    public static final int BALROG_MOUNT = 1031;
 }

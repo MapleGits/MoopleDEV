@@ -148,7 +148,7 @@ public class AbstractPlayerInteraction {
 
     public void gainItem(int id, short quantity, boolean randomStats) {
         if (id >= 5000000 && id <= 5000100) {
-            MapleInventoryManipulator.addById(c, id, (short) 1, null, MaplePet.createPet(id));
+            MapleInventoryManipulator.addById(c, id, (short) 1, null, MaplePet.createPet(id), -1);
         }
         if (quantity >= 0) {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();

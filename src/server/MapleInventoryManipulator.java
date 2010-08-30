@@ -52,10 +52,10 @@ public class MapleInventoryManipulator {
     }
 
     public static boolean addById(MapleClient c, int itemId, short quantity) {
-        return addById(c, itemId, quantity, null, -1);
+        return addById(c, itemId, quantity, null, -1, -1);
     }
 
-    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid) {
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid, long expiration) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         MapleInventoryType type = ii.getInventoryType(itemId);
         if (!type.equals(MapleInventoryType.EQUIP)) {
@@ -72,6 +72,7 @@ public class MapleInventoryManipulator {
                                 short newQ = (short) Math.min(oldQ + quantity, slotMax);
                                 quantity -= (newQ - oldQ);
                                 eItem.setQuantity(newQ);
+                                eItem.setExpiration(expiration);
                                 c.getSession().write(MaplePacketCreator.updateInventorySlot(type, eItem));
                             }
                         } else {
@@ -84,6 +85,7 @@ public class MapleInventoryManipulator {
                     if (newQ != 0) {
                         quantity -= newQ;
                         Item nItem = new Item(itemId, (byte) 0, newQ, petid);
+                        nItem.setExpiration(expiration);
                         byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                         if (newSlot == -1) {
                             c.getSession().write(MaplePacketCreator.getInventoryFull());
@@ -104,6 +106,7 @@ public class MapleInventoryManipulator {
                 }
             } else {
                 Item nItem = new Item(itemId, (byte) 0, quantity);
+                nItem.setExpiration(expiration);
                 byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                 if (newSlot == -1) {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
@@ -115,6 +118,7 @@ public class MapleInventoryManipulator {
             }
         } else if (quantity == 1) {
             IItem nEquip = ii.getEquipById(itemId);
+            nEquip.setExpiration(expiration);
             if (owner != null) {
                 nEquip.setOwner(owner);
             }

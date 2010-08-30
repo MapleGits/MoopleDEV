@@ -247,6 +247,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private ScheduledFuture<?> beholderHealingSchedule;
     private ScheduledFuture<?> beholderBuffSchedule;
     private ScheduledFuture<?> BerserkSchedule;
+    public ScheduledFuture<?> expiretask;
     private NumberFormat nf = new DecimalFormat("#,###,###,###");
     private static List<Pair<Byte, Integer>> inventorySlots = new ArrayList<Pair<Byte, Integer>>();
     private ArrayList<String> commands = new ArrayList<String>();
@@ -710,9 +711,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public static boolean canCreateChar(String name) {
-        if (name.length() < 4 || name.length() > 12) {
+        if (name.length() < 4 || name.length() > 12) 
             return false;
-        }
+
+        if (isInUse(name))
+            return false;
+
         return getIdByName(name) < 0 && !name.toLowerCase().contains("gm") && Pattern.compile("[a-zA-Z0-9_-]{3,12}").matcher(name).matches();
     }
 
@@ -1212,14 +1216,15 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void expirationTask() {
+        expiretask = TimerManager.getInstance().register(new Runnable() {
+                @Override
+                public void run() {
         long expiration, currenttime = System.currentTimeMillis();
-
-
         Set<ISkill> keys = getSkills().keySet();
         for (Iterator<ISkill> i = keys.iterator(); i.hasNext();) {
             ISkill key = i.next();
             SkillEntry skill = getSkills().get(key);
-            if (skill.expiration != -1) {
+            if (skill.expiration != -1 && skill.expiration < currenttime) {
                 changeSkillLevel(key, -1, 0, -1);
             }
         }
@@ -1228,11 +1233,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         for (MapleInventory inv : inventory) {
             for (IItem item : inv.list()) {
                 expiration = item.getExpiration();
-                if (expiration != -1) {
-                    if (currenttime < expiration) {
+                if (expiration != -1 && expiration < currenttime) {
                         client.getSession().write(MaplePacketCreator.itemExpired(item.getItemId()));
                         toberemove.add(item);
-                    }
                 }
             }
             for (IItem item : toberemove) {
@@ -1240,6 +1243,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             toberemove.clear();
         }
+                }
+            }, 60000);
     }
 
     public enum FameStatus {

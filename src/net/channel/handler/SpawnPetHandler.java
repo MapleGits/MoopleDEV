@@ -67,7 +67,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                     ps.close();
                 } catch (SQLException ex) {
                 }
-                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId);
+                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration());
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, petid, (short) 1, false, false);
                 c.getSession().write(MaplePacketCreator.enableActions());
                 return;

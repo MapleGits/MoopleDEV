@@ -60,6 +60,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         if (c.getPlayer().getBuffedValue(MapleBuffStat.COMBO) != null) {
             c.getPlayer().cancelEffectFromBuffStat(MapleBuffStat.COMBO);
         }
+        c.getPlayer().expiretask.cancel(false);
         HiredMerchant merchant = c.getPlayer().getHiredMerchant();
         if (merchant != null) {
             if (merchant.isOwner(c.getPlayer())) {

@@ -68,8 +68,10 @@ import server.maps.MapleMap;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
+import tools.HexTool;
 import tools.MaplePacketCreator;
 import tools.Pair;
+import tools.StringUtil;
 
 public class Commands {
 
@@ -221,13 +223,15 @@ public class Commands {
                     map.updateSingleStat("MP", map.getMp());
                 }
             }
+        } else if (splitted[0].equalsIgnoreCase("packet")) {
+            c.getSession().write(MaplePacketCreator.customPacket(StringUtil.joinStringFrom(splitted, 1)));
         } else if (splitted[0].equalsIgnoreCase("item")) {
             int itemId = optionalArgInt(splitted, 1, 0);
             short quantity = (short) optionalArgInt(splitted, 2, 1);
             if (itemId >= 5000000 && itemId < 5000065) {
                 MaplePet.createPet(itemId);
             } else {
-                MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), -1);
+                MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), -1, System.currentTimeMillis() + Integer.parseInt(splitted[3]));
             }
         } else if (splitted[0].equalsIgnoreCase("level")) {
             player.setLevel(optionalArgInt(splitted, 1, 1) - 1);
@@ -419,11 +423,6 @@ public class Commands {
                 } catch (Exception e) {
                 }
             }
-        } else if (splitted[0].equalsIgnoreCase("warphere")) {
-            MapleCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
-            victim.changeMap(c.getPlayer().getMap(), c.getPlayer().getMap().findClosestSpawnpoint(c.getPlayer().getPosition()));
-        } else if (splitted[0].equalsIgnoreCase("map")) {
-            player.changeMap(c.getChannelServer().getMapFactory().getMap(optionalArgInt(splitted, 1, 0)), c.getChannelServer().getMapFactory().getMap(optionalArgInt(splitted, 1, 0)).getPortal(optionalArgInt(splitted, 2, 0)));
         } else if (splitted[0].equalsIgnoreCase("warpallhere")) {
             for (MapleCharacter mch : cserv.getPlayerStorage().getAllCharacters()) {
                 if (mch.getMapId() != player.getMapId()) {
@@ -837,7 +836,7 @@ public class Commands {
                     if (petId == -1) {
                         return false;
                     }
-                    MapleInventoryManipulator.addById(c, mapItem.getItem().getItemId(), mapItem.getItem().getQuantity(), null, petId);
+                    MapleInventoryManipulator.addById(c, mapItem.getItem().getItemId(), mapItem.getItem().getQuantity(), null, petId, -1);
                 } else {
                     MapleInventoryManipulator.addFromDrop(c, mapItem.getItem(), true);
                 }

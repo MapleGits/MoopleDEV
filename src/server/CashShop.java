@@ -50,11 +50,12 @@ public class CashShop {
 
     public static class CashItem {
 
-        private int sn, itemId, price, period;
+        private int sn, itemId, price;
+        private long period;
         private short count;
         private boolean onSale;
 
-        private CashItem(int sn, int itemId, int price, int period, short count, boolean onSale) {
+        private CashItem(int sn, int itemId, int price, long period, short count, boolean onSale) {
             this.sn = sn;
             this.itemId = itemId;
             this.price = price;
@@ -100,9 +101,9 @@ public class CashShop {
 
             item.setSN(sn);
             if (petId > -1) {
-                item.setExpiration(System.currentTimeMillis() + (long)(90 * 24 * 60 * 60 * 1000));
+                item.setExpiration(System.currentTimeMillis() + ((long) 90 * 60 * 60 * 24 * 1000 ));
             } else {
-                item.setExpiration(period == 1 ? System.currentTimeMillis() + (long)(period * 4 * 60 * 60 * 1000) : System.currentTimeMillis() + (long)(period * 24 * 60 * 60 * 1000));
+                item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
             }
             return item;
         }

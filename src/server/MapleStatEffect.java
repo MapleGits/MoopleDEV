@@ -362,6 +362,8 @@ public class MapleStatEffect implements Serializable {
                 // PIRATE
                 case Pirate.DASH:
                 case ThunderBreaker.DASH:
+                case Beginner.SPACE_DASH:
+                case Noblesse.SPACE_DASH:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPEED, Integer.valueOf(ret.x)));
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.JUMP, Integer.valueOf(ret.y)));
                     break;
@@ -375,6 +377,20 @@ public class MapleStatEffect implements Serializable {
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.HOMING_BEACON, Integer.valueOf(x)));
                     break;
                 case Corsair.BATTLE_SHIP:
+                case Beginner.SPACESHIP:
+                case Noblesse.SPACESHIP:
+                case Beginner.YETI_MOUNT1:
+                case Beginner.YETI_MOUNT2:
+                case Noblesse.YETI_MOUNT1:
+                case Noblesse.YETI_MOUNT2:
+                case Legend.YETI_MOUNT1:
+                case Legend.YETI_MOUNT2:
+                case Beginner.WITCH_BROOMSTICK:
+                case Noblesse.WITCH_BROOMSTICK:
+                case Legend.WITCH_BROOMSTICK:
+                case Beginner.BALROG_MOUNT:
+                case Noblesse.BALROG_MOUNT:
+                case Legend.BALROG_MOUNT:  
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MONSTER_RIDING, Integer.valueOf(sourceid)));
                     break;
                 case ThunderBreaker.SPARK:
@@ -800,7 +816,7 @@ public class MapleStatEffect implements Serializable {
 
     public final void applyComboBuff(final MapleCharacter applyto, int combo) {
 	final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ARAN_COMBO, combo));
-	applyto.getClient().getSession().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat));
+	applyto.getClient().getSession().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat, false));
 
 	final long starttime = System.currentTimeMillis();
 //	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
@@ -809,11 +825,7 @@ public class MapleStatEffect implements Serializable {
     }
 
     private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary) {
-        if (sourceid != Corsair.BATTLE_SHIP) {
-            if (!this.isMonsterRiding()) {
-                applyto.cancelEffect(this, true, -1);
-            }
-        } else {
+        if (!isMonsterRiding()) {
             applyto.cancelEffect(this, true, -1);
         }
         List<Pair<MapleBuffStat, Integer>> localstatups = statups;
@@ -831,6 +843,16 @@ public class MapleStatEffect implements Serializable {
             }
             if (sourceid == Corsair.BATTLE_SHIP) {
                 ridingLevel = 1932000;
+            } else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP) {
+                ridingLevel = 1932000 + applyto.getSkillLevel(sourceid);
+            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1) {
+                ridingLevel = 1932003;
+            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2) {
+                ridingLevel = 1932004;
+            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK) {
+                ridingLevel = 1932005;
+            } else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT) {
+                ridingLevel = 1932010;
             } else {
                 if (applyto.getMount() == null) {
                     applyto.mount(ridingLevel, sourceid);
@@ -838,7 +860,17 @@ public class MapleStatEffect implements Serializable {
                 applyto.getMount().startSchedule();
             }
             if (sourceid == Corsair.BATTLE_SHIP) {
-                givemount = new MapleMount(applyto, 1932000, Corsair.BATTLE_SHIP);
+                givemount = new MapleMount(applyto, 1932000, sourceid);
+            } else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP) {
+                givemount = new MapleMount(applyto, 1932000 + applyto.getSkillLevel(sourceid), sourceid);
+            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1) {
+                givemount = new MapleMount(applyto, 1932003, sourceid);
+            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2) {
+                givemount = new MapleMount(applyto, 1932004, sourceid);
+            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK) {
+                givemount = new MapleMount(applyto, 1932005, sourceid);
+            } else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT) {
+                givemount = new MapleMount(applyto, 1932010, sourceid);
             } else {
                 givemount = applyto.getMount();
             }
@@ -852,9 +884,9 @@ public class MapleStatEffect implements Serializable {
             localDuration = alchemistModifyVal(applyfrom, localDuration, false);
         }
         if (localstatups.size() > 0) {
-            MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups);
+            MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
             if (isDash()) {
-                if ((applyto.getJob().getId() / 100) % 10 != 5) {
+                if ((applyto.getJob().getId() / 100) % 10 != 5 && (sourceid != Beginner.SPACE_DASH || sourceid != Noblesse.SPACE_DASH)) {
                     applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10, -1);
                 } else {
                     applyto.getClient().getSession().write(MaplePacketCreator.giveDash(Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1)), sourceid, localX, localY, seconds));
@@ -862,7 +894,7 @@ public class MapleStatEffect implements Serializable {
             } else if (isInfusion()) {
                 applyto.getClient().getSession().write(MaplePacketCreator.giveInfusion(seconds, x));
             } else if (isMonsterRiding()) {
-                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups);
+                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
             } else if (isCygnusFA()) {
                 buff = MaplePacketCreator.giveFinalAttack(sourceid, seconds);
             } else if (isHomingBeacon()) {
@@ -1113,7 +1145,10 @@ public class MapleStatEffect implements Serializable {
     }
 
     public boolean isMonsterRiding() {
-        return skill && (sourceid % 10000000 == 1004 || sourceid == Corsair.BATTLE_SHIP);
+        return skill && (sourceid % 10000000 == 1004 || sourceid == Corsair.BATTLE_SHIP || sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP
+                || sourceid == Beginner.YETI_MOUNT1 || sourceid == Beginner.YETI_MOUNT2 || sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Beginner.BALROG_MOUNT
+                || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Noblesse.BALROG_MOUNT
+                || sourceid == Legend.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT2 || sourceid == Legend.WITCH_BROOMSTICK || sourceid == Legend.BALROG_MOUNT);
     }
 
     public boolean isMagicDoor() {
@@ -1164,7 +1199,7 @@ public class MapleStatEffect implements Serializable {
     }
 
     private boolean isDash() {
-        return skill && (sourceid == Pirate.DASH || sourceid == ThunderBreaker.DASH);
+        return skill && (sourceid == Pirate.DASH || sourceid == ThunderBreaker.DASH || sourceid == Beginner.SPACE_DASH || sourceid == Noblesse.SPACE_DASH);
     }
 
     private boolean isSkillMorph() {

@@ -43,4 +43,8 @@ public class Legend {
     public static final int TUTORIAL_SKILL3 = 20000016;
     public static final int TUTORIAL_SKILL4 = 20000017; //combo
     public static final int TUTORIAL_SKILL5 = 20000018; //critical
+    public static final int YETI_MOUNT1 = 20001019;
+    public static final int YETI_MOUNT2 = 20001022;
+    public static final int WITCH_BROOMSTICK = 20001023;
+    public static final int BALROG_MOUNT = 20001031;
 }

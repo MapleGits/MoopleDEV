@@ -2394,7 +2394,7 @@ public class MaplePacketCreator {
      * @param statups
      * @return
      */
-    public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
+    public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups, boolean mount) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
         long mask = getLongMask(statups);
@@ -2408,7 +2408,7 @@ public class MaplePacketCreator {
         if (isFirst) {
             mplew.writeLong(mask);
             mplew.writeLong(0);
-        } else if (bufflength % 10000000 != 1004 && bufflength != 5221006) { //Maybe change to isRiderSkill or w/e :)
+        } else if (!mount) {
             mplew.writeLong(0);
             mplew.writeLong(mask);
         } else {
@@ -2421,7 +2421,7 @@ public class MaplePacketCreator {
             mplew.writeInt(buffid);
             mplew.writeInt(bufflength);
         }
-        if (bufflength % 10000000 == 1004 || bufflength == 5221006) {
+        if (mount) {
             mplew.writeInt(0);
         } else {
             mplew.writeShort(0);
@@ -2429,7 +2429,7 @@ public class MaplePacketCreator {
         mplew.write(0); // combo 600, too
         mplew.write(0); // new in v0.56
         mplew.write(0);
-        if (bufflength % 10000000 == 1004 || bufflength == 5221006) {
+        if (mount) {
             mplew.write(0);
         }
         return mplew.getPacket();
@@ -5050,6 +5050,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
         mplew.writeLong(getLongMask(statups));
         mplew.write0(10);
+        mplew.write(0xA9);
         mplew.writeInt(statups.get(0).getRight().intValue());
         mplew.writeInt(buffid);
         mplew.write0(10);

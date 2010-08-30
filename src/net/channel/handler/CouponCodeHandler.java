@@ -72,7 +72,7 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
                     c.getPlayer().getCashShop().gainCash(2, (item / 5000));
                     break;
                 case 4:
-                    MapleInventoryManipulator.addById(c, item, (short) 1, null, -1);
+                    MapleInventoryManipulator.addById(c, item, (short) 1, null, -1, -1);
                     c.getSession().write(MaplePacketCreator.showCouponRedeemedItem(item));
                     break;
                 case 5:
