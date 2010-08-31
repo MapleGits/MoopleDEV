@@ -177,6 +177,7 @@ public class MapleMapFactory {
                 map.setBoat(mapData.getChildByPath("shipObj") != null);
                 map.setTimeLimit(MapleDataTool.getIntConvert("timeLimit", mapData.getChildByPath("info"), -1));
                 map.setFieldType(MapleDataTool.getIntConvert("info/fieldType", mapData, 0));
+
                 maps.put(omapid, map);
             }
         }

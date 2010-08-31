@@ -96,6 +96,7 @@ import server.MapleTrade;
 import server.TimerManager;
 import server.events.MapleFitness;
 import server.events.MapleOla;
+import server.events.MonsterCarnival;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.maps.AbstractAnimatedMapleMapObject;
@@ -268,6 +269,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private int team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
+    private MonsterCarnival carnival;
 
     private MapleCharacter() {
         setStance(0);
@@ -4155,4 +4157,28 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void setFitness(MapleFitness fit) {
         this.fitness = fit;
     }
+
+    //Monster Carnival
+    private int cp = 0;
+    private int obtainedcp = 0;
+
+    public int getCP() {
+        return cp;
+    }
+
+    public int getObtainedCP() {
+        return obtainedcp;
+    }
+
+    public int getAndRemoveCP() {
+        int rCP = 10;
+        if (cp < 9) {
+            rCP = cp;
+            cp = 0;
+        } else
+            cp -= 10;
+
+        return rCP;
+    }
+
 }

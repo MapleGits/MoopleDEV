@@ -70,7 +70,9 @@ import server.events.MapleCoconut;
 import server.events.MapleFitness;
 import server.events.MapleOla;
 import server.events.MapleSnowball;
+import server.events.MonsterCarnival;
 import server.life.MapleLifeFactory;
+import tools.Pair;
 
 public class MapleMap {
 
@@ -106,7 +108,6 @@ public class MapleMap {
     private String onFirstUserEnter;
     private String onUserEnter;
     private byte dropRate;
-    private byte bossDropRate;
     private int fieldType;
     private int timeMobId;
     private String timeMobMessage = "";
@@ -119,6 +120,7 @@ public class MapleMap {
     private MapleSnowball snowball0;
     private MapleSnowball snowball1;
     private MapleCoconut coconut;
+    private MonsterCarnival carnival;
 
     public MapleMap(int mapid, int channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;
@@ -126,7 +128,6 @@ public class MapleMap {
         this.returnMapId = returnMapId;
         this.monsterRate = monsterRate;
         this.dropRate = ServerConstants.DROP_RATE;
-        this.bossDropRate = ServerConstants.BOSS_DROP_RATE;
     }
 
     public void broadcastMessage(MapleCharacter source, MaplePacket packet) {
@@ -311,7 +312,7 @@ public class MapleMap {
         }
         List<Integer> toDrop = new ArrayList<Integer>();
         for (int i = 0; i < maxDrops; i++) {
-            toDrop.add(monster.getDrop(dropOwner.getDropRate()));
+            toDrop.add(monster.getDrop());
         }
         Set<Integer> alreadyDropped = new HashSet<Integer>();
         int htpendants = 0;
@@ -339,7 +340,7 @@ public class MapleMap {
                 if (toDrop.get(i) == 2041200) {// stone
                     if (htstones > 2) {
                         toDrop.remove(i);
-                        toDrop.add(monster.getDrop(dropOwner.getDropRate()));
+                        toDrop.add(monster.getDrop());
                         i--;
                         continue;
                     } else {
@@ -348,7 +349,7 @@ public class MapleMap {
                 } else if (toDrop.get(i) == 1122000) {// pendant
                     if (htstones > 2) {
                         toDrop.remove(i);
-                        toDrop.add(monster.getDrop(dropOwner.getDropRate()));
+                        toDrop.add(monster.getDrop());
                         i--;
                         continue;
                     } else {
@@ -411,7 +412,7 @@ public class MapleMap {
                         tempmeso = (int) (tempmeso * dropOwner.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
                     }
                     final int meso = tempmeso * dropOwner.getMesoRate();
-                    if (meso > 0 && (mapid < 925020000 || mapid > 925030000)) {
+                    if (meso > 0 && !(mapid >= 925020000 && mapid <= 925030000 || mapid >= 970030000 && mapid <= 970042711 || mapid >= 980030000 && mapid <= 980033400)) {
                         final MapleMonster dropMonster = monster;
                         final MapleCharacter dropChar = dropOwner;
                         TimerManager.getInstance().schedule(new Runnable() {
@@ -1235,6 +1236,9 @@ public class MapleMap {
         if (chr.getOla() != null && chr.getOla().isTimerStarted()) {
             chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (chr.getOla().getTimeLeft() / 1000)));
         }
+        if (getCarnival() != null && (mapid == 980000101 || mapid == 980000201 || mapid == 980000301 || mapid == 980000401 || mapid == 980000501 || mapid == 980000601))
+                chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (getCarnival().getTimeLeft() / 1000)));
+    
         if (hasClock()) {
             Calendar cal = Calendar.getInstance();
             chr.getClient().getSession().write((MaplePacketCreator.getClockTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))));
@@ -1929,7 +1933,13 @@ public class MapleMap {
         return this.mapid >= 109010000 && this.mapid < 109050000 || this.mapid > 109050001 && this.mapid <= 109090000;
     }
 
-    public boolean isPQMap() { // Omg all pq maps f4
-        return this.mapid == 1;
+    //MonsterCarnival
+    public MonsterCarnival getCarnival() {
+        return carnival;
     }
+    
+    public void setCarnival(MonsterCarnival carnival) {
+        this.carnival = carnival;
+    }
+
 }

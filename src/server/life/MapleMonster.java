@@ -105,20 +105,22 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         this.map = map;
     }
 
-    public int getDrop(int droprate) {
+    public int getDrop() {
         MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
         int lastAssigned = -1;
-        int maxchance = 10000;
+        int minChance = 1;
         List<DropEntry> dl = mi.retrieveDropChances(getId());
         for (DropEntry d : dl) {
+            if (d.chance > minChance) {
+                minChance = d.chance;
+            }
+        }
+        for (DropEntry d : dl) {
             d.assignedRangeStart = lastAssigned + 1;
-            d.assignedRangeLength = (d.chance * (isBoss() ? 1 : droprate)) + getLevel();
+            d.assignedRangeLength = (int) Math.ceil(((double) 1 / (double) d.chance) * minChance);
             lastAssigned += d.assignedRangeLength;
         }
-        if (lastAssigned > maxchance) {
-            maxchance = lastAssigned;
-        }
-        int c = Randomizer.getInstance().nextInt(maxchance);
+        int c = Randomizer.getInstance().nextInt(minChance);
         for (DropEntry d : dl) {
             if (c >= d.assignedRangeStart && c < (d.assignedRangeStart + d.assignedRangeLength)) {
                 if (stolenItems.contains(d.itemId)) {
@@ -129,7 +131,6 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
         return -1;
     }
-
     public int getHp() {
         return hp;
     }

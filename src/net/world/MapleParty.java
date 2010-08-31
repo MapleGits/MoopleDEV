@@ -21,6 +21,7 @@
 */
 package net.world;
 
+import client.MapleCharacter;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,6 +87,18 @@ public class MapleParty implements Serializable {
 
     public MaplePartyCharacter getLeader() {
         return leader;
+    }
+
+    public void showEffect(String path) {
+        for (MaplePartyCharacter chr : getMembers()) {
+            chr.showEffect(path);
+        }
+    }
+
+    public void playSound(String path) {
+        for (MaplePartyCharacter chr : getMembers()) {
+            chr.playSound(path);
+        }
     }
 
     @Override

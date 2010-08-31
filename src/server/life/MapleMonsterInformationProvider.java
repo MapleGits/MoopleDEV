@@ -1,24 +1,24 @@
 /*
-This file is part of the OdinMS Maple Story Server
-Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-Matthias Butz <matze@odinms.de>
-Jan Christian Meyer <vimes@odinms.de>
+	This file is part of the OdinMS Maple Story Server
+    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+		       Matthias Butz <matze@odinms.de>
+		       Jan Christian Meyer <vimes@odinms.de>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation version 3 as published by
-the Free Software Foundation. You may not use, modify or distribute
-this program under any other version of the GNU Affero General Public
-License.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation version 3 as published by
+    the Free Software Foundation. You may not use, modify or distribute
+    this program under any other version of the GNU Affero General Public
+    License.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package server.life;
 
 import java.sql.PreparedStatement;
@@ -35,9 +35,7 @@ import tools.DatabaseConnection;
  * @author Matze
  */
 public class MapleMonsterInformationProvider {
-
     public static class DropEntry {
-
         public DropEntry(int itemId, int chance) {
             this.itemId = itemId;
             this.chance = chance;
@@ -64,24 +62,31 @@ public class MapleMonsterInformationProvider {
         List<DropEntry> ret = new LinkedList<DropEntry>();
         if (monsterId > 9300183 && monsterId < 9300216) {
             for (int i = 2022359; i < 2022367; i++) {
-                ret.add(new DropEntry(i, 10000));
+                ret.add(new DropEntry(i, 10));
             }
             drops.put(monsterId, ret);
             return ret;
         } else if (monsterId > 9300215 && monsterId < 9300269) {
             for (int i = 2022430; i < 2022434; i++) {
-                ret.add(new DropEntry(i, 3333));
+                ret.add(new DropEntry(i, 3));
             }
             drops.put(monsterId, ret);
             return ret;
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT itemid, chance FROM monsterdrops WHERE (monsterid = ? AND chance >= 0) OR (monsterid <= 0)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT itemid, chance, monsterid FROM monsterdrops WHERE (monsterid = ? AND chance >= 0) OR (monsterid <= 0)");
             ps.setInt(1, monsterId);
             ResultSet rs = ps.executeQuery();
+            MapleMonster theMonster = null;
             while (rs.next()) {
+                int rowMonsterId = rs.getInt("monsterid");
                 int chance = rs.getInt("chance");
-                chance = (int) ((double) (1 / chance) * 10000);
+                if (rowMonsterId != monsterId && rowMonsterId != 0) {
+                    if (theMonster == null) {
+                        theMonster = MapleLifeFactory.getMonster(monsterId);
+                    }
+                    chance += theMonster.getLevel() * rowMonsterId;
+                }
                 ret.add(new DropEntry(rs.getInt("itemid"), chance));
             }
             rs.close();
