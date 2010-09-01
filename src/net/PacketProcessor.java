@@ -210,6 +210,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.ARAN_COMBO_COUNTER, new AranComboHandler());
             registerHandler(RecvOpcode.CLICK_GUIDE, new ClickGuideHandler());
             registerHandler(RecvOpcode.FREDRICK_ACTION, new FredrickHandler());
+            registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
         }
     }
 }

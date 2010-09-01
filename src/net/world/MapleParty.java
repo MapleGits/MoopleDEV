@@ -21,12 +21,12 @@
 */
 package net.world;
 
-import client.MapleCharacter;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import net.MaplePacket;
 
 public class MapleParty implements Serializable {
     private static final long serialVersionUID = -4928127017438074653L;
@@ -98,6 +98,12 @@ public class MapleParty implements Serializable {
     public void playSound(String path) {
         for (MaplePartyCharacter chr : getMembers()) {
             chr.playSound(path);
+        }
+    }
+
+    public void sendPacket(MaplePacket packet) {
+        for (MaplePartyCharacter chr : getMembers()) {
+            chr.sendPacket(packet);
         }
     }
 

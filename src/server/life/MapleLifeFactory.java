@@ -72,6 +72,7 @@ public class MapleLifeFactory {
             stats.setUndead(MapleDataTool.getIntConvert("undead", monsterInfoData, 0) > 0);
             stats.setName(MapleDataTool.getString(mid + "/name", mobStringData, "MISSINGNO"));
             stats.setBuffToGive(MapleDataTool.getIntConvert("buff", monsterInfoData, -1));
+            stats.setCP(MapleDataTool.getIntConvert("getCP", monsterInfoData, 0));
             MapleData firstAttackData = monsterInfoData.getChildByPath("firstAttack");
             int firstAttack = 0;
             if (firstAttackData != null) {

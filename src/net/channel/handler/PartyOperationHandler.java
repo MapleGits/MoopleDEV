@@ -70,6 +70,14 @@ public final class PartyOperationHandler extends AbstractMaplePacketHandler {
                     } catch (Exception e) {
                         c.getChannelServer().reconnectWorld();
                     }
+                    if (player.getCarnival() != null && player.getCarnivalParty() != null) {//TODO: GIVE POINTS TO THE OTHER TEAMS
+                        if (player.getCarnivalParty().getLeader() == player)
+                            player.getCarnivalParty().warpOut(980000010);
+                        else {
+                            player.getCarnival().playerLeft(player);
+                            player.getCarnivalParty().removeMember(player);
+                        }
+                    }
                     player.setParty(null);
                 }
                 break;

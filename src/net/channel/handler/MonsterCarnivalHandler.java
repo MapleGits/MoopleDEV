@@ -37,28 +37,27 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class MonsterCarnivalHandler extends AbstractMaplePacketHandler{
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter chr = c.getPlayer();
-        MonsterCarnival carnival = chr.getMap().getCarnival();
+        MonsterCarnival carnival = chr.getCarnival();
         int tab = slea.readByte();
         int number = slea.readShort();
         if (carnival != null) {
-            if (chr.getParty() == null) {
+            if (chr.getCarnivalParty() != carnival.getPartyRed() || chr.getCarnivalParty() != carnival.getPartyBlue()) {
                 chr.getMap().broadcastMessage(MaplePacketCreator.leaveCPQ(chr));
                 chr.changeMap(980000010);
             }
             if (chr.getCP() > getPrice(tab, number)) {
                 if (tab == 0 && chr.getTeam() == 0) { //SPAWNING
-                    if (carnival.getRedSummonCount() < 7)
                     chr.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(getMonster(number)), null);
-                    carnival.addRedSummonCount();
                 } else if (tab == 0 && chr.getTeam() == 1) {
-                    if (carnival.getBlueSummonCount() < 7)
                     chr.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(getMonster(number)), null);
-                    carnival.addBlueSummonCount();
                 }
             } else {
                 chr.getMap().broadcastMessage(MaplePacketCreator.CPQMessage((byte) 1));
             }
+        } else {
+            chr.broadcast(MaplePacketCreator.CPQMessage((byte) 5));
         }
+        chr.broadcast(MaplePacketCreator.enableActions());
     }
 
     public int getMonster(int num) {

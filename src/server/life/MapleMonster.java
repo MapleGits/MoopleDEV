@@ -57,8 +57,7 @@ import tools.Pair;
 public class MapleMonster extends AbstractLoadedMapleLife {
 
     private MapleMonsterStats stats;
-    private int hp;
-    private int mp;
+    private int hp, mp;
     private WeakReference<MapleCharacter> controller = new WeakReference<MapleCharacter>(null);
     private boolean controllerHasAggro, controllerKnowsAboutAggro;
     private Collection<AttackerEntry> attackers = new LinkedList<AttackerEntry>();
@@ -75,6 +74,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     private Map<Pair<Integer, Integer>, Integer> skillsUsed = new HashMap<Pair<Integer, Integer>, Integer>();
     private List<MonsterStatus> monsterBuffs = new ArrayList<MonsterStatus>();
     private List<Integer> stolenItems = new ArrayList<Integer>();
+    private int team;
 
     public MapleMonster(int id, MapleMonsterStats stats) {
         super(id);
@@ -164,6 +164,18 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
     int getLevel() {
         return stats.getLevel();
+    }
+
+    public int getCP() {
+        return stats.getCP();
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
     }
 
     public int getVenomMulti() {

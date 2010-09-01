@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.io.Serializable;
 import client.MapleJob;
 import client.MapleCharacter;
+import net.MaplePacket;
 import tools.MaplePacketCreator;
 
 public class MaplePartyCharacter implements Serializable {
@@ -119,6 +120,14 @@ public class MaplePartyCharacter implements Serializable {
         chr.getClient().getSession().write(MaplePacketCreator.playSound(path));
     }
 
+    public void sendPacket(MaplePacket packet) {
+        chr.getClient().getSession().write(packet);
+    }
+
+    public MapleCharacter get() {
+        return chr;
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;

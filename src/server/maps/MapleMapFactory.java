@@ -142,11 +142,12 @@ public class MapleMapFactory {
                     if (myLife instanceof MapleMonster) {
                         MapleMonster monster = (MapleMonster) myLife;
                         int mobTime = MapleDataTool.getInt("mobTime", life, 0);
+                        int team = MapleDataTool.getInt("team", life, -1);
                         if (mobTime == -1) //does not respawn, force spawn once
                         {
                             map.spawnMonster(monster);
                         } else {
-                            map.addMonsterSpawn(monster, mobTime);
+                            map.addMonsterSpawn(monster, mobTime, team);
                         }
                     } else {
                         map.addMapObject(myLife);
@@ -177,7 +178,48 @@ public class MapleMapFactory {
                 map.setBoat(mapData.getChildByPath("shipObj") != null);
                 map.setTimeLimit(MapleDataTool.getIntConvert("timeLimit", mapData.getChildByPath("info"), -1));
                 map.setFieldType(MapleDataTool.getIntConvert("info/fieldType", mapData, 0));
+                /*MapleData monsterCarnival = mapData.getChildByPath("monsterCarnival");
+                if (monsterCarnival != null) {
+                    try {
+                    StringBuilder sb = new StringBuilder();
+                    FileOutputStream out = new FileOutputStream("monsterCarnival.txt", true);
+                    for (MapleData carnival : monsterCarnival.getChildren()) {
+                        sb.append(carnival.getName());
+                        sb.append("\n");
+                        for (MapleData more : carnival.getChildren()) {
+                            if (more != null) {
+                                sb.append(more.getName() + ":");
+                                sb.append("\n");
+                                if (more.getData() != null)
+                                    sb.append(more.getData() + "\n");
 
+                            for (MapleData evenmore : more.getChildren()) {
+                                if (evenmore != null) {
+                                    if (evenmore.getName().equals("x")) {
+                                        sb.append("Position:");
+                                        sb.append("\n");
+                                        sb.append(evenmore.getData());
+                                        sb.append(", ");
+                                    } else if (evenmore.getName().equals("y")) {
+                                        sb.append(evenmore.getData());
+                                        sb.append("\n");
+                                    } else {
+                                        sb.append(evenmore.getName());
+                                        sb.append("\n");
+                                        sb.append(evenmore.getData());
+                                        sb.append("\n");
+                                }
+                                }
+                            } 
+                            }
+                        }
+                    }
+                    out.write(sb.toString().getBytes());
+                    out.close();
+                    } catch (IOException e) {
+                    e.printStackTrace();
+                    }
+                }*/
                 maps.put(omapid, map);
             }
         }

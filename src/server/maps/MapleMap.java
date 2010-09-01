@@ -46,7 +46,6 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import client.MaplePet;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -71,8 +70,8 @@ import server.events.MapleFitness;
 import server.events.MapleOla;
 import server.events.MapleSnowball;
 import server.events.MonsterCarnival;
+import server.events.MonsterCarnivalParty;
 import server.life.MapleLifeFactory;
-import tools.Pair;
 
 public class MapleMap {
 
@@ -120,7 +119,6 @@ public class MapleMap {
     private MapleSnowball snowball0;
     private MapleSnowball snowball1;
     private MapleCoconut coconut;
-    private MonsterCarnival carnival;
 
     public MapleMap(int mapid, int channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;
@@ -583,6 +581,12 @@ public class MapleMap {
         monster.setHp(0);
         broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
         removeMapObject(monster);
+        if (monster.getCP() > 0 && chr.getCarnival() != null) {
+            chr.getCarnivalParty().addCP(chr, monster.getCP());
+            chr.broadcast(MaplePacketCreator.updateCP(chr.getCP(), chr.getObtainedCP()));
+            broadcastMessage(MaplePacketCreator.updatePartyCP(chr.getCarnivalParty()));
+            return;
+        }
         if (monster.getId() >= 8800003 && monster.getId() <= 8800010) {
             boolean makeZakReal = true;
             Collection<MapleMapObject> objects = getMapObjects();
@@ -1118,27 +1122,6 @@ public class MapleMap {
         }, time);
     }
 
-    private void handlePets(MapleCharacter chr, boolean hide) {
-        if (hide) {
-            broadcastGMMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);//NPE here for changing maps??
-        } else {
-            broadcastMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
-        }
-        MaplePet[] pets = chr.getPets();
-        for (int i = 0; i < chr.getPets().length; i++) {
-            if (pets[i] != null) {
-                pets[i].setPos(getGroundBelow(chr.getPosition()));
-                if (hide) {
-                    broadcastGMMessage(chr, MaplePacketCreator.showPet(chr, pets[i], false, false), false);
-                } else {
-                    broadcastMessage(chr, MaplePacketCreator.showPet(chr, pets[i], false, false), false);
-                }
-            } else {
-                break;
-            }
-        }
-    }
-
     public void addPlayer(final MapleCharacter chr) {
         synchronized (characters) {
             this.characters.add(chr);
@@ -1174,17 +1157,7 @@ public class MapleMap {
                     }
                 }, 15 * 60 * 1000 + 3000);
             }
-            handlePets(chr, chr.isHidden());
             sendObjectPlacement(chr.getClient());
-            MaplePet[] pets = chr.getPets();
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    pets[i].setPos(getGroundBelow(chr.getPosition()));
-                    chr.getClient().getSession().write(MaplePacketCreator.showPet(chr, pets[i], false, false));
-                } else {
-                    break;
-                }
-            }
             chr.getClient().getSession().write(MaplePacketCreator.spawnPlayerMapobject(chr));
             if (isStartingEventMap() && !eventStarted()) {
                 chr.getMap().getPortal("join00").setPortalStatus(false);
@@ -1236,9 +1209,12 @@ public class MapleMap {
         if (chr.getOla() != null && chr.getOla().isTimerStarted()) {
             chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (chr.getOla().getTimeLeft() / 1000)));
         }
-        if (getCarnival() != null && (mapid == 980000101 || mapid == 980000201 || mapid == 980000301 || mapid == 980000401 || mapid == 980000501 || mapid == 980000601))
-                chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (getCarnival().getTimeLeft() / 1000)));
-    
+        MonsterCarnival carnival = chr.getCarnival();
+        MonsterCarnivalParty cparty = chr.getCarnivalParty();
+        if (carnival != null && cparty != null && (mapid == 980000101 || mapid == 980000201 || mapid == 980000301 || mapid == 980000401 || mapid == 980000501 || mapid == 980000601)) {
+            chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (carnival.getTimeLeft() / 1000)));
+            chr.getClient().getSession().write(MaplePacketCreator.startCPQ(chr, carnival.oppositeTeam(cparty)));
+        }
         if (hasClock()) {
             Calendar cal = Calendar.getInstance();
             chr.getClient().getSession().write((MaplePacketCreator.getClockTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))));
@@ -1467,10 +1443,10 @@ public class MapleMap {
      * @param monster
      * @param mobTime
      */
-    public void addMonsterSpawn(MapleMonster monster, int mobTime) {
+    public void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
         Point newpos = calcPointBelow(monster.getPosition());
         newpos.y -= 1;
-        SpawnPoint sp = new SpawnPoint(monster, newpos, mobTime);
+        SpawnPoint sp = new SpawnPoint(monster, newpos, mobTime, team);
         monsterSpawn.add(sp);
         if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
             sp.spawnMonster(this);
@@ -1931,15 +1907,6 @@ public class MapleMap {
 
     public boolean isEventMap() {
         return this.mapid >= 109010000 && this.mapid < 109050000 || this.mapid > 109050001 && this.mapid <= 109090000;
-    }
-
-    //MonsterCarnival
-    public MonsterCarnival getCarnival() {
-        return carnival;
-    }
-    
-    public void setCarnival(MonsterCarnival carnival) {
-        this.carnival = carnival;
     }
 
 }

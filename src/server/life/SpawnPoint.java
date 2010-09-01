@@ -30,15 +30,16 @@ public class SpawnPoint {
     private MapleMonster monster;
     private Point pos;
     private long nextPossibleSpawn;
-    private int mobTime;
+    private int mobTime, team;
     private AtomicInteger spawnedMonsters = new AtomicInteger(0);
     private boolean immobile;
 
-    public SpawnPoint(MapleMonster monster, Point pos, int mobTime) {
+    public SpawnPoint(MapleMonster monster, Point pos, int mobTime, int team) {
         super();
         this.monster = monster;
         this.pos = new Point(pos);
         this.mobTime = mobTime;
+        this.team = team;
         this.immobile = !monster.isMobile();
         this.nextPossibleSpawn = System.currentTimeMillis();
     }
@@ -58,6 +59,7 @@ public class SpawnPoint {
         MapleMonster mob = new MapleMonster(monster);
         mob.setPosition(new Point(pos));
         spawnedMonsters.incrementAndGet();
+        mob.setTeam(team);
         mob.addListener(new MonsterListener() {
             public void monsterKilled(MapleMonster monster, MapleCharacter highestDamageChar) {
                 nextPossibleSpawn = System.currentTimeMillis();

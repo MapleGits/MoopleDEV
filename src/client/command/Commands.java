@@ -771,7 +771,7 @@ public class Commands {
                     player.dropMessage(6, "Failed to save MOB to the database.");
                     e.printStackTrace();
                 }
-                player.getMap().addMonsterSpawn(mob, mobtime);
+                player.getMap().addMonsterSpawn(mob, mobtime, -1);
             } else {
                 player.dropMessage(6, "You have entered an invalid Monster id.");
             }

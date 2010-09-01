@@ -43,6 +43,7 @@ import java.util.List;
 import net.channel.ChannelServer;
 import tools.DatabaseConnection;
 import net.world.MapleParty;
+import net.world.MaplePartyCharacter;
 import net.world.guild.MapleAlliance;
 import net.world.guild.MapleGuild;
 import net.world.remote.WorldChannelInterface;
@@ -56,6 +57,7 @@ import server.MapleSquad;
 import server.MapleSquadType;
 import server.MapleStatEffect;
 import server.events.MapleEvent;
+import server.events.MonsterCarnivalParty;
 import server.maps.MapleMap;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
@@ -560,5 +562,21 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         if (getEvent() != null) {
             getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }
+    }
+
+    public void makeCarnivalParty(MapleCharacter leader) {
+        if (leader.getParty() != null) {
+            List<MapleCharacter> chrs = new LinkedList<MapleCharacter>();
+            for (MaplePartyCharacter chr : leader.getParty().getMembers()) {
+                 if (leader.getMapId() == chr.getMapid()) {
+                     chrs.add(chr.get());
+                 }
+            }
+            MonsterCarnivalParty party = new MonsterCarnivalParty(leader, chrs, (byte) leader.getTeam());
+            for (MapleCharacter chr : chrs) {
+                chr.setCarnivalParty(party);
+            }
+        }
+
     }
 }

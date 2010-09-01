@@ -97,6 +97,7 @@ import server.TimerManager;
 import server.events.MapleFitness;
 import server.events.MapleOla;
 import server.events.MonsterCarnival;
+import server.events.MonsterCarnivalParty;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.maps.AbstractAnimatedMapleMapObject;
@@ -269,7 +270,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private int team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
-    private MonsterCarnival carnival;
 
     private MapleCharacter() {
         setStance(0);
@@ -2723,7 +2723,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             MapleInventoryManipulator.removeById(client, MapleItemInformationProvider.getInstance().getInventoryType(charmID[i]), charmID[i], 1, true, false);
         } else if (mapid > 925020000 && mapid < 925030000) {
             this.dojoStage = 0;
-        } else if (getJob() != MapleJob.BEGINNER) {
+        } else if (mapid > 980000100 && mapid < 980000700) {
+            getMap().broadcastMessage(this, MaplePacketCreator.CPQDied(this));
+        } else if (getJob() != MapleJob.BEGINNER) { //Hmm...
             int XPdummy = ExpTable.getExpNeededForLevel(getLevel());
             if (getMap().isTown()) {
                 XPdummy /= 100;
@@ -3947,6 +3949,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         whitechat = !whitechat;
     }
 
+    public void broadcast(MaplePacket packet) {
+        client.getSession().write(packet);
+    }
+
     public void unequipAllPets() {
         for (int i = 0; i < 3; i++) {
             if (pets[i] != null) {
@@ -4161,6 +4167,24 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     //Monster Carnival
     private int cp = 0;
     private int obtainedcp = 0;
+    private MonsterCarnivalParty carnivalparty;
+    private MonsterCarnival carnival;
+
+    public MonsterCarnivalParty getCarnivalParty() {
+        return carnivalparty;
+    }
+
+    public void setCarnivalParty(MonsterCarnivalParty party) {
+        this.carnivalparty = party;
+    }
+
+    public MonsterCarnival getCarnival() {
+        return carnival;
+    }
+
+    public void setCarnival(MonsterCarnival car) {
+        this.carnival = car;
+    }
 
     public int getCP() {
         return cp;
@@ -4168,6 +4192,19 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public int getObtainedCP() {
         return obtainedcp;
+    }
+
+    public void addCP(int cp) {
+        this.cp += cp;
+        this.obtainedcp += cp;
+    }
+
+    public void useCP(int cp) {
+        this.cp -= cp;
+    }
+
+    public void setObtainedCP(int cp) {
+        this.obtainedcp = cp;
     }
 
     public int getAndRemoveCP() {

@@ -39,6 +39,7 @@ public class MapleMonsterStats {
     private int PADamage;
     private int removeAfter;
     private int dropPeriod;
+    private int cp;
     private boolean boss;
     private boolean undead;
     private boolean ffaLoot;
@@ -243,5 +244,13 @@ public class MapleMonsterStats {
 
     public void setPADamage(int PADamage) {
         this.PADamage = PADamage;
+    }
+
+    public int getCP() {
+        return cp;
+    }
+
+    public void setCP(int cp) {
+        this.cp = cp;
     }
 }

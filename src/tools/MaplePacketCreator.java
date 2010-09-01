@@ -87,6 +87,7 @@ import server.MaplePlayerShopItem;
 import server.MapleShopItem;
 import server.MapleTrade;
 import server.events.MapleSnowball;
+import server.events.MonsterCarnivalParty;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
 import server.life.MobSkill;
@@ -6694,29 +6695,22 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket startCPQ(MapleCharacter chr) {
+    public static MaplePacket startCPQ(MapleCharacter chr, MonsterCarnivalParty enemy) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_START.getValue());
         mplew.write(chr.getTeam()); //team
         mplew.writeShort(chr.getCP()); //Obtained CP - Used CP
         mplew.writeShort(chr.getObtainedCP()); //Total Obtained CP
-        if (chr.getTeam() == 0) {
-            mplew.writeShort(chr.getMap().getCarnival().redCP()); //Obtained CP - Used CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().obtainedRedCP()); //Total Obtained CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().blueCP()); //Obtained CP - Used CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().obtainedBlueCP()); //Total Obtained CP of the team
-        } else {
-            mplew.writeShort(chr.getMap().getCarnival().blueCP()); //Obtained CP - Used CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().obtainedBlueCP()); //Total Obtained CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().redCP()); //Obtained CP - Used CP of the team
-            mplew.writeShort(chr.getMap().getCarnival().obtainedRedCP()); //Total Obtained CP of the team
-        }
+        mplew.writeShort(chr.getCarnivalParty().getAvailableCP()); //Obtained CP - Used CP of the team
+        mplew.writeShort(chr.getCarnivalParty().getTotalCP()); //Total Obtained CP of the team
+        mplew.writeShort(enemy.getAvailableCP()); //Obtained CP - Used CP of the team
+        mplew.writeShort(enemy.getTotalCP()); //Total Obtained CP of the team
         mplew.writeShort(0); //Probably useless nexon shit
         mplew.writeLong(0); //Probably useless nexon shit
         return mplew.getPacket();
     }
 
-    public static MaplePacket obtainCP(int cp, int tcp) {
+    public static MaplePacket updateCP(int cp, int tcp) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
         mplew.writeShort(cp); //Obtained CP - Used CP
@@ -6724,12 +6718,12 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket obtainPartyCP(int team, int cp, int tcp) {
+    public static MaplePacket updatePartyCP(MonsterCarnivalParty party) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
-        mplew.write(team); //Team where the points are given to.
-        mplew.writeShort(cp); //Obtained CP - Used CP
-        mplew.writeShort(tcp); //Total Obtained CP
+        mplew.write(party.getTeam()); //Team where the points are given to.
+        mplew.writeShort(party.getAvailableCP()); //Obtained CP - Used CP
+        mplew.writeShort(party.getTotalCP()); //Total Obtained CP
         return mplew.getPacket();
     }
 
