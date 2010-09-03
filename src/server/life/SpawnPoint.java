@@ -58,8 +58,8 @@ public class SpawnPoint {
     public MapleMonster spawnMonster(MapleMap mapleMap) {
         MapleMonster mob = new MapleMonster(monster);
         mob.setPosition(new Point(pos));
-        spawnedMonsters.incrementAndGet();
         mob.setTeam(team);
+        spawnedMonsters.incrementAndGet();
         mob.addListener(new MonsterListener() {
             public void monsterKilled(MapleMonster monster, MapleCharacter highestDamageChar) {
                 nextPossibleSpawn = System.currentTimeMillis();

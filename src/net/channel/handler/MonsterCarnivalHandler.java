@@ -24,9 +24,12 @@ package net.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import java.awt.Point;
 import net.AbstractMaplePacketHandler;
 import server.events.MonsterCarnival;
 import server.life.MapleLifeFactory;
+import server.maps.MapleReactor;
+import server.maps.MapleReactorFactory;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
@@ -46,10 +49,48 @@ public final class MonsterCarnivalHandler extends AbstractMaplePacketHandler{
                 chr.changeMap(980000010);
             }
             if (chr.getCP() > getPrice(tab, number)) {
-                if (tab == 0 && chr.getTeam() == 0) { //SPAWNING
-                    chr.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(getMonster(number)), null);
-                } else if (tab == 0 && chr.getTeam() == 1) {
-                    chr.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(getMonster(number)), null);
+                if (tab == 0) { //SPAWNING
+                    if (chr.getCarnivalParty().canSummon()) {
+                        chr.getMap().spawnCPQMonster(MapleLifeFactory.getMonster(getMonster(number)), new Point(1, 1), carnival.oppositeTeam(chr.getCarnivalParty()).getTeam());
+                        chr.getCarnivalParty().summon();
+                    } else
+                        chr.broadcast(MaplePacketCreator.CPQMessage((byte) 2));
+
+                } else if (tab == 1) {
+
+                } else if (tab == 2) {
+                    int rid = 9980000 + chr.getTeam();
+                        MapleReactor reactor = new MapleReactor(MapleReactorFactory.getReactor(rid), rid);
+                        /*switch (number) {
+                            case 0:
+                                reactor.setMonsterStatus(tab, MonsterStatus.WEAPON_ATTACK_UP, MobSkillFactory.getMobSkill(150, 1));
+                                break;
+                            case 1:
+                                reactor.setMonsterStatus(tab, MonsterStatus.WEAPON_DEFENSE_UP, MobSkillFactory.getMobSkill(151, 1));
+                                break;
+                            case 2:
+                                reactor.setMonsterStatus(tab, MonsterStatus.MAGIC_ATTACK_UP, MobSkillFactory.getMobSkill(152, 1));
+                                break;
+                            case 3:
+                                reactor.setMonsterStatus(tab, MonsterStatus.MAGIC_DEFENSE_UP, MobSkillFactory.getMobSkill(153, 1));
+                                break;
+                            case 4:
+                                reactor.setMonsterStatus(tab, MonsterStatus.ACC, MobSkillFactory.getMobSkill(154, 1));
+                                break;
+                            case 5:
+                                reactor.setMonsterStatus(tab, MonsterStatus.AVOID, MobSkillFactory.getMobSkill(155, 1));
+                                break;
+                            case 6:
+                                reactor.setMonsterStatus(tab, MonsterStatus.SPEED, MobSkillFactory.getMobSkill(156, 1));
+                                break;
+                            case 7:
+                                reactor.setMonsterStatus(tab, MonsterStatus.WEAPON_IMMUNITY, MobSkillFactory.getMobSkill(140, 1));
+                                break;
+                            case 8:
+                                reactor.setMonsterStatus(tab, MonsterStatus.MAGIC_IMMUNITY, MobSkillFactory.getMobSkill(141, 1));
+                                break;
+                        } */
+                        chr.getMap().spawnReactor(reactor);
                 }
             } else {
                 chr.getMap().broadcastMessage(MaplePacketCreator.CPQMessage((byte) 1));

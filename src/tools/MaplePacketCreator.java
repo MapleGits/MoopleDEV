@@ -1261,11 +1261,7 @@ public class MaplePacketCreator {
         }
         if (requestController) {
             mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
-            if (aggro) {
-                mplew.write(2);
-            } else {
-                mplew.write(1);
-            }
+            mplew.write(aggro ? 2 : 1);
         } else {
             mplew.writeShort(SendOpcode.SPAWN_MONSTER.getValue());
         }
@@ -1286,11 +1282,8 @@ public class MaplePacketCreator {
                 mplew.write(0);
             }
         }
-        if (newSpawn) {
-            mplew.writeShort(-2);
-        } else {
-            mplew.writeShort(-1);
-        }
+        mplew.write(newSpawn ? -2 : -1);
+        mplew.write(life.getTeam());
         mplew.writeInt(0);
         return mplew.getPacket();
     }
@@ -1320,6 +1313,7 @@ public class MaplePacketCreator {
             mplew.writeShort(0);
         }
         mplew.writeShort(-2);
+        mplew.write(life.getTeam());
         mplew.writeInt(0);
         return mplew.getPacket();
     }
@@ -3447,7 +3441,6 @@ public class MaplePacketCreator {
     public static MaplePacket applyMonsterStatus(int oid, Map<MonsterStatus, Integer> stats, int skill, boolean monsterSkill, int delay) {
         return applyMonsterStatus(oid, stats, skill, monsterSkill, delay, null);
     }
-    //F2 00 80 01 00 00 00 10 00 00 82 00 6E 00 05 00 00 00 00 00 01 < crash xD
 
     public static MaplePacket applyMonsterStatusTest(int oid, int mask, int delay, MobSkill mobskill, int value) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -6753,7 +6746,7 @@ public class MaplePacketCreator {
      * 2: You can no longer summon the Monster.<br>
      * 3: You can no longer summon the being.<br>
      * 4: This being is already summoned.<br>
-     * 5:     This request has failed due to an unknown error.
+     * 5: This request has failed due to an unknown error.<br>
      *
      * @param message Displays a message inside Carnival PQ
      **/

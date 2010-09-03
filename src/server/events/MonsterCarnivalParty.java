@@ -3,11 +3,13 @@ package server.events;
 import client.MapleCharacter;
 import java.util.LinkedList;
 import java.util.List;
+import net.world.MapleParty;
+import net.world.MaplePartyCharacter;
 import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 
 /**
- * @author Rob //Thanks :3
+ * @author Rob //Thanks :3  - LOST MOTIVATION >=(
  */
 public class MonsterCarnivalParty {
 
@@ -73,6 +75,13 @@ public class MonsterCarnivalParty {
         for (MapleCharacter chr : members) {
             chr.changeMap(map, map.getPortal(portalid));
         }
+    }
+
+    public void warpOut() {
+        if (winner == true)
+            warpOut(980000003 + (leader.getCarnival().getRoom() * 100));
+        else
+            warpOut(980000004 + (leader.getCarnival().getRoom() * 100));
     }
 
     public boolean allInMap(MapleMap map) {

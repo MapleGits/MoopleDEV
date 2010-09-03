@@ -35,7 +35,7 @@ import tools.Pair;
  */
 public class MapleReactor extends AbstractMapleMapObject {
     private int rid;
-    private MapleReactorStats stats;
+private MapleReactorStats stats;
     private byte state;
     private int delay;
     private MapleMap map;

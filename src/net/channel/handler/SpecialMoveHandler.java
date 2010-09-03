@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 import client.ISkill;
 import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
+import client.MapleStat;
 import client.SkillFactory;
 import constants.skills.Brawler;
 import constants.skills.Buccaneer;
@@ -102,10 +103,10 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
             MapleStatEffect ef = s.getEffect(c.getPlayer().getSkillLevel(s));
             int lose = c.getPlayer().getMaxHp() / ef.getX();
             c.getPlayer().setHp(c.getPlayer().getHp() - lose);
-            c.getPlayer().updateSingleStat("HP", c.getPlayer().getHp());
+            c.getPlayer().updateSingleStat(MapleStat.HP, c.getPlayer().getHp());
             int gain = lose * (ef.getY() / 100);
             c.getPlayer().setMp(c.getPlayer().getMp() + gain);
-            c.getPlayer().updateSingleStat("MP", c.getPlayer().getMp());
+            c.getPlayer().updateSingleStat(MapleStat.MP, c.getPlayer().getMp());
         } else if (skillid % 10000000 == 1004) {
             slea.readShort();
         }

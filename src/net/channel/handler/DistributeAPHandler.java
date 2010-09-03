@@ -24,6 +24,7 @@ package net.channel.handler;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleJob;
+import client.MapleStat;
 import client.SkillFactory;
 import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
@@ -38,7 +39,7 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
         if (c.getPlayer().getRemainingAp() > 0) {
             if (addStat(c, num)) {
                 c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - 1);
-                c.getPlayer().updateSingleStat("AVAILABLEAP", c.getPlayer().getRemainingAp());
+                c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
             }
         }
         c.getSession().write(MaplePacketCreator.enableActions());
@@ -142,13 +143,13 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
         MaxHP = Math.min(30000, MaxHP);
         player.setHpMpApUsed(player.getHpMpApUsed() + 1);
         player.setMaxHp(MaxHP);
-        player.updateSingleStat("MAXHP", MaxHP);
+        player.updateSingleStat(MapleStat.MAXHP, MaxHP);
     }
 
     static void addMP(MapleCharacter player, int MaxMP) {
         MaxMP = Math.min(30000, MaxMP);
         player.setHpMpApUsed(player.getHpMpApUsed() + 1);
         player.setMaxMp(MaxMP);
-        player.updateSingleStat("MAXMP", MaxMP);
+        player.updateSingleStat(MapleStat.MAXHP, MaxMP);
     }
 }

@@ -24,6 +24,7 @@ package net.channel.handler;
 import client.ISkill;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleStat;
 import client.SkillFactory;
 import net.AbstractMaplePacketHandler;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -49,7 +50,7 @@ public final class DistributeSPHandler extends AbstractMaplePacketHandler {
             if (!isBeginnerSkill) {
                 player.setRemainingSp(player.getRemainingSp() - 1);
             }
-            player.updateSingleStat("AVAILABLESP", player.getRemainingSp());
+            player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
             player.changeSkillLevel(skill, curLevel + 1, player.getMasterLevel(skill), player.getSkillExpiration(skill));
         }
     }

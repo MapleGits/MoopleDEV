@@ -89,24 +89,6 @@ public class MapleParty implements Serializable {
         return leader;
     }
 
-    public void showEffect(String path) {
-        for (MaplePartyCharacter chr : getMembers()) {
-            chr.showEffect(path);
-        }
-    }
-
-    public void playSound(String path) {
-        for (MaplePartyCharacter chr : getMembers()) {
-            chr.playSound(path);
-        }
-    }
-
-    public void sendPacket(MaplePacket packet) {
-        for (MaplePartyCharacter chr : getMembers()) {
-            chr.sendPacket(packet);
-        }
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -361,7 +361,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void addHP(int delta) {
         setHp(hp + delta);
-        updateSingleStat("HP", hp);
+        updateSingleStat(MapleStat.HP, hp);
     }
 
     public void addMarriageRing(MapleRing r) {
@@ -374,14 +374,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void addMP(int delta) {
         setMp(mp + delta);
-        updateSingleStat("MP", mp);
+        updateSingleStat(MapleStat.MP, mp);
     }
 
     public void addMPHP(int hpDiff, int mpDiff) {
         setHp(hp + hpDiff);
         setMp(mp + mpDiff);
-        updateSingleStat("HP", getHp());
-        updateSingleStat("MP", getMp());
+        updateSingleStat(MapleStat.HP, getHp());
+        updateSingleStat(MapleStat.MP, getMp());
     }
 
     public void addPet(MaplePet pet) {
@@ -396,16 +396,16 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void addStat(int type, int up) {
         if (type == 1) {
             this.str += up;
-            updateSingleStat("STR", str);
+            updateSingleStat(MapleStat.STR, str);
         } else if (type == 2) {
             this.dex += up;
-            updateSingleStat("DEX", dex);
+            updateSingleStat(MapleStat.DEX, dex);
         } else if (type == 3) {
             this.int_ += up;
-            updateSingleStat("INT", int_);
+            updateSingleStat(MapleStat.INT, int_);
         } else if (type == 4) {
             this.luk += up;
-            updateSingleStat("LUK", luk);
+            updateSingleStat(MapleStat.LUK, luk);
         }
     }
 
@@ -1270,7 +1270,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 gain -= gainFirst + 1;
                 this.gainExp(gainFirst + 1, false, inChat, white);
             }
-            updateSingleStat("EXP", this.exp.addAndGet(gain));
+            updateSingleStat(MapleStat.EXP, this.exp.addAndGet(gain));
             if (show && gain != 0) {
                 client.getSession().write(MaplePacketCreator.getShowExpGain(gain, inChat, white));
             }
@@ -1283,7 +1283,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 int need = ExpTable.getExpNeededForLevel(level);
                 if (exp.get() >= need) {
                     setExp(need - 1);
-                    updateSingleStat("EXP", need);
+                    updateSingleStat(MapleStat.EXP, need);
                 }
             }
         }
@@ -1291,7 +1291,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void gainFame(int delta) {
         this.addFame(delta);
-        this.updateSingleStat("FAME", this.fame);
+        this.updateSingleStat(MapleStat.FAME, this.fame);
     }
 
     public void gainMeso(int gain, boolean show) {
@@ -1303,7 +1303,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             client.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        updateSingleStat("MESO", meso.addAndGet(gain), enableActions);
+        updateSingleStat(MapleStat.MESO, meso.addAndGet(gain), enableActions);
         if (show) {
             client.getSession().write(MaplePacketCreator.getShowMesoGain(gain, inChat));
         }
@@ -3542,8 +3542,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void setHpMp(int x) {
         setHp(x);
         setMp(x);
-        updateSingleStat("HP", hp);
-        updateSingleStat("MP", mp);
+        updateSingleStat(MapleStat.HP, hp);
+        updateSingleStat(MapleStat.MP, mp);
     }
 
     public void setInMTS(boolean b) {
@@ -3998,21 +3998,25 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void updateQuest(MapleQuestStatus quest) {
         quests.put(quest.getQuest(), quest);
         if (quest.getStatus().equals(MapleQuestStatus.Status.STARTED)) {
-            client.getSession().write(MaplePacketCreator.startQuest(this, (short) quest.getQuest().getId()));
-            client.getSession().write(MaplePacketCreator.updateQuestInfo(this, (short) quest.getQuest().getId(), quest.getNpc(), (byte) 8));
+            announce(MaplePacketCreator.startQuest(this, (short) quest.getQuest().getId()));
+            announce(MaplePacketCreator.updateQuestInfo(this, (short) quest.getQuest().getId(), quest.getNpc(), (byte) 8));
         } else if (quest.getStatus().equals(MapleQuestStatus.Status.COMPLETED)) {
-            client.getSession().write(MaplePacketCreator.completeQuest(this, (short) quest.getQuest().getId()));
+            announce(MaplePacketCreator.completeQuest(this, (short) quest.getQuest().getId()));
         } else if (quest.getStatus().equals(MapleQuestStatus.Status.NOT_STARTED)) {
-            client.getSession().write(MaplePacketCreator.forfeitQuest(this, (short) quest.getQuest().getId()));
+            announce(MaplePacketCreator.forfeitQuest(this, (short) quest.getQuest().getId()));
         }
     }
 
-    public void updateSingleStat(String stat, int newval) {
-        updateSingleStat(stat, newval, false);
+    public void updateSingleStat(MapleStat stat, int newval) {
+         updateSingleStat(stat, newval, false);
     }
 
-    private void updateSingleStat(String stat, int newval, boolean itemReaction) {
-        client.getSession().write(MaplePacketCreator.updatePlayerStats(Collections.singletonList(new Pair<MapleStat, Integer>(MapleStat.getByString(stat), Integer.valueOf(newval))), itemReaction));
+    private void updateSingleStat(MapleStat stat, int newval, boolean itemReaction) {
+        announce(MaplePacketCreator.updatePlayerStats(Collections.singletonList(new Pair<MapleStat, Integer>(stat, Integer.valueOf(newval))), itemReaction));
+    }
+
+    public void announce(MaplePacket packet) {
+        client.getSession().write(packet);
     }
 
     @Override

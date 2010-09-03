@@ -43,6 +43,8 @@ import net.world.guild.MapleGuild;
 import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
+import server.life.MobSkill;
+import server.life.MobSkillFactory;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
@@ -385,5 +387,9 @@ public class AbstractPlayerInteraction {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public MobSkill getMobSkill(int skill, int level) {
+        return MobSkillFactory.getMobSkill(skill, level);
     }
 }

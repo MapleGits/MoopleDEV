@@ -30,7 +30,6 @@ import tools.MaplePacketCreator;
 
 public class MaplePartyCharacter implements Serializable {
     private static final long serialVersionUID = -6460122214407438511L;
-    private MapleCharacter chr;
     private String name;
     private int id;
     private int level;
@@ -44,7 +43,6 @@ public class MaplePartyCharacter implements Serializable {
     private MapleJob job;
 
     public MaplePartyCharacter(MapleCharacter maplechar) {
-        this.chr = maplechar;
         this.name = maplechar.getName();
         this.level = maplechar.getLevel();
         this.channel = maplechar.getClient().getChannel();
@@ -110,22 +108,6 @@ public class MaplePartyCharacter implements Serializable {
 
     public Point getDoorPosition() {
         return doorPosition;
-    }
-
-    public void showEffect(String path) {
-        chr.getClient().getSession().write(MaplePacketCreator.showEffect(path));
-    }
-
-    public void playSound(String path) {
-        chr.getClient().getSession().write(MaplePacketCreator.playSound(path));
-    }
-
-    public void sendPacket(MaplePacket packet) {
-        chr.getClient().getSession().write(packet);
-    }
-
-    public MapleCharacter get() {
-        return chr;
     }
     
     @Override

@@ -52,6 +52,7 @@ import client.status.MonsterStatusEffect;
 import constants.InventoryConstants;
 import tools.Randomizer;
 import constants.ServerConstants;
+import java.util.Iterator;
 import net.MaplePacket;
 import net.channel.ChannelServer;
 import net.world.MaplePartyCharacter;
@@ -812,6 +813,15 @@ public class MapleMap {
         spos = calcPointBelow(spos);
         spos.y--;
         mob.setPosition(spos);
+        spawnMonster(mob);
+    }
+
+    public void spawnCPQMonster(MapleMonster mob, Point pos, int team) {
+        Point spos = new Point(pos.x, pos.y - 1);
+        spos = calcPointBelow(spos);
+        spos.y--;
+        mob.setPosition(spos);
+        mob.setTeam(team);
         spawnMonster(mob);
     }
 

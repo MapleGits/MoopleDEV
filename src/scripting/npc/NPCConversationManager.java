@@ -33,6 +33,7 @@ import client.MapleInventoryType;
 import client.MapleJob;
 import client.MaplePet;
 import client.MapleSkinColor;
+import client.MapleStat;
 import client.SkillFactory;
 import tools.Randomizer;
 import java.io.File;
@@ -208,19 +209,19 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void setHair(int hair) {
         getPlayer().setHair(hair);
-        getPlayer().updateSingleStat("HAIR", hair);
+        getPlayer().updateSingleStat(MapleStat.HAIR, hair);
         getPlayer().equipChanged();
     }
 
     public void setFace(int face) {
         getPlayer().setFace(face);
-        getPlayer().updateSingleStat("FACE", face);
+        getPlayer().updateSingleStat(MapleStat.FACE, face);
         getPlayer().equipChanged();
     }
 
     public void setSkin(int color) {
         getPlayer().setSkinColor(MapleSkinColor.getById(color));
-        getPlayer().updateSingleStat("SKIN", color);
+        getPlayer().updateSingleStat(MapleStat.SKIN, color);
         getPlayer().equipChanged();
     }
 
@@ -293,11 +294,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getPlayer().setLuk(4);
         getPlayer().setInt(4);
         getPlayer().setRemainingAp(totAp - 16);
-        getPlayer().updateSingleStat("STR", 4);
-        getPlayer().updateSingleStat("DEX", 4);
-        getPlayer().updateSingleStat("LUK", 4);
-        getPlayer().updateSingleStat("INT", 4);
-        getPlayer().updateSingleStat("AVAILABLEAP", totAp);
+        getPlayer().updateSingleStat(MapleStat.STR, 4);
+        getPlayer().updateSingleStat(MapleStat.DEX, 4);
+        getPlayer().updateSingleStat(MapleStat.LUK, 4);
+        getPlayer().updateSingleStat(MapleStat.INT, 4);
+        getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, totAp);
     }
 
     public void maxMastery() {
@@ -562,21 +563,5 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         if (getEvent() != null) {
             getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }
-    }
-
-    public void makeCarnivalParty(MapleCharacter leader) {
-        if (leader.getParty() != null) {
-            List<MapleCharacter> chrs = new LinkedList<MapleCharacter>();
-            for (MaplePartyCharacter chr : leader.getParty().getMembers()) {
-                 if (leader.getMapId() == chr.getMapid()) {
-                     chrs.add(chr.get());
-                 }
-            }
-            MonsterCarnivalParty party = new MonsterCarnivalParty(leader, chrs, (byte) leader.getTeam());
-            for (MapleCharacter chr : chrs) {
-                chr.setCarnivalParty(party);
-            }
-        }
-
     }
 }

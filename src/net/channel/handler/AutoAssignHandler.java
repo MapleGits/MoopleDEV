@@ -53,7 +53,7 @@ public class AutoAssignHandler extends AbstractMaplePacketHandler {
         }
         int remainingAp = (chr.getRemainingAp() - total) + extras;
         chr.setRemainingAp(remainingAp);
-        chr.updateSingleStat("AVAILABLEAP", remainingAp);
+        chr.updateSingleStat(MapleStat.AVAILABLEAP, remainingAp);
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
@@ -89,10 +89,10 @@ public class AutoAssignHandler extends AbstractMaplePacketHandler {
             }
         }
         if (newVal > 999) {
-            chr.updateSingleStat(type.name(), 999);
+            chr.updateSingleStat(type, 999);
             return newVal - 999;
         }
-        chr.updateSingleStat(type.name(), newVal);
+        chr.updateSingleStat(type, newVal);
         return 0;
     }
 }

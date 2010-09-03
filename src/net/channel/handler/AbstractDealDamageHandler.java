@@ -28,6 +28,7 @@ import java.util.List;
 import client.ISkill;
 import client.MapleBuffStat;
 import client.MapleCharacter;
+import client.MapleStat;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -240,7 +241,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 } else if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
                     final ISkill skill = SkillFactory.getSkill(21100005);
                     player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
-                    player.updateSingleStat("HP", player.getHp());
+                    player.updateSingleStat(MapleStat.HP, player.getHp());
                 } else if (id == 412 || id == 422 || id == 1411) {
                     ISkill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
                     if (player.getSkillLevel(type) > 0) {

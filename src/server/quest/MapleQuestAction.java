@@ -28,6 +28,7 @@ import client.MapleCharacter;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleQuestStatus;
+import client.MapleStat;
 import client.SkillFactory;
 import constants.InventoryConstants;
 import constants.ServerConstants;
@@ -200,7 +201,7 @@ public class MapleQuestAction {
                     break;
                 }
                 c.addFame(MapleDataTool.getInt(data));
-                c.updateSingleStat("FAME", c.getFame());
+                c.updateSingleStat(MapleStat.FAME, c.getFame());
                 int fameGain = MapleDataTool.getInt(data);
                 c.getClient().getSession().write(MaplePacketCreator.getShowFameGain(fameGain));
                 break;
