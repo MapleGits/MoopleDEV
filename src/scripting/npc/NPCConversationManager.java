@@ -44,7 +44,6 @@ import java.util.List;
 import net.channel.ChannelServer;
 import tools.DatabaseConnection;
 import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
 import net.world.guild.MapleAlliance;
 import net.world.guild.MapleGuild;
 import net.world.remote.WorldChannelInterface;
@@ -58,7 +57,6 @@ import server.MapleSquad;
 import server.MapleSquadType;
 import server.MapleStatEffect;
 import server.events.MapleEvent;
-import server.events.MonsterCarnivalParty;
 import server.maps.MapleMap;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
@@ -559,7 +557,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return c.getChannelServer().getEvent();
     }
 
-    public void coconutTeam() {
+    public void divideTeams() {
         if (getEvent() != null) {
             getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }

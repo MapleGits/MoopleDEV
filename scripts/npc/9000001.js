@@ -55,8 +55,8 @@ function action(mode, type, selection) {
             } else if (selection == 2) {
         if (cm.getEvent() != null && cm.getEvent().getLimit() > 0) {
         cm.getPlayer().saveLocation("EVENT");
-        if (cm.getEvent().getMapId() == 109080000) {
-            cm.coconutTeam();
+        if (cm.getEvent().getMapId() == 109080000 || cm.getEvent().getMapId() == 109060001) {
+            cm.divideTeams();
         }
                 cm.getEvent().minusLimit();
         cm.warp(cm.getEvent().getMapId());

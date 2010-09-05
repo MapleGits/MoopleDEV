@@ -96,6 +96,7 @@ import server.MapleTrade;
 import server.TimerManager;
 import server.events.MapleFitness;
 import server.events.MapleOla;
+import server.events.MapleSnowball;
 import server.events.MonsterCarnival;
 import server.events.MonsterCarnivalParty;
 import server.life.MapleMonster;
@@ -266,10 +267,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long lastattack = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
-    //Event
-    private int team = 0;
-    private MapleFitness fitness;
-    private MapleOla ola;
 
     private MapleCharacter() {
         setStance(0);
@@ -3724,8 +3721,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             inventory[type].setSlotLimit(slots);
 
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = null;
             try {
+                PreparedStatement ps = con.prepareStatement("");
             if (type == MapleInventoryType.EQUIP.getType()) {
                 ps = con.prepareStatement("UPDATE characters SET equipslots = ? WHERE id = ?");
             } else if (type == MapleInventoryType.USE.getType()) {
@@ -3737,7 +3734,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             ps.setInt(1, slots);
             ps.setInt(2, id);
-            ps.executeUpdate();
+            ps.execute();
             ps.close();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -4034,7 +4031,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        if ((this.isHidden() && gmLevel > 0) || !this.isHidden()) {
+        if (!this.isHidden() || client.getPlayer().gmLevel() > 0) {
             client.getSession().write(MaplePacketCreator.spawnPlayerMapobject(this));
         }
     }
@@ -4144,12 +4141,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     //EVENTS
-    public int getTeam() {
+    //Event
+    private byte team = 0;
+    private MapleFitness fitness;
+    private MapleOla ola;
+    private long snowballattack;
+
+    public byte getTeam() {
         return team;
     }
 
     public void setTeam(int team) {
-        this.team = team;
+        this.team = (byte) team;
     }
 
     public MapleOla getOla() {
@@ -4166,6 +4169,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void setFitness(MapleFitness fit) {
         this.fitness = fit;
+    }
+
+    public long getLastSnowballAttack() {
+        return snowballattack;
+    }
+
+    public void setLastSnowballAttack(long time) {
+        this.snowballattack = time;
     }
 
     //Monster Carnival

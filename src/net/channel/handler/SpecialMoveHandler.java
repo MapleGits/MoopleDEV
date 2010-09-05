@@ -83,7 +83,7 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
                 }
             }
             byte direction = slea.readByte();
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(c.getPlayer().getId(), skillid, 1, direction), false);
+            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(c.getPlayer().getId(), skillid, c.getPlayer().getSkillLevel(skillid), direction), false);
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         } else if (skillid == Buccaneer.TIME_LEAP) { // Timeleap

@@ -75,9 +75,9 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             MaplePortal portal = chr.getMap().getPortal(startwp);
             slea.readByte();
             if (!portal.getPortalStatus()) {
-            c.getPlayer().message("The portal is closed for now.");
-            c.getSession().write(MaplePacketCreator.enableActions());
-            return;
+                c.getPlayer().message("The portal is closed for now.");
+                c.getSession().write(MaplePacketCreator.enableActions());
+                return;
             }
             if (chr.getMapId() == 109040004) {
                 chr.getFitness().resetTimes();

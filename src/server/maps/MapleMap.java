@@ -52,7 +52,6 @@ import client.status.MonsterStatusEffect;
 import constants.InventoryConstants;
 import tools.Randomizer;
 import constants.ServerConstants;
-import java.util.Iterator;
 import net.MaplePacket;
 import net.channel.ChannelServer;
 import net.world.MaplePartyCharacter;
@@ -117,8 +116,8 @@ public class MapleMap {
     private boolean allowHPQSummon = false; // bad place to put this
     // events
     private boolean eventstarted = false;
-    private MapleSnowball snowball0;
-    private MapleSnowball snowball1;
+    private MapleSnowball snowball0 = null;
+    private MapleSnowball snowball1 = null;
     private MapleCoconut coconut;
 
     public MapleMap(int mapid, int channel, int returnMapId, float monsterRate) {
@@ -1168,7 +1167,11 @@ public class MapleMap {
                 }, 15 * 60 * 1000 + 3000);
             }
             sendObjectPlacement(chr.getClient());
-            chr.getClient().getSession().write(MaplePacketCreator.spawnPlayerMapobject(chr));
+            if (chr.isHidden())
+                broadcastGMMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
+            else
+                broadcastMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
+            
             if (isStartingEventMap() && !eventStarted()) {
                 chr.getMap().getPortal("join00").setPortalStatus(false);
             }
@@ -1216,9 +1219,12 @@ public class MapleMap {
         if (chr.getFitness() != null && chr.getFitness().isTimerStarted()) {
             chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (chr.getFitness().getTimeLeft() / 1000)));
         }
-        if (chr.getOla() != null && chr.getOla().isTimerStarted()) {
+        if (chr.getOla() != null && chr.getOla().isTimerStarted()) 
             chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (chr.getOla().getTimeLeft() / 1000)));
-        }
+
+        if (mapid == 109060000)
+            chr.broadcast(MaplePacketCreator.rollSnowBall(true, 0, null, null));
+
         MonsterCarnival carnival = chr.getCarnival();
         MonsterCarnivalParty cparty = chr.getCarnivalParty();
         if (carnival != null && cparty != null && (mapid == 980000101 || mapid == 980000201 || mapid == 980000301 || mapid == 980000401 || mapid == 980000501 || mapid == 980000601)) {
@@ -1825,28 +1831,28 @@ public class MapleMap {
     }
 
     // BEGIN EVENTS
-    public void setSnowBall(MapleSnowball ball) {
-        switch (ball.getTeam()) {
+    public void setSnowball(int team, MapleSnowball ball) {
+        switch (team) {
             case 0:
                 this.snowball0 = ball;
-                break;
+		break;
             case 1:
-                this.snowball1 = ball;
-                break;
+		this.snowball1 = ball;
+		break;
             default:
-                break;
+		break;
         }
     }
 
-    public MapleSnowball getSnowBall(int team) {
-        switch (team) {
+    public MapleSnowball getSnowball(int team) {
+	switch (team) {
             case 0:
-                return snowball0;
+		return snowball0;
             case 1:
-                return snowball1;
+		return snowball1;
             default:
-                return null;
-        }
+		return null;
+	}
     }
 
     private boolean coconutEquip() {
@@ -1861,6 +1867,14 @@ public class MapleMap {
         return coconut;
     }
 
+    public void warpOutByTeam(int team, int mapid) {
+        for (MapleCharacter chr : getCharacters()) {
+            if (chr != null) {
+                if (chr.getTeam() == team)
+                    chr.changeMap(mapid);
+            }
+        }
+    }
     public void startEvent(final MapleCharacter chr) {
         if (this.mapid == 109080000) {
             setCoconut(new MapleCoconut(this));
@@ -1874,10 +1888,15 @@ public class MapleMap {
             chr.setOla(new MapleOla(chr));
             chr.getOla().startOla();
 
-        } else if (this.mapid == 109020001) {
+        } else if (this.mapid == 109020001 && getOx() == null) {
             setOx(new MapleOxQuiz(this));
             getOx().sendQuestion();
             setOxQuiz(true);
+
+        } else if (this.mapid == 109060000 && getSnowball(chr.getTeam()) == null) {
+            setSnowball(0, new MapleSnowball(0, this));
+            setSnowball(1, new MapleSnowball(1, this));
+            getSnowball(chr.getTeam()).startEvent();
         }
     }
 

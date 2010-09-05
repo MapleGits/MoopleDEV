@@ -1,88 +1,168 @@
 /*
- * This part of the source is copyrighted by Bassoe (c)
- * Using this can and will get you in troubles.
- * Oh Shut Up !!
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package server.events;
 
-import java.awt.Point;
+import client.MapleCharacter;
+import java.util.LinkedList;
+import java.util.List;
+import server.TimerManager;
 import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 
 /**
  *
- * @author Bassoe recoded by: kevintjuh93
+ * @author kevintjuh93
  */
 public class MapleSnowball {
-    private Point position;
-    private int team;
-    private int pos = 0;
+    private MapleMap map;
+    private int position = 0;
+    private int hits = 25;
     private int snowmanhp = 7500;
-    private boolean ishittable = true;
+    private boolean hittable = true;
+    private int team;
+    private boolean winner = false;
+    List<MapleCharacter> characters = new LinkedList<MapleCharacter>();
 
-    public MapleSnowball(int teamz) {
-        this.team = teamz;
-        switch (teamz) {
-            case 0:
-                this.position = new Point(400,155);
-                break;
-            case 1:
-                this.position = new Point(400,-84);
-                break;
-            default:
-                this.position = new Point(0,0);
-                break;
+    public MapleSnowball(int team, MapleMap map) {
+        this.map = map;
+        this.team = team;
+
+        for (MapleCharacter chr : map.getCharacters()) {
+            if (chr.getTeam() == team)
+                characters.add(chr);
         }
     }
 
-    public int getTeam() {
-        return team;
-    }
+    public void startEvent() {
+        for (MapleCharacter chr : characters) {
+            if (chr != null) {
+                chr.broadcast(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
+                chr.broadcast(MaplePacketCreator.getClock(600));
+            }
+        }
+        TimerManager.getInstance().schedule(new Runnable() {
+            @Override
+            public void run() {
+                if (map.getSnowball(team).getPosition() > map.getSnowball(team == 0 ? 1 : 0).getPosition()) {
+                    for (MapleCharacter chr : characters) {
+                        if (chr != null)
+                            chr.broadcast(MaplePacketCreator.rollSnowBall(false, 3, map.getSnowball(0), map.getSnowball(0)));
+                    }
+                    setWinner(true);
+                } else if (map.getSnowball(team == 0 ? 1 : 0).getPosition() > map.getSnowball(team).getPosition()) {
+                    for (MapleCharacter chr : characters) {
+                        if (chr != null)
+                            chr.broadcast(MaplePacketCreator.rollSnowBall(false, 4, map.getSnowball(0), map.getSnowball(0)));
+                    }
+                    setWinner(false);
+                } else { //Tie
+                    setWinner(false);
+                }
+                warpOut();
+            }
+        }, 600000);
 
+    }
+    
     public boolean isHittable() {
-        return ishittable;
+        return hittable;
     }
+
     public void setHittable(boolean hit) {
-        this.ishittable = hit;
+        this.hittable = hit;
     }
 
-    public void setTeam(int teamz) {
-        this.team = teamz;
-    }
-
-    public Point getPosition() {
+    public int getPosition() {
         return position;
     }
 
-    public int getPos() {
-        return pos;
-    }
-
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
-
-    public int getPosX() {
-        return position.x;
-    }
-    public void setPosition(Point newpos) {
-        this.position = newpos;
-    }
-
-    public void setPosX(int newpos) {
-        this.position.x = newpos;
-    }
-    
     public int getSnowmanHP() {
-     return snowmanhp;
+        return snowmanhp;
     }
 
-    public void setSnowmanHP(int snowmanhp) {
-        this.snowmanhp = snowmanhp;
+    public void setSnowmanHP(int hp) {
+        this.snowmanhp = hp;
     }
 
-    public void broadcast(MapleMap map, int message) {
-        MaplePacketCreator.snowballMessage(team, message);
+    public void setWinner(boolean winner) {
+        this.winner = winner;
+    }
+
+    public void hit(int what, int damage) {
+        if (what < 2)
+            if (damage > 0)
+                this.hits -= 1;
+        else {
+            if (this.snowmanhp - damage < 0) {
+                this.snowmanhp = 0;
+
+                TimerManager.getInstance().schedule(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        setSnowmanHP(7500);
+                        message(5);
+                    }
+                }, 10000);
+            } else
+                this.snowmanhp -= damage;
+        map.broadcastMessage(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
+        }
+
+        if (this.hits == 0) {
+            this.position += 1;
+            if (this.position == 45)
+                map.getSnowball(team == 0 ? 1 : 0).message(1);
+            else if (this.position == 290)
+                map.getSnowball(team == 0 ? 1 : 0).message(2);
+            else if (this.position == 560)
+                map.getSnowball(team == 0 ? 1 : 0).message(3);
+                
+            this.hits = 25;
+            map.broadcastMessage(MaplePacketCreator.rollSnowBall(false, 0, map.getSnowball(0), map.getSnowball(1)));
+            map.broadcastMessage(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
+        }
+        map.broadcastMessage(MaplePacketCreator.hitSnowBall(what, damage));
+    }
+
+    public void message(int message) {
+        for (MapleCharacter chr : characters) {
+            if (chr != null)
+                chr.broadcast(MaplePacketCreator.snowballMessage(team, message));
+        }
+    }
+
+    public void warpOut() {
+        TimerManager.getInstance().schedule(new Runnable() {
+
+            @Override
+            public void run() {
+                if (winner == true)
+                    map.warpOutByTeam(team, 109050000);
+                else
+                    map.warpOutByTeam(team, 109050001);
+
+                map.setSnowball(team, null);
+            }
+        }, 10000);
     }
 }

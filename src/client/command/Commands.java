@@ -222,7 +222,7 @@ public class Commands {
            c.getPlayer().getMap().getPortal(sub[1]).setPortalState(false);
         } else if (sub[0].equals("startevent")) {
             for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
-            c.getPlayer().getMap().startEvent(chr);
+                 c.getPlayer().getMap().startEvent(chr);
             }
             c.getChannelServer().setEvent(null);
         } else if (sub[0].equals("scheduleevent")) {
@@ -363,6 +363,13 @@ public class Commands {
             for (int i = 1; i <= ChannelServer.getAllInstances().size(); i++) {
                 ChannelServer.getInstance(i).setServerMessage(joinStringFrom(sub, 1));
             }
+        } else if (sub[0].equals("warpsnowball")) {
+            for (MapleCharacter chr : player.getMap().getCharacters()) {
+                 chr.changeMap(109060000, chr.getTeam());
+            }
+        } else if (sub[0].equals("team")) {
+            MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
+            victim.setTeam(Integer.parseInt(sub[2]));
         } else if (sub[0].equals("setall")) {
             final int x = Short.parseShort(sub[1]);
             player.setStr(x);

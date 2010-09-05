@@ -2480,20 +2480,17 @@ public class MaplePacketCreator {
      * @param mount
      * @return
      */
-    public static MaplePacket showMonsterRiding(int cid, List<Pair<MapleBuffStat, Integer>> statups, MapleMount mount) {
+    public static MaplePacket showMonsterRiding(int cid, MapleMount mount) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
-        long mask = getLongMask(statups);
-        mplew.writeInt(0);
-        mplew.writeLong(mask);
-        mplew.writeInt(0);
+        mplew.writeLong(MapleBuffStat.MONSTER_RIDING.getValue()); //Thanks?
+        mplew.writeLong(0);
         mplew.writeShort(0);
         mplew.writeInt(mount.getItemId());
         mplew.writeInt(mount.getSkillId());
         mplew.writeInt(0); //Server Tick value.
         mplew.writeShort(0);
-        mplew.write(0);
         mplew.write(0); //Times you have been buffed
         return mplew.getPacket();
     }
@@ -2714,7 +2711,8 @@ public class MaplePacketCreator {
     public static MaplePacket getPlayerShopChat(MapleCharacter c, String chat, boolean owner) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("06 08"));
+        mplew.write(PlayerInteractionHandler.Action.CHAT.getCode());
+        mplew.write(PlayerInteractionHandler.Action.CHAT_THING.getCode());
         mplew.write(owner ? 0 : 1);
         mplew.writeMapleAsciiString(c.getName() + " : " + chat);
         return mplew.getPacket();
@@ -2723,7 +2721,7 @@ public class MaplePacketCreator {
     public static MaplePacket getPlayerShopNewVisitor(MapleCharacter c, int slot) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(0x04);
+        mplew.write(PlayerInteractionHandler.Action.VISIT.getCode());
         mplew.write(slot);
         addCharLook(mplew, c, false);
         mplew.writeMapleAsciiString(c.getName());
@@ -2733,7 +2731,7 @@ public class MaplePacketCreator {
     public static MaplePacket getPlayerShopRemoveVisitor(int slot) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(0x0A);
+        mplew.write(PlayerInteractionHandler.Action.EXIT.getCode());
         if (slot > 0) {
             mplew.write(slot);
         }
@@ -2743,7 +2741,8 @@ public class MaplePacketCreator {
     public static MaplePacket getTradePartnerAdd(MapleCharacter c) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("04 01"));// 00 04 88 4E 00"));
+        mplew.write(PlayerInteractionHandler.Action.VISIT.getCode());
+        mplew.write(1);
         addCharLook(mplew, c, false);
         mplew.writeMapleAsciiString(c.getName());
         return mplew.getPacket();
@@ -2752,7 +2751,8 @@ public class MaplePacketCreator {
     public static MaplePacket getTradeInvite(MapleCharacter c) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("02 03"));
+        mplew.write(PlayerInteractionHandler.Action.INVITE.getCode());
+        mplew.write(3);
         mplew.writeMapleAsciiString(c.getName());
         mplew.write(HexTool.getByteArrayFromHexString("B7 50 00 00"));
         return mplew.getPacket();
@@ -2779,7 +2779,7 @@ public class MaplePacketCreator {
     public static MaplePacket getPlayerShopItemUpdate(MaplePlayerShop shop) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(0x19);
+        mplew.write(PlayerInteractionHandler.Action.UPDATE_MERCHANT.getCode());
         mplew.write(shop.getItems().size());
         for (MaplePlayerShopItem item : shop.getItems()) {
             mplew.writeShort(item.getBundles());
@@ -2800,7 +2800,9 @@ public class MaplePacketCreator {
     public static MaplePacket getPlayerShop(MapleClient c, MaplePlayerShop shop, boolean owner) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("05 04 04"));
+        mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
+        mplew.write(4);
+        mplew.write(4);
         mplew.write(owner ? 0 : 1);
         mplew.write(0);
         addCharLook(mplew, shop.getOwner(), false);
@@ -2825,7 +2827,9 @@ public class MaplePacketCreator {
     public static MaplePacket getTradeStart(MapleClient c, MapleTrade trade, byte number) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("05 03 02"));
+        mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
+        mplew.write(3);
+        mplew.write(2);
         mplew.write(number);
         if (number == 1) {
             mplew.write(0);
@@ -2966,7 +2970,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
         mplew.writeInt(cid); // ?
         if (skillid == Buccaneer.SUPER_TRANSFORMATION || skillid == Marauder.TRANSFORMATION || skillid == WindArcher.EAGLE_EYE || skillid == ThunderBreaker.TRANSFORMATION) {
-            mplew.write(1); //Skill level >.>
+            mplew.write(effectid); //Skill level >.>
             mplew.writeInt(skillid);
             mplew.write(direction);
             mplew.write(1);
@@ -6367,31 +6371,43 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket rollSnowBall(boolean entermap, int type, MapleSnowball ball1, MapleSnowball ball2) {
+    public static MaplePacket rollSnowBall(boolean entermap, int type, MapleSnowball ball0, MapleSnowball ball1) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.ROLL_SNOWBALL.getValue());
         if (entermap) {
             mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"));
         } else {
             mplew.write(type);// 0 = move, 1 = roll, 2 is down disappear, 3 is up disappear
+            mplew.writeInt(ball0.getSnowmanHP() / 75);
             mplew.writeInt(ball1.getSnowmanHP() / 75);
-            mplew.writeInt(ball2.getSnowmanHP() / 75);
-            mplew.writeShort(ball1.getPosX());//distance snowball down, 84 03 = max
+            mplew.writeShort(ball0.getPosition());//distance snowball down, 84 03 = max
             mplew.write(-1);
-            mplew.writeShort(ball2.getPosX());//distance snowball up, 84 03 = max
+            mplew.writeShort(ball1.getPosition());//distance snowball up, 84 03 = max
             mplew.write(-1);
         }
         return mplew.getPacket();
     }
 
-    public static MaplePacket hitSnowBall(int team, int damage) {
+    public static MaplePacket hitSnowBall(int what, int damage) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.HIT_SNOWBALL.getValue());
-        mplew.write(team);// 0 is down, 1 is up
+        mplew.write(what);
         mplew.writeInt(damage);
         return mplew.getPacket();
     }
 
+    /**
+     * Sends a Snowball Message<br>
+     *
+     * Possible values for <code>message</code>:<br>
+     * 1: ... Team's snowball has passed the stage 1.<br>
+     * 2: ... Team's snowball has passed the stage 2.<br>
+     * 3: ... Team's snowball has passed the stage 3.<br>
+     * 4: ... Team is attacking the snowman, stopping the progress<br>
+     * 5: ... Team is moving again<br>
+     *
+     * @param message
+     **/
     public static MaplePacket snowballMessage(int team, int message) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SNOWBALL_MESSAGE.getValue());
@@ -6399,7 +6415,6 @@ public class MaplePacketCreator {
         mplew.writeInt(message);
         return mplew.getPacket();
     }
-    // 00 01 00 00 00 00
 
     public static MaplePacket coconutScore(int team1, int team2) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
