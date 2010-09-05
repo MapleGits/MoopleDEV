@@ -65,14 +65,12 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     private Collection<MonsterListener> listeners = new LinkedList<MonsterListener>();
     private MapleCharacter highestDamageChar;
     private Map<MonsterStatus, MonsterStatusEffect> stati = new LinkedHashMap<MonsterStatus, MonsterStatusEffect>();
-    private List<MonsterStatusEffect> activeEffects = new ArrayList<MonsterStatusEffect>();
     private MapleMap map;
     private int VenomMultiplier = 0;
     private boolean fake = false;
     private boolean dropsDisabled = false;
     private List<Pair<Integer, Integer>> usedSkills = new ArrayList<Pair<Integer, Integer>>();
     private Map<Pair<Integer, Integer>, Integer> skillsUsed = new HashMap<Pair<Integer, Integer>, Integer>();
-    private List<MonsterStatus> monsterBuffs = new ArrayList<MonsterStatus>();
     private List<Integer> stolenItems = new ArrayList<Integer>();
     private int team;
 
@@ -431,12 +429,11 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         } else {
             c.getSession().write(MaplePacketCreator.spawnMonster(this, false));
         }
-        if (stati.size() > 0) {
-            for (MonsterStatusEffect mse : activeEffects) {
-                MaplePacket packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), mse.getStati(), mse.getSkill().getId(), false, 0);
-                c.getSession().write(packet);
-            }
-        }
+	if (stati.size() > 0) {
+	    for (final MonsterStatusEffect mse : this.stati.values()) {
+		c.getSession().write(MaplePacketCreator.applyMonsterStatus(getObjectId(), mse));
+	    }
+	}
         if (hasBossHPBar()) {
             if (this.getMap().countMonster(8810026) > 2 && this.getMap().getId() == 240060200) {
                 this.getMap().killAllMonsters();
@@ -465,9 +462,9 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public ElementalEffectiveness getEffectiveness(Element e) {
-        if (activeEffects.size() > 0 && stati.get(MonsterStatus.DOOM) != null) {
-            return ElementalEffectiveness.NORMAL;
-        }
+	if (stati.size() > 0 && stati.get(MonsterStatus.DOOM) != null) {
+	    return ElementalEffectiveness.NORMAL; // like blue snails
+	}
         return stats.getEffectiveness(e);
     }
 
@@ -508,20 +505,24 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         if (poison && getHp() <= 1) {
             return false;
         }
-        if (isBoss() && !(status.getStati().containsKey(MonsterStatus.SPEED))) {
-            return false;
-        }
-        for (MonsterStatus stat : status.getStati().keySet()) {
-            MonsterStatusEffect oldEffect = stati.get(stat);
-            if (oldEffect != null) {
-                oldEffect.removeActiveStatus(stat);
-                if (oldEffect.getStati().isEmpty()) {
-                    oldEffect.getCancelTask().cancel(false);
-                    oldEffect.cancelDamageSchedule();
-                    activeEffects.remove(oldEffect);
-                }
-            }
-        }
+	final Map<MonsterStatus, Integer> statis = status.getStati();
+	if (stats.isBoss()) {
+	    if (!(statis.containsKey(MonsterStatus.SPEED)
+		    && statis.containsKey(MonsterStatus.NINJA_AMBUSH)
+		    && statis.containsKey(MonsterStatus.WATK))) {
+		return false;
+	    }
+	}
+	for (MonsterStatus stat : statis.keySet()) {
+	    final MonsterStatusEffect oldEffect = stati.get(stat);
+	    if (oldEffect != null) {
+		oldEffect.removeActiveStatus(stat);
+		if (oldEffect.getStati().size() == 0) {
+		    oldEffect.cancelTask();
+		    oldEffect.cancelDamageSchedule();
+		}
+	    }
+	}
         TimerManager timerManager = TimerManager.getInstance();
         final Runnable cancelTask = new Runnable() {
 
@@ -534,7 +535,6 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                         getController().getClient().getSession().write(packet);
                     }
                 }
-                activeEffects.remove(status);
                 for (MonsterStatus stat : status.getStati().keySet()) {
                     stati.remove(stat);
                 }
@@ -588,9 +588,8 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         for (MonsterStatus stat : status.getStati().keySet()) {
             stati.put(stat, status);
         }
-        activeEffects.add(status);
         int animationTime = status.getSkill().getAnimationTime();
-        MaplePacket packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), status.getStati(), status.getSkill().getId(), false, 0);
+        MaplePacket packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), status);
         map.broadcastMessage(packet, getPosition());
         if (getController() != null && !getController().isMapObjectVisible(this)) {
             getController().getClient().getSession().write(packet);
@@ -599,41 +598,35 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         return true;
     }
 
-    public void applyMonsterBuff(final MonsterStatus status, final int x, int skillId, long duration, MobSkill skill) {
+    public void applyMonsterBuff(final Map<MonsterStatus, Integer> stats, final int x, int skillId, long duration, MobSkill skill) {
         TimerManager timerManager = TimerManager.getInstance();
         final Runnable cancelTask = new Runnable() {
 
             @Override
             public void run() {
                 if (isAlive()) {
-                    MaplePacket packet = MaplePacketCreator.cancelMonsterStatus(getObjectId(), Collections.singletonMap(status, Integer.valueOf(x)));
+                    MaplePacket packet = MaplePacketCreator.cancelMonsterStatus(getObjectId(), stats);
                     map.broadcastMessage(packet, getPosition());
                     if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this)) {
                         getController().getClient().getSession().write(packet);
                     }
-                    removeMonsterBuff(status);
+		    for (final MonsterStatus stat : stats.keySet()) {
+			stati.remove(stat);
+		    }
                 }
             }
         };
-        MaplePacket packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), Collections.singletonMap(status, x), skillId, true, 0, skill);
+        final MonsterStatusEffect effect = new MonsterStatusEffect(stats, null, skill, true);
+        MaplePacket packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), effect);
         map.broadcastMessage(packet, getPosition());
         if (getController() != null && !getController().isMapObjectVisible(this)) {
             getController().getClient().getSession().write(packet);
         }
         timerManager.schedule(cancelTask, duration);
-        addMonsterBuff(status);
-    }
-
-    public void addMonsterBuff(MonsterStatus status) {
-        this.monsterBuffs.add(status);
-    }
-
-    public void removeMonsterBuff(MonsterStatus status) {
-        this.monsterBuffs.remove(status);
     }
 
     public boolean isBuffed(MonsterStatus status) {
-        return this.monsterBuffs.contains(status);
+	return stati.containsKey(status);
     }
 
     public void setFake(boolean fake) {

@@ -96,7 +96,6 @@ import server.MapleTrade;
 import server.TimerManager;
 import server.events.MapleFitness;
 import server.events.MapleOla;
-import server.events.MapleSnowball;
 import server.events.MonsterCarnival;
 import server.events.MonsterCarnivalParty;
 import server.life.MapleMonster;
@@ -221,7 +220,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private MapleMiniGame miniGame;
     private MapleMount maplemount;
     private MapleParty party;
-    private MaplePet[] pets = new MaplePet[3];
+    private static List<MaplePet> pets = new LinkedList<MaplePet>();
     private MaplePlayerShop playerShop = null;
     private MapleShop shop = null;
     private MapleSkinColor skinColor = MapleSkinColor.NORMAL;
@@ -381,13 +380,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         updateSingleStat(MapleStat.MP, getMp());
     }
 
-    public void addPet(MaplePet pet) {
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] == null) {
-                pets[i] = pet;
-                return;
-            }
-        }
+    public static void addPet(MaplePet pet) {
+	pets.remove(pet);
+	pets.add(pet);
     }
 
     public void addStat(int type, int up) {
@@ -1826,25 +1821,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return name;
     }
 
-    public int getNextEmptyPetIndex() {
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] == null) {
-                return i;
-            }
-        }
-        return 3;
-    }
-
-    public int getNoPets() {
-        int ret = 0;
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                ret++;
-            }
-        }
-        return ret;
-    }
-
     public int getNumControlledMonsters() {
         return controlled.size();
     }
@@ -1857,38 +1833,25 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return (party != null ? party.getId() : -1);
     }
 
-    public MaplePet getPet(int index) {
-        return pets[index];
-    }
-
-    public int getPetIndex(int petId) {
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                if (pets[i].getUniqueId() == petId) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    public int getPetIndex(MaplePet pet) {
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                if (pets[i].getUniqueId() == pet.getUniqueId()) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
     public MaplePlayerShop getPlayerShop() {
         return playerShop;
     }
 
-    public MaplePet[] getPets() {
+    public List<MaplePet> getPets() {
         return pets;
+    }
+
+    public MaplePet getPet(final int index) {
+	byte count = 0;
+	for (final MaplePet pet : pets) {
+	    if (pet.isSummoned()) {
+		if (count == index) {
+		    return pet;
+		}
+		count++;
+	    }
+	}
+	return null;
     }
 
     public int getPossibleReports() {
@@ -2426,6 +2389,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.getInventory(MapleInventoryType.ETC).setSlotLimit(rs.getByte("etcslots"));
             for (Pair<IItem, MapleInventoryType> item : ItemFactory.INVENTORY.loadItems(ret.id, !channelserver)) {
                 ret.getInventory(item.getRight()).addFromDB(item.getLeft());
+                if (item.getLeft().getPetId() > -1) {
+                    MaplePet pet = MaplePet.loadFromDb(item.getLeft().getItemId(), item.getLeft().getPosition(), item.getLeft().getPetId());
+                    addPet(pet);
+                }
             }
             if (channelserver) {
                 MapleMapFactory mapFactory = client.getChannelServer().getMapFactory();
@@ -2955,29 +2922,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         diseases.clear();
     }
 
-    public void removePet(MaplePet pet, boolean shift_left) {
-        int slot = -1;
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                if (pets[i].getUniqueId() == pet.getUniqueId()) {
-                    pets[i] = null;
-                    slot = i;
-                    break;
-                }
-            }
-        }
-        if (shift_left) {
-            if (slot > -1) {
-                for (int i = slot; i < 3; i++) {
-                    if (i != 2) {
-                        pets[i] = pets[i + 1];
-                    } else {
-                        pets[i] = null;
-                    }
-                }
-            }
-        }
-    }
 
     public void removeVisibleMapObject(MapleMapObject mo) {
         visibleMapObjects.remove(mo);
@@ -3164,10 +3108,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             } else if (updateRows < 1) {
                 throw new RuntimeException("Character not in database (" + id + ")");
             }
-            for (int i = 0; i < 3; i++) {
-                if (pets[i] != null) {
-                    pets[i].saveToDb();
-                }
+            for (MaplePet pet : getPets()) {
+                pet.saveToDb();
             }
             deleteWhereCharacterId(con, "DELETE FROM keymap WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO keymap (characterid, `key`, `type`, `action`) VALUES (?, ?, ?, ?)");
@@ -3778,14 +3720,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         this.world = world;
     }
 
-    public void shiftPetsRight() {
-        if (pets[2] == null) {
-            pets[2] = pets[1];
-            pets[1] = pets[0];
-            pets[0] = null;
-        }
-    }
-
     public void showDojoClock() {
         int stage = (map.getId() / 100) % 100;
         long time;
@@ -3880,7 +3814,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 if (newFullness <= 5) {
                     pet.setFullness(15);
                     pet.saveToDb();
-                    unequipPet(pet, true, true);
+                    unequipPet(pet, true);
                 } else {
                     pet.setFullness(newFullness);
                     client.getSession().write(MaplePacketCreator.updatePet(pet));
@@ -3950,28 +3884,48 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         client.getSession().write(packet);
     }
 
+    public final byte getPetIndex(final MaplePet petz) {
+	byte count = 0;
+	for (final MaplePet pet : pets) {
+	    if (pet.isSummoned()) {
+		if (pet == petz) {
+		    return count;
+		}
+		count++;
+	    }
+	}
+	return -1;
+    }
+
+    public final byte getPetIndex(final int petId) {
+	byte count = 0;
+	for (final MaplePet pet : pets) {
+	    if (pet.isSummoned()) {
+		if (pet.getUniqueId() == petId) {
+		    return count;
+		}
+		count++;
+	    }
+	}
+	return -1;
+    }
+
     public void unequipAllPets() {
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                unequipPet(pets[i], true);
-            }
-        }
+	for (final MaplePet pet : pets) {
+	    if (pet != null) {
+		unequipPet(pet, false);
+	    }
+	}
     }
 
-    public void unequipPet(MaplePet pet, boolean shift_left) {
-        unequipPet(pet, shift_left, false);
-    }
-
-    public void unequipPet(MaplePet pet, boolean shift_left, boolean hunger) {
-        if (this.getPet(this.getPetIndex(pet)) != null) {
-            this.getPet(this.getPetIndex(pet)).saveToDb();
-        }
+    public void unequipPet(MaplePet pet, boolean hunger) {
+        pet.setSummoned(false);
+        pet.saveToDb();
         cancelFullnessSchedule(getPetIndex(pet));
         getMap().broadcastMessage(this, MaplePacketCreator.showPet(this, pet, true, hunger), true);
         //updateSingleStat(MapleStat.PET, 0);
         client.getSession().write(MaplePacketCreator.petStatUpdate(this));
         client.getSession().write(MaplePacketCreator.enableActions());
-        removePet(pet, shift_left);
     }
 
     public void updateMacros(int position, SkillMacro updateMacro) {

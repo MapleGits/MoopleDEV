@@ -31,7 +31,7 @@ public class Item implements IItem {
     private int id, cashId, sn;
     private byte position;
     private short quantity;
-    private int petid;
+    private int petid = -1;
     private String owner = "";
     protected List<String> log;
     private byte flag;
@@ -42,7 +42,6 @@ public class Item implements IItem {
         this.id = id;
         this.position = position;
         this.quantity = quantity;
-        this.petid = -1;
         this.log = new LinkedList<String>();
         this.flag = 0;
     }

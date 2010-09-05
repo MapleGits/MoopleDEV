@@ -108,6 +108,8 @@ public enum ItemFactory {
                             item.setOwner(rs.getString("owner"));
                             item.setExpiration(rs.getLong("expiration"));
                             item.setGiftFrom(rs.getString("giftFrom"));
+
+
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
             }

@@ -39,9 +39,6 @@ public class EnterCashShopHandler extends AbstractMaplePacketHandler {
 		if (mc.getCashShop().isOpened())
 			return;
 
-		if (mc.getNoPets() > 0)
-			mc.unequipAllPets();
-
 		try {
 			c.getChannelServer().getWorldInterface().addBuffsToStorage(mc.getId(), mc.getAllBuffs());
 		} catch (RemoteException re) {

@@ -43,6 +43,7 @@ public class MaplePet extends Item {
     private int level = 1;
     private int fullness = 100;
     private int Fh;
+    private boolean summoned = false;
     private Point pos;
     private int stance;
 
@@ -54,7 +55,7 @@ public class MaplePet extends Item {
     public static MaplePet loadFromDb(int itemid, byte position, int petid) {
         try {
             MaplePet ret = new MaplePet(itemid, position, petid);
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, level, closeness, fullness FROM pets WHERE petid = ?"); // Get pet details..
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, level, closeness, fullness, summoned FROM pets WHERE petid = ?"); // Get pet details..
             ps.setInt(1, petid);
             ResultSet rs = ps.executeQuery();
             rs.next();
@@ -62,6 +63,7 @@ public class MaplePet extends Item {
             ret.setCloseness(Math.min(rs.getInt("closeness"), 30000));
             ret.setLevel(Math.min(rs.getInt("level"), 30));
             ret.setFullness(Math.min(rs.getInt("fullness"), 100));
+            ret.setSummoned(rs.getInt("summoned") == 1);
             rs.close();
             ps.close();
             return ret;
@@ -72,12 +74,13 @@ public class MaplePet extends Item {
 
     public void saveToDb() {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ? WHERE petid = ?");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ?, summoned = ? WHERE petid = ?");
             ps.setString(1, getName());
             ps.setInt(2, getLevel());
             ps.setInt(3, getCloseness());
             ps.setInt(4, getFullness());
             ps.setInt(5, getUniqueId());
+            ps.setInt(6, summoned ? 1 : 0);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -184,6 +187,14 @@ public class MaplePet extends Item {
 
     public void setStance(int stance) {
         this.stance = stance;
+    }
+
+    public boolean isSummoned() {
+        return summoned;
+    }
+
+    public void setSummoned(boolean yes) {
+        this.summoned = yes;
     }
 
     public boolean canConsume(int itemId) {

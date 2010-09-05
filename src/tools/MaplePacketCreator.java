@@ -54,6 +54,7 @@ import client.MapleRing;
 import client.MapleStat;
 import client.SkillMacro;
 import client.status.MonsterStatus;
+import client.status.MonsterStatusEffect;
 import constants.InventoryConstants;
 import constants.ServerConstants;
 import constants.skills.Buccaneer;
@@ -319,8 +320,8 @@ public class MaplePacketCreator {
             mplew.write(pet.getLevel());
             mplew.writeShort(pet.getCloseness());
             mplew.write(pet.getFullness());
-            mplew.writeLong(getTime((long) (System.currentTimeMillis() * 1.2)));
-            mplew.writeInt(0);
+            mplew.writeLong(item.getExpiration());// Water of life?
+            mplew.writeInt(0); //Or this xD
             mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00")); //wonder what this is
             return;
         }
@@ -1884,7 +1885,7 @@ public class MaplePacketCreator {
         mplew.write(newStance);
         mplew.write(allDamage.size());
         for (SummonAttackEntry attackEntry : allDamage) {
-            mplew.writeInt(attackEntry.getMonsterOid()); // oid
+            mplew.writeInt(attackEntry.getMonster().getObjectId()); // oid
             mplew.write(6); // who knows
             mplew.writeInt(attackEntry.getDamage()); // damage
         }
@@ -2325,16 +2326,15 @@ public class MaplePacketCreator {
         mplew.writeMapleAsciiString(guildName);
         mplew.writeMapleAsciiString(allianceName);
         mplew.write(isSelf ? 1 : 0);
-        MaplePet[] pets = chr.getPets();
         IItem inv = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -114);
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                mplew.write(pets[i].getUniqueId());
-                mplew.writeInt(pets[i].getItemId()); // petid
-                mplew.writeMapleAsciiString(pets[i].getName());
-                mplew.write(pets[i].getLevel()); // pet level
-                mplew.writeShort(pets[i].getCloseness()); // pet closeness
-                mplew.write(pets[i].getFullness()); // pet fullness
+        for (MaplePet pet : chr.getPets()) {
+            if (pet.isSummoned()) {
+                mplew.write(pet.getUniqueId());
+                mplew.writeInt(pet.getItemId()); // petid
+                mplew.writeMapleAsciiString(pet.getName());
+                mplew.write(pet.getLevel()); // pet level
+                mplew.writeShort(pet.getCloseness()); // pet closeness
+                mplew.write(pet.getFullness()); // pet fullness
                 mplew.writeShort(0);
                 mplew.writeInt(inv != null ? inv.getItemId() : 0);
             }
@@ -3026,8 +3026,8 @@ public class MaplePacketCreator {
         mplew.writeInt(skillid);
         mplew.writeInt(level);
         mplew.writeInt(masterlevel);
-        addExpirationTime(mplew, expiration); //TODO: SKILL EXPIRATION
-        mplew.write(1);
+        addExpirationTime(mplew, expiration);
+        mplew.write(4);
         return mplew.getPacket();
     }
 
@@ -3442,62 +3442,41 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket applyMonsterStatus(int oid, Map<MonsterStatus, Integer> stats, int skill, boolean monsterSkill, int delay) {
-        return applyMonsterStatus(oid, stats, skill, monsterSkill, delay, null);
+    private static void writeIntMask(MaplePacketLittleEndianWriter mplew, Map<MonsterStatus, Integer> stats) {
+	int firstmask = 0;
+	int secondmask = 0;
+	for (MonsterStatus stat : stats.keySet()) {
+	    if (stat.isFirst()) {
+		firstmask |= stat.getValue();
+	    } else {
+		secondmask |= stat.getValue();
+	    }
+	}
+	mplew.writeInt(firstmask);
+	mplew.writeInt(secondmask);
     }
 
-    public static MaplePacket applyMonsterStatusTest(int oid, int mask, int delay, MobSkill mobskill, int value) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
-        mplew.writeInt(oid);
-        mplew.writeInt(mask);
-        mplew.writeShort(1);
-        mplew.writeShort(mobskill.getSkillId());
-        mplew.writeShort(mobskill.getSkillLevel());
-        mplew.writeShort(0); // as this looks similar to giveBuff this might actually be the buffTime but it's not displayed anywhere
-        mplew.writeShort(delay); // delay in ms
-        mplew.write(1); // ?
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket applyMonsterStatusTest2(int oid, int mask, int skill, int value) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
-        mplew.writeInt(oid);
-        mplew.writeInt(mask);
-        mplew.writeShort(value);
-        mplew.writeInt(skill);
-        mplew.writeShort(0); // as this looks similar to giveBuff this might actually be the buffTime but it's not displayed anywhere
-        mplew.writeShort(0); // delay in ms
-        mplew.write(1); // ?
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket applyMonsterStatus(int oid, Map<MonsterStatus, Integer> stats, int skill, boolean monsterSkill, int delay, MobSkill mobskill) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
-        mplew.writeInt(oid);
-        mplew.writeLong(0);
+    public static MaplePacket applyMonsterStatus(final int oid, final MonsterStatusEffect mse) {
+        //F2 00 A3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 01 00 E0 F3 10 00 00 00 00 00 01
+	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
+	mplew.writeInt(oid);
+	mplew.writeLong(0);
+	writeIntMask(mplew, mse.getStati());
+	for (Map.Entry<MonsterStatus, Integer> stat : mse.getStati().entrySet()) {
+	    mplew.writeShort(stat.getValue());
+	    if (mse.isMonsterSkill()) {
+		mplew.writeShort(mse.getMobSkill().getSkillId());
+		mplew.writeShort(mse.getMobSkill().getSkillLevel());
+	    } else {
+		mplew.writeInt(mse.getSkill().getId());
+	    }
+	    mplew.writeShort(-1); // might actually be the buffTime but it's not displayed anywhere
+	}
+	mplew.writeShort(0); // delay in ms
         mplew.writeInt(0);
-        int mask = 0;
-        for (MonsterStatus stat : stats.keySet()) {
-            mask |= stat.getValue();
-        }
-        mplew.writeInt(mask);
-        for (Integer val : stats.values()) {
-            mplew.writeShort(val);
-            if (monsterSkill) {
-                mplew.writeShort(mobskill.getSkillId());
-                mplew.writeShort(mobskill.getSkillLevel());
-            } else {
-                mplew.writeInt(skill);
-            }
-            mplew.writeShort(-1); // as this looks similar to giveBuff this
-        }
-        mplew.writeShort(delay); // delay in ms
-        mplew.writeInt(0);
-        //mplew.write(stats.size()); // ?
-        return mplew.getPacket();
+	mplew.write(mse.getStati().size()); // size
+	return mplew.getPacket();
     }
 
     public static MaplePacket cancelMonsterStatus(int oid, Map<MonsterStatus, Integer> stats) {
@@ -4299,14 +4278,17 @@ public class MaplePacketCreator {
         mask |= MapleStat.PET.getValue();
         mplew.write(0);
         mplew.writeInt(mask);
-        MaplePet[] pets = chr.getPets();
-        for (int i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                mplew.writeInt(pets[i].getUniqueId());
+        byte count = 0;
+        for (MaplePet pet : chr.getPets()) {
+            if (pet.isSummoned()) {
+                mplew.writeInt(pet.getUniqueId());
                 mplew.writeInt(0);
-            } else {
-                mplew.writeLong(0);
+                count++;
             }
+        }
+        while (count < 3) {
+            mplew.writeLong(0);
+            count++;
         }
         mplew.write(0);
         return mplew.getPacket();

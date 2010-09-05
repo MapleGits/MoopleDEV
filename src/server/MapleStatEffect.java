@@ -775,7 +775,7 @@ public class MapleStatEffect implements Serializable {
         for (MapleMapObject mo : affected) {
             MapleMonster monster = (MapleMonster) mo;
             if (makeChanceResult()) {
-                monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, false), isPoison(), getDuration());
+                monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, null, false), isPoison(), getDuration());
             }
             i++;
             if (i >= mobCount) {

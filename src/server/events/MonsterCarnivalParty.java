@@ -118,7 +118,7 @@ public class MonsterCarnivalParty {
     }
 
     public void summon() {
-        this.summons -= 1;
+        this.summons--;
     }
 
     public boolean canSummon() {

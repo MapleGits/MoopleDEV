@@ -110,7 +110,7 @@ public class MapleSnowball {
     public void hit(int what, int damage) {
         if (what < 2)
             if (damage > 0)
-                this.hits -= 1;
+                this.hits--;
         else {
             if (this.snowmanhp - damage < 0) {
                 this.snowmanhp = 0;

@@ -37,16 +37,16 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class SummonDamageHandler extends AbstractMaplePacketHandler {
     public final class SummonAttackEntry {
-        private int monsterOid;
+        private MapleMonster monster;
         private int damage;
 
-        public SummonAttackEntry(int monsterOid, int damage) {
-            this.monsterOid = monsterOid;
+        public SummonAttackEntry(MapleMonster mob, int damage) {
+            this.monster = mob;
             this.damage = damage;
         }
 
-        public int getMonsterOid() {
-            return monsterOid;
+        public MapleMonster getMonster() {
+            return monster;
         }
 
         public int getDamage() {
@@ -55,7 +55,8 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
     }
 
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        //B0 00 F1 00 00 00 32 8E EA 00 84 01 54 04 AE 01 40 04 A9 01 EE 00 00 00 FC BE 8F 00 06 00 01 01 86 03 26 02 82 03 26 02 F8 07 2F 3C 00 00 19 51 B9 18
+        //B0 00 77 00 00 00 8F 20 C0 00 04 01 1C FF 24 F8 48 FF 1D F8 64 00 00 00 0A 71 8F 00 06 81 00 01 D0 FF 24 F8 D0 FF 24 F8 38 04 81 62 01 00 B4 3A 6A 62
+        //B0 00 78 00 00 00 21 F4 C3 00 04 02 1E 03 A8 FB D8 02 A6 FB 73 00 00 00 05 71 8F 00 06 80 01 01 8B 03 A8 FB 90 03 A8 FB 38 04 C6 71 01 00 74 00 00 00 05 71 8F 00 06 80 01 01 C8 02 30 FB CC 02 30 FB 6A 04 81 6F 01 00 B4 3A 6A 62
         int oid = slea.readInt();
         MapleCharacter player = c.getPlayer();
         if (!player.isAlive()) {
@@ -72,28 +73,30 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         }
         ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
         MapleStatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
-        slea.skip(5);
+        slea.skip(4);
+        int animation = slea.readByte();
         List<SummonAttackEntry> allDamage = new ArrayList<SummonAttackEntry>();
         int numAttacked = slea.readByte();
-        for (int x = 0; x < numAttacked; x++) {
+        for (int i = 0; i < numAttacked; i++) {
             slea.skip(8);
-            int monsterOid = slea.readInt(); // attacked oid
+            MapleMonster mob = player.getMap().getMonsterByOid(slea.readInt());
             slea.skip(18); // who knows
             int damage = slea.readInt();
-            allDamage.add(new SummonAttackEntry(monsterOid, damage));
+            player.getMap().damageMonster(player, mob, damage);
+            allDamage.add(new SummonAttackEntry(mob, damage));
         }
-        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), 4, allDamage), summon.getPosition());
+        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), animation, allDamage), summon.getPosition());
         for (SummonAttackEntry attackEntry : allDamage) {
             int damage = attackEntry.getDamage();
-            MapleMonster target = player.getMap().getMonsterByOid(attackEntry.getMonsterOid());
-            if (target != null) {
+            MapleMonster mob = attackEntry.getMonster();
+            if (mob != null) {
                 if (damage > 0 && summonEffect.getMonsterStati().size() > 0) {
                     if (summonEffect.makeChanceResult()) {
-                        MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(summonEffect.getMonsterStati(), summonSkill, false);
-                        target.applyStatus(player, monsterStatusEffect, summonEffect.isPoison(), 4000);
+                        MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(summonEffect.getMonsterStati(), summonSkill, null, false);
+                        mob.applyStatus(player, monsterStatusEffect, summonEffect.isPoison(), 4000);
                     }
                 }
-                player.getMap().damageMonster(player, target, damage);
+                player.getMap().damageMonster(player, mob, damage);
             }
         }
     }

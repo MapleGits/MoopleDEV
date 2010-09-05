@@ -38,10 +38,9 @@ import net.world.MaplePartyCharacter;
  */
 public final class PetLootHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (c.getPlayer().getNoPets() < 1) {
-            return;
-        }
         MaplePet pet = c.getPlayer().getPet(c.getPlayer().getPetIndex(slea.readInt()));
+        if (!pet.isSummoned()) return;
+        
         slea.skip(13);
         int oid = slea.readInt();
         MapleMapObject ob = c.getPlayer().getMap().getMapObject(oid);

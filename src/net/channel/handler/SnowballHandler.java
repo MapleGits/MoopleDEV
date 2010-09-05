@@ -54,8 +54,6 @@ public final class SnowballHandler extends AbstractMaplePacketHandler{
         else if (what == 2 || what == 3) {
             if (Math.random() < 0.03)
                 damage = 45;
-            else if (chr.getName().equals("Explorer"))
-                damage = snowball.getSnowmanHP();
             else
                 damage = 15;
         }

@@ -59,7 +59,7 @@ public class CashShop {
             this.sn = sn;
             this.itemId = itemId;
             this.price = price;
-            this.period = period;
+            this.period = (period == 0 ? 90 : period);
             this.count = count;
             this.onSale = onSale;
         }
@@ -87,24 +87,20 @@ public class CashShop {
         public IItem toItem() {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             IItem item;
-            int petId = -1;
+            int petid = -1;
 
             if (InventoryConstants.isPet(itemId)) {
-                petId = MaplePet.createPet(itemId);
+                petid = MaplePet.createPet(itemId);
             }
 
             if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP)) {
                 item = ii.getEquipById(itemId);
             } else {
-                item = new Item(itemId, (byte) 0, count, petId);
+                item = new Item(itemId, (byte) 0, count, petid);
             }
 
             item.setSN(sn);
-            if (petId > -1) {
-                item.setExpiration(System.currentTimeMillis() + ((long) 90 * 60 * 60 * 24 * 1000 ));
-            } else {
-                item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
-            }
+            item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
             return item;
         }
     }
@@ -121,7 +117,7 @@ public class CashShop {
                 int sn = MapleDataTool.getIntConvert("SN", item);
                 int itemId = MapleDataTool.getIntConvert("ItemId", item);
                 int price = MapleDataTool.getIntConvert("Price", item, 0);
-                int period = MapleDataTool.getIntConvert("Period", item, 1);
+                long period = MapleDataTool.getIntConvert("Period", item, 1);
                 short count = (short) MapleDataTool.getIntConvert("Count", item, 1);
                 boolean onSale = MapleDataTool.getIntConvert("OnSale", item, 0) == 1;
                 items.put(sn, new CashItem(sn, itemId, price, period, count, onSale));

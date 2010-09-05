@@ -26,7 +26,6 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import client.MapleStat;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import constants.skills.Corsair;
@@ -44,7 +43,7 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = c.getPlayer();
         slea.readInt();
         int damagefrom = slea.readByte();
-        slea.readByte();
+        slea.readByte(); //Element
         int damage = slea.readInt();
         int oid = 0;
         int monsteridfrom = 0;
@@ -57,11 +56,11 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         boolean is_pg = true;
         int mpattack = 0;
         MapleMonster attacker = null;
-        if (damagefrom != -2) {
+        if (damagefrom != -3) {
             monsteridfrom = slea.readInt();
             oid = slea.readInt();
             attacker = (MapleMonster) player.getMap().getMapObject(oid);
-            if (attacker.isBuffed(MonsterStatus.NEUTRALIZE)) {
+            if (attacker.isBuffed(MonsterStatus.NEUTRALISE)) {
                 return;
             }
             if ((player.getMap().getMonsterById(monsteridfrom) == null || attacker == null) && monsteridfrom != 9300166) {
@@ -118,7 +117,7 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                     player.checkMonsterAggro(attacker);
                 }
             }
-            if (damagefrom != -2) {
+            if (damagefrom != -3) {
                 int achilles = 0;
                 ISkill achilles1 = null;
                 int jobid = player.getJob().getId();
@@ -161,12 +160,10 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         }
         if (!player.isHidden()) {
             player.getMap().broadcastMessage(player, MaplePacketCreator.damagePlayer(damagefrom, monsteridfrom, player.getId(), damage, fake, direction, is_pgmr, pgmr, is_pg, oid, pos_x, pos_y), false);
-            player.updateSingleStat(MapleStat.HP, player.getHp());
-            player.updateSingleStat(MapleStat.MP, player.getMp());
             player.checkBerserk();
         }
         if (player.getMap().getId() >= 925020000 && player.getMap().getId() < 925030000) {
-            player.setDojoEnergy(player.isGM() ? 300 : player.getDojoEnergy() < 300 ? player.getDojoEnergy() + 1 : 0);
+            player.setDojoEnergy(player.isGM() ? 300 : player.getDojoEnergy() < 300 ? player.getDojoEnergy() + 1 : 0); //Fking gm's
             player.getClient().getSession().write(MaplePacketCreator.getEnergy(player.getDojoEnergy()));
         }
     }

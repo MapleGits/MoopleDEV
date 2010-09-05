@@ -1028,7 +1028,7 @@ public class MapleMap {
                     List<MapleMapObject> affectedMonsters = getMapObjectsInBox(mist.getBox(), Collections.singletonList(MapleMapObjectType.MONSTER));
                     for (MapleMapObject mo : affectedMonsters) {
                         if (mist.makeChanceResult()) {
-                            MonsterStatusEffect poisonEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), mist.getSourceSkill(), false);
+                            MonsterStatusEffect poisonEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), mist.getSourceSkill(), null, false);
                             ((MapleMonster) mo).applyStatus(mist.getOwner(), poisonEffect, true, duration);
                         }
                     }

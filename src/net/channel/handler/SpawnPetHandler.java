@@ -42,6 +42,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class SpawnPetHandler extends AbstractMaplePacketHandler {
     private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Item.wz"));
 
+    @SuppressWarnings("static-access")
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readInt();
         byte slot = slea.readByte();
@@ -74,20 +75,21 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
             }
         }
         MaplePet pet = MaplePet.loadFromDb(c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getItemId(), slot, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getPetId());
-        if (c.getPlayer().getPetIndex(pet) != -1) {
+        if (pet.isSummoned()) {
             c.getPlayer().unequipPet(pet, true);
         } else {
             if (c.getPlayer().getSkillLevel(SkillFactory.getSkill(8)) == 0 && c.getPlayer().getPet(0) != null) {
                 c.getPlayer().unequipPet(c.getPlayer().getPet(0), false);
             }
             if (lead) {
-                c.getPlayer().shiftPetsRight();
+                //c.getPlayer().shiftPetsRight();
             }
             Point pos = c.getPlayer().getPosition();
             pos.y -= 12;
             pet.setPos(pos);
             pet.setFh(c.getPlayer().getMap().getFootholds().findBelow(pet.getPos()).getId());
             pet.setStance(0);
+            pet.setSummoned(true);
             c.getPlayer().addPet(pet);
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showPet(c.getPlayer(), pet, false, false), true);
             c.getSession().write(MaplePacketCreator.petStatUpdate(c.getPlayer()));

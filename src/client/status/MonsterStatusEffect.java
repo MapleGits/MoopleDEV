@@ -24,20 +24,23 @@ package client.status;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import client.ISkill;
+import server.life.MobSkill;
 import tools.ArrayMap;
 
 public class MonsterStatusEffect {
 
     private Map<MonsterStatus, Integer> stati;
     private ISkill skill;
+    private MobSkill mobskill;
     private boolean monsterSkill;
     private ScheduledFuture<?> cancelTask;
     private ScheduledFuture<?> damageSchedule;
 
-    public MonsterStatusEffect(Map<MonsterStatus, Integer> stati, ISkill skillId, boolean monsterSkill) {
+    public MonsterStatusEffect(Map<MonsterStatus, Integer> stati, ISkill skillId, MobSkill mobskill, boolean monsterSkill) {
         this.stati = new ArrayMap<MonsterStatus, Integer>(stati);
         this.skill = skillId;
         this.monsterSkill = monsterSkill;
+        this.mobskill = mobskill;
     }
 
     public Map<MonsterStatus, Integer> getStati() {
@@ -54,6 +57,13 @@ public class MonsterStatusEffect {
 
     public boolean isMonsterSkill() {
         return monsterSkill;
+    }
+
+    public final void cancelTask() {
+	if (cancelTask != null) {
+	    cancelTask.cancel(false);
+	}
+	cancelTask = null;
     }
 
     public ScheduledFuture<?> getCancelTask() {
@@ -76,5 +86,9 @@ public class MonsterStatusEffect {
         if (damageSchedule != null) {
             damageSchedule.cancel(false);
         }
+    }
+
+    public MobSkill getMobSkill() {
+        return mobskill;
     }
 }

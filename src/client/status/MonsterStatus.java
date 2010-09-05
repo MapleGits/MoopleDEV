@@ -37,7 +37,7 @@ public enum MonsterStatus implements IntValueHolder, Serializable {
     POISON(0x200),
     SEAL(0x400),
     SHOWDOWN(0x800),
-    NEUTRALIZE(0x02),
+    NEUTRALISE(0x02),
     WEAPON_ATTACK_UP(0x1000),
     WEAPON_DEFENSE_UP(0x2000),
     MAGIC_ATTACK_UP(0x4000),
@@ -52,11 +52,22 @@ public enum MonsterStatus implements IntValueHolder, Serializable {
     WEAPON_REFLECT(0x20000000),
     MAGIC_REFLECT(0x40000000);
     private final int i;
+    private final boolean first;
 
     private MonsterStatus(int i) {
         this.i = i;
+        this.first = false;
     }
 
+    private MonsterStatus(int i, boolean first) {
+	this.i = i;
+	this.first = first;
+    }
+
+    public boolean isFirst() {
+	return first;
+    }
+    
     @Override
     public int getValue() {
         return i;

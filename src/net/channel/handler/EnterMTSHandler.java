@@ -46,9 +46,6 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        if (c.getPlayer().getNoPets() > 0) {
-            c.getPlayer().unequipAllPets();
-        }
         try {
             c.getChannelServer().getWorldInterface().addBuffsToStorage(c.getPlayer().getId(), c.getPlayer().getAllBuffs());
         } catch (RemoteException e) {

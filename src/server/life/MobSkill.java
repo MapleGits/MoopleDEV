@@ -256,24 +256,16 @@ public class MobSkill {
                 }
                 break;
         }
-        if (monStat != null || heal) {
+        if (heal) {
             if (lt != null && rb != null && skill) {
                 List<MapleMapObject> objects = getObjectsInRange(monster, MapleMapObjectType.MONSTER);
                 if (heal) {
                     for (MapleMapObject mons : objects) {
                         ((MapleMonster) mons).heal(getX(), getY());
                     }
-                } else {
-                    for (MapleMapObject mons : objects) {
-                        if (!monster.isBuffed(monStat)) {
-                            ((MapleMonster) mons).applyMonsterBuff(monStat, getX(), getSkillId(), getDuration(), this);
-                        }
-                    }
                 }
             } else if (heal) {
                 monster.heal(getX(), getY());
-            } else if (!monster.isBuffed(monStat)) {
-                monster.applyMonsterBuff(monStat, getX(), getSkillId(), getDuration(), this);
             }
         }
         if (disease != null || dispel || seduce || banish) {
