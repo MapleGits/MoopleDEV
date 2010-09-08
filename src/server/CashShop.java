@@ -87,19 +87,21 @@ public class CashShop {
         public IItem toItem() {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             IItem item;
-            int petid = -1;
+            MaplePet pet = null;
 
             if (InventoryConstants.isPet(itemId)) {
-                petid = MaplePet.createPet(itemId);
+                pet = MaplePet.createPet(itemId);
+
             }
 
             if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP)) {
                 item = ii.getEquipById(itemId);
             } else {
-                item = new Item(itemId, (byte) 0, count, petid);
+                item = new Item(itemId, (byte) 0, count);
             }
-
+            
             item.setSN(sn);
+            item.setPet(pet);
             item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
             return item;
         }
@@ -241,7 +243,7 @@ public class CashShop {
 
     public IItem findByCashId(int cashId) {
         for (IItem item : inventory) {
-            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId) {
+            if ((item.getPet() != null ? item.getPet().getUniqueId() : item.getCashId()) == cashId) {
                 return item;
             }
         }

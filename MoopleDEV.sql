@@ -2,15 +2,15 @@
 Navicat MySQL Data Transfer
 
 Source Server         : gms
-Source Server Version : 50089
+Source Server Version : 50144
 Source Host           : localhost:3306
-Source Database       : MoopleDEV
+Source Database       : moopledev
 
 Target Server Type    : MYSQL
-Target Server Version : 50089
+Target Server Version : 50144
 File Encoding         : 65001
 
-Date: 2010-08-08 12:33:44
+Date: 2010-09-08 11:59:56
 */
 
 --
@@ -26,28 +26,31 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS `accounts`;
 CREATE TABLE `accounts` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(13) NOT NULL default '',
-  `password` varchar(128) NOT NULL default '',
-  `salt` varchar(128) default NULL,
-  `pin` varchar(10) default NULL,
-  `pic` varchar(26) default NULL,
-  `loggedin` tinyint(4) NOT NULL default '0',
-  `lastlogin` timestamp NULL default NULL,
-  `createdat` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `birthday` date NOT NULL default '0000-00-00',
-  `banned` tinyint(1) NOT NULL default '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(13) NOT NULL DEFAULT '',
+  `password` varchar(128) NOT NULL DEFAULT '',
+  `salt` varchar(128) DEFAULT NULL,
+  `pin` varchar(10) DEFAULT NULL,
+  `pic` varchar(26) DEFAULT NULL,
+  `loggedin` tinyint(4) NOT NULL DEFAULT '0',
+  `lastlogin` timestamp NULL DEFAULT NULL,
+  `createdat` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `birthday` date NOT NULL DEFAULT '0000-00-00',
+  `banned` tinyint(1) NOT NULL DEFAULT '0',
   `banreason` text,
-  `gm` tinyint(1) NOT NULL default '0',
+  `gm` tinyint(1) NOT NULL DEFAULT '0',
   `macs` tinytext,
-  `nxCredit` int(11) default NULL,
-  `maplePoint` int(11) default NULL,
-  `nxPrepaid` int(11) default NULL,
-  `characterslots` tinyint(2) default 5,
-  PRIMARY KEY  (`id`),
+  `nxCredit` int(11) DEFAULT NULL,
+  `maplePoint` int(11) DEFAULT NULL,
+  `nxPrepaid` int(11) DEFAULT NULL,
+  `characterslots` tinyint(2) NOT NULL DEFAULT '5',
+  `gender` tinyint(2) NOT NULL DEFAULT '10',
+  `tempban` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `greason` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of accounts
@@ -58,21 +61,21 @@ CREATE TABLE `accounts` (
 -- ----------------------------
 DROP TABLE IF EXISTS `alliance`;
 CREATE TABLE `alliance` (
-  `id` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(13) NOT NULL,
-  `notice` varchar(128) NOT NULL default '',
-  `capacity` int(10) unsigned NOT NULL default '2',
-  `rank_title1` varchar(45) NOT NULL default 'Master',
-  `rank_title2` varchar(45) NOT NULL default 'Jr.Master',
-  `rank_title3` varchar(45) NOT NULL default 'Member',
-  `rank_title4` varchar(45) NOT NULL default 'Member',
-  `rank_title5` varchar(45) NOT NULL default 'Member',
-  `guild1` int(10) NOT NULL default '-1',
-  `guild2` int(10) NOT NULL default '-1',
-  `guild3` int(10) NOT NULL default '-1',
-  `guild4` int(10) NOT NULL default '-1',
-  `guild5` int(10) NOT NULL default '-1',
-  PRIMARY KEY  (`id`)
+  `notice` varchar(128) NOT NULL DEFAULT '',
+  `capacity` int(10) unsigned NOT NULL DEFAULT '2',
+  `rank_title1` varchar(45) NOT NULL DEFAULT 'Master',
+  `rank_title2` varchar(45) NOT NULL DEFAULT 'Jr.Master',
+  `rank_title3` varchar(45) NOT NULL DEFAULT 'Member',
+  `rank_title4` varchar(45) NOT NULL DEFAULT 'Member',
+  `rank_title5` varchar(45) NOT NULL DEFAULT 'Member',
+  `guild1` int(10) NOT NULL DEFAULT '-1',
+  `guild2` int(10) NOT NULL DEFAULT '-1',
+  `guild3` int(10) NOT NULL DEFAULT '-1',
+  `guild4` int(10) NOT NULL DEFAULT '-1',
+  `guild5` int(10) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -84,12 +87,12 @@ CREATE TABLE `alliance` (
 -- ----------------------------
 DROP TABLE IF EXISTS `bbs_replies`;
 CREATE TABLE `bbs_replies` (
-  `replyid` int(10) unsigned NOT NULL auto_increment,
+  `replyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `threadid` int(10) unsigned NOT NULL,
   `postercid` int(10) unsigned NOT NULL,
   `timestamp` bigint(20) unsigned NOT NULL,
-  `content` varchar(26) NOT NULL default '',
-  PRIMARY KEY  (`replyid`)
+  `content` varchar(26) NOT NULL DEFAULT '',
+  PRIMARY KEY (`replyid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -101,16 +104,16 @@ CREATE TABLE `bbs_replies` (
 -- ----------------------------
 DROP TABLE IF EXISTS `bbs_threads`;
 CREATE TABLE `bbs_threads` (
-  `threadid` int(10) unsigned NOT NULL auto_increment,
+  `threadid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `postercid` int(10) unsigned NOT NULL,
-  `name` varchar(26) NOT NULL default '',
+  `name` varchar(26) NOT NULL DEFAULT '',
   `timestamp` bigint(20) unsigned NOT NULL,
   `icon` smallint(5) unsigned NOT NULL,
-  `replycount` smallint(5) unsigned NOT NULL default '0',
+  `replycount` smallint(5) unsigned NOT NULL DEFAULT '0',
   `startpost` text NOT NULL,
   `guildid` int(10) unsigned NOT NULL,
   `localthreadid` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`threadid`)
+  PRIMARY KEY (`threadid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -122,15 +125,15 @@ CREATE TABLE `bbs_threads` (
 -- ----------------------------
 DROP TABLE IF EXISTS `buddies`;
 CREATE TABLE `buddies` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `characterid` int(11) NOT NULL,
   `buddyid` int(11) NOT NULL,
-  `pending` tinyint(4) NOT NULL default '0',
-  `group` varchar(13) default '0',
-  PRIMARY KEY  (`id`),
+  `pending` tinyint(4) NOT NULL DEFAULT '0',
+  `group` varchar(13) DEFAULT '0',
+  PRIMARY KEY (`id`),
   KEY `buddies_ibfk_1` (`characterid`),
   CONSTRAINT `buddies_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=496 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of buddies
@@ -141,11 +144,11 @@ CREATE TABLE `buddies` (
 -- ----------------------------
 DROP TABLE IF EXISTS `channelconfig`;
 CREATE TABLE `channelconfig` (
-  `channelconfigid` int(10) unsigned NOT NULL auto_increment,
-  `channelid` int(10) unsigned NOT NULL default '0',
+  `channelconfigid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `channelid` int(10) unsigned NOT NULL DEFAULT '0',
   `name` tinytext NOT NULL,
   `value` tinytext NOT NULL,
-  PRIMARY KEY  (`channelconfigid`),
+  PRIMARY KEY (`channelconfigid`),
   KEY `channelid` (`channelid`),
   CONSTRAINT `channelconfig_ibfk_1` FOREIGN KEY (`channelid`) REFERENCES `channels` (`channelid`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
@@ -178,11 +181,11 @@ INSERT INTO `channelconfig` VALUES ('19', '20', 'channel.net.port', '7604');
 -- ----------------------------
 DROP TABLE IF EXISTS `channels`;
 CREATE TABLE `channels` (
-  `channelid` int(10) unsigned NOT NULL auto_increment,
-  `world` int(11) NOT NULL default '0',
-  `number` int(11) default NULL,
-  `key` varchar(40) NOT NULL default '',
-  PRIMARY KEY  (`channelid`)
+  `channelid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `world` int(11) NOT NULL DEFAULT '0',
+  `number` int(11) DEFAULT NULL,
+  `key` varchar(40) NOT NULL DEFAULT '',
+  PRIMARY KEY (`channelid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -214,128 +217,91 @@ INSERT INTO `channels` VALUES ('20', '0', '20', '9a071c700e4c051c354817f7e2482d1
 -- ----------------------------
 DROP TABLE IF EXISTS `char_area_info`;
 CREATE TABLE `char_area_info` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `charid` int(11) NOT NULL,
   `infoid` int(11) NOT NULL,
   `area_data` varchar(120) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `cid` (`charid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of char_area_info
 -- ----------------------------
-INSERT INTO `char_area_info` VALUES ('1', '2', '21002', 'mo1=o');
-INSERT INTO `char_area_info` VALUES ('2', '2', '21002', 'mo1=o;mo2=o');
-INSERT INTO `char_area_info` VALUES ('3', '2', '21002', 'mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('4', '2', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('5', '2', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('6', '2', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('7', '2', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('8', '2', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('9', '2', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('10', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('11', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('12', '2', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('13', '3', '21002', 'mo1=o');
-INSERT INTO `char_area_info` VALUES ('14', '3', '21002', 'mo1=o;mo2=o');
-INSERT INTO `char_area_info` VALUES ('15', '3', '21002', 'mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('16', '3', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('17', '3', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('18', '3', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('19', '3', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('20', '3', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('21', '3', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('22', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('23', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('24', '3', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('25', '4', '21002', 'mo1=o');
-INSERT INTO `char_area_info` VALUES ('26', '4', '21002', 'mo1=o;mo2=o');
-INSERT INTO `char_area_info` VALUES ('27', '4', '21002', 'mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('28', '4', '21002', 'arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('29', '4', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o');
-INSERT INTO `char_area_info` VALUES ('30', '4', '21002', 'normal=o;arr0=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('31', '4', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('32', '4', '21002', 'normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('33', '4', '21002', 'normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('34', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('35', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('36', '4', '21002', 'cmd=o;normal=o;arr0=o;arr1=o;arr2=o;arr3=o;fin=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o');
-INSERT INTO `char_area_info` VALUES ('37', '4', '21002', 'helper=clear');
 
 -- ----------------------------
 -- Table structure for `characters`
 -- ----------------------------
 DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
-  `id` int(11) NOT NULL auto_increment,
-  `accountid` int(11) NOT NULL default '0',
-  `world` int(11) NOT NULL default '0',
-  `name` varchar(13) NOT NULL default '',
-  `level` int(11) NOT NULL default '0',
-  `exp` int(11) NOT NULL default '0',
-  `str` int(11) NOT NULL default '0',
-  `dex` int(11) NOT NULL default '0',
-  `luk` int(11) NOT NULL default '0',
-  `int` int(11) NOT NULL default '0',
-  `hp` int(11) NOT NULL default '0',
-  `mp` int(11) NOT NULL default '0',
-  `maxhp` int(11) NOT NULL default '0',
-  `maxmp` int(11) NOT NULL default '0',
-  `meso` int(11) NOT NULL default '0',
-  `hpMpUsed` int(11) unsigned NOT NULL default '0',
-  `job` int(11) NOT NULL default '0',
-  `skincolor` int(11) NOT NULL default '0',
-  `gender` int(11) NOT NULL default '0',
-  `fame` int(11) NOT NULL default '0',
-  `hair` int(11) NOT NULL default '0',
-  `face` int(11) NOT NULL default '0',
-  `ap` int(11) NOT NULL default '0',
-  `sp` int(11) NOT NULL default '0',
-  `map` int(11) NOT NULL default '0',
-  `spawnpoint` int(11) NOT NULL default '0',
-  `gm` tinyint(1) NOT NULL default '0',
-  `party` int(11) NOT NULL default '0',
-  `buddyCapacity` int(11) NOT NULL default '25',
-  `createdate` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `rank` int(10) unsigned NOT NULL default '1',
-  `rankMove` int(11) NOT NULL default '0',
-  `jobRank` int(10) unsigned NOT NULL default '1',
-  `jobRankMove` int(11) NOT NULL default '0',
-  `guildid` int(10) unsigned NOT NULL default '0',
-  `guildrank` int(10) unsigned NOT NULL default '5',
-  `messengerid` int(10) unsigned NOT NULL default '0',
-  `messengerposition` int(10) unsigned NOT NULL default '4',
-  `mountlevel` int(9) NOT NULL default '1',
-  `mountexp` int(9) NOT NULL default '0',
-  `mounttiredness` int(9) NOT NULL default '0',
-  `omokwins` int(11) NOT NULL default '0',
-  `omoklosses` int(11) NOT NULL default '0',
-  `omokties` int(11) NOT NULL default '0',
-  `matchcardwins` int(11) NOT NULL default '0',
-  `matchcardlosses` int(11) NOT NULL default '0',
-  `matchcardties` int(11) NOT NULL default '0',
-  `MerchantMesos` int(11) default '0',
-  `HasMerchant` tinyint(1) default '0',
-  `equipslots` int(11) NOT NULL default '24',
-  `useslots` int(11) NOT NULL default '24',
-  `setupslots` int(11) NOT NULL default '24',
-  `etcslots` int(11) NOT NULL default '24',
-  `familyId` int(11) NOT NULL default '-1',
-  `monsterbookcover` int(11) NOT NULL default '0',
-  `allianceRank` int(10) NOT NULL default '5',
-  `vanquisherStage` int(11) unsigned NOT NULL default '0',
-  `dojoPoints` int(11) unsigned NOT NULL default '0',
-  `lastDojoStage` int(10) unsigned NOT NULL default '0',
-  `finishedDojoTutorial` tinyint(1) unsigned NOT NULL default '0',
-  `vanquisherKills` int(11) unsigned NOT NULL default '0',
-  `summonValue` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`),
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `accountid` int(11) NOT NULL DEFAULT '0',
+  `world` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(13) NOT NULL DEFAULT '',
+  `level` int(11) NOT NULL DEFAULT '0',
+  `exp` int(11) NOT NULL DEFAULT '0',
+  `str` int(11) NOT NULL DEFAULT '0',
+  `dex` int(11) NOT NULL DEFAULT '0',
+  `luk` int(11) NOT NULL DEFAULT '0',
+  `int` int(11) NOT NULL DEFAULT '0',
+  `hp` int(11) NOT NULL DEFAULT '0',
+  `mp` int(11) NOT NULL DEFAULT '0',
+  `maxhp` int(11) NOT NULL DEFAULT '0',
+  `maxmp` int(11) NOT NULL DEFAULT '0',
+  `meso` int(11) NOT NULL DEFAULT '0',
+  `hpMpUsed` int(11) unsigned NOT NULL DEFAULT '0',
+  `job` int(11) NOT NULL DEFAULT '0',
+  `skincolor` int(11) NOT NULL DEFAULT '0',
+  `gender` int(11) NOT NULL DEFAULT '0',
+  `fame` int(11) NOT NULL DEFAULT '0',
+  `hair` int(11) NOT NULL DEFAULT '0',
+  `face` int(11) NOT NULL DEFAULT '0',
+  `ap` int(11) NOT NULL DEFAULT '0',
+  `sp` int(11) NOT NULL DEFAULT '0',
+  `map` int(11) NOT NULL DEFAULT '0',
+  `spawnpoint` int(11) NOT NULL DEFAULT '0',
+  `gm` tinyint(1) NOT NULL DEFAULT '0',
+  `party` int(11) NOT NULL DEFAULT '0',
+  `buddyCapacity` int(11) NOT NULL DEFAULT '25',
+  `createdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `rank` int(10) unsigned NOT NULL DEFAULT '1',
+  `rankMove` int(11) NOT NULL DEFAULT '0',
+  `jobRank` int(10) unsigned NOT NULL DEFAULT '1',
+  `jobRankMove` int(11) NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guildrank` int(10) unsigned NOT NULL DEFAULT '5',
+  `messengerid` int(10) unsigned NOT NULL DEFAULT '0',
+  `messengerposition` int(10) unsigned NOT NULL DEFAULT '4',
+  `mountlevel` int(9) NOT NULL DEFAULT '1',
+  `mountexp` int(9) NOT NULL DEFAULT '0',
+  `mounttiredness` int(9) NOT NULL DEFAULT '0',
+  `omokwins` int(11) NOT NULL DEFAULT '0',
+  `omoklosses` int(11) NOT NULL DEFAULT '0',
+  `omokties` int(11) NOT NULL DEFAULT '0',
+  `matchcardwins` int(11) NOT NULL DEFAULT '0',
+  `matchcardlosses` int(11) NOT NULL DEFAULT '0',
+  `matchcardties` int(11) NOT NULL DEFAULT '0',
+  `MerchantMesos` int(11) DEFAULT '0',
+  `HasMerchant` tinyint(1) DEFAULT '0',
+  `equipslots` int(11) NOT NULL DEFAULT '24',
+  `useslots` int(11) NOT NULL DEFAULT '24',
+  `setupslots` int(11) NOT NULL DEFAULT '24',
+  `etcslots` int(11) NOT NULL DEFAULT '24',
+  `familyId` int(11) NOT NULL DEFAULT '-1',
+  `monsterbookcover` int(11) NOT NULL DEFAULT '0',
+  `allianceRank` int(10) NOT NULL DEFAULT '5',
+  `vanquisherStage` int(11) unsigned NOT NULL DEFAULT '0',
+  `dojoPoints` int(11) unsigned NOT NULL DEFAULT '0',
+  `lastDojoStage` int(10) unsigned NOT NULL DEFAULT '0',
+  `finishedDojoTutorial` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `vanquisherKills` int(11) unsigned NOT NULL DEFAULT '0',
+  `summonValue` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
   KEY `accountid` (`accountid`),
   KEY `party` (`party`),
   KEY `ranking1` (`level`,`exp`),
   KEY `ranking2` (`gm`,`job`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 PACK_KEYS=0;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 PACK_KEYS=0;
 
 -- ----------------------------
 -- Records of characters
@@ -346,13 +312,13 @@ CREATE TABLE `characters` (
 -- ----------------------------
 DROP TABLE IF EXISTS `cooldowns`;
 CREATE TABLE `cooldowns` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `charid` int(11) NOT NULL,
   `SkillID` int(11) NOT NULL,
   `length` bigint(20) unsigned NOT NULL,
   `StartTime` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of cooldowns
@@ -363,29 +329,29 @@ CREATE TABLE `cooldowns` (
 -- ----------------------------
 DROP TABLE IF EXISTS `dueyitems`;
 CREATE TABLE `dueyitems` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `PackageId` int(10) unsigned NOT NULL default '0',
-  `itemid` int(10) unsigned NOT NULL default '0',
-  `quantity` int(10) unsigned NOT NULL default '0',
-  `upgradeslots` int(11) default '0',
-  `level` int(11) default '0',
-  `str` int(11) default '0',
-  `dex` int(11) default '0',
-  `int` int(11) default '0',
-  `luk` int(11) default '0',
-  `hp` int(11) default '0',
-  `mp` int(11) default '0',
-  `watk` int(11) default '0',
-  `matk` int(11) default '0',
-  `wdef` int(11) default '0',
-  `mdef` int(11) default '0',
-  `acc` int(11) default '0',
-  `avoid` int(11) default '0',
-  `hands` int(11) default '0',
-  `speed` int(11) default '0',
-  `jump` int(11) default '0',
-  `owner` varchar(13) default NULL,
-  PRIMARY KEY  (`id`),
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `PackageId` int(10) unsigned NOT NULL DEFAULT '0',
+  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
+  `quantity` int(10) unsigned NOT NULL DEFAULT '0',
+  `upgradeslots` int(11) DEFAULT '0',
+  `level` int(11) DEFAULT '0',
+  `str` int(11) DEFAULT '0',
+  `dex` int(11) DEFAULT '0',
+  `int` int(11) DEFAULT '0',
+  `luk` int(11) DEFAULT '0',
+  `hp` int(11) DEFAULT '0',
+  `mp` int(11) DEFAULT '0',
+  `watk` int(11) DEFAULT '0',
+  `matk` int(11) DEFAULT '0',
+  `wdef` int(11) DEFAULT '0',
+  `mdef` int(11) DEFAULT '0',
+  `acc` int(11) DEFAULT '0',
+  `avoid` int(11) DEFAULT '0',
+  `hands` int(11) DEFAULT '0',
+  `speed` int(11) DEFAULT '0',
+  `jump` int(11) DEFAULT '0',
+  `owner` varchar(13) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `PackageId` (`PackageId`),
   CONSTRAINT `dueyitems_ibfk_1` FOREIGN KEY (`PackageId`) REFERENCES `dueypackages` (`PackageId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -399,14 +365,14 @@ CREATE TABLE `dueyitems` (
 -- ----------------------------
 DROP TABLE IF EXISTS `dueypackages`;
 CREATE TABLE `dueypackages` (
-  `PackageId` int(10) unsigned NOT NULL auto_increment,
+  `PackageId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `RecieverId` int(10) unsigned NOT NULL,
   `SenderName` varchar(13) NOT NULL,
-  `Mesos` int(10) unsigned default '0',
+  `Mesos` int(10) unsigned DEFAULT '0',
   `TimeStamp` varchar(10) NOT NULL,
-  `Checked` tinyint(1) unsigned default '1',
+  `Checked` tinyint(1) unsigned DEFAULT '1',
   `Type` tinyint(1) unsigned NOT NULL,
-  PRIMARY KEY  (`PackageId`)
+  PRIMARY KEY (`PackageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -418,13 +384,13 @@ CREATE TABLE `dueypackages` (
 -- ----------------------------
 DROP TABLE IF EXISTS `eventstats`;
 CREATE TABLE `eventstats` (
-  `eventstatid` int(10) unsigned NOT NULL auto_increment,
+  `eventstatid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `event` varchar(30) NOT NULL,
   `instance` varchar(30) NOT NULL,
   `characterid` int(11) NOT NULL,
   `channel` int(11) NOT NULL,
-  `time` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`eventstatid`)
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`eventstatid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -436,11 +402,11 @@ CREATE TABLE `eventstats` (
 -- ----------------------------
 DROP TABLE IF EXISTS `famelog`;
 CREATE TABLE `famelog` (
-  `famelogid` int(11) NOT NULL auto_increment,
-  `characterid` int(11) NOT NULL default '0',
-  `characterid_to` int(11) NOT NULL default '0',
-  `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`famelogid`),
+  `famelogid` int(11) NOT NULL AUTO_INCREMENT,
+  `characterid` int(11) NOT NULL DEFAULT '0',
+  `characterid_to` int(11) NOT NULL DEFAULT '0',
+  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`famelogid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `famelog_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -462,7 +428,7 @@ CREATE TABLE `family_character` (
   `name` varchar(255) NOT NULL,
   `juniorsadded` int(11) NOT NULL,
   `totalreputation` int(11) NOT NULL,
-  PRIMARY KEY  (`cid`)
+  PRIMARY KEY (`cid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -474,12 +440,12 @@ CREATE TABLE `family_character` (
 -- ----------------------------
 DROP TABLE IF EXISTS `gifts`;
 CREATE TABLE `gifts` (
-  `id` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `to` int(11) NOT NULL,
   `from` varchar(13) NOT NULL,
   `message` tinytext NOT NULL,
   `sn` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `FK_gifts_1` (`to`),
   CONSTRAINT `FK_gifts_1` FOREIGN KEY (`to`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -493,40 +459,485 @@ CREATE TABLE `gifts` (
 -- ----------------------------
 DROP TABLE IF EXISTS `gmlog`;
 CREATE TABLE `gmlog` (
-  `id` int(11) NOT NULL auto_increment,
-  `cid` int(11) NOT NULL default '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cid` int(11) NOT NULL DEFAULT '0',
   `command` tinytext NOT NULL,
-  `when` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=latin1;
+  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1008 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of gmlog
 -- ----------------------------
+INSERT INTO `gmlog` VALUES ('318', '2', '/warp 980032200', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('319', '2', '/map 980032200', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('320', '2', '/map 980000101', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('321', '2', '/killall', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('322', '2', '/killall', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('323', '2', '/kill explorer', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('324', '2', '/heal', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('325', '2', '/unbug', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('326', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-15 11:24:07');
+INSERT INTO `gmlog` VALUES ('327', '2', '/unbug', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('328', '2', '/warp 10400000000', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('329', '2', '/warp 1040000000', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('330', '2', '/map 1040000000', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('331', '2', '/map 104000000', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('332', '2', '/online', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('333', '2', '/online', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('334', '2', '/online', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('335', '2', '/online', '2010-08-15 13:36:52');
+INSERT INTO `gmlog` VALUES ('336', '4', '/buffme', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('337', '4', '/maxskills', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('338', '4', '/job 412', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('339', '4', '/maxstat', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('340', '4', '/heal', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('341', '4', '/say It\'s not moving me D:', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('342', '4', '/notice It\'s not moving me D:', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('343', '4', '/unbug', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('344', '4', '/map 109080000', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('345', '4', '/notice I saw nothing', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('346', '4', '/notice Mhmm', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('347', '4', '/map 109040000', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('348', '4', '/startevent', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('349', '4', '/cheat', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('350', '4', '/warp explorer', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('351', '4', '/map explorer', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('352', '4', '/map 109040300', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('353', '4', '/map 109040100', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('354', '4', '/map 109040010', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('355', '4', '/map 109040001', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('356', '4', '/search map maplestory phy', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('357', '4', '/buffme', '2010-08-15 13:51:29');
+INSERT INTO `gmlog` VALUES ('358', '2', '/scheduleevent coconut', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('359', '2', '/map 109080000', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('360', '2', '/team PuppyKevin 1', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('361', '2', '/startevent', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('362', '2', '/map 109040000', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('363', '2', '/map 109040003', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('364', '2', '/map 10904004', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('365', '2', '/map 109040004', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('366', '2', '/map 109040004 5', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('367', '2', '/map 109040004 8', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('368', '2', '/map 109040004 9', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('369', '2', '/map 109040004 10', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('370', '2', '/map 109040004 11', '2010-08-15 13:52:32');
+INSERT INTO `gmlog` VALUES ('371', '2', '/unbug', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('372', '2', '/packet 89 00 03 15 00 65 76 65 6e 74 2f 63 6f 63 6f 6e 75 74 2f 76 69 63 74 6f 72 79', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('373', '2', '/packet 88 00 03 15 00 65 76 65 6e 74 2f 63 6f 63 6f 6e 75 74 2f 76 69 63 74 6f 72 79', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('374', '2', '/packet 89 00 03 15 00 65 76 65 6e 74 2f 63 6f 63 6f 6e 75 74 2f 76 69 63 74 6f 72 79', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('375', '2', '/packet 8A 00 03 15 00 65 76 65 6e 74 2f 63 6f 63 6f 6e 75 74 2f 76 69 63 74 6f 72 79', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('376', '2', '/online', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('377', '2', '/packet 89 00 00 00 00 00 00 00 0 00 0 00 0 0 0 00 0 0', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('378', '2', '/packet 89 00 00 00 00 00 00 00 0 00 0 00 0 0 0 00 0 0', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('379', '2', '/packet 88 00 00 00 00 00 00 00 0 00 0 00 0 0 0 00 0 0', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('380', '2', '/packet 87 00 00 00 00 00 00 00 0 00 0 00 0 0 0 00 0 0', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('381', '2', '/online', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('382', '2', '/killall', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('383', '2', '/cleardrops', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('384', '2', '/job 122', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('385', '2', '/job 1512', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('386', '2', '/search item knuckle', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('387', '2', '/item 1482020', '2010-08-15 14:52:35');
+INSERT INTO `gmlog` VALUES ('388', '2', '/map 104000000', '2010-08-16 12:19:44');
+INSERT INTO `gmlog` VALUES ('389', '2', '/scheduleevent coconut 50', '2010-08-16 12:19:44');
+INSERT INTO `gmlog` VALUES ('390', '2', '/map 109080000', '2010-08-16 12:19:44');
+INSERT INTO `gmlog` VALUES ('391', '2', '/team Explorer 1', '2010-08-16 12:19:44');
+INSERT INTO `gmlog` VALUES ('392', '2', '/map 109080000', '2010-08-16 12:19:44');
+INSERT INTO `gmlog` VALUES ('393', '3', '/map 109080000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('394', '3', '/blue', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('395', '3', '/search item knuckle', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('396', '3', '/item 1482046', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('397', '3', '/heal', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('398', '3', '/search item medal', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('399', '3', '/item 4032185', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('400', '3', '/item 4032185', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('401', '3', '/item 4032184', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('402', '3', '/item 1142140', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('403', '3', '/search item wooden club', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('404', '3', '/level 0', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('405', '3', '/map 109090300', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('406', '3', '/map gm', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('407', '3', '/map gmmap', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('408', '3', '/map 180000000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('409', '3', '/map 960000000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('410', '3', '/map 90000000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('411', '3', '/map 950000000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('412', '3', '/warphere explorer', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('413', '3', '/search map studio', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('414', '3', '/search map cake', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('415', '3', '/search map henesys', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('416', '3', '/search', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('417', '3', '/map 61030200', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('418', '3', '/map 610302000', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('419', '3', '/map 610030200', '2010-08-16 12:42:15');
+INSERT INTO `gmlog` VALUES ('420', '2', '/scheduleevent aids 1', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('421', '2', '/map 10400000000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('422', '2', '/map 1040000000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('423', '2', '/map 104000000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('424', '2', '/scheduleevent fitness 3', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('425', '2', '/map 109080000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('426', '2', '/team Explorer 1', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('427', '2', '/map 109080000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('428', '2', '/startevent', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('429', '2', '/map 109090000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('430', '2', '/map 109090100', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('431', '2', '/map 109090101', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('432', '2', '/map 109090200', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('433', '2', '/map 109090300', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('434', '2', '/map 9500000000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('435', '2', '/map 950000000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('436', '2', '/map 61030200', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('437', '2', '/map 610302000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('438', '2', '/map 610203000', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('439', '2', '/map 610030200', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('440', '2', '/pinkbean', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('441', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('442', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('443', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('444', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('445', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('446', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('447', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('448', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('449', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('450', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('451', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('452', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('453', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('454', '2', '/heal', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('455', '2', '/killall', '2010-08-16 12:42:54');
+INSERT INTO `gmlog` VALUES ('456', '2', '/unbug', '2010-08-28 23:08:55');
+INSERT INTO `gmlog` VALUES ('457', '2', '/map 926010100', '2010-08-28 23:08:55');
+INSERT INTO `gmlog` VALUES ('458', '2', '/map 926010100', '2010-08-28 23:09:21');
+INSERT INTO `gmlog` VALUES ('459', '5', '/map', '2010-08-28 23:19:32');
+INSERT INTO `gmlog` VALUES ('460', '5', '!map', '2010-08-28 23:19:32');
+INSERT INTO `gmlog` VALUES ('461', '5', '/map 926010100', '2010-08-28 23:19:32');
+INSERT INTO `gmlog` VALUES ('462', '5', '!m 926010100', '2010-08-28 23:19:32');
+INSERT INTO `gmlog` VALUES ('463', '5', '!map 926010100', '2010-08-28 23:19:32');
+INSERT INTO `gmlog` VALUES ('464', '2', '/killall', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('465', '2', '/search item wolf', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('466', '2', '/item 1912011', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('467', '2', '/item 190215', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('468', '2', '/item 1902015', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('469', '2', '/item 1902016', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('470', '2', '/item 1902017', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('471', '2', '/level 200', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('472', '2', '/item 1902018', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('473', '2', '/item 1902001', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('474', '2', '/item 1912001', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('475', '2', '/item 1912010', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('476', '2', '/item 19120010', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('477', '2', '/item 19120011', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('478', '2', '/item 1912011', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('479', '2', '/item 1912010', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('480', '2', '/item 1912009', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('481', '2', '/item 1912001', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('482', '2', '/item 1912002', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('483', '2', '/item 1912003', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('484', '2', '/item 1912004', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('485', '2', '/item 1912005', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('486', '2', '/item 1912006', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('487', '2', '/item 1912007', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('488', '2', '/item 1912008', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('489', '2', '/item 1912009', '2010-08-30 18:05:05');
+INSERT INTO `gmlog` VALUES ('490', '2', '/killall', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('491', '2', '/search item wolf', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('492', '2', '/item 1912011', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('493', '2', '/item 190215', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('494', '2', '/item 1902015', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('495', '2', '/item 1902016', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('496', '2', '/item 1902017', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('497', '2', '/level 200', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('498', '2', '/item 1902018', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('499', '2', '/item 1902001', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('500', '2', '/item 1912001', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('501', '2', '/item 1912010', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('502', '2', '/item 19120010', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('503', '2', '/item 19120011', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('504', '2', '/item 1912011', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('505', '2', '/item 1912010', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('506', '2', '/item 1912009', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('507', '2', '/item 1912001', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('508', '2', '/item 1912002', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('509', '2', '/item 1912003', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('510', '2', '/item 1912004', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('511', '2', '/item 1912005', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('512', '2', '/item 1912006', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('513', '2', '/item 1912007', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('514', '2', '/item 1912008', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('515', '2', '/item 1912009', '2010-08-30 18:05:18');
+INSERT INTO `gmlog` VALUES ('516', '2', '/search item saddle', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('517', '2', '/item 1912000', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('518', '2', '/search item my', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('519', '2', '/search item myr', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('520', '2', '/search item ryko', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('521', '2', '/item 1902012', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('522', '2', '/item 1902013', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('523', '2', '/item 1902013', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('524', '2', '/item 1902014', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('525', '2', '/item 1902015', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('526', '2', '/item 1902010', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('527', '2', '/item 1902009', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('528', '2', '/item 1902001', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('529', '2', '/item 1902004', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('530', '2', '/item 1902005', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('531', '2', '/item 1902006', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('532', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 14 00 76 9A 98 00 00 75 2B 7D 14 00 76 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('533', '2', '/packet 20 00 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 14 00 76 9A 98 00 00 75 2B 7D 14 00 76 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('534', '2', '/packet 20 00 00 00 00 00 00 00 00 00 0A 00 00 00 0A 00 00 00 0A 00 87 9A 98 00 00 75 2B 7D 0A 00 87 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('535', '2', '/packet 20 00 00 00 00 00 00 00 00 00 0A 00 00 00 0A 00 00 00 0A 00 87 9A 98 00 00 75 2B 7D 0A 00 87 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('536', '2', '/packet 20 01 00 00 00 00 00 00 00 00 0A 00 00 00 0A 00 00 00 0A 00 87 9A 98 00 00 75 2B 7D 0A 00 87 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('537', '2', '/packet 20 01 00 00 00 00 00 00 00 00 0A 00 00 00 0A 00 00 00 0A 00 87 9A 98 00 00 75 2B 7D 0A 00 87 9A 98 00 00 75 2B 7D 00 00100 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('538', '2', '/packet 20 01 00 00 00 00 00 00 00 00 0A 00 00 00 0A 00 00 00 0A 00 87 9A 98 00 00 75 2B 7D 0A 00 87 9A 98 00 00 75 2B 7D 00 00100 00 1', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('539', '2', '!13', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('540', '2', '/packet 00 00 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('541', '2', '/packet 00 00 01', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('542', '2', '/packet 19 00', '2010-08-30 18:10:47');
+INSERT INTO `gmlog` VALUES ('543', '2', '/packet 20 00 00 00 00 00 00 00 00 00 00 00 00 00 20 00 00 00 14 00 76 9A 98 00 00 75 2B 7D 14 00 76 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:48:12');
+INSERT INTO `gmlog` VALUES ('544', '2', '/packet 20 00 00 00 00 00 00 00 00 00 00 00 00 00 20 00 00 00 14 00 76 9A 98 00 00 75 2B 7D 14 00 76 9A 98 00 00 75 2B 7D 00 00 00 00 00', '2010-08-30 18:48:12');
+INSERT INTO `gmlog` VALUES ('545', '2', '/job 522', '2010-08-30 18:51:15');
+INSERT INTO `gmlog` VALUES ('546', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 B5 05 1D 00 F5 03 00 00 00 00 00 00 00 00 00 00', '2010-08-30 18:55:19');
+INSERT INTO `gmlog` VALUES ('547', '2', '/unbuffmap', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('548', '2', '/unbuff', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('549', '2', '/unbuff Explorer', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('550', '2', '/packet 21 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 00 00 03', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('551', '2', '/packet 21 00 00 00 00 00 00 00 00 00 00 00 00 00 03 04 00 00 03', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('552', '2', '/packet 21 00 00 00 00 00 00 00 00 00 00 00 00 00 03 04 00 00 04', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('553', '2', '/packet 21 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('554', '2', '/packet 21 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 00 00 04', '2010-08-30 18:56:13');
+INSERT INTO `gmlog` VALUES ('555', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00 000 00 00', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('556', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00 000 00', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('557', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00 000', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('558', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('559', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('560', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00', '2010-08-30 19:37:13');
+INSERT INTO `gmlog` VALUES ('561', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00', '2010-08-30 19:38:28');
+INSERT INTO `gmlog` VALUES ('562', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00', '2010-08-30 19:39:20');
+INSERT INTO `gmlog` VALUES ('563', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 19:41:02');
+INSERT INTO `gmlog` VALUES ('564', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 01 00 00 00', '2010-08-30 19:41:02');
+INSERT INTO `gmlog` VALUES ('565', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 19:41:02');
+INSERT INTO `gmlog` VALUES ('566', '2', '/packet 20 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 00 00 E3 7A 1D 00 F9 03 00 00 00 00 00 00 00 00 00 00', '2010-08-30 19:41:02');
+INSERT INTO `gmlog` VALUES ('567', '2', '/killall', '2010-08-30 20:12:49');
+INSERT INTO `gmlog` VALUES ('568', '2', '/job 512', '2010-08-30 20:12:49');
+INSERT INTO `gmlog` VALUES ('569', '2', '/maxskills', '2010-08-30 20:40:28');
+INSERT INTO `gmlog` VALUES ('570', '2', '/job 1000', '2010-08-30 20:43:35');
+INSERT INTO `gmlog` VALUES ('571', '2', '/job 0', '2010-08-30 20:43:35');
+INSERT INTO `gmlog` VALUES ('572', '2', '/job 2000', '2010-08-30 20:43:35');
+INSERT INTO `gmlog` VALUES ('573', '2', '/killall', '2010-08-30 21:02:16');
+INSERT INTO `gmlog` VALUES ('574', '2', '/killall', '2010-08-30 21:04:04');
+INSERT INTO `gmlog` VALUES ('575', '2', '/search item monster card', '2010-08-30 21:04:04');
+INSERT INTO `gmlog` VALUES ('576', '2', '/item 4030012 1 10000', '2010-08-30 21:04:04');
+INSERT INTO `gmlog` VALUES ('577', '2', '/killall', '2010-08-30 21:04:16');
+INSERT INTO `gmlog` VALUES ('578', '2', '/search item monster card', '2010-08-30 21:04:16');
+INSERT INTO `gmlog` VALUES ('579', '2', '/item 4030012 1 10000', '2010-08-30 21:04:16');
+INSERT INTO `gmlog` VALUES ('580', '2', '/job 0', '2010-08-30 21:23:53');
+INSERT INTO `gmlog` VALUES ('581', '2', '/killall', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('582', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('583', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('584', '2', '/packet 21 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('585', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('586', '2', '/packet 21 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('587', '2', '/packet 21 01 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('588', '2', '/packet 21 01 00 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('589', '2', '/packet 21 01 00 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('590', '2', '/packet 21 01 00 01 FF 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('591', '2', '/packet 21 01 00 01 FF 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('592', '2', '/packet 21 01 00 01 FF 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('593', '2', '/packet 21 01 00 01 FF 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('594', '2', '/packet 21 01 01 01 FF 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('595', '2', '/packet 21 01 00 01 00 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('596', '2', '/packet 21 01 00 01 00 01 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('597', '2', '/packet 21 01 00 01 00 01 00 01 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('598', '2', '/packet 21 01 00 01 00 01 00 01 00 01 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('599', '2', '/packet 21 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('600', '2', '/packet 21 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00', '2010-08-30 21:47:07');
+INSERT INTO `gmlog` VALUES ('601', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:49:20');
+INSERT INTO `gmlog` VALUES ('602', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('603', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('604', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('605', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('606', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('607', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('608', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('609', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('610', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('611', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('612', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('613', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('614', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('615', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 00 01 00 01 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('616', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 00 01 00 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('617', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 00 01 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('618', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 01 00 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('619', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 01 00 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('620', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('621', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('622', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('623', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 02 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('624', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 02 02 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('625', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 00 02 02 03 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('626', '2', '/packet 21 01 01 01 00 01 00 00 01 00 01 01 00 01 03 02 02 03 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('627', '2', '/unbug', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('628', '2', '/packet 21 01 01 00 01 00 01 00 01 00 01 00 01 01 00 01 01 01 01 01 01 01 01 01 01', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('629', '2', '/packet 21 00 00 00 00 00 00 00 00 00 0 00 0', '2010-08-30 21:53:31');
+INSERT INTO `gmlog` VALUES ('630', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 21:56:52');
+INSERT INTO `gmlog` VALUES ('631', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('632', '2', '/packet 22 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('633', '2', '/packet 22 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('634', '2', '/packet 22 01 01 00 01 00 01 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('635', '2', '/packet 22 01 01 00 01 00 01 00 01 00 01 00 01 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('636', '2', '/packet 22 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('637', '2', '/packet 22 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('638', '2', '/packet 22 01 01 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('639', '2', '/packet 22 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('640', '2', '/packet 22 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('641', '2', '/packet 22 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('642', '2', '/packet 22 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('643', '2', '/packet 22 01 01 01 01 01 00 01 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('644', '2', '/packet 22 01 01 01 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('645', '2', '/packet 22 01 01 01 01 01 01 01 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('646', '2', '/packet 22 01 01 01 01 01 01 01', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('647', '2', '/packet 22 01 01 01 01 01 01 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('648', '2', '/packet 22 01 01 00 01 01 01 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('649', '2', '/packet 22 01 01 00 01 01', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('650', '2', '/packet 22 01 01 00 01 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('651', '2', '/packet 23 01 00 00 00 00', '2010-08-30 22:00:41');
+INSERT INTO `gmlog` VALUES ('652', '2', '/packet 23 01 01 00 00 00 000 00 00 00 00 0', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('653', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('654', '2', '/packet 23 01 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('655', '2', '/packet 23 01 01 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('656', '2', '/packet 23 01 01 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('657', '2', '/packet 23 01 00 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('658', '2', '/packet 23 01 00 01 00 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('659', '2', '/packet 23 01 01 01 00 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('660', '2', '/packet 23 01 01 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('661', '2', '/packet 23 01 01 01 00 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('662', '2', '/packet 23 01 01 01 00 00 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('663', '2', '/packet 23 01 01 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('664', '2', '/packet 23 01 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('665', '2', '/packet 23 01 01 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('666', '2', '/packet 23 01 01 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('667', '2', '/packet 23 01 00 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('668', '2', '/packet 23 01 00 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('669', '2', '/packet 23 01 00 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('670', '2', '/packet 24 01 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('671', '2', '/packet 24 01 01 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('672', '2', '/packet 24 01 01 01 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('673', '2', '/packet 26 01 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('674', '2', '/packet 26 01 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('675', '2', '/packet 25 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('676', '2', '/packet 25 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('677', '2', '/packet 25 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('678', '2', '/packet 25 01 02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('679', '2', '/packet 25 01 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('680', '2', '/packet 25 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('681', '2', '/packet 25 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('682', '2', '/packet 25 01 02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('683', '2', '/packet 25 01 03 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('684', '2', '/packet 25 01 03 01 00 00 00 00 00 00 00 00 00 00 0', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('685', '2', '/packet 25 01 03 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('686', '2', '/packet 25 01 03 01 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('687', '2', '/packet 25 01 03 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('688', '2', '/packet 25 01 03 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('689', '2', '/packet 25 01 03', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('690', '2', '/packet 25 01 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('691', '2', '/packet 25 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('692', '2', '/packet 25 01 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('693', '2', '/packet 25 01 02', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('694', '2', '/packet 25 01 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('695', '2', '/packet 25 01 02', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('696', '2', '/packet 25 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('697', '2', '/packet 25 01 05', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('698', '2', '/packet 25 01 04', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('699', '2', '/packet 25 01 03', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('700', '2', '/packet 25 01 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('701', '2', '/packet 25 01 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('702', '2', '/packet 25 01 01', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('703', '2', '/packet 25 01 02', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('704', '2', '/packet 25 01 03', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('705', '2', '/packet 25 01 04', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('706', '2', '/packet 25 01 05', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('707', '2', '/packet 25 01 06', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('708', '2', '/packet 25 01 06 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('709', '2', '/packet 26 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('710', '2', '/packet 27 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('711', '2', '/packet 27 01 00 00 00', '2010-08-30 22:15:39');
+INSERT INTO `gmlog` VALUES ('712', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('713', '2', '/packet 27 01 00 00 00 00  00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('714', '2', '/packet 27 01 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('715', '2', '/packet 28 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('716', '2', '/packet 28 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('717', '2', '/packet 28 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('718', '2', '/packet 28 01 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('719', '2', '/packet 21 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:20:48');
+INSERT INTO `gmlog` VALUES ('720', '2', '/packet 2D 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('721', '2', '/packet 9B 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('722', '2', '/packet 9B 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('723', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('724', '2', '/packet A3 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('725', '2', '/packet A3 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('726', '2', '/packet A3 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('727', '2', '/packet A3 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('728', '2', '/packet A3 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('729', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('730', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('731', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('732', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('733', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('734', '2', '/packet A3 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:34:20');
+INSERT INTO `gmlog` VALUES ('735', '2', 'Hey', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('736', '2', '/packet A2 00 02 00 00 00 01 03 00 48 65 79 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('737', '2', '/packet A3 00 02 00 00 00 01 03 00 48 65 79 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('738', '2', '/packet A3 00 02 00 00 00 00 03 00 48 65 79 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('739', '2', '/packet A3 00 02 00 00 00 02 03 00 48 65 79 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('740', '2', '/packet A3 00 02 00 00 00 00 03 00 48 65 79 01', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('741', '2', '/packet A3 00 02 00 00 00 00 00 00 0 0 0 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('742', '2', '/packet A3 00 00 00 00 00 00 00 00 0 0 0 00', '2010-08-30 22:36:56');
+INSERT INTO `gmlog` VALUES ('743', '2', '/packet A3 00 00 00 000 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('744', '2', '/packet A3 00 02 00 000 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('745', '2', '/packet A2 00 02 00 000 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('746', '2', '/packet A3 00 02 00 000 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('747', '2', '/packet A4 00 02 00 000 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('748', '2', 'xD', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('749', '2', '/packet A2 00 02 00 00 00 01 02 00 78 44 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('750', '2', '/packet A3 00 02 00 00 00 01 02 00 78 44 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('751', '2', '/packet A3 00 02 00 00 00 01 02 00 78 44 01', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('752', '2', '/packet A3 00 02 00 00 00 01 02 00 78 44 01', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('753', '2', '/packet C3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('754', '2', '/packet C3 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('755', '2', '/packet C3 00 0', '2010-08-30 22:40:17');
+INSERT INTO `gmlog` VALUES ('756', '2', '/packet DB 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('757', '2', '/packet DB 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('758', '2', '/packet DB 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('759', '2', '/packet DB 00 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('760', '2', '/packet DB 00 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('761', '2', '/packet DB 00 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
+INSERT INTO `gmlog` VALUES ('762', '2', '/packet DB 00 01 01 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00', '2010-08-30 22:42:30');
 
 -- ----------------------------
 -- Table structure for `guilds`
 -- ----------------------------
 DROP TABLE IF EXISTS `guilds`;
 CREATE TABLE `guilds` (
-  `guildid` int(10) unsigned NOT NULL auto_increment,
-  `leader` int(10) unsigned NOT NULL default '0',
-  `GP` int(10) unsigned NOT NULL default '0',
-  `logo` int(10) unsigned default NULL,
-  `logoColor` smallint(5) unsigned NOT NULL default '0',
+  `guildid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `leader` int(10) unsigned NOT NULL DEFAULT '0',
+  `GP` int(10) unsigned NOT NULL DEFAULT '0',
+  `logo` int(10) unsigned DEFAULT NULL,
+  `logoColor` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(45) NOT NULL,
-  `rank1title` varchar(45) NOT NULL default 'Master',
-  `rank2title` varchar(45) NOT NULL default 'Jr. Master',
-  `rank3title` varchar(45) NOT NULL default 'Member',
-  `rank4title` varchar(45) NOT NULL default 'Member',
-  `rank5title` varchar(45) NOT NULL default 'Member',
-  `capacity` int(10) unsigned NOT NULL default '10',
-  `logoBG` int(10) unsigned default NULL,
-  `logoBGColor` smallint(5) unsigned NOT NULL default '0',
-  `notice` varchar(101) default NULL,
-  `signature` int(11) NOT NULL default '0',
-  `allianceId` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`guildid`)
+  `rank1title` varchar(45) NOT NULL DEFAULT 'Master',
+  `rank2title` varchar(45) NOT NULL DEFAULT 'Jr. Master',
+  `rank3title` varchar(45) NOT NULL DEFAULT 'Member',
+  `rank4title` varchar(45) NOT NULL DEFAULT 'Member',
+  `rank5title` varchar(45) NOT NULL DEFAULT 'Member',
+  `capacity` int(10) unsigned NOT NULL DEFAULT '10',
+  `logoBG` int(10) unsigned DEFAULT NULL,
+  `logoBGColor` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `notice` varchar(101) DEFAULT NULL,
+  `signature` int(11) NOT NULL DEFAULT '0',
+  `allianceId` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -538,30 +949,30 @@ CREATE TABLE `guilds` (
 -- ----------------------------
 DROP TABLE IF EXISTS `hiredmerchant`;
 CREATE TABLE `hiredmerchant` (
-  `id` int(11) NOT NULL auto_increment,
-  `ownerid` int(11) default '0',
-  `itemid` int(10) unsigned NOT NULL default '0',
-  `quantity` int(10) unsigned NOT NULL default '0',
-  `upgradeslots` int(11) default '0',
-  `level` int(11) default '0',
-  `str` int(11) default '0',
-  `dex` int(11) default '0',
-  `int` int(11) default '0',
-  `luk` int(11) default '0',
-  `hp` int(11) default '0',
-  `mp` int(11) default '0',
-  `watk` int(11) default '0',
-  `matk` int(11) default '0',
-  `wdef` int(11) default '0',
-  `mdef` int(11) default '0',
-  `acc` int(11) default '0',
-  `avoid` int(11) default '0',
-  `hands` int(11) default '0',
-  `speed` int(11) default '0',
-  `jump` int(11) default '0',
-  `owner` varchar(13) default '',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ownerid` int(11) DEFAULT '0',
+  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
+  `quantity` int(10) unsigned NOT NULL DEFAULT '0',
+  `upgradeslots` int(11) DEFAULT '0',
+  `level` int(11) DEFAULT '0',
+  `str` int(11) DEFAULT '0',
+  `dex` int(11) DEFAULT '0',
+  `int` int(11) DEFAULT '0',
+  `luk` int(11) DEFAULT '0',
+  `hp` int(11) DEFAULT '0',
+  `mp` int(11) DEFAULT '0',
+  `watk` int(11) DEFAULT '0',
+  `matk` int(11) DEFAULT '0',
+  `wdef` int(11) DEFAULT '0',
+  `mdef` int(11) DEFAULT '0',
+  `acc` int(11) DEFAULT '0',
+  `avoid` int(11) DEFAULT '0',
+  `hands` int(11) DEFAULT '0',
+  `speed` int(11) DEFAULT '0',
+  `jump` int(11) DEFAULT '0',
+  `owner` varchar(13) DEFAULT '',
   `type` tinyint(1) unsigned NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -573,12 +984,12 @@ CREATE TABLE `hiredmerchant` (
 -- ----------------------------
 DROP TABLE IF EXISTS `htsquads`;
 CREATE TABLE `htsquads` (
-  `id` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `channel` int(10) unsigned NOT NULL,
-  `leaderid` int(10) unsigned NOT NULL default '0',
-  `status` int(10) unsigned NOT NULL default '0',
-  `members` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  `leaderid` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` int(10) unsigned NOT NULL DEFAULT '0',
+  `members` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -592,34 +1003,34 @@ INSERT INTO `htsquads` VALUES ('2', '2', '0', '0', '0');
 -- ----------------------------
 DROP TABLE IF EXISTS `inventoryequipment`;
 CREATE TABLE `inventoryequipment` (
-  `inventoryequipmentid` int(10) unsigned NOT NULL auto_increment,
-  `inventoryitemid` int(10) unsigned NOT NULL default '0',
-  `upgradeslots` int(11) NOT NULL default '0',
-  `level` int(11) NOT NULL default '0',
-  `str` int(11) NOT NULL default '0',
-  `dex` int(11) NOT NULL default '0',
-  `int` int(11) NOT NULL default '0',
-  `luk` int(11) NOT NULL default '0',
-  `hp` int(11) NOT NULL default '0',
-  `mp` int(11) NOT NULL default '0',
-  `watk` int(11) NOT NULL default '0',
-  `matk` int(11) NOT NULL default '0',
-  `wdef` int(11) NOT NULL default '0',
-  `mdef` int(11) NOT NULL default '0',
-  `acc` int(11) NOT NULL default '0',
-  `avoid` int(11) NOT NULL default '0',
-  `hands` int(11) NOT NULL default '0',
-  `speed` int(11) NOT NULL default '0',
-  `jump` int(11) NOT NULL default '0',
-  `ringid` int(11) NOT NULL default '-1',
-  `locked` int(11) NOT NULL default '0',
-  `vicious` int(11) unsigned NOT NULL default '0',
-  `flag` int(11) NOT NULL default '0',
-  `itemexp` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`inventoryequipmentid`),
+  `inventoryequipmentid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventoryitemid` int(10) unsigned NOT NULL DEFAULT '0',
+  `upgradeslots` int(11) NOT NULL DEFAULT '0',
+  `level` int(11) NOT NULL DEFAULT '0',
+  `str` int(11) NOT NULL DEFAULT '0',
+  `dex` int(11) NOT NULL DEFAULT '0',
+  `int` int(11) NOT NULL DEFAULT '0',
+  `luk` int(11) NOT NULL DEFAULT '0',
+  `hp` int(11) NOT NULL DEFAULT '0',
+  `mp` int(11) NOT NULL DEFAULT '0',
+  `watk` int(11) NOT NULL DEFAULT '0',
+  `matk` int(11) NOT NULL DEFAULT '0',
+  `wdef` int(11) NOT NULL DEFAULT '0',
+  `mdef` int(11) NOT NULL DEFAULT '0',
+  `acc` int(11) NOT NULL DEFAULT '0',
+  `avoid` int(11) NOT NULL DEFAULT '0',
+  `hands` int(11) NOT NULL DEFAULT '0',
+  `speed` int(11) NOT NULL DEFAULT '0',
+  `jump` int(11) NOT NULL DEFAULT '0',
+  `ringid` int(11) NOT NULL DEFAULT '-1',
+  `locked` int(11) NOT NULL DEFAULT '0',
+  `vicious` int(11) unsigned NOT NULL DEFAULT '0',
+  `flag` int(11) NOT NULL DEFAULT '0',
+  `itemexp` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`inventoryequipmentid`),
   KEY `inventoryitemid` (`inventoryitemid`),
   CONSTRAINT `inventoryequipment_ibfk_1` FOREIGN KEY (`inventoryitemid`) REFERENCES `inventoryitems` (`inventoryitemid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6922 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryequipment
@@ -630,24 +1041,24 @@ CREATE TABLE `inventoryequipment` (
 -- ----------------------------
 DROP TABLE IF EXISTS `inventoryitems`;
 CREATE TABLE `inventoryitems` (
-  `inventoryitemid` int(10) unsigned NOT NULL auto_increment,
+  `inventoryitemid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` tinyint(3) unsigned NOT NULL,
-  `characterid` int(11) default NULL,
-  `accountid` int(11) default NULL,
-  `itemid` int(11) NOT NULL default '0',
-  `inventorytype` int(11) NOT NULL default '0',
-  `position` int(11) NOT NULL default '0',
-  `quantity` int(11) NOT NULL default '0',
+  `characterid` int(11) DEFAULT NULL,
+  `accountid` int(11) DEFAULT NULL,
+  `itemid` int(11) NOT NULL DEFAULT '0',
+  `inventorytype` int(11) NOT NULL DEFAULT '0',
+  `position` int(11) NOT NULL DEFAULT '0',
+  `quantity` int(11) NOT NULL DEFAULT '0',
   `owner` tinytext NOT NULL,
-  `petid` int(11) NOT NULL default '-1',
-  `expiration` bigint(20) NOT NULL default '-1',
+  `petid` int(11) NOT NULL DEFAULT '-1',
+  `expiration` bigint(20) NOT NULL DEFAULT '-1',
   `giftFrom` varchar(26) NOT NULL,
-  PRIMARY KEY  (`inventoryitemid`),
+  PRIMARY KEY (`inventoryitemid`),
   KEY `FK_inventoryitems_2` (`accountid`),
   KEY `FK_inventoryitems_1` (`characterid`),
   CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_inventoryitems_2` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=16808 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of inventoryitems
@@ -658,9 +1069,9 @@ CREATE TABLE `inventoryitems` (
 -- ----------------------------
 DROP TABLE IF EXISTS `ipbans`;
 CREATE TABLE `ipbans` (
-  `ipbanid` int(10) unsigned NOT NULL auto_increment,
-  `ip` varchar(40) NOT NULL default '',
-  PRIMARY KEY  (`ipbanid`)
+  `ipbanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `ip` varchar(40) NOT NULL DEFAULT '',
+  PRIMARY KEY (`ipbanid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -672,15 +1083,15 @@ CREATE TABLE `ipbans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `iplog`;
 CREATE TABLE `iplog` (
-  `iplogid` int(10) unsigned NOT NULL auto_increment,
-  `accountid` int(11) NOT NULL default '0',
-  `ip` varchar(30) NOT NULL default '',
-  `login` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`iplogid`),
+  `iplogid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `accountid` int(11) NOT NULL DEFAULT '0',
+  `ip` varchar(30) NOT NULL DEFAULT '',
+  `login` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`iplogid`),
   KEY `accountid` (`accountid`,`ip`),
   KEY `ip` (`ip`),
   CONSTRAINT `iplog_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of iplog
@@ -691,15 +1102,15 @@ CREATE TABLE `iplog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `keymap`;
 CREATE TABLE `keymap` (
-  `id` int(11) NOT NULL auto_increment,
-  `characterid` int(11) NOT NULL default '0',
-  `key` int(11) NOT NULL default '0',
-  `type` int(11) NOT NULL default '0',
-  `action` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`id`),
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `characterid` int(11) NOT NULL DEFAULT '0',
+  `key` int(11) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `action` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
   KEY `keymap_ibfk_1` (`characterid`),
   CONSTRAINT `keymap_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12811 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of keymap
@@ -710,10 +1121,10 @@ CREATE TABLE `keymap` (
 -- ----------------------------
 DROP TABLE IF EXISTS `loginserver`;
 CREATE TABLE `loginserver` (
-  `loginserverid` int(10) unsigned NOT NULL auto_increment,
-  `key` varchar(40) NOT NULL default '',
-  `world` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`loginserverid`)
+  `loginserverid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(40) NOT NULL DEFAULT '',
+  `world` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`loginserverid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -726,9 +1137,9 @@ INSERT INTO `loginserver` VALUES ('1', 'd3703816f23fdee7fce6ba061244736b83c88fc5
 -- ----------------------------
 DROP TABLE IF EXISTS `macbans`;
 CREATE TABLE `macbans` (
-  `macbanid` int(10) unsigned NOT NULL auto_increment,
+  `macbanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `mac` varchar(30) NOT NULL,
-  PRIMARY KEY  (`macbanid`),
+  PRIMARY KEY (`macbanid`),
   UNIQUE KEY `mac_2` (`mac`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -741,9 +1152,9 @@ CREATE TABLE `macbans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `macfilters`;
 CREATE TABLE `macfilters` (
-  `macfilterid` int(10) unsigned NOT NULL auto_increment,
+  `macfilterid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `filter` varchar(30) NOT NULL,
-  PRIMARY KEY  (`macfilterid`)
+  PRIMARY KEY (`macfilterid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -765,7 +1176,7 @@ CREATE TABLE `makercreatedata` (
   `catalyst` int(11) NOT NULL,
   `quantity` smallint(6) NOT NULL,
   `tuc` tinyint(3) NOT NULL,
-  PRIMARY KEY  (`id`,`itemid`)
+  PRIMARY KEY (`id`,`itemid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -1610,7 +2021,7 @@ CREATE TABLE `makerrecipedata` (
   `itemid` int(11) NOT NULL,
   `req_item` int(11) NOT NULL,
   `count` smallint(6) NOT NULL,
-  PRIMARY KEY  (`itemid`,`req_item`)
+  PRIMARY KEY (`itemid`,`req_item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3539,8 +3950,8 @@ CREATE TABLE `makerrewarddata` (
   `itemid` int(11) NOT NULL,
   `rewardid` int(11) NOT NULL,
   `quantity` smallint(6) NOT NULL,
-  `prob` tinyint(3) unsigned NOT NULL default '100',
-  PRIMARY KEY  (`itemid`,`rewardid`)
+  `prob` tinyint(3) unsigned NOT NULL DEFAULT '100',
+  PRIMARY KEY (`itemid`,`rewardid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3650,10 +4061,10 @@ INSERT INTO `makerrewarddata` VALUES ('4251402', '4251402', '1', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `marriages`;
 CREATE TABLE `marriages` (
-  `marriageid` int(10) unsigned NOT NULL auto_increment,
-  `husbandid` int(10) unsigned NOT NULL default '0',
-  `wifeid` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`marriageid`)
+  `marriageid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `husbandid` int(10) unsigned NOT NULL DEFAULT '0',
+  `wifeid` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`marriageid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3667,7 +4078,7 @@ DROP TABLE IF EXISTS `monsterbook`;
 CREATE TABLE `monsterbook` (
   `charid` int(11) NOT NULL,
   `cardid` int(11) NOT NULL,
-  `level` int(1) default '1'
+  `level` int(1) DEFAULT '1'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -3677,16 +4088,58 @@ INSERT INTO `monsterbook` VALUES ('1', '2380007', '3');
 INSERT INTO `monsterbook` VALUES ('1', '2380002', '5');
 INSERT INTO `monsterbook` VALUES ('1', '2380001', '5');
 INSERT INTO `monsterbook` VALUES ('1', '2380000', '5');
+INSERT INTO `monsterbook` VALUES ('2', '2388055', '5');
+INSERT INTO `monsterbook` VALUES ('3', '2388055', '1');
+INSERT INTO `monsterbook` VALUES ('3', '2380007', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388054', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388053', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388052', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388043', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388042', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388041', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388040', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388031', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388030', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388016', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388015', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388014', '1');
+INSERT INTO `monsterbook` VALUES ('3', '2380000', '3');
+INSERT INTO `monsterbook` VALUES ('2', '2388013', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388012', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388011', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388010', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388009', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388008', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388007', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388006', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388005', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388004', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388003', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388002', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388001', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2388000', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2383002', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2383001', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2383000', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2382094', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2382093', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2382092', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2380009', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2380006', '2');
+INSERT INTO `monsterbook` VALUES ('2', '2380004', '1');
+INSERT INTO `monsterbook` VALUES ('2', '2380002', '3');
+INSERT INTO `monsterbook` VALUES ('2', '2380001', '2');
+INSERT INTO `monsterbook` VALUES ('2', '2380000', '3');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
 -- ----------------------------
 DROP TABLE IF EXISTS `monstercarddata`;
 CREATE TABLE `monstercarddata` (
-  `id` int(11) NOT NULL auto_increment,
-  `cardid` int(11) NOT NULL default '0',
-  `mobid` int(11) NOT NULL default '0',
-  PRIMARY KEY  USING BTREE (`id`),
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cardid` int(11) NOT NULL DEFAULT '0',
+  `mobid` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=666 DEFAULT CHARSET=latin1;
 
@@ -4067,11 +4520,11 @@ INSERT INTO `monstercarddata` VALUES ('665', '2388066', '9420549');
 -- ----------------------------
 DROP TABLE IF EXISTS `monsterdrops`;
 CREATE TABLE `monsterdrops` (
-  `monsterdropid` int(10) unsigned NOT NULL auto_increment,
-  `monsterid` int(11) NOT NULL default '0',
-  `itemid` int(11) NOT NULL default '0',
-  `chance` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`monsterdropid`)
+  `monsterdropid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `monsterid` int(11) NOT NULL DEFAULT '0',
+  `itemid` int(11) NOT NULL DEFAULT '0',
+  `chance` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`monsterdropid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11346 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15276,10 +15729,10 @@ INSERT INTO `monsterdrops` VALUES ('11345', '9300018', '4031802', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `mts_cart`;
 CREATE TABLE `mts_cart` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `cid` int(11) NOT NULL,
   `itemid` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15291,42 +15744,42 @@ CREATE TABLE `mts_cart` (
 -- ----------------------------
 DROP TABLE IF EXISTS `mts_items`;
 CREATE TABLE `mts_items` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `tab` int(11) NOT NULL default '0',
-  `type` int(11) NOT NULL default '0',
-  `itemid` int(10) unsigned NOT NULL default '0',
-  `quantity` int(11) NOT NULL default '1',
-  `seller` int(11) NOT NULL default '0',
-  `price` int(11) NOT NULL default '0',
-  `bid_incre` int(11) default '0',
-  `buy_now` int(11) default '0',
-  `position` int(11) default '0',
-  `upgradeslots` int(11) default '0',
-  `level` int(11) default '0',
-  `str` int(11) default '0',
-  `dex` int(11) default '0',
-  `int` int(11) default '0',
-  `luk` int(11) default '0',
-  `hp` int(11) default '0',
-  `mp` int(11) default '0',
-  `watk` int(11) default '0',
-  `matk` int(11) default '0',
-  `wdef` int(11) default '0',
-  `mdef` int(11) default '0',
-  `acc` int(11) default '0',
-  `avoid` int(11) default '0',
-  `hands` int(11) default '0',
-  `speed` int(11) default '0',
-  `jump` int(11) default '0',
-  `locked` int(11) default '0',
-  `isequip` int(1) default '0',
-  `owner` varchar(16) default '',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `tab` int(11) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `itemid` int(10) unsigned NOT NULL DEFAULT '0',
+  `quantity` int(11) NOT NULL DEFAULT '1',
+  `seller` int(11) NOT NULL DEFAULT '0',
+  `price` int(11) NOT NULL DEFAULT '0',
+  `bid_incre` int(11) DEFAULT '0',
+  `buy_now` int(11) DEFAULT '0',
+  `position` int(11) DEFAULT '0',
+  `upgradeslots` int(11) DEFAULT '0',
+  `level` int(11) DEFAULT '0',
+  `str` int(11) DEFAULT '0',
+  `dex` int(11) DEFAULT '0',
+  `int` int(11) DEFAULT '0',
+  `luk` int(11) DEFAULT '0',
+  `hp` int(11) DEFAULT '0',
+  `mp` int(11) DEFAULT '0',
+  `watk` int(11) DEFAULT '0',
+  `matk` int(11) DEFAULT '0',
+  `wdef` int(11) DEFAULT '0',
+  `mdef` int(11) DEFAULT '0',
+  `acc` int(11) DEFAULT '0',
+  `avoid` int(11) DEFAULT '0',
+  `hands` int(11) DEFAULT '0',
+  `speed` int(11) DEFAULT '0',
+  `jump` int(11) DEFAULT '0',
+  `locked` int(11) DEFAULT '0',
+  `isequip` int(1) DEFAULT '0',
+  `owner` varchar(16) DEFAULT '',
   `sellername` varchar(16) NOT NULL,
   `sell_ends` varchar(16) NOT NULL,
-  `transfer` int(2) default '0',
-  `vicious` int(2) unsigned NOT NULL default '0',
-  `flag` int(2) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  `transfer` int(2) DEFAULT '0',
+  `vicious` int(2) unsigned NOT NULL DEFAULT '0',
+  `flag` int(2) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15338,12 +15791,12 @@ CREATE TABLE `mts_items` (
 -- ----------------------------
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
-  `id` int(11) NOT NULL auto_increment,
-  `to` varchar(13) NOT NULL default '',
-  `from` varchar(13) NOT NULL default '',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `to` varchar(13) NOT NULL DEFAULT '',
+  `from` varchar(13) NOT NULL DEFAULT '',
   `message` text NOT NULL,
   `timestamp` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15356,11 +15809,11 @@ CREATE TABLE `notes` (
 DROP TABLE IF EXISTS `nxcode`;
 CREATE TABLE `nxcode` (
   `code` varchar(15) NOT NULL,
-  `valid` int(11) NOT NULL default '1',
-  `user` varchar(13) default NULL,
-  `type` int(11) NOT NULL default '0',
-  `item` int(11) NOT NULL default '10000',
-  PRIMARY KEY  (`code`)
+  `valid` int(11) NOT NULL DEFAULT '1',
+  `user` varchar(13) DEFAULT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `item` int(11) NOT NULL DEFAULT '10000',
+  PRIMARY KEY (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15372,13 +15825,14 @@ CREATE TABLE `nxcode` (
 -- ----------------------------
 DROP TABLE IF EXISTS `pets`;
 CREATE TABLE `pets` (
-  `petid` int(10) unsigned NOT NULL auto_increment,
-  `name` varchar(13) default NULL,
+  `petid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(13) DEFAULT NULL,
   `level` int(10) unsigned NOT NULL,
   `closeness` int(10) unsigned NOT NULL,
   `fullness` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`petid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+  `summoned` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`petid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of pets
@@ -15389,12 +15843,12 @@ CREATE TABLE `pets` (
 -- ----------------------------
 DROP TABLE IF EXISTS `petsaves`;
 CREATE TABLE `petsaves` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `characterid` int(11) NOT NULL,
-  `petid1` int(10) NOT NULL default '-1',
-  `petid2` int(10) NOT NULL default '-1',
-  `petid3` int(10) NOT NULL default '-1',
-  PRIMARY KEY  (`id`)
+  `petid1` int(10) NOT NULL DEFAULT '-1',
+  `petid2` int(10) NOT NULL DEFAULT '-1',
+  `petid3` int(10) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15406,21 +15860,21 @@ CREATE TABLE `petsaves` (
 -- ----------------------------
 DROP TABLE IF EXISTS `playernpcs`;
 CREATE TABLE `playernpcs` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(13) NOT NULL,
   `hair` int(11) NOT NULL,
   `face` int(11) NOT NULL,
   `skin` int(11) NOT NULL,
   `x` int(11) NOT NULL,
-  `cy` int(11) NOT NULL default '0',
+  `cy` int(11) NOT NULL DEFAULT '0',
   `map` int(11) NOT NULL,
-  `gender` int(11) NOT NULL default '0',
-  `dir` int(11) NOT NULL default '0',
-  `ScriptId` int(10) unsigned NOT NULL default '0',
-  `Foothold` int(11) NOT NULL default '0',
-  `rx0` int(11) NOT NULL default '0',
-  `rx1` int(11) NOT NULL default '0',
-  PRIMARY KEY  USING BTREE (`id`)
+  `gender` int(11) NOT NULL DEFAULT '0',
+  `dir` int(11) NOT NULL DEFAULT '0',
+  `ScriptId` int(10) unsigned NOT NULL DEFAULT '0',
+  `Foothold` int(11) NOT NULL DEFAULT '0',
+  `rx0` int(11) NOT NULL DEFAULT '0',
+  `rx1` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15432,12 +15886,12 @@ CREATE TABLE `playernpcs` (
 -- ----------------------------
 DROP TABLE IF EXISTS `playernpcs_equip`;
 CREATE TABLE `playernpcs_equip` (
-  `id` int(11) NOT NULL auto_increment,
-  `NpcId` int(11) NOT NULL default '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `NpcId` int(11) NOT NULL DEFAULT '0',
   `equipid` int(11) NOT NULL,
-  `type` int(11) NOT NULL default '0',
+  `type` int(11) NOT NULL DEFAULT '0',
   `equippos` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15449,11 +15903,11 @@ CREATE TABLE `playernpcs_equip` (
 -- ----------------------------
 DROP TABLE IF EXISTS `questactions`;
 CREATE TABLE `questactions` (
-  `questactionid` int(10) unsigned NOT NULL auto_increment,
-  `questid` int(11) NOT NULL default '0',
-  `status` int(11) NOT NULL default '0',
+  `questactionid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `questid` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
   `data` blob NOT NULL,
-  PRIMARY KEY  (`questactionid`)
+  PRIMARY KEY (`questactionid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15465,11 +15919,11 @@ CREATE TABLE `questactions` (
 -- ----------------------------
 DROP TABLE IF EXISTS `questrequirements`;
 CREATE TABLE `questrequirements` (
-  `questrequirementid` int(10) unsigned NOT NULL auto_increment,
-  `questid` int(11) NOT NULL default '0',
-  `status` int(11) NOT NULL default '0',
+  `questrequirementid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `questid` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
   `data` blob NOT NULL,
-  PRIMARY KEY  (`questrequirementid`)
+  PRIMARY KEY (`questrequirementid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15481,16 +15935,16 @@ CREATE TABLE `questrequirements` (
 -- ----------------------------
 DROP TABLE IF EXISTS `queststatus`;
 CREATE TABLE `queststatus` (
-  `queststatusid` int(10) unsigned NOT NULL auto_increment,
-  `characterid` int(11) NOT NULL default '0',
-  `quest` int(11) NOT NULL default '0',
-  `status` int(11) NOT NULL default '0',
-  `time` int(11) NOT NULL default '0',
-  `forfeited` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`queststatusid`),
+  `queststatusid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `characterid` int(11) NOT NULL DEFAULT '0',
+  `quest` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `time` int(11) NOT NULL DEFAULT '0',
+  `forfeited` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`queststatusid`),
   KEY `characterid` (`characterid`),
   CONSTRAINT `queststatus_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3419 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatus
@@ -15501,14 +15955,14 @@ CREATE TABLE `queststatus` (
 -- ----------------------------
 DROP TABLE IF EXISTS `queststatusmobs`;
 CREATE TABLE `queststatusmobs` (
-  `queststatusmobid` int(10) unsigned NOT NULL auto_increment,
-  `queststatusid` int(10) unsigned NOT NULL default '0',
-  `mob` int(11) NOT NULL default '0',
-  `count` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`queststatusmobid`),
+  `queststatusmobid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `queststatusid` int(10) unsigned NOT NULL DEFAULT '0',
+  `mob` int(11) NOT NULL DEFAULT '0',
+  `count` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`queststatusmobid`),
   KEY `queststatusid` (`queststatusid`),
   CONSTRAINT `queststatusmobs_ibfk_1` FOREIGN KEY (`queststatusid`) REFERENCES `queststatus` (`queststatusid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of queststatusmobs
@@ -15519,11 +15973,11 @@ CREATE TABLE `queststatusmobs` (
 -- ----------------------------
 DROP TABLE IF EXISTS `reactordrops`;
 CREATE TABLE `reactordrops` (
-  `reactordropid` int(10) unsigned NOT NULL auto_increment,
+  `reactordropid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `reactorid` int(11) NOT NULL,
   `itemid` int(11) NOT NULL,
   `chance` int(11) NOT NULL,
-  PRIMARY KEY  (`reactordropid`),
+  PRIMARY KEY (`reactordropid`),
   KEY `reactorid` (`reactorid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=latin1;
 
@@ -15659,11 +16113,11 @@ INSERT INTO `reactordrops` VALUES ('123', '1402000', '4032310', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `readable_gmlog`;
 CREATE TABLE `readable_gmlog` (
-  `logentryid` int(11) default NULL,
-  `accountname` varchar(13) default NULL,
-  `charname` varchar(13) default NULL,
+  `logentryid` int(11) DEFAULT NULL,
+  `accountname` varchar(13) DEFAULT NULL,
+  `charname` varchar(13) DEFAULT NULL,
   `command` tinytext,
-  `when` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP
+  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15675,14 +16129,14 @@ CREATE TABLE `readable_gmlog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `reports`;
 CREATE TABLE `reports` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `reporttime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `reporttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `reporterid` int(11) NOT NULL,
   `victimid` int(11) NOT NULL,
   `reason` tinyint(4) NOT NULL,
   `chatlog` text NOT NULL,
   `status` text NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -15696,8 +16150,8 @@ DROP TABLE IF EXISTS `responses`;
 CREATE TABLE `responses` (
   `chat` text,
   `response` text,
-  `id` int(10) unsigned NOT NULL auto_increment,
-  PRIMARY KEY  (`id`)
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15709,12 +16163,12 @@ CREATE TABLE `responses` (
 -- ----------------------------
 DROP TABLE IF EXISTS `rings`;
 CREATE TABLE `rings` (
-  `id` int(11) NOT NULL auto_increment,
-  `partnerRingId` int(11) NOT NULL default '0',
-  `partnerChrId` int(11) NOT NULL default '0',
-  `itemid` int(11) NOT NULL default '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partnerRingId` int(11) NOT NULL DEFAULT '0',
+  `partnerChrId` int(11) NOT NULL DEFAULT '0',
+  `itemid` int(11) NOT NULL DEFAULT '0',
   `partnername` varchar(255) NOT NULL,
-  PRIMARY KEY  USING BTREE (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -15726,15 +16180,15 @@ CREATE TABLE `rings` (
 -- ----------------------------
 DROP TABLE IF EXISTS `savedlocations`;
 CREATE TABLE `savedlocations` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `characterid` int(11) NOT NULL,
-  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','EVENT','SUNDAY_MARKET') NOT NULL,
+  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','EVENT') NOT NULL,
   `map` int(11) NOT NULL,
   `portal` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY (`id`),
   KEY `savedlocations_ibfk_1` (`characterid`),
   CONSTRAINT `savedlocations_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of savedlocations
@@ -15745,12 +16199,12 @@ CREATE TABLE `savedlocations` (
 -- ----------------------------
 DROP TABLE IF EXISTS `shopitems`;
 CREATE TABLE `shopitems` (
-  `shopitemid` int(10) unsigned NOT NULL auto_increment,
+  `shopitemid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `shopid` int(10) unsigned NOT NULL,
   `itemid` int(11) NOT NULL,
   `price` int(11) NOT NULL,
   `position` int(11) NOT NULL COMMENT 'sort is an arbitrary field designed to give leeway when modifying shops. The lowest number is 104 and it increments by 4 for each item to allow decent space for swapping/inserting/removing items.',
-  PRIMARY KEY  (`shopitemid`)
+  PRIMARY KEY (`shopitemid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20021 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19183,9 +19637,9 @@ INSERT INTO `shopitems` VALUES ('20020', '1337', '1082149', '1', '54');
 -- ----------------------------
 DROP TABLE IF EXISTS `shops`;
 CREATE TABLE `shops` (
-  `shopid` int(10) unsigned NOT NULL auto_increment,
-  `npcid` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`shopid`)
+  `shopid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `npcid` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`shopid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=10000000 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19295,15 +19749,15 @@ INSERT INTO `shops` VALUES ('1337', '11000');
 -- ----------------------------
 DROP TABLE IF EXISTS `skillmacros`;
 CREATE TABLE `skillmacros` (
-  `id` int(11) NOT NULL auto_increment,
-  `characterid` int(11) NOT NULL default '0',
-  `position` tinyint(1) NOT NULL default '0',
-  `skill1` int(11) NOT NULL default '0',
-  `skill2` int(11) NOT NULL default '0',
-  `skill3` int(11) NOT NULL default '0',
-  `name` varchar(13) default NULL,
-  `shout` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `characterid` int(11) NOT NULL DEFAULT '0',
+  `position` tinyint(1) NOT NULL DEFAULT '0',
+  `skill1` int(11) NOT NULL DEFAULT '0',
+  `skill2` int(11) NOT NULL DEFAULT '0',
+  `skill3` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(13) DEFAULT NULL,
+  `shout` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19315,16 +19769,16 @@ CREATE TABLE `skillmacros` (
 -- ----------------------------
 DROP TABLE IF EXISTS `skills`;
 CREATE TABLE `skills` (
-  `id` int(11) NOT NULL auto_increment,
-  `skillid` int(11) NOT NULL default '0',
-  `characterid` int(11) NOT NULL default '0',
-  `skilllevel` int(11) NOT NULL default '0',
-  `masterlevel` int(11) NOT NULL default '0',
-  `expiration` bigint(20) NOT NULL default '-1',
-  PRIMARY KEY  (`id`),
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `skillid` int(11) NOT NULL DEFAULT '0',
+  `characterid` int(11) NOT NULL DEFAULT '0',
+  `skilllevel` int(11) NOT NULL DEFAULT '0',
+  `masterlevel` int(11) NOT NULL DEFAULT '0',
+  `expiration` bigint(20) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`id`),
   KEY `skills_ibfk_1` (`characterid`),
   CONSTRAINT `skills_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2133 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=124799 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of skills
@@ -19335,14 +19789,14 @@ CREATE TABLE `skills` (
 -- ----------------------------
 DROP TABLE IF EXISTS `storages`;
 CREATE TABLE `storages` (
-  `storageid` int(10) unsigned NOT NULL auto_increment,
-  `accountid` int(11) NOT NULL default '0',
-  `slots` int(11) NOT NULL default '0',
-  `meso` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`storageid`),
+  `storageid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `accountid` int(11) NOT NULL DEFAULT '0',
+  `slots` int(11) NOT NULL DEFAULT '0',
+  `meso` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`storageid`),
   KEY `accountid` (`accountid`),
   CONSTRAINT `storages_ibfk_1` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of storages
@@ -19353,10 +19807,10 @@ CREATE TABLE `storages` (
 -- ----------------------------
 DROP TABLE IF EXISTS `trocklocations`;
 CREATE TABLE `trocklocations` (
-  `trockid` int(11) NOT NULL auto_increment,
+  `trockid` int(11) NOT NULL AUTO_INCREMENT,
   `characterid` int(11) NOT NULL,
   `mapid` int(11) NOT NULL,
-  PRIMARY KEY  (`trockid`)
+  PRIMARY KEY (`trockid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -19368,11 +19822,11 @@ CREATE TABLE `trocklocations` (
 -- ----------------------------
 DROP TABLE IF EXISTS `wishlists`;
 CREATE TABLE `wishlists` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `charid` int(11) NOT NULL,
   `sn` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of wishlists
@@ -19383,12 +19837,12 @@ CREATE TABLE `wishlists` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zaksquads`;
 CREATE TABLE `zaksquads` (
-  `id` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `channel` int(10) unsigned NOT NULL,
-  `leaderid` int(10) unsigned NOT NULL default '0',
-  `status` int(10) unsigned NOT NULL default '0',
-  `members` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  `leaderid` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` int(10) unsigned NOT NULL DEFAULT '0',
+  `members` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 -- ----------------------------

@@ -88,7 +88,7 @@ public class MapleStorage {
                 rs.close();
                 ps.close();
             for (Pair<IItem, MapleInventoryType> item : ItemFactory.STORAGE.loadItems(ret.id, false))
-	                                        ret.items.add(item.getLeft());
+	         ret.items.add(item.getLeft());
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

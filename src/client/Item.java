@@ -31,7 +31,7 @@ public class Item implements IItem {
     private int id, cashId, sn;
     private byte position;
     private short quantity;
-    private int petid = -1;
+    private MaplePet pet = null;
     private String owner = "";
     protected List<String> log;
     private byte flag;
@@ -46,17 +46,17 @@ public class Item implements IItem {
         this.flag = 0;
     }
 
-    public Item(int id, byte position, short quantity, int petid) {
+    public Item(int id, byte position, short quantity, byte flag) {
         this.id = id;
         this.position = position;
         this.quantity = quantity;
-        this.petid = petid;
         this.log = new LinkedList<String>();
-        this.flag = 0;
+        this.flag = flag;
     }
 
     public IItem copy() {
-        Item ret = new Item(id, position, quantity, petid);
+        Item ret = new Item(id, position, quantity, flag);
+        ret.pet = pet;
         ret.owner = owner;
         ret.log = new LinkedList<String>(log);
         return ret;
@@ -64,6 +64,10 @@ public class Item implements IItem {
 
     public void setPosition(byte position) {
         this.position = position;
+
+	if (pet != null) {
+	    pet.setInventoryPosition(position);
+	}
     }
 
     public void setQuantity(short quantity) {
@@ -108,10 +112,15 @@ public class Item implements IItem {
     }
 
     @Override
-    public int getPetId() {
-        return petid;
+    public MaplePet getPet() {
+        return pet;
     }
-
+    
+    @Override
+    public void setPet(MaplePet pet) {
+        this.pet = pet;
+    }
+    
     @Override
     public int compareTo(IItem other) {
         if (this.id < other.getItemId()) {

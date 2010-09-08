@@ -106,11 +106,11 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, c.getPlayer().getId()), mapitem.getPosition());
                         c.getPlayer().getMap().removeMapObject(ob);
                     } else if (mapitem.getItem().getItemId() >= 5000000 && mapitem.getItem().getItemId() <= 5000100) {
-                        int petId = MaplePet.createPet(mapitem.getItem().getItemId());
-                        if (petId == -1) {
+                        MaplePet pet = MaplePet.createPet(mapitem.getItem().getItemId());
+                        if (pet == null) {
                             return;
                         }
-                        MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, petId, mapitem.getItem().getExpiration());
+                        MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, pet, mapitem.getItem().getExpiration());
                         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, c.getPlayer().getId()), mapitem.getPosition());
                         c.getPlayer().getMap().removeMapObject(ob);
                     } else if (MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true)) {

@@ -136,11 +136,11 @@ public class Commands {
             } catch (Exception e) {
             }
             if (sub[0].equals("item")) {
+                MaplePet pet = null;
                 if (itemId >= 5000000 && itemId < 5000065) {
-                    MaplePet.createPet(itemId);
-                } else {
-                    MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), -1, -1);
-                }
+                    pet = MaplePet.createPet(itemId);
+                } 
+                MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), pet, -1);
             } else {
                 IItem toDrop;
                 if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP) {

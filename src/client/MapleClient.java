@@ -75,6 +75,7 @@ public class MapleClient {
     private boolean loggedIn = false;
     private boolean serverTransition = false;
     private Calendar birthday = null;
+    private Calendar tempban = null;
     private String accountName;
     private int world;
     private long lastPong;
@@ -88,6 +89,7 @@ public class MapleClient {
     private int pinattempt = 0;
     private String pic = null;
     private int picattempt = 0;
+    private byte greason = 0, gender = -1;
 
     public MapleClient(MapleAESOFB send, MapleAESOFB receive, IoSession session) {
         this.send = send;
@@ -334,17 +336,19 @@ public class MapleClient {
         int loginok = 5;
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT id, password, salt, banned, gm, pin, pic, characterslots FROM accounts WHERE name = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT id, password, salt, gender, banned, gm, pin, pic, characterslots, greason, tempban FROM accounts WHERE name = ?");
             ps.setString(1, login);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int banned = rs.getInt("banned");
                 this.accId = rs.getInt("id");
-                setAccID(rs.getInt("id"));
                 this.gmlevel = rs.getInt("gm");
                 pin = rs.getString("pin");
                 pic = rs.getString("pic");
-                characterSlots = (short) rs.getInt("characterslots");
+                gender = rs.getByte("gender");
+                characterSlots = rs.getShort("characterslots");
+                greason = rs.getByte("greason");
+                tempban = getTempBanCalendar(rs);
                 String passhash = rs.getString("password");
                 String salt = rs.getString("salt");
                 if ((banned == 0 && !ipMacBanned) || banned == -1) {
@@ -355,7 +359,7 @@ public class MapleClient {
                     ips.close();
                 }
                 ps.close();
-                if (banned > 0) {
+                if (banned == 1) {
                     loginok = 3;
                 } else {
                     if (banned == -1) { // unban
@@ -409,6 +413,27 @@ public class MapleClient {
             loginattempt = 0;
         }
         return loginok;
+    }
+
+    private Calendar getTempBanCalendar(ResultSet rs) throws SQLException {
+	Calendar lTempban = Calendar.getInstance();
+	long blubb = rs.getLong("tempban");
+	if (blubb == 0) { // basically if timestamp in db is 0000-00-00
+            lTempban.setTimeInMillis(0);
+            return lTempban;
+	}
+	Calendar today = Calendar.getInstance();
+	lTempban.setTimeInMillis(rs.getTimestamp("tempban").getTime());
+	if (today.getTimeInMillis() < lTempban.getTimeInMillis()) {
+            return lTempban;
+	}
+
+        lTempban.setTimeInMillis(0);
+	return lTempban;
+    }
+
+    public Calendar getTempBanCalendar() {
+	return tempban;
     }
 
     public static long dottedQuadToLong(String dottedQuad) throws RuntimeException {
@@ -797,5 +822,25 @@ public class MapleClient {
             return true;
         }
             return false;
+    }
+
+    public byte getGReason() {
+        return greason;
+    }
+
+    public byte getGender() {
+        return gender;
+    }
+
+    public void setGender(byte m) {
+        this.gender = m;
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET gender = ? WHERE id = ?");
+            ps.setByte(1, gender);
+            ps.setInt(2, accId);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+        }
     }
 }

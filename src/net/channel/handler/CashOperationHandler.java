@@ -27,6 +27,7 @@ import client.MapleClient;
 import client.MapleInventory;
 import client.MapleInventoryType;
 import client.MapleRing;
+import constants.InventoryConstants;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,10 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             if (cItem == null || !cItem.isOnSale() || cs.getCash(useNX) < cItem.getPrice()) {
                 return;
             }
-
+            if (InventoryConstants.isPet(cItem.getItemId()) && !chr.isGM()) {
+                chr.dropMessage(1, "Pets are disabled for now because they are bugged, sorry for this epic problem.");
+                return;
+            }
             if (action == 0x03) { // Item
                 IItem item = cItem.toItem();
                 cs.addToInventory(item);               

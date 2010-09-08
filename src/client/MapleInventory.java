@@ -225,7 +225,7 @@ public class MapleInventory implements Iterable<IItem> {
 
     public IItem findByCashId(int cashId) {
 	for (IItem item : inventory.values()) {
-            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
+            if ((item.getPet() != null ? item.getPet().getUniqueId() : item.getCashId()) == cashId)
                  return item;
             }
 

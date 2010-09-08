@@ -95,7 +95,7 @@ public class MapleQuestAction {
                 if (status.getStatus() == MapleQuestStatus.Status.NOT_STARTED && status.getForfeited() > 0) {
                     break;
                 }
-                if (!c.isBeginner()) {
+                if (c.isBeginnerJob()) {
                     c.gainExp(MapleDataTool.getInt(data), true, true);
                 } else {
                     c.gainExp(MapleDataTool.getInt(data) * ServerConstants.QUEST_EXP_RATE, true, true);
@@ -218,7 +218,7 @@ public class MapleQuestAction {
                     break;
                 }
                 int flag = MapleDataTool.getInt("petskill", data);
-                c.getPet(0).setFlag((byte) (c.getPet(0).getFlag() | InventoryConstants.getFlagByInt(flag)));
+                //c.getPetIndex(0).setFlag((byte) (c.getPet(0).getFlag() || InventoryConstants.getFlagByInt(flag)));
                 break;
             default:
         }

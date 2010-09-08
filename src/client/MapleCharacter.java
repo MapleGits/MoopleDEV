@@ -50,6 +50,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -220,7 +221,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private MapleMiniGame miniGame;
     private MapleMount maplemount;
     private MapleParty party;
-    private static List<MaplePet> pets = new LinkedList<MaplePet>();
+    private List<MaplePet> pets = new LinkedList<MaplePet>();
     private MaplePlayerShop playerShop = null;
     private MapleShop shop = null;
     private MapleSkinColor skinColor = MapleSkinColor.NORMAL;
@@ -266,6 +267,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long lastattack = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
+    private boolean isbanned = false;
 
     private MapleCharacter() {
         setStance(0);
@@ -380,7 +382,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         updateSingleStat(MapleStat.MP, getMp());
     }
 
-    public static void addPet(MaplePet pet) {
+    public void addPet(MaplePet pet) {
 	pets.remove(pet);
 	pets.add(pet);
     }
@@ -2181,7 +2183,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return getJobType() == 2;
     }
 
-    public boolean isBeginner() {
+    public boolean isBeginnerJob() {
         return getJob().getId() == 0 || getJob().getId() == 1000 || getJob().getId() == 2000;
     }
 
@@ -2217,10 +2219,21 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         ISkill improvingMaxMP = null;
         int improvingMaxHPLevel = 0;
         int improvingMaxMPLevel = 0;
-        if (isCygnus() && level < 70) {
-            remainingAp++;
+
+        if (getLevel() < 11 && isBeginnerJob()) {
+            remainingAp = 0;
+            if (getLevel() < 6) {
+                str += 5;
+            } else {
+                str += 4;
+                dex += 1;
+            }
+        } else {
+            remainingAp = 5;
+            if (isCygnus() && level < 70) {
+                remainingAp++;
+            }
         }
-        remainingAp += 5;
         if (job == MapleJob.BEGINNER || job == MapleJob.NOBLESSE || job == MapleJob.LEGEND) {
             maxhp += rand(12, 16);
             maxmp += rand(10, 12);
@@ -2254,15 +2267,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             maxhp += rand(44, 48);
             int aids = rand(4, 8);
             maxmp += aids + Math.floor(aids * 0.1);
-        }
-        if (getLevel() < 11) {
-            remainingAp = 0;
-            if (getLevel() < 6) {
-                str += 5;
-            } else {
-                str += 4;
-                dex += 1;
-            }
         }
         if (improvingMaxHPLevel > 0 && (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.PIRATE) || job.isA(MapleJob.DAWNWARRIOR1))) {
             maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getX();
@@ -2389,9 +2393,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.getInventory(MapleInventoryType.ETC).setSlotLimit(rs.getByte("etcslots"));
             for (Pair<IItem, MapleInventoryType> item : ItemFactory.INVENTORY.loadItems(ret.id, !channelserver)) {
                 ret.getInventory(item.getRight()).addFromDB(item.getLeft());
-                if (item.getLeft().getPetId() > -1) {
-                    MaplePet pet = MaplePet.loadFromDb(item.getLeft().getItemId(), item.getLeft().getPosition(), item.getLeft().getPetId());
-                    addPet(pet);
+                MaplePet pet = item.getLeft().getPet();
+                if (pet != null) {
+                    ret.pets.add(pet);
                 }
             }
             if (channelserver) {
@@ -2927,6 +2931,16 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         visibleMapObjects.remove(mo);
     }
 
+    public void resetStats() {
+        int tap, tstr = 4, tdex = 4, tluk = 4, tint = 4;
+        switch (job.getId()) {
+            case 100:
+            case 1100:
+                tstr = 35;
+                tap = ((getLevel() - 10) * 5) + 9;
+        }
+    }
+
     public void resetBattleshipHp() {
         this.battleshipHp = 4000 * getSkillLevel(SkillFactory.getSkill(Corsair.BATTLE_SHIP)) + ((getLevel() - 120) * 2000);
     }
@@ -3348,13 +3362,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             this.mesoRate = ServerConstants.MESO_RATE;
         }
         if ((haveItem(5211000) && hr > 17 && hr < 21) || (haveItem(5211014) && hr > 6 && hr < 12) || (haveItem(5211015) && hr > 9 && hr < 15) || (haveItem(5211016) && hr > 12 && hr < 18) || (haveItem(5211017) && hr > 15 && hr < 21) || (haveItem(5211018) && hr > 14) || (haveItem(5211039) && hr < 5) || (haveItem(5211042) && hr > 2 && hr < 8) || (haveItem(5211045) && hr > 5 && hr < 11) || haveItem(5211048)) {
-            if (isBeginner()) {
+            if (isBeginnerJob()) {
                 this.expRate = 2;
             } else {
                 this.expRate = 2 * ServerConstants.EXP_RATE;
             }
         } else {
-            if (isBeginner()) {
+            if (isBeginnerJob()) {
                 this.expRate = 1;
             } else {
                 this.expRate = ServerConstants.EXP_RATE;
@@ -4094,8 +4108,29 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
     }
 
+    public void autoban(String reason, int greason, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE) + days, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        Timestamp TS = new Timestamp(cal.getTimeInMillis());
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 2, banreason = ?, tempban = ?, greason = ? WHERE id = ?");
+            ps.setString(1, reason);
+            ps.setTimestamp(2, TS);
+            ps.setInt(3, greason);
+            ps.setInt(4, accountid);
+            ps.executeUpdate();
+            ps.close();
+            this.isbanned = true;
+        } catch (SQLException e) {
+        }
+    }
+
+    public boolean isBanned() {
+        return isbanned;
+    }
+
     //EVENTS
-    //Event
     private byte team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
@@ -4186,5 +4221,4 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
         return rCP;
     }
-
 }

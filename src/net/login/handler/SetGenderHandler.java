@@ -19,30 +19,32 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package client;
 
-public interface IItem extends Comparable<IItem> {
-    public final int ITEM = 2;
-    public final int EQUIP = 1;
-    public void setFlag(byte b);
-    byte getFlag();
-    byte getType();
-    byte getPosition();
-    void setPosition(byte position);
-    int getItemId();
-    int getCashId();
-    short getQuantity();
-    String getOwner();
-    MaplePet getPet();
-    void setPet(MaplePet pet);
-    IItem copy();
-    void setOwner(String owner);
-    void setQuantity(short quantity);
-    long getExpiration();
-    void setExpiration(long expiration);
-    void setSN(int sn);
-    int getSN();
-    String getGiftFrom();
-    void setGiftFrom(String giftFrom);
+package net.login.handler;
+
+import client.MapleClient;
+import net.AbstractMaplePacketHandler;
+import server.TimerManager;
+import tools.MaplePacketCreator;
+import tools.data.input.SeekableLittleEndianAccessor;
+
+/**
+ *
+ * @author kevintjuh93
+ */
+public class SetGenderHandler extends AbstractMaplePacketHandler {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        byte type = slea.readByte(); //?
+        if (type == 0x01 && c.getGender() == 10) { //Packet shouldn't come if Gender isn't 10.
+            c.setGender(slea.readByte());
+            c.getSession().write(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
+            final MapleClient client = c;
+            c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
+                public void run() {
+                    client.getSession().close(true);
+                }
+            }, 600000));
+        }
+    }
 
 }

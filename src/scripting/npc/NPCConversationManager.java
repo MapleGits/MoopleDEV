@@ -286,17 +286,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void resetStats() {
-        int totAp = getPlayer().getStr() + getPlayer().getDex() + getPlayer().getLuk() + getPlayer().getInt() + getPlayer().getRemainingAp();
-        getPlayer().setStr(4);
-        getPlayer().setDex(4);
-        getPlayer().setLuk(4);
-        getPlayer().setInt(4);
-        getPlayer().setRemainingAp(totAp - 16);
-        getPlayer().updateSingleStat(MapleStat.STR, 4);
-        getPlayer().updateSingleStat(MapleStat.DEX, 4);
-        getPlayer().updateSingleStat(MapleStat.LUK, 4);
-        getPlayer().updateSingleStat(MapleStat.INT, 4);
-        getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, totAp);
+        getPlayer().resetStats();
     }
 
     public void maxMastery() {

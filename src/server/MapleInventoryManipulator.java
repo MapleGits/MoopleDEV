@@ -31,6 +31,7 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
+import client.MaplePet;
 import constants.InventoryConstants;
 import tools.MaplePacketCreator;
 
@@ -52,10 +53,10 @@ public class MapleInventoryManipulator {
     }
 
     public static boolean addById(MapleClient c, int itemId, short quantity) {
-        return addById(c, itemId, quantity, null, -1, -1);
+        return addById(c, itemId, quantity, null, null, -1);
     }
 
-    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid, long expiration) {
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, long expiration) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         MapleInventoryType type = ii.getInventoryType(itemId);
         if (!type.equals(MapleInventoryType.EQUIP)) {
@@ -84,7 +85,8 @@ public class MapleInventoryManipulator {
                     short newQ = (short) Math.min(quantity, slotMax);
                     if (newQ != 0) {
                         quantity -= newQ;
-                        Item nItem = new Item(itemId, (byte) 0, newQ, petid);
+                        Item nItem = new Item(itemId, (byte) 0, newQ);
+                        nItem.setPet(pet);
                         nItem.setExpiration(expiration);
                         byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                         if (newSlot == -1) {
@@ -472,7 +474,7 @@ public class MapleInventoryManipulator {
     }
 
     private static final boolean isOverall(int itemId) {
-        return itemId / 10000 == 1050000;
+        return itemId / 10000 == 105;
     }
 
     private static final boolean isWeapon(int itemId) {

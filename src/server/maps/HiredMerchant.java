@@ -173,7 +173,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
             if (check(c.getPlayer(), getItems()) && !timeout) {
                 for (MaplePlayerShopItem mpsi : getItems()) {
                     if (mpsi.getBundles() > 1) {
-                        MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getExpiration());
+                        MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, null, mpsi.getItem().getExpiration());
                     } else if (mpsi.isExist()) {
                         MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), true);
                     }

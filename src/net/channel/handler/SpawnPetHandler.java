@@ -42,13 +42,15 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class SpawnPetHandler extends AbstractMaplePacketHandler {
     private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Item.wz"));
 
-    @SuppressWarnings("static-access")
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readInt();
         byte slot = slea.readByte();
         slea.readByte();
         boolean lead = slea.readByte() == 1;
-        int petid = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getItemId();
+        MaplePet pet = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getPet();
+        if (pet == null) return;
+
+        int petid = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getPet().getItemId();
         if (petid == 5000028 || petid == 5000047) //Handles Dragon AND Robos
         {
             if (c.getPlayer().haveItem(petid + 1)) {
@@ -57,24 +59,23 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 return;
             } else {
                 int evolveid = MapleDataTool.getInt("info/evol1", dataRoot.getData("Pet/" + petid + ".img"));
-                int petId = MaplePet.createPet(evolveid);
-                if (petId == -1) {
+                MaplePet petz = MaplePet.createPet(evolveid);
+                if (petz == null) {
                     return;
                 }
                 try {
                     PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("DELETE FROM pets WHERE `petid` = ?");
-                    ps.setInt(1, c.getPlayer().getInventory(MapleInventoryType.CASH).findById(petid).getPetId());
+                    ps.setInt(1, c.getPlayer().getInventory(MapleInventoryType.CASH).findById(petid).getPet().getUniqueId());
                     ps.executeUpdate();
                     ps.close();
                 } catch (SQLException ex) {
                 }
-                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration());
+                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, pet, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration());
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, petid, (short) 1, false, false);
                 c.getSession().write(MaplePacketCreator.enableActions());
                 return;
             }
         }
-        MaplePet pet = MaplePet.loadFromDb(c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getItemId(), slot, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getPetId());
         if (pet.isSummoned()) {
             c.getPlayer().unequipPet(pet, true);
         } else {

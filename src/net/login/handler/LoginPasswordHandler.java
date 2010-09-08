@@ -23,8 +23,10 @@ package net.login.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import java.util.Calendar;
 import net.MaplePacketHandler;
 import server.TimerManager;
+import tools.DateUtil;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
@@ -40,6 +42,18 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
         c.setAccountName(login);
         final boolean isBanned = c.hasBannedIP() || c.hasBannedMac();
         loginok = c.login(login, pwd, isBanned);
+        Calendar tempban = c.getTempBanCalendar();
+        if (tempban != null) {
+            if (tempban.getTimeInMillis() > System.currentTimeMillis()) {
+                long till = DateUtil.getFileTimestamp(tempban.getTimeInMillis());
+                c.getSession().write(MaplePacketCreator.getTempBan(till, c.getGReason()));
+                return;
+            }
+        }
+        if (loginok == 3 && !isBanned) {
+            c.getSession().write(MaplePacketCreator.getPermBan(c.getGReason()));
+            return;
+        }
         if (loginok == 0 && isBanned) {
             loginok = 3;
             MapleCharacter.ban(c.getSession().getRemoteAddress().toString().split(":")[0], "Mac/IP Re-ban", false);
@@ -48,7 +62,7 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
             return;
         }
         if (c.finishLogin() == 0) {
-            c.getSession().write(MaplePacketCreator.getAuthSuccessRequestPin(c, c.getAccountName()));
+            c.getSession().write(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
             final MapleClient client = c;
             c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
                 public void run() {

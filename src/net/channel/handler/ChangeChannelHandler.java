@@ -41,6 +41,9 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int channel = slea.readByte() + 1;
+        if (c.getPlayer().isBanned()) {
+            c.disconnect();
+        }
         if (!c.getPlayer().isAlive() || FieldLimit.CHANGECHANNEL.check(c.getPlayer().getMap().getFieldLimit())) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;

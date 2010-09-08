@@ -91,6 +91,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.GUEST_LOGIN, new GuestLoginHandler());
             registerHandler(RecvOpcode.REGISTER_PIC, new RegisterPicHandler());
             registerHandler(RecvOpcode.CHAR_SELECT_WITH_PIC, new CharSelectedWithPicHandler());
+            registerHandler(RecvOpcode.SET_GENDER, new SetGenderHandler());
         } else if (mode == Mode.CHANNELSERVER) {
             registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
             registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());
