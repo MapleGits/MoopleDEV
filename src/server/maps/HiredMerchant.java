@@ -101,7 +101,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public int getVisitorSlot(MapleCharacter visitor) {
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i <= 3; i++) {
             if (visitors[i] == visitor) {
                 return i;
             }
@@ -263,9 +263,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
         for (MaplePlayerShopItem pItems : items) {
-            pItems.getItem().copy().setQuantity(pItems.getBundles());
+            IItem newItem = pItems.getItem().copy();
+            newItem.setQuantity((short) (pItems.getBundles() * pItems.getItem().getQuantity()));
             if (pItems.getBundles() > 0)
-                itemsWithType.add(new Pair<IItem, MapleInventoryType>(pItems.getItem(), MapleInventoryType.getByType(pItems.getItem().getType())));
+                itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));
         }
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }

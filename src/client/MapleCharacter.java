@@ -84,6 +84,7 @@ import net.world.guild.MapleGuild;
 import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldChannelInterface;
 import scripting.event.EventInstanceManager;
+import client.autoban.AutobanManager;
 import server.CashShop;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -267,6 +268,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long lastattack = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
+    private AutobanManager autoban;
     private boolean isbanned = false;
 
     private MapleCharacter() {
@@ -2229,7 +2231,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 dex += 1;
             }
         } else {
-            remainingAp = 5;
+            remainingAp += 5;
             if (isCygnus() && level < 70) {
                 remainingAp++;
             }
@@ -2445,6 +2447,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             rs.close();
             ps.close();
             ret.cashshop = new CashShop(ret.accountid, ret.id, ret.getJobType());
+            ret.autoban = new AutobanManager(ret);
             ps = con.prepareStatement("SELECT name, level FROM characters WHERE accountid = ? AND id != ? ORDER BY level DESC limit 1");
             ps.setInt(1, ret.accountid);
             ps.setInt(2, charid);
@@ -3251,6 +3254,17 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             } catch (Exception e) {
             }
         }
+    }
+
+    public void sendPolice(int greason, String reason, int duration) {
+        announce(MaplePacketCreator.sendPolice(greason, reason, duration));
+        TimerManager.getInstance().schedule(new Runnable() {
+
+            @Override
+            public void run() {
+                    client.disconnect(); //FAGGOTS
+            }
+        }, duration);
     }
 
     public void sendKeymap() {
@@ -4108,13 +4122,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
     }
 
-    public void autoban(String reason, int greason, int days) {
+    public void autoban(String reason, int greason) {
         Calendar cal = Calendar.getInstance();
-        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE) + days, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         Timestamp TS = new Timestamp(cal.getTimeInMillis());
         try {
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 2, banreason = ?, tempban = ?, greason = ? WHERE id = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banreason = ?, tempban = ?, greason = ? WHERE id = ?");
             ps.setString(1, reason);
             ps.setTimestamp(2, TS);
             ps.setInt(3, greason);
@@ -4124,6 +4138,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             this.isbanned = true;
         } catch (SQLException e) {
         }
+        sendPolice(greason, reason, 6000);
     }
 
     public boolean isBanned() {
@@ -4220,5 +4235,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             cp -= 10;
 
         return rCP;
+    }
+
+    public AutobanManager getAutobanManager() {
+        return autoban;
     }
 }

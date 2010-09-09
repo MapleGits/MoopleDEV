@@ -56,6 +56,7 @@ import constants.skills.ThunderBreaker;
 import constants.skills.WindArcher;
 import tools.Randomizer;
 import net.AbstractMaplePacketHandler;
+import client.autoban.AutobanFactory;
 import server.MapleInventoryManipulator;
 import server.MapleStatEffect;
 import server.TimerManager;
@@ -100,6 +101,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
     protected synchronized void applyAttack(AttackInfo attack, MapleCharacter player, int attackCount) {
         ISkill theSkill = null;
         MapleStatEffect attackEffect = null;
+
+        if (player.isBanned()) return;
         
         if (attack.skill != 0) {
             theSkill = SkillFactory.getSkill(attack.skill);
@@ -116,6 +119,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
             }
             if (attack.numAttacked > attackEffect.getMobCount()) {
+                AutobanFactory.MOB_COUNT.autoban(player, attack.numAttacked);
                 return;
             }
         }
@@ -259,7 +263,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
                 if (attack.skill != 0) {
                     if (attackEffect.getFixDamage() != -1) {
-                        totDamageToOneMonster = attackEffect.getFixDamage();
+                        if (totDamageToOneMonster != attackEffect.getFixDamage())
+                            AutobanFactory.FIX_DAMAGE.autoban(player, totDamageToOneMonster);
                     }
                 }
                 if (totDamageToOneMonster > 0 && attackEffect != null && attackEffect.getMonsterStati().size() > 0) {

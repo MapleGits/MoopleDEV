@@ -647,6 +647,8 @@ public class MapleClient {
                 if (getChannelServer() != null) {
                     getChannelServer().removePlayer(player);
                 }
+                player = null;
+                session.close(true);
             }
         }
         if (!this.serverTransition && isLoggedIn()) {

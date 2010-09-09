@@ -43,6 +43,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         int channel = slea.readByte() + 1;
         if (c.getPlayer().isBanned()) {
             c.disconnect();
+            return;
         }
         if (!c.getPlayer().isAlive() || FieldLimit.CHANGECHANNEL.check(c.getPlayer().getMap().getFieldLimit())) {
             c.getSession().write(MaplePacketCreator.enableActions());

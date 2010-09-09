@@ -37,6 +37,9 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ChangeMapHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter chr = c.getPlayer();
+
+        if (chr.isBanned()) return;
+
         if (slea.available() == 0) { //is this even used?
             String ip = ChannelServer.getInstance(c.getChannel()).getIP(c.getChannel());
             String[] socket = ip.split(":");

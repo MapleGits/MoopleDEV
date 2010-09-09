@@ -67,7 +67,7 @@ public class DatabaseConnection {
         }
 
         private Connection getConnection() {
-            DriverManager.setLoginTimeout(15); // Throw an exception after waiting 15 seconds for a connection.
+            //Fk u nigger
             try {
                 return DriverManager.getConnection(url, user, pass);
             } catch (SQLException sql) {

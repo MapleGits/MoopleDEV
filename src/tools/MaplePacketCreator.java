@@ -530,6 +530,16 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
+    public static MaplePacket sendPolice(int reason, String reasoning, int duration) {
+	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.GM_POLICE.getValue());
+	mplew.writeInt(duration);
+	mplew.write(4); //Hmmm
+	mplew.write(reason);
+	mplew.writeMapleAsciiString(reasoning);
+	return mplew.getPacket();
+    }
+
     public static MaplePacket getPermBan(byte reason) {
 	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 	mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
@@ -761,12 +771,8 @@ public class MaplePacketCreator {
         for (MapleCharacter chr : chars) {
             addCharEntry(mplew, chr);
         }
-        if (ServerConstants.ENABLE_PIC) //actually useless, if it's disabled you cannot delete any character f7
-        {
-            mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
-        } else {
-            mplew.write(2);
-        }
+        mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
+        mplew.write(2);
         mplew.writeInt(c.getCharacterSlots());
         return mplew.getPacket();
     }
@@ -4901,20 +4907,22 @@ public class MaplePacketCreator {
     public static MaplePacket getHiredMerchant(MapleCharacter chr, HiredMerchant hm, boolean firstTime) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue()); // header.
-        mplew.write(HexTool.getByteArrayFromHexString("05 05 04"));
+        mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
+        mplew.write(0x05);
+        mplew.write(0x04);
         mplew.write(hm.getVisitorSlot(chr));
         mplew.write(0);
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
-        for (int i = 0; i < 3; i++) {
+        for (int i = 1; i <= 3; i++) {
             if (hm.getVisitors()[i] != null) {
-                mplew.write(i + 1);
+                mplew.write(i);
                 addCharLook(mplew, hm.getVisitors()[i], false);
                 mplew.writeMapleAsciiString(hm.getVisitors()[i].getName());
             }
         }
         mplew.write(0xFF);
-        mplew.writeShort(0);
+        mplew.writeShort(0); //Messages
         mplew.writeMapleAsciiString(hm.getOwner());
         if (hm.isOwner(chr)) {
             mplew.writeInt(Integer.MAX_VALUE);
@@ -4925,7 +4933,7 @@ public class MaplePacketCreator {
         mplew.write(0x10);
         mplew.writeInt(hm.isOwner(chr) ? hm.owner().getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
-        if (hm.getItems().isEmpty()) {
+        if (hm.getItems().size() == 0) {
             mplew.write(0);
         } else {
             for (MaplePlayerShopItem item : hm.getItems()) {
