@@ -21,6 +21,8 @@
 */
 package tools.data.input;
 
+import java.awt.Point;
+
 /**
  * @author Frz
  */
@@ -29,6 +31,7 @@ public interface LittleEndianAccessor {
     char readChar();
     short readShort();
     int readInt();
+    Point readPos();
     long readLong();
     void skip(int num);
     byte[] read(int num);

@@ -111,6 +111,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 player.getClient().getSession().write(MaplePacketCreator.enableActions());
                 return;
             }
+            if (player.getMp() < attackEffect.getMpCon())
+                AutobanFactory.MPCON.addPoint(player.getAutobanManager());
+
             if (attack.skill != Cleric.HEAL) {
                 if (player.isAlive()) {
                     attackEffect.applyTo(player);
@@ -119,7 +122,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
             }
             if (attack.numAttacked > attackEffect.getMobCount()) {
-                AutobanFactory.MOB_COUNT.autoban(player, attack.numAttacked);
+                AutobanFactory.MOB_COUNT.autoban(player, String.valueOf(attack.numAttacked));
                 return;
             }
         }
@@ -264,7 +267,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 if (attack.skill != 0) {
                     if (attackEffect.getFixDamage() != -1) {
                         if (totDamageToOneMonster != attackEffect.getFixDamage())
-                            AutobanFactory.FIX_DAMAGE.autoban(player, totDamageToOneMonster);
+                            AutobanFactory.FIX_DAMAGE.autoban(player, String.valueOf(totDamageToOneMonster) + " damage");
                     }
                 }
                 if (totDamageToOneMonster > 0 && attackEffect != null && attackEffect.getMonsterStati().size() > 0) {

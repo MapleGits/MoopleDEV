@@ -2935,13 +2935,43 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void resetStats() {
-        int tap, tstr = 4, tdex = 4, tluk = 4, tint = 4;
+        List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(5);
+        int tap = 0, tsp = 1;
+        int tstr = 4, tdex = 4, tint = 4;
         switch (job.getId()) {
             case 100:
             case 1100:
                 tstr = 35;
-                tap = ((getLevel() - 10) * 5) + 9;
+                tap = ((getLevel() - 10) * 5) + 14;
+                tsp += ((getLevel() - 10) * 3) + 1;
+                break;
+            case 200:
+            case 1200:
+                tint = 20;
+                tap = ((getLevel() - 10) * 5) + 29;
+                tsp += ((getLevel() - 10) * 3) + 1;
+                break;
+            case 300:
+            case 1300:
+            case 400:
+            case 1400:
+                tdex = 25;
+                tap = ((getLevel() - 10) * 5) + 24;
+                tsp += ((getLevel() - 10) * 3);
+                break;
+            case 500:
+            case 1500:
+                tdex = 20;
+                tap = ((getLevel() - 10) * 5) + 24;
+                tsp += ((getLevel() - 10) * 3) + 1;
+                break;
         }
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.AVAILABLEAP, tap));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.AVAILABLESP, tsp));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.STR, tstr));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.DEX, tdex));
+        statup.add(new Pair<MapleStat, Integer>(MapleStat.INT, tint));
+        announce(MaplePacketCreator.updatePlayerStats(statup));
     }
 
     public void resetBattleshipHp() {

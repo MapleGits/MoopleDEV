@@ -41,6 +41,7 @@ import client.MapleJob;
 import client.MapleMount;
 import client.MapleStat;
 import client.SkillFactory;
+import client.autoban.AutobanFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.InventoryConstants;
@@ -649,7 +650,7 @@ public class MapleStatEffect implements Serializable {
         int newMp = applyto.getMp() + mpchange;
         if (mpchange != 0) {
             if (newMp < 1) { //Should fix the mpCon hack :)
-                return false;
+                AutobanFactory.MPCON.addPoint(applyto.getAutobanManager());
             }
             if (mpchange < 0 && -mpchange > applyto.getMp()) {
                 return false;
@@ -1307,6 +1308,14 @@ public class MapleStatEffect implements Serializable {
 
     public short getMp() {
         return mp;
+    }
+
+    public short getHpCon() {
+        return hpCon;
+    }
+
+    public short getMpCon() {
+        return mpCon;
     }
 
     public short getMatk() {

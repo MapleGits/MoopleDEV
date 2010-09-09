@@ -106,6 +106,11 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         if (damage == -1) {
             fake = 4020002 + (player.getJob().getId() / 10 - 40) * 100000;
         }
+        if (damage == 0) {
+            player.getAutobanManager().addMiss();
+        } else {
+            player.getAutobanManager().resetMisses();
+        }
         if (damage > 0 && !player.isHidden()) {
             if (attacker != null && !attacker.isBoss()) {
                 if (damagefrom == -1 && player.getBuffedValue(MapleBuffStat.POWERGUARD) != null) {

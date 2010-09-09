@@ -588,7 +588,7 @@ public class MaplePacketCreator {
         if (ServerConstants.ENABLE_PIN) {
             mplew.writeShort(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1); //for sure when the pic is empty
         } else {
-            mplew.write(1);
+            mplew.writeShort(2);
         }
         return mplew.getPacket();
     }
@@ -771,8 +771,11 @@ public class MaplePacketCreator {
         for (MapleCharacter chr : chars) {
             addCharEntry(mplew, chr);
         }
-        mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
-        mplew.write(2);
+        if (ServerConstants.ENABLE_PIC)
+            mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
+        else
+            mplew.write(2);
+        
         mplew.writeInt(c.getCharacterSlots());
         return mplew.getPacket();
     }

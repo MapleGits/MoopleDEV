@@ -14,15 +14,24 @@ import client.MapleCharacter;
 public enum AutobanFactory {
     MOB_COUNT,
     FIX_DAMAGE,
+    TUBI(20, 15000),
+    SHORT_ITEM_VAC,
+    ITEM_VAC,
+    FAST_ATTACK(10, 30000),
+    MPCON(10);
     
-    ;
     private int points;
-    private long expiretime = -1;
+    private long expiretime;
 
     private AutobanFactory() {
         this(1, -1);
     }
-    
+
+    private AutobanFactory(int points) {
+        this.points = points;
+        this.expiretime = -1;
+    }
+
     private AutobanFactory(int points, long expire) {
         this.points = points;
         this.expiretime = expire;
@@ -32,11 +41,15 @@ public enum AutobanFactory {
         return points;
     }
 
-    public void addPoints(AutobanManager ban, int amount) {
-        ban.addPoints(this);
+    public long getExpire() {
+        return expiretime;
     }
 
-    public void autoban(MapleCharacter chr, int value) {
+    public void addPoint(AutobanManager ban) {
+        ban.addPoint(this);
+    }
+
+    public void autoban(MapleCharacter chr, String value) {
         chr.autoban("Autobanned for (" + this.name() + ": " + value + ")", 1);
     }
 }

@@ -21,6 +21,7 @@
 */
 package tools.data.input;
 
+import java.awt.Point;
 import java.io.ByteArrayOutputStream;
 
 /**
@@ -193,6 +194,19 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
             ret[x] = readByte();
         }
         return ret;
+    }
+
+    /**
+     * Reads a MapleStory Position information.
+     * This consists of 2 short integer.
+     *
+     * @return The Position read.
+     */
+    @Override
+    public final Point readPos() {
+	final int x = readShort();
+	final int y = readShort();
+	return new Point(x, y);
     }
 
     /**
