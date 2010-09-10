@@ -91,6 +91,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
             if (display > 80) { //Hmm
                 if (!theSkill.getAction()) {
+                    AutobanFactory.FAST_ATTACK.autoban(chr, "WZ Edit; adding action to a skill: " + display);
                     return null;
                 }
             }
@@ -111,8 +112,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 player.getClient().getSession().write(MaplePacketCreator.enableActions());
                 return;
             }
+
             if (player.getMp() < attackEffect.getMpCon())
-                AutobanFactory.MPCON.addPoint(player.getAutobanManager());
+                AutobanFactory.MPCON.autoban(player, "mpCon hack" + attack.skill + "; Player MP: " + player.getMp() + " MP Needed: " + attackEffect.getMpCon());
 
             if (attack.skill != Cleric.HEAL) {
                 if (player.isAlive()) {

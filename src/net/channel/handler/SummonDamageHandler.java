@@ -33,30 +33,11 @@ import server.MapleStatEffect;
 import server.life.MapleMonster;
 import server.maps.MapleSummon;
 import tools.MaplePacketCreator;
+import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class SummonDamageHandler extends AbstractMaplePacketHandler {
-    public final class SummonAttackEntry {
-        private MapleMonster monster;
-        private int damage;
-
-        public SummonAttackEntry(MapleMonster mob, int damage) {
-            this.monster = mob;
-            this.damage = damage;
-        }
-
-        public MapleMonster getMonster() {
-            return monster;
-        }
-
-        public int getDamage() {
-            return damage;
-        }
-    }
-
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        //B0 00 77 00 00 00 8F 20 C0 00 04 01 1C FF 24 F8 48 FF 1D F8 64 00 00 00 0A 71 8F 00 06 81 00 01 D0 FF 24 F8 D0 FF 24 F8 38 04 81 62 01 00 B4 3A 6A 62
-        //B0 00 78 00 00 00 21 F4 C3 00 04 02 1E 03 A8 FB D8 02 A6 FB 73 00 00 00 05 71 8F 00 06 80 01 01 8B 03 A8 FB 90 03 A8 FB 38 04 C6 71 01 00 74 00 00 00 05 71 8F 00 06 80 01 01 C8 02 30 FB CC 02 30 FB 6A 04 81 6F 01 00 B4 3A 6A 62
         int oid = slea.readInt();
         MapleCharacter player = c.getPlayer();
         if (!player.isAlive()) {
@@ -75,7 +56,7 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         MapleStatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
         slea.skip(4);
         int animation = slea.readByte();
-        List<SummonAttackEntry> allDamage = new ArrayList<SummonAttackEntry>();
+        List<Pair<MapleMonster, Integer>> allDamage = new ArrayList<Pair<MapleMonster, Integer>>();
         int numAttacked = slea.readByte();
         for (int i = 0; i < numAttacked; i++) {
             slea.skip(8);
@@ -83,12 +64,12 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
             slea.skip(18); // who knows
             int damage = slea.readInt();
             player.getMap().damageMonster(player, mob, damage);
-            allDamage.add(new SummonAttackEntry(mob, damage));
+            allDamage.add(new Pair<MapleMonster, Integer>(mob, damage));
         }
         player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), animation, allDamage), summon.getPosition());
-        for (SummonAttackEntry attackEntry : allDamage) {
-            int damage = attackEntry.getDamage();
-            MapleMonster mob = attackEntry.getMonster();
+        for (Pair<MapleMonster, Integer> attack : allDamage) {
+            int damage = attack.getRight();
+            MapleMonster mob = attack.getLeft();
             if (mob != null) {
                 if (damage > 0 && summonEffect.getMonsterStati().size() > 0) {
                     if (summonEffect.makeChanceResult()) {

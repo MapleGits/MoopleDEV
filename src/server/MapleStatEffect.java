@@ -636,6 +636,9 @@ public class MapleStatEffect implements Serializable {
         if (isComboReset()) {
             applyto.setCombo(0);
         }
+        if (applyto.getMp() < getMpCon()) {
+            AutobanFactory.MPCON.autoban(applyto, "mpCon hack for skill:" + sourceid + "; Player MP: " + applyto.getMp() + " MP Needed: " + getMpCon());
+        }
         if (hpchange != 0) {
             if (hpchange < 0 && (-hpchange) > applyto.getHp()) {
                 return false;
@@ -649,9 +652,6 @@ public class MapleStatEffect implements Serializable {
         }
         int newMp = applyto.getMp() + mpchange;
         if (mpchange != 0) {
-            if (newMp < 1) { //Should fix the mpCon hack :)
-                AutobanFactory.MPCON.addPoint(applyto.getAutobanManager());
-            }
             if (mpchange < 0 && -mpchange > applyto.getMp()) {
                 return false;
             }

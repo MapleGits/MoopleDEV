@@ -34,8 +34,8 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
             String[] sp = s.split(" ");
             sp[0] = sp[0].toLowerCase().substring(1);
             c.getPlayer().addCommandToList(s);
-            if (!Commands.executeGMCommand(c, sp, '!') && c.getPlayer().gmLevel() > 1) {
-                Commands.executeAdminCommand(c, sp, '!');
+            if (!Commands.executeGMCommand(c, sp, '/') && c.getPlayer().isGM()) {
+                Commands.executeAdminCommand(c, sp, '/');
             }
         } else {
         c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));

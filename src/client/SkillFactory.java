@@ -164,6 +164,7 @@ public class SkillFactory {
                 case Aran.COMBO_PENRIL:
                 case Aran.COMBO_SMASH:
                 case Aran.COMBO_TEMPEST:
+                case Priest.MYSTIC_DOOR:
                     isBuff = false;
                     break;
                 case Beginner.RECOVERY:

@@ -213,6 +213,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.CLICK_GUIDE, new ClickGuideHandler());
             registerHandler(RecvOpcode.FREDRICK_ACTION, new FredrickHandler());
             registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
+            registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());
         }
     }
 }

@@ -44,8 +44,6 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import tools.DatabaseConnection;
 import net.channel.ChannelServer;
-import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -56,11 +54,10 @@ import server.MapleItemInformationProvider;
 import server.MapleOxQuiz;
 import server.MapleShopFactory;
 import server.events.MapleEvent;
-import server.events.MonsterCarnival;
-import server.events.MonsterCarnivalParty;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
+import server.maps.HiredMerchant;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -408,6 +405,12 @@ public class Commands {
             for (int i = 8810002; i < 8810010; i++) {
                 player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(i), player.getPosition());
             }
+        } else if (sub[0].equals("merch")) {
+            HiredMerchant merchant = new HiredMerchant(player, 5030012, "TEST");
+            player.setHiredMerchant(merchant);
+            player.announce(MaplePacketCreator.getHiredMerchant(player, merchant, true));
+        } else if (sub[0].equals("merchp")) {
+        player.announce(MaplePacketCreator.getHiredMerchant(player, player.getHiredMerchant(), true));
         } else if (sub[0].equals("packet")) {
             c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
         } else if (sub[0].equals("npc")) {

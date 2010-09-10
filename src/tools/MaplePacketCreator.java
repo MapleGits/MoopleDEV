@@ -69,7 +69,6 @@ import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
 import net.channel.handler.PlayerInteractionHandler;
-import net.channel.handler.SummonDamageHandler.SummonAttackEntry;
 import net.world.MapleParty;
 import net.world.MaplePartyCharacter;
 import net.world.PartyOperation;
@@ -1909,17 +1908,17 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket summonAttack(int cid, int summonSkillId, int newStance, List<SummonAttackEntry> allDamage) {
+    public static MaplePacket summonAttack(int cid, int summonSkillId, int newStance, List<Pair<MapleMonster, Integer>> allDamage) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SUMMON_ATTACK.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(summonSkillId);
         mplew.write(newStance);
         mplew.write(allDamage.size());
-        for (SummonAttackEntry attackEntry : allDamage) {
-            mplew.writeInt(attackEntry.getMonster().getObjectId()); // oid
-            mplew.write(6); // who knows
-            mplew.writeInt(attackEntry.getDamage()); // damage
+        for (Pair<MapleMonster, Integer> attack : allDamage) {
+            mplew.writeInt(attack.getLeft().getObjectId()); // oid
+            mplew.write(6); // who knows - god knows
+            mplew.writeInt(attack.getRight()); // damage
         }
         return mplew.getPacket();
     }
@@ -4913,8 +4912,7 @@ public class MaplePacketCreator {
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
         mplew.write(0x05);
         mplew.write(0x04);
-        mplew.write(hm.getVisitorSlot(chr));
-        mplew.write(0);
+        mplew.writeShort(hm.getVisitorSlot(chr)); //Short I guess :3
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
         for (int i = 1; i <= 3; i++) {
@@ -4924,17 +4922,18 @@ public class MaplePacketCreator {
                 mplew.writeMapleAsciiString(hm.getVisitors()[i].getName());
             }
         }
-        mplew.write(0xFF);
+        mplew.write(-1);
         mplew.writeShort(0); //Messages
         mplew.writeMapleAsciiString(hm.getOwner());
         if (hm.isOwner(chr)) {
-            mplew.writeInt(Integer.MAX_VALUE);
+            mplew.writeInt(hm.getTimeLeft());
             mplew.write(firstTime ? 1 : 0);
-            mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00"));
+	    mplew.writeInt(0);
+	    mplew.write(0);
         }
         mplew.writeMapleAsciiString(hm.getDescription());
         mplew.write(0x10);
-        mplew.writeInt(hm.isOwner(chr) ? hm.owner().getMerchantMeso() : 0);
+        mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
         if (hm.getItems().size() == 0) {
             mplew.write(0);
@@ -4953,7 +4952,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.UPDATE_MERCHANT.getCode());
-        mplew.writeInt(hm.owner().getMerchantMeso());
+        mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
         for (MaplePlayerShopItem item : hm.getItems()) {
             mplew.writeShort(item.getBundles());

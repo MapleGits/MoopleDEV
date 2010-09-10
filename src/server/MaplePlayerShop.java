@@ -48,6 +48,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
     private List<String> bannedList = new ArrayList<String>();
 
     public MaplePlayerShop(MapleCharacter owner, String description) {
+        this.setPosition(owner.getPosition());
         this.owner = owner;
         this.description = description;
     }

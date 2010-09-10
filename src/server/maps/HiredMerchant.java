@@ -49,7 +49,8 @@ import tools.Pair;
 public class HiredMerchant extends AbstractMapleMapObject {
     private int ownerId;
     private int itemId;
-    private MapleCharacter chr;
+    private int channel;
+    private long start;
     private String ownerName = "";
     private String description = "";
     private MapleCharacter[] visitors = new MapleCharacter[3];
@@ -60,8 +61,9 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
     public HiredMerchant(final MapleCharacter owner, int itemId, String desc) {
         this.setPosition(owner.getPosition());
-        this.chr = owner;
+        this.start = System.currentTimeMillis();
         this.ownerId = owner.getId();
+        this.channel = owner.getClient().getChannel();
         this.itemId = itemId;
         this.ownerName = owner.getName();
         this.description = desc;
@@ -72,6 +74,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 HiredMerchant.this.closeShop(owner.getClient(), true);
             }
         }, 1000 * 60 * 60 * 24);
+        owner.setHiredMerchant(this);
     }
 
     public void broadcastToVisitors(MaplePacket packet) {
@@ -256,14 +259,11 @@ public class HiredMerchant extends AbstractMapleMapObject {
         return chr.getId() == ownerId;
     }
 
-    public MapleCharacter owner() {
-        return chr;
-    }
-     public void saveItems() throws SQLException {
+    public void saveItems() throws SQLException {
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
         for (MaplePlayerShopItem pItems : items) {
-            IItem newItem = pItems.getItem().copy();
+            IItem newItem = pItems.getItem();
             newItem.setQuantity((short) (pItems.getBundles() * pItems.getItem().getQuantity()));
             if (pItems.getBundles() > 0)
                 itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));
@@ -296,6 +296,14 @@ public class HiredMerchant extends AbstractMapleMapObject {
 	return true;
     }
 
+    public int getChannel() {
+        return channel;
+    }
+
+    public int getTimeLeft() {
+	return (int) ((System.currentTimeMillis() - start) / 1000);
+    }
+    
     @Override
     public void sendDestroyData(MapleClient client) {
         return;

@@ -52,11 +52,12 @@ public class AutobanManager {
     }
 
     public void resetMisses() {
-        if (lastmisses == misses && misses < 7) {
+        if (lastmisses == misses && misses > 6) {
             samemisscount++;
         }
         if (samemisscount > 4)
-            chr.autoban("Autobanned for : " + misses + " Miss hack", 1);
+            chr.autoban("Autobanned for : " + misses + " Miss godmode", 1);
+        else if (samemisscount > 0)
 
         this.lastmisses = misses;
         this.misses = 0;
