@@ -57,6 +57,10 @@ public class MapleInventoryManipulator {
     }
 
     public static boolean addById(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, long expiration) {
+        return addById(c, itemId, quantity, owner, pet, (byte) 0, expiration);
+    }
+
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, byte flag, long expiration) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         MapleInventoryType type = ii.getInventoryType(itemId);
         if (!type.equals(MapleInventoryType.EQUIP)) {
@@ -107,7 +111,7 @@ public class MapleInventoryManipulator {
                     }
                 }
             } else {
-                Item nItem = new Item(itemId, (byte) 0, quantity);
+                Item nItem = new Item(itemId, (byte) 0, quantity, flag);
                 nItem.setExpiration(expiration);
                 byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                 if (newSlot == -1) {

@@ -5661,7 +5661,8 @@ public class MaplePacketCreator {
     public static MaplePacket sendHammerData(int hammerUsed) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.VICIOUS_HAMMER.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("34 00 00 00 00"));
+        mplew.write(0x39);
+        mplew.writeInt(0);
         mplew.writeInt(hammerUsed);
         return mplew.getPacket();
     }
@@ -5669,7 +5670,8 @@ public class MaplePacketCreator {
     public static MaplePacket sendHammerMessage() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.VICIOUS_HAMMER.getValue());
-        mplew.write(HexTool.getByteArrayFromHexString("38 00 00 00 00"));
+        mplew.write(0x3D);
+        mplew.writeInt(0);
         return mplew.getPacket();
     }
 

@@ -30,6 +30,7 @@ import java.util.List;
 import client.IItem;
 import client.ISkill;
 import client.Item;
+import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -42,6 +43,8 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tools.DatabaseConnection;
 import net.channel.ChannelServer;
 import provider.MapleData;
@@ -76,10 +79,10 @@ public class Commands {
                 SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
             }
         } else if (sub[0].equals("spawn")) {
-            if (sub[2].length() != 0) {
-            for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
-                player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
-            }
+            if (sub.length < 2) {
+                for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
+                    player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
+                }
             } else {
                 player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
             }
@@ -125,6 +128,17 @@ public class Commands {
                 dis.close();
             } catch (Exception e) {
             }
+        } else if (sub[0].equals("flag")) {
+            try {
+                for (Pair<IItem, MapleInventoryType> item : ItemFactory.INVENTORY.loadItems(player.getId(), false)) {
+                    if (item.getLeft().getItemId() == 1322005) {
+                        item.getLeft().setFlag(Byte.parseByte(sub[1]));
+                        player.forceUpdateItem(item.getRight(), item.getLeft());
+                    }
+                }
+            } catch (SQLException ex) {
+            }
+            MapleInventoryManipulator.addById(c, Integer.parseInt(sub[1]), (short) 1, null, null, Byte.parseByte(sub[2]), -1);
         } else if (sub[0].equals("item") || sub[0].equals("drop")) {
             int itemId = Integer.parseInt(sub[1]);
             short quantity = 1;
