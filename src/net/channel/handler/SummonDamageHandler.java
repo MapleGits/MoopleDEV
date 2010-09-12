@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.channel.handler;
 
 import java.util.ArrayList;
@@ -33,10 +33,28 @@ import server.MapleStatEffect;
 import server.life.MapleMonster;
 import server.maps.MapleSummon;
 import tools.MaplePacketCreator;
-import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class SummonDamageHandler extends AbstractMaplePacketHandler {
+    public final class SummonAttackEntry {
+
+        private int monsterOid;
+        private int damage;
+
+        public SummonAttackEntry(int monsterOid, int damage) {
+            this.monsterOid = monsterOid;
+            this.damage = damage;
+        }
+
+        public int getMonsterOid() {
+            return monsterOid;
+        }
+
+        public int getDamage() {
+            return damage;
+        }
+    }
+
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int oid = slea.readInt();
         MapleCharacter player = c.getPlayer();
@@ -54,30 +72,27 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         }
         ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
         MapleStatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
-        slea.skip(4);
-        int animation = slea.readByte();
-        List<Pair<MapleMonster, Integer>> allDamage = new ArrayList<Pair<MapleMonster, Integer>>();
+        slea.skip(5);
+        List<SummonAttackEntry> allDamage = new ArrayList<SummonAttackEntry>();
         int numAttacked = slea.readByte();
-        for (int i = 0; i < numAttacked; i++) {
+        for (int x = 0; x < numAttacked; x++) {
             slea.skip(8);
-            MapleMonster mob = player.getMap().getMonsterByOid(slea.readInt());
-            slea.skip(18); // who knows
+            int monsterOid = slea.readInt(); // attacked oid
+            slea.skip(18); // who knows (used to be 14 pre-83)
             int damage = slea.readInt();
-            player.getMap().damageMonster(player, mob, damage);
-            allDamage.add(new Pair<MapleMonster, Integer>(mob, damage));
+            allDamage.add(new SummonAttackEntry(monsterOid, damage));
         }
-        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), animation, allDamage), summon.getPosition());
-        for (Pair<MapleMonster, Integer> attack : allDamage) {
-            int damage = attack.getRight();
-            MapleMonster mob = attack.getLeft();
-            if (mob != null) {
+        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), 4, allDamage), summon.getPosition());
+        for (SummonAttackEntry attackEntry : allDamage) {
+            int damage = attackEntry.getDamage();
+            MapleMonster target = player.getMap().getMonsterByOid(attackEntry.getMonsterOid());
+            if (target != null) {
                 if (damage > 0 && summonEffect.getMonsterStati().size() > 0) {
                     if (summonEffect.makeChanceResult()) {
-                        MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(summonEffect.getMonsterStati(), summonSkill, null, false);
-                        mob.applyStatus(player, monsterStatusEffect, summonEffect.isPoison(), 4000);
+                        target.applyStatus(player, new MonsterStatusEffect(summonEffect.getMonsterStati(), summonSkill, null, false), summonEffect.isPoison(), 4000);
                     }
                 }
-                player.getMap().damageMonster(player, mob, damage);
+                player.getMap().damageMonster(player, target, damage);
             }
         }
     }

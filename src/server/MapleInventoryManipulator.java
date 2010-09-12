@@ -386,6 +386,7 @@ public class MapleInventoryManipulator {
             c.getPlayer().cancelBuffStats(MapleBuffStat.BOOSTER);
         }
         c.getSession().write(MaplePacketCreator.moveInventoryItem(MapleInventoryType.EQUIP, src, dst, (byte) 2));
+        c.getPlayer().forceUpdateItem(MapleInventoryType.EQUIPPED, source);
         c.getPlayer().equipChanged();
     }
 

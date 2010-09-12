@@ -69,6 +69,7 @@ import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
 import net.channel.handler.PlayerInteractionHandler;
+import net.channel.handler.SummonDamageHandler.SummonAttackEntry;
 import net.world.MapleParty;
 import net.world.MaplePartyCharacter;
 import net.world.PartyOperation;
@@ -93,6 +94,7 @@ import server.life.MapleNPC;
 import server.life.MobSkill;
 import server.maps.HiredMerchant;
 import server.maps.MapleMap;
+import server.maps.MapleMapItem;
 import server.maps.MapleMist;
 import server.maps.MapleReactor;
 import server.maps.MapleSummon;
@@ -109,7 +111,7 @@ public class MaplePacketCreator {
 
     private final static byte[] CHAR_INFO_MAGIC = new byte[]{(byte) 0xff, (byte) 0xc9, (byte) 0x9a, 0x3b};
     public static final List<Pair<MapleStat, Integer>> EMPTY_STATUPDATE = Collections.emptyList();
-    private final static byte[] ITEM_MAGIC = new byte[]{(byte) 0x80, 5};
+    private final static byte[] ITEM_MAGIC = new byte[]{(byte) 0x80, 0x05};
     private final static int ITEM_YEAR2000 = -1085019342;
     private final static long REAL_YEAR2000 = 946681229830l;
 
@@ -1901,24 +1903,25 @@ public class MaplePacketCreator {
         mplew.write(skill_1);
         mplew.write(skill_2);
         mplew.write(skill_3);
-        mplew.write(skill_4); //skill_4
+        mplew.write(skill_4);
         mplew.writeShort(startPos.x);
         mplew.writeShort(startPos.y);
         serializeMovementList(mplew, moves);
         return mplew.getPacket();
     }
 
-    public static MaplePacket summonAttack(int cid, int summonSkillId, int newStance, List<Pair<MapleMonster, Integer>> allDamage) {
+    public static MaplePacket summonAttack(int cid, int summonSkillId, int newStance, List<SummonAttackEntry> allDamage) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SUMMON_ATTACK.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(summonSkillId);
+        mplew.write(0); 
         mplew.write(newStance);
         mplew.write(allDamage.size());
-        for (Pair<MapleMonster, Integer> attack : allDamage) {
-            mplew.writeInt(attack.getLeft().getObjectId()); // oid
-            mplew.write(6); // who knows - god knows
-            mplew.writeInt(attack.getRight()); // damage
+        for (SummonAttackEntry attackEntry : allDamage) {
+            mplew.writeInt(attackEntry.getMonsterOid()); // oid
+            mplew.write(6); // who knows
+            mplew.writeInt(attackEntry.getDamage()); // damage
         }
         return mplew.getPacket();
     }
@@ -5633,7 +5636,8 @@ public class MaplePacketCreator {
 
     public static MaplePacket removeNPC(int objid) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.REMOVE_NPC.getValue());
+        mplew.writeShort(SendOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
+        mplew.write(0);
         mplew.writeInt(objid);
         return mplew.getPacket();
     }
