@@ -127,14 +127,14 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                     pss.close();
                 } catch (SQLException e) {
                 }
-                c.getSession().write(MaplePacketCreator.sendDueyMSG((byte) 0x1B));
+                c.announce(MaplePacketCreator.sendDueyMSG((byte) 0x1B));
             }
             rs.close();
             ps.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        c.getSession().write(MaplePacketCreator.getCharInfo(player));
+        c.announce(MaplePacketCreator.getCharInfo(player));
         if (player.isGM()) {
             SkillFactory.getSkill(SuperGM.HIDE).getEffect(SkillFactory.getSkill(SuperGM.HIDE).getMaxLevel()).applyTo(player);
         }
@@ -149,13 +149,13 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                 ble.setChannel(onlineBuddy.getChannel());
                 player.getBuddylist().put(ble);
             }
-            c.getSession().write(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+            c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
         } catch (RemoteException e) {
             cserv.reconnectWorld();
         }
-        c.getSession().write(MaplePacketCreator.loadFamily(player));
+        c.announce(MaplePacketCreator.loadFamily(player));
         if (player.getFamilyId() > 0) {
-            c.getSession().write(MaplePacketCreator.getFamilyInfo(player));
+            c.announce(MaplePacketCreator.getFamilyInfo(player));
         }
         if (player.getGuildId() > 0) {
             try {
@@ -166,7 +166,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                     player.setGuildId(0);
                 } else {
                     cserv.getWorldInterface().setGuildMemberOnline(player.getMGC(), true, c.getChannel());
-                    c.getSession().write(MaplePacketCreator.showGuildInfo(player));
+                    c.announce(MaplePacketCreator.showGuildInfo(player));
                     int allianceId = player.getGuild().getAllianceId();
                     if (allianceId > 0) {
                         MapleAlliance newAlliance = cserv.getWorldInterface().getAlliance(allianceId);
@@ -179,8 +179,8 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                             }
                         }
                         if (newAlliance != null) {
-                            c.getSession().write(MaplePacketCreator.getAllianceInfo(newAlliance));
-                            c.getSession().write(MaplePacketCreator.getGuildAlliances(newAlliance, c));
+                            c.announce(MaplePacketCreator.getAllianceInfo(newAlliance));
+                            c.announce(MaplePacketCreator.getGuildAlliances(newAlliance, c));
                             cserv.getWorldInterface().allianceMessage(allianceId, MaplePacketCreator.allianceMemberOnline(player, true), player.getId(), -1);
                         }
                     }
@@ -200,18 +200,18 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         }
         for (MapleQuestStatus status : player.getStartedQuests()) {
             if (status.hasMobKills()) {
-                c.getSession().write(MaplePacketCreator.updateQuestMobKills(status));
+                c.announce(MaplePacketCreator.updateQuestMobKills(status));
             }
         }
         CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), -1, false));
-            c.getSession().write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
+            c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
         }
-        c.getSession().write(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
-        c.getSession().write(MaplePacketCreator.updateGender(player));
+        c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+        c.announce(MaplePacketCreator.updateGender(player));
         player.checkMessenger();
-        c.getSession().write(MaplePacketCreator.enableReport());
+        c.announce(MaplePacketCreator.enableReport());
         player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), player.getLinkedLevel() / 10, 20, -1);
         player.checkBerserk();
         player.expirationTask();

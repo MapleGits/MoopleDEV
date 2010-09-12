@@ -46,6 +46,6 @@ public final class UseSolomonHandler extends AbstractMaplePacketHandler {
         }
         c.getPlayer().gainExp(ii.getExpById(itemId), true, true);
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.enableActions());
     }
 }

@@ -30,7 +30,6 @@ import java.util.List;
 import client.IItem;
 import client.ISkill;
 import client.Item;
-import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -52,9 +51,9 @@ import provider.MapleDataTool;
 import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
-import server.MapleOxQuiz;
 import server.MapleShopFactory;
 import server.events.MapleEvent;
+import server.events.MapleOxQuiz;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
@@ -95,7 +94,7 @@ public class Commands {
             cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
         } else if (sub[0].equals("dispose")) {
             NPCScriptManager.getInstance().dispose(c);
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             player.message("Done.");
         } else if (sub[0].equals("exprate")) {
             ServerConstants.EXP_RATE = (byte) (Integer.parseInt(sub[1]) % 128);

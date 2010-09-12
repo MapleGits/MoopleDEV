@@ -70,7 +70,7 @@ public class PartySearchStartHandler extends AbstractMaplePacketHandler {
                                     c.getPlayer().receivePartyMemberHP();
                                     c.getPlayer().updatePartyMemberHP();
                                 } else {
-                                    c.getSession().write(MaplePacketCreator.partyStatusMessage(17));
+                                    c.announce(MaplePacketCreator.partyStatusMessage(17));
                                 }
                             }
                         } catch (Exception e) {

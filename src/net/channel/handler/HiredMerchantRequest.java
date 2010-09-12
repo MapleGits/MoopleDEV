@@ -42,7 +42,7 @@ public final class HiredMerchantRequest extends AbstractMaplePacketHandler {
             if (!c.getPlayer().hasMerchant()) {
                 try {
                     if (ItemFactory.MERCHANT.loadItems(c.getPlayer().getId(), false).isEmpty()) {
-                        c.getSession().write(MaplePacketCreator.hiredMerchantBox());
+                        c.announce(MaplePacketCreator.hiredMerchantBox());
                     } else {
                         c.getPlayer().dropMessage(1, "Please claim your items from Fredrick first.");
                     }

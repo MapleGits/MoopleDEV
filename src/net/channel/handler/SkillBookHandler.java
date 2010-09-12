@@ -38,7 +38,7 @@ import tools.Randomizer;
 public final class SkillBookHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         slea.readInt();
@@ -74,7 +74,7 @@ public final class SkillBookHandler extends AbstractMaplePacketHandler {
             } else {
                 canuse = false;
             }
-            player.getClient().getSession().write(MaplePacketCreator.skillBookSuccess(player, skill, maxlevel, canuse, success));
+            player.getClient().announce(MaplePacketCreator.skillBookSuccess(player, skill, maxlevel, canuse, success));
         }
     }
 }

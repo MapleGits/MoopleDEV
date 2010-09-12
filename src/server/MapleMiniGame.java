@@ -67,11 +67,11 @@ public class MapleMiniGame extends AbstractMapleMapObject {
     public void addVisitor(MapleCharacter challenger) {
         visitor = challenger;
         if (GameType.equals("omok")) {
-            this.getOwner().getClient().getSession().write(MaplePacketCreator.getMiniGameNewVisitor(challenger, 1));
+            this.getOwner().getClient().announce(MaplePacketCreator.getMiniGameNewVisitor(challenger, 1));
             this.getOwner().getMap().broadcastMessage(MaplePacketCreator.addOmokBox(owner, 2, 0));
         }
         if (GameType.equals("matchcard")) {
-            this.getOwner().getClient().getSession().write(MaplePacketCreator.getMatchCardNewVisitor(challenger, 1));
+            this.getOwner().getClient().announce(MaplePacketCreator.getMatchCardNewVisitor(challenger, 1));
             this.getOwner().getMap().broadcastMessage(MaplePacketCreator.addMatchCardBox(owner, 2, 0));
         }
     }
@@ -79,7 +79,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
     public void removeVisitor(MapleCharacter challenger) {
         if (visitor == challenger) {
             visitor = null;
-            this.getOwner().getClient().getSession().write(MaplePacketCreator.getMiniGameRemoveVisitor());
+            this.getOwner().getClient().announce(MaplePacketCreator.getMiniGameRemoveVisitor());
             if (GameType.equals("omok")) {
                 this.getOwner().getMap().broadcastMessage(MaplePacketCreator.addOmokBox(owner, 1, 0));
             }
@@ -95,7 +95,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
 
     public void broadcastToVisitor(MaplePacket packet) {
         if (visitor != null) {
-            visitor.getClient().getSession().write(packet);
+            visitor.getClient().announce(packet);
         }
     }
 
@@ -211,7 +211,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
 
     public void broadcast(MaplePacket packet) {
         if (owner.getClient() != null && owner.getClient().getSession() != null) {
-            owner.getClient().getSession().write(packet);
+            owner.getClient().announce(packet);
         }
         broadcastToVisitor(packet);
     }
@@ -221,11 +221,11 @@ public class MapleMiniGame extends AbstractMapleMapObject {
     }
 
     public void sendOmok(MapleClient c, int type) {
-        c.getSession().write(MaplePacketCreator.getMiniGame(c, this, isOwner(c.getPlayer()), type));
+        c.announce(MaplePacketCreator.getMiniGame(c, this, isOwner(c.getPlayer()), type));
     }
 
     public void sendMatchCard(MapleClient c, int type) {
-        c.getSession().write(MaplePacketCreator.getMatchCard(c, this, isOwner(c.getPlayer()), type));
+        c.announce(MaplePacketCreator.getMatchCard(c, this, isOwner(c.getPlayer()), type));
     }
 
     public MapleCharacter getOwner() {

@@ -96,7 +96,7 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                             }
                             player.getMap().damageMonster(player, attacker, bouncedamage);
                             player.getMap().broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), true);
-                            player.getClient().getSession().write(MaplePacketCreator.showOwnBuffEffect(id, 5));
+                            player.getClient().announce(MaplePacketCreator.showOwnBuffEffect(id, 5));
                             player.getMap().broadcastMessage(player, MaplePacketCreator.showBuffeffect(player.getId(), id, 5), false);
                         }
                     }
@@ -169,7 +169,7 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
         }
         if (player.getMap().getId() >= 925020000 && player.getMap().getId() < 925030000) {
             player.setDojoEnergy(player.isGM() ? 300 : player.getDojoEnergy() < 300 ? player.getDojoEnergy() + 1 : 0); //Fking gm's
-            player.getClient().getSession().write(MaplePacketCreator.getEnergy(player.getDojoEnergy()));
+            player.getClient().announce(MaplePacketCreator.getEnergy(player.getDojoEnergy()));
         }
     }
 }

@@ -46,7 +46,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
             return;
         }
         if (!c.getPlayer().isAlive() || FieldLimit.CHANGECHANNEL.check(c.getPlayer().getMap().getFieldLimit())) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         String[] socket = c.getChannelServer().getIP(channel).split(":");
@@ -91,7 +91,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         c.getChannelServer().removePlayer(c.getPlayer());
         c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
-            c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
+            c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
         } catch (IOException e) {
         }
     }

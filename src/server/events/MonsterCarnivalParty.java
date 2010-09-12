@@ -3,8 +3,6 @@ package server.events;
 import client.MapleCharacter;
 import java.util.LinkedList;
 import java.util.List;
-import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
 import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 

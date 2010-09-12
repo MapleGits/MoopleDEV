@@ -53,7 +53,7 @@ public final class ItemSortHandler extends AbstractMaplePacketHandler {
                 }
             }
         }
-        c.getSession().write(MaplePacketCreator.finishedSort(mode));
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.finishedSort(mode));
+        c.announce(MaplePacketCreator.enableActions());
     }
 }

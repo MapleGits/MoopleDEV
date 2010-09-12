@@ -59,7 +59,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
     private void nextPendingRequest(MapleClient c) {
         CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
-            c.getSession().write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
+            c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
         }
     }
 
@@ -91,9 +91,9 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
             }
             BuddylistEntry ble = buddylist.get(addName);
             if (ble != null && !ble.isVisible() && group.equals(ble.getGroup())) {
-                c.getSession().write(MaplePacketCreator.serverNotice(1, "You already have \"" + ble.getName() + "\" on your Buddylist"));
+                c.announce(MaplePacketCreator.serverNotice(1, "You already have \"" + ble.getName() + "\" on your Buddylist"));
             } else if (buddylist.isFull() && ble == null) {
-                c.getSession().write(MaplePacketCreator.serverNotice(1, "Your buddylist is already full"));
+                c.announce(MaplePacketCreator.serverNotice(1, "Your buddylist is already full"));
             } else if (ble == null) {
                 try {
                     CharacterIdNameBuddyCapacity charWithId = null;
@@ -134,7 +134,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                             ps.close();
                         }
                         if (buddyAddResult == BuddyAddResult.BUDDYLIST_FULL) {
-                            c.getSession().write(MaplePacketCreator.serverNotice(1, "\"" + addName + "\"'s Buddylist is full"));
+                            c.announce(MaplePacketCreator.serverNotice(1, "\"" + addName + "\"'s Buddylist is full"));
                         } else {
                             int displayChannel = -1;
                             int otherCid = charWithId.getId();
@@ -150,17 +150,17 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                                 ps.close();
                             }
                             buddylist.put(new BuddylistEntry(charWithId.getName(), group, otherCid, displayChannel, true));
-                            c.getSession().write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+                            c.announce(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
                         }
                     } else {
-                        c.getSession().write(MaplePacketCreator.serverNotice(1, "A character called \"" + addName + "\" does not exist"));
+                        c.announce(MaplePacketCreator.serverNotice(1, "A character called \"" + addName + "\" does not exist"));
                     }
                 } catch (RemoteException e) {
                 } catch (SQLException e) {
                 }
             } else {
                 ble.changeGroup(group);
-                c.getSession().write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+                c.announce(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
             }
         } else if (mode == 2) { // accept buddy
             int otherCid = slea.readInt();
@@ -184,7 +184,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                     }
                     if (otherName != null) {
                         buddylist.put(new BuddylistEntry(otherName, "Default Group", otherCid, channel, true));
-                        c.getSession().write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+                        c.announce(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
                         notifyRemoteChannel(c, channel, otherCid, ADDED);
                     }
                 } catch (RemoteException e) {
@@ -201,7 +201,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                 }
             }
             buddylist.remove(otherCid);
-            c.getSession().write(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+            c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
             nextPendingRequest(c);
         }
     }

@@ -55,9 +55,9 @@ public final class PickCharHandler extends AbstractMaplePacketHandler {
             String channelServerIP = MapleClient.getChannelServerIPFromSubnet(c.getSession().getRemoteAddress().toString().replace("/", "").split(":")[0], c.getChannel());
             if (channelServerIP.equals("0.0.0.0")) {
                 String[] socket = LoginServer.getInstance().getIP(c.getChannel()).split(":");
-                c.getSession().write(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
+                c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
             } else {
-                c.getSession().write(MaplePacketCreator.getServerIP(InetAddress.getByName(channelServerIP), Integer.parseInt(LoginServer.getInstance().getIP(c.getChannel()).split(":")[1]), charId));
+                c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(channelServerIP), Integer.parseInt(LoginServer.getInstance().getIP(c.getChannel()).split(":")[1]), charId));
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();

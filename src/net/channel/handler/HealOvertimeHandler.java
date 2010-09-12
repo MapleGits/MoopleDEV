@@ -21,25 +21,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import net.AbstractMaplePacketHandler;
+import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class HealOvertimeHandler extends AbstractMaplePacketHandler {
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.skip(8);
+        MapleCharacter chr = c.getPlayer();
         short healHP = slea.readShort();
         if (healHP != 0) {
             if (healHP > 140) {
                 return;
             }
-            c.getPlayer().addHP(healHP);
-            c.getPlayer().checkBerserk();
+            chr.addHP(healHP);
+            chr.getMap().broadcastMessage(chr, MaplePacketCreator.showForeignEffect(chr.getId(), healHP), false);
+            chr.checkBerserk();
         }
         short healMP = slea.readShort();
         if (healMP != 0 && healMP < 1000) {
-            c.getPlayer().addMP(healMP);
+            chr.addMP(healMP);
         }
     }
 }

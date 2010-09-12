@@ -73,17 +73,17 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
                     break;
                 case 4:
                     MapleInventoryManipulator.addById(c, item, (short) 1, null, null, -1);
-                    c.getSession().write(MaplePacketCreator.showCouponRedeemedItem(item));
+                    c.announce(MaplePacketCreator.showCouponRedeemedItem(item));
                     break;
                 case 5:
                     c.getPlayer().getCashShop().gainCash(0, item);
                     break;
             }
-            c.getSession().write(MaplePacketCreator.showCash(c.getPlayer()));
+            c.announce(MaplePacketCreator.showCash(c.getPlayer()));
         } else {
-            //c.getSession().write(MaplePacketCreator.wrongCouponCode());
+            //c.announce(MaplePacketCreator.wrongCouponCode());
         }
-        c.getSession().write(MaplePacketCreator.enableCSUse());
+        c.announce(MaplePacketCreator.enableCSUse());
     }
 
     private int getNXCode(String code, String type) {

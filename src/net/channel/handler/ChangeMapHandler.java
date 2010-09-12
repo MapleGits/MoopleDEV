@@ -49,7 +49,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             ChannelServer.getInstance(c.getChannel()).removePlayer(chr);
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
             try {
-                c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
+                c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
                 c.getSession().close(true);
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
@@ -57,29 +57,35 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
         } else { 
             slea.readByte(); // 1 = from dying 2 = regular portals < Fking wrong fkers
             int targetid = slea.readInt();
-                if (!chr.isAlive()) {
-		    if (chr.haveItem(5510000)) { // Wheel
-			chr.setHp((chr.getMaxHp() / 100) * 40);
-			MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
-                        chr.setStance(0);
-			chr.changeMap(chr.getMap(), chr.getMap().getPortal(0));
-                        return;
-		    }
-                    chr.setHp(50);
-                    chr.setStance(0);
-                    MapleMap to = chr.getMap().getReturnMap();
-                    chr.changeMap(to, to.getPortal(0));
-                    return;
-                } else if (targetid != -1 && chr.isGM()) {
-                    MapleMap to = c.getChannelServer().getMapFactory().getMap(targetid);
-                    chr.changeMap(to, to.getPortal(0));
-                }
             String startwp = slea.readMapleAsciiString();
             MaplePortal portal = chr.getMap().getPortal(startwp);
             slea.readByte();
+            boolean wheel = slea.readShort() > 0;
+            if (targetid != -1 && !chr.isAlive()) {
+                boolean executeStandardPath = true;
+                if (chr.getEventInstance() != null) {
+                    executeStandardPath = chr.getEventInstance().revivePlayer(chr);
+                }
+                if (executeStandardPath) {
+                    MapleMap to = chr.getMap();
+                    if (wheel && chr.getItemQuantity(5510000, false) > 0) {
+                        MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
+                        chr.announce(MaplePacketCreator.showWheelsLeft(chr.getItemQuantity(5510000, false)));
+                    } else {
+                        chr.cancelAllBuffs();
+                        to = chr.getMap().getReturnMap();
+                        chr.setStance(0);
+                    }
+                    chr.setHp(50);
+                    chr.changeMap(to, to.getPortal(0));
+                }
+            } else if (targetid != -1 && chr.isGM()) {
+                 MapleMap to = c.getChannelServer().getMapFactory().getMap(targetid);
+                 chr.changeMap(to, to.getPortal(0));
+            }
             if (!portal.getPortalStatus()) {
                 c.getPlayer().message("The portal is closed for now.");
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             }
             if (chr.getMapId() == 109040004) {
@@ -96,7 +102,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
 		if (portal != null) {
 		    portal.enterPortal(c);
 		} else {
-		    c.getSession().write(MaplePacketCreator.enableActions());
+		    c.announce(MaplePacketCreator.enableActions());
 		}
 	    }
             chr.setRates();

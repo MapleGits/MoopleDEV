@@ -38,7 +38,7 @@ public final class RegisterPinHandler extends AbstractMaplePacketHandler {
             String pin = slea.readMapleAsciiString();
             if (pin != null) {
                 c.setPin(pin);
-                c.getSession().write(MaplePacketCreator.pinRegistered());
+                c.announce(MaplePacketCreator.pinRegistered());
                 c.updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);
             }
         }

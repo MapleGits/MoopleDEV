@@ -45,14 +45,14 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
         int oid = slea.readInt();
         MapleMapObject ob = c.getPlayer().getMap().getMapObject(oid);
         if (ob == null || pet == null) {
-            c.getSession().write(MaplePacketCreator.getInventoryFull());
+            c.announce(MaplePacketCreator.getInventoryFull());
             return;
         }
         if (ob instanceof MapleMapItem) {
             MapleMapItem mapitem = (MapleMapItem) ob;
             synchronized (mapitem) {
                 if (mapitem.isPickedUp()) {
-                    c.getSession().write(MaplePacketCreator.getInventoryFull());
+                    c.announce(MaplePacketCreator.getInventoryFull());
                     return;
                 }
                 if (mapitem.getDropper() == c.getPlayer()) {
@@ -84,7 +84,7 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
                         c.getPlayer().getMap().removeMapObject(ob);
                     } else {
                         mapitem.setPickedUp(false);
-                        c.getSession().write(MaplePacketCreator.enableActions());
+                        c.announce(MaplePacketCreator.enableActions());
                         return;
                     }
                 } else if (ItemPickupHandler.useItem(c, mapitem.getItem().getItemId())) {
@@ -116,6 +116,6 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
                 mapitem.setPickedUp(true);
             }
         }
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.enableActions());
     }
 }

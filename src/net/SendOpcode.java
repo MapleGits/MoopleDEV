@@ -127,6 +127,7 @@ public enum SendOpcode {
     GMEVENT_INSTRUCTIONS(0x92),
     CLOCK(0x93),
     BOAT_EFFECT(0x95),
+    POPUP(0x98),
     STOP_CLOCK(0x9A),
     ARIANT_SCOREBOARD(0x9B),
     SPAWN_PLAYER(0xA0),

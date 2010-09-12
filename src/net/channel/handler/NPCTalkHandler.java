@@ -33,7 +33,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class NPCTalkHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         int oid = slea.readInt();
@@ -41,7 +41,7 @@ public final class NPCTalkHandler extends AbstractMaplePacketHandler {
         if (obj instanceof MapleNPC) {
             MapleNPC npc = (MapleNPC) obj;
             if (npc.getId() == 9010009) {
-                c.getSession().write(MaplePacketCreator.sendDuey((byte) 8, DueyHandler.loadItems(c.getPlayer())));
+                c.announce(MaplePacketCreator.sendDuey((byte) 8, DueyHandler.loadItems(c.getPlayer())));
             } else if (npc.hasShop()) {
                 if (c.getPlayer().getShop() != null) {
                     return;
@@ -49,7 +49,7 @@ public final class NPCTalkHandler extends AbstractMaplePacketHandler {
                 npc.sendShop(c);
             } else {
                 if (c.getCM() != null || c.getQM() != null) {
-                    c.getSession().write(MaplePacketCreator.enableActions());
+                    c.announce(MaplePacketCreator.enableActions());
                     return;
                 }
                 NPCScriptManager.getInstance().start(c, npc.getId(), null, null);

@@ -37,6 +37,7 @@ import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
+import tools.MaplePacketCreator;
 
 /**
  *
@@ -198,6 +199,8 @@ public class MapleQuest {
     public void forceComplete(MapleCharacter c, int npc) {
         MapleQuestStatus newStatus = new MapleQuestStatus(this, MapleQuestStatus.Status.COMPLETED, npc);
         newStatus.setForfeited(c.getQuest(this).getForfeited());
+        c.announce(MaplePacketCreator.showSpecialEffect(9));
+        c.getMap().broadcastMessage(c, MaplePacketCreator.showForeignEffect(c.getId(), 9), false);
         c.updateQuest(newStatus);
     }
 

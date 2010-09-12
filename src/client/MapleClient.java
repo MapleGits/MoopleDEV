@@ -40,6 +40,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import javax.script.ScriptEngine;
+import net.MaplePacket;
 import tools.DatabaseConnection;
 import net.channel.ChannelServer;
 import net.login.LoginServer;
@@ -732,7 +733,7 @@ public class MapleClient {
 
     public void sendPing() {
         final long then = System.currentTimeMillis();
-        getSession().write(MaplePacketCreator.getPing());
+        announce(MaplePacketCreator.getPing());
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
@@ -844,5 +845,9 @@ public class MapleClient {
             ps.close();
         } catch (SQLException e) {
         }
+    }
+
+    public void announce(MaplePacket packet) {
+        session.write(packet);
     }
 }

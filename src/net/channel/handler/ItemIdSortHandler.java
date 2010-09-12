@@ -58,6 +58,6 @@ public final class ItemIdSortHandler extends AbstractMaplePacketHandler {
         for (Item i : itemarray) {
             MapleInventoryManipulator.addFromDrop(c, i, false);
         }
-        c.getSession().write(MaplePacketCreator.finishedSort2(mode));
+        c.announce(MaplePacketCreator.finishedSort2(mode));
     }
 }

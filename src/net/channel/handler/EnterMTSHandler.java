@@ -38,12 +38,12 @@ import tools.DatabaseConnection;
 public final class EnterMTSHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         if (c.getPlayer().getLevel() < 10) {
-            c.getSession().write(MaplePacketCreator.blockedMessage(5));
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.blockedMessage(5));
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         try {
@@ -53,11 +53,11 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         }
         c.getPlayer().saveToDB(true);
         c.getPlayer().getMap().removePlayer(c.getPlayer());
-       // c.getSession().write(MaplePacketCreator.warpCS(c, true));
+       // c.announce(MaplePacketCreator.warpCS(c, true));
         c.getPlayer().setInMTS(true);
-        c.getSession().write(MaplePacketCreator.enableCSUse());
-        c.getSession().write(MaplePacketCreator.MTSWantedListingOver(0, 0));
-        c.getSession().write(MaplePacketCreator.showMTSCash(c.getPlayer()));
+        c.announce(MaplePacketCreator.enableCSUse());
+        c.announce(MaplePacketCreator.MTSWantedListingOver(0, 0));
+        c.announce(MaplePacketCreator.showMTSCash(c.getPlayer()));
         List<MTSItemInfo> items = new ArrayList<MTSItemInfo>();
         int pages = 0;
         try {
@@ -106,9 +106,9 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
             ps.close();
         } catch (SQLException e) {
         }
-        c.getSession().write(MaplePacketCreator.sendMTS(items, 1, 0, 0, pages));
-        c.getSession().write(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
-        c.getSession().write(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
+        c.announce(MaplePacketCreator.sendMTS(items, 1, 0, 0, pages));
+        c.announce(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
+        c.announce(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
     }
 
     private List<MTSItemInfo> getNotYetSold(int cid) {

@@ -59,10 +59,10 @@ public final class PetCommandHandler extends AbstractMaplePacketHandler {
                 pet.setCloseness(newCloseness);
                 if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
                     pet.setLevel(pet.getLevel() + 1);
-                    c.getSession().write(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
+                    c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
                     c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
                 }
-                c.getSession().write(MaplePacketCreator.updatePet(pet));
+                c.announce(MaplePacketCreator.updatePet(pet));
             }
         }
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), petIndex, command, success), true);

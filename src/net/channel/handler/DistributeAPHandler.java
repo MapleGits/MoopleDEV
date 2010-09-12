@@ -42,7 +42,7 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
             }
         }
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.enableActions());
     }
 
     static boolean addStat(MapleClient c, int id) {
@@ -78,7 +78,7 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
                 addMP(c.getPlayer(), addMP(c));
                 break;
             default:
-                c.getSession().write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true));
+                c.announce(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true));
                 return false;
         }
         return true;

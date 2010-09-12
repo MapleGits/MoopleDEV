@@ -160,7 +160,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                         chr.setPlayerShop(shop);
                         chr.getMap().addMapObject(shop);
                         shop.sendShop(c);
-                        c.getSession().write(MaplePacketCreator.getPlayerShopRemoveVisitor(1));
+                        c.announce(MaplePacketCreator.getPlayerShopRemoveVisitor(1));
                     } else {
                         HiredMerchant merchant = new HiredMerchant(chr, itemId, desc);
                         chr.announce(MaplePacketCreator.getHiredMerchant(chr, merchant, true));
@@ -200,7 +200,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                             game.sendMatchCard(c, game.getPieceType());
                         }
                     } else {
-                        chr.getClient().getSession().write(MaplePacketCreator.getMiniGameFull());
+                        chr.getClient().announce(MaplePacketCreator.getMiniGameFull());
                     }
                 } else if (ob instanceof HiredMerchant && chr.getHiredMerchant() == null) {
                     HiredMerchant merchant = (HiredMerchant) ob;
@@ -208,14 +208,14 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     if (merchant.isOwner(c.getPlayer())) {
                         merchant.setOpen(false);
                         merchant.removeAllVisitors("");
-                        c.getSession().write(MaplePacketCreator.getHiredMerchant(c.getPlayer(), merchant, false));
+                        c.announce(MaplePacketCreator.getHiredMerchant(c.getPlayer(), merchant, false));
                     } else if (!merchant.isOpen()) {
                         chr.dropMessage(1, "This shop is in maintenance, please come by later.");
                     } else if (merchant.getFreeSlot() == -1) {
                         chr.dropMessage(1, "This shop has reached it's maximum capacity, please come by later.");
                     } else {
                         merchant.addVisitor(c.getPlayer());
-                        c.getSession().write(MaplePacketCreator.getHiredMerchant(c.getPlayer(), merchant, false));
+                        c.announce(MaplePacketCreator.getHiredMerchant(c.getPlayer(), merchant, false));
                     }
                 }
             }
@@ -273,7 +273,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     if (!merchant.isOwner(c.getPlayer())) {
                         merchant.removeVisitor(c.getPlayer());
                     } else {
-                        c.getSession().write(MaplePacketCreator.hiredMerchantVisitorLeave(0, true));
+                        c.announce(MaplePacketCreator.hiredMerchantVisitorLeave(0, true));
                     }
                     chr.setHiredMerchant(null);
                 }
@@ -329,7 +329,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             if (game.isOwner(c.getPlayer())) {
                 game.broadcastToVisitor(MaplePacketCreator.getMiniGameRequestTie(game));
             } else {
-                game.getOwner().getClient().getSession().write(MaplePacketCreator.getMiniGameRequestTie(game));
+                game.getOwner().getClient().announce(MaplePacketCreator.getMiniGameRequestTie(game));
             }
         } else if (mode == Action.ANSWER_TIE.getCode()) {
             MapleMiniGame game = chr.getMiniGame();
@@ -362,7 +362,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 if (game.isOwner(c.getPlayer())) {
                     game.broadcastToVisitor(MaplePacketCreator.getMatchCardSelect(game, turn, slot, firstslot, turn));
                 } else {
-                    game.getOwner().getClient().getSession().write(MaplePacketCreator.getMatchCardSelect(game, turn, slot, firstslot, turn));
+                    game.getOwner().getClient().announce(MaplePacketCreator.getMatchCardSelect(game, turn, slot, firstslot, turn));
                 }
             } else if ((game.getCardId(firstslot + 1)) == (game.getCardId(slot + 1))) {
                 if (game.isOwner(c.getPlayer())) {
@@ -388,7 +388,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             if (chr.getTrade() != null) {
                 if ((quantity <= item.getQuantity() && quantity >= 0) || InventoryConstants.isRechargable(item.getItemId())) {
                     if (ii.isDropRestricted(item.getItemId()) && item.getFlag() != InventoryConstants.KARMA) { // ensure that undroppable items do not make it to the trade window
-                        c.getSession().write(MaplePacketCreator.enableActions());
+                        c.announce(MaplePacketCreator.enableActions());
                         return;
                     }
                     IItem tradeItem = item.copy();
@@ -430,11 +430,11 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             if (shop != null && shop.isOwner(c.getPlayer())) {
                 if (ivItem != null && ivItem.getQuantity() >= bundles * perBundle) {
                     shop.addItem(item);
-                    c.getSession().write(MaplePacketCreator.getPlayerShopItemUpdate(shop));
+                    c.announce(MaplePacketCreator.getPlayerShopItemUpdate(shop));
                 }
             } else if (merchant != null && merchant.isOwner(c.getPlayer())) {
                 merchant.addItem(item);
-                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
+                c.announce(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
             if (InventoryConstants.isRechargable(ivItem.getItemId())) {
                 MapleInventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
@@ -450,7 +450,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 shop.removeItem(slot);
                 ivItem.setQuantity(item.getBundles());
                 MapleInventoryManipulator.addFromDrop(c, ivItem, false);
-                c.getSession().write(MaplePacketCreator.getPlayerShopItemUpdate(shop));
+                c.announce(MaplePacketCreator.getPlayerShopItemUpdate(shop));
             }
         } else if (mode == Action.BUY.getCode() || mode == Action.MERCHANT_BUY.getCode()) {
             int item = slea.readByte();
@@ -478,7 +478,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     MapleInventoryManipulator.addFromDrop(c, iitem, true);
                 }
                 merchant.removeFromSlot(slot);
-                c.getSession().write(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
+                c.announce(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
         } else if (mode == Action.CLOSE_MERCHANT.getCode()) {
             HiredMerchant merchant = chr.getHiredMerchant();
@@ -486,8 +486,8 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 for (MaplePlayerShopItem item : merchant.getItems()) {
                     item.getItem().setQuantity((short) (item.getBundles() * item.getItem().getQuantity())); //Should work f3
                 }
-                c.getSession().write(MaplePacketCreator.hiredMerchantOwnerLeave());
-                c.getSession().write(MaplePacketCreator.leaveHiredMerchant(0x00, 0x03));
+                c.announce(MaplePacketCreator.hiredMerchantOwnerLeave());
+                c.announce(MaplePacketCreator.leaveHiredMerchant(0x00, 0x03));
                 merchant.closeShop(c, false);
                 chr.setHasMerchant(false);
             }
@@ -500,7 +500,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             if (merchant != null && merchant.isOwner(c.getPlayer())) {
                 merchant.setOpen(true);
             }
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
         } else if (mode == Action.BAN_PLAYER.getCode()) {
             if (chr.getPlayerShop() != null && chr.getPlayerShop().isOwner(c.getPlayer())) {
                 chr.getPlayerShop().banPlayer(slea.readMapleAsciiString());

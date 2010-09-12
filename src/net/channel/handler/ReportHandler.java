@@ -47,11 +47,11 @@ public final class ReportHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().decreaseReports();
                 c.getPlayer().gainMeso(-300, true);
             } else {
-                c.getSession().write(MaplePacketCreator.reportResponse((byte) 4));
+                c.announce(MaplePacketCreator.reportResponse((byte) 4));
                 return;
             }
         } else {
-                c.getSession().write(MaplePacketCreator.reportResponse((byte) 2));
+                c.announce(MaplePacketCreator.reportResponse((byte) 2));
             return;
         }
         c.getChannelServer().broadcastGMPacket(MaplePacketCreator.serverNotice(6, victim + " was reported for: " + description));
@@ -66,7 +66,7 @@ public final class ReportHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().decreaseReports();
                 c.getPlayer().gainMeso(-300, true);
             } else {
-                c.getSession().write(MaplePacketCreator.reportResponse((byte) 4));
+                c.announce(MaplePacketCreator.reportResponse((byte) 4));
                 return;
             }
         }

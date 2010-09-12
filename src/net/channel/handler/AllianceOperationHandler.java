@@ -49,10 +49,10 @@ public final class AllianceOperationHandler extends AbstractMaplePacketHandler {
         }
         if (alliance == null) {
             c.getPlayer().dropMessage("You are not in an alliance.");
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         } else if (c.getPlayer().getMGC().getAllianceRank() > 2 || !alliance.getGuilds().contains(c.getPlayer().getGuildId())) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         try {

@@ -50,7 +50,7 @@ public final class MagicDamageHandler extends AbstractDealDamageHandler {
             if (player.skillisCooling(attack.skill)) {
                 return;
             } else {
-                c.getSession().write(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
+                c.announce(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
                 player.addCooldown(attack.skill, System.currentTimeMillis(), effect_.getCooldown() * 1000, TimerManager.getInstance().schedule(new CancelCooldownAction(player, attack.skill), effect_.getCooldown() * 1000));
             }
         }

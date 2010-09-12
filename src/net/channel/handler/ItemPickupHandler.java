@@ -58,23 +58,23 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                     }
                     mapitem.setPickedUp(true);
                 } else {
-                    c.getSession().write(MaplePacketCreator.getInventoryFull());
-                    c.getSession().write(MaplePacketCreator.getShowInventoryFull());
+                    c.announce(MaplePacketCreator.getInventoryFull());
+                    c.announce(MaplePacketCreator.getShowInventoryFull());
                     return;
                 }
                 return;
             }
             if (ob == null) {
-                c.getSession().write(MaplePacketCreator.getInventoryFull());
-                c.getSession().write(MaplePacketCreator.getShowInventoryFull());
+                c.announce(MaplePacketCreator.getInventoryFull());
+                c.announce(MaplePacketCreator.getShowInventoryFull());
                 return;
             }
             if (ob instanceof MapleMapItem) {
                 MapleMapItem mapitem = (MapleMapItem) ob;
                 synchronized (mapitem) {
                     if (mapitem.isPickedUp()) {
-                        c.getSession().write(MaplePacketCreator.getInventoryFull());
-                        c.getSession().write(MaplePacketCreator.getShowInventoryFull());
+                        c.announce(MaplePacketCreator.getInventoryFull());
+                        c.announce(MaplePacketCreator.getShowInventoryFull());
                         return;
                     }
                     final double Distance = cpos.distanceSq(mapitem.getPosition());
@@ -135,7 +135,7 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                     mapitem.setPickedUp(true);
                 }
             }
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
         }
     }
 

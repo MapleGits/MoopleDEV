@@ -21,13 +21,9 @@
 */
 package net.channel.handler;
 
-import client.MapleCharacter;
 import java.sql.PreparedStatement;
 import client.MapleClient;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import tools.DatabaseConnection;
 import tools.data.input.SeekableLittleEndianAccessor;
 import net.AbstractMaplePacketHandler;

@@ -28,7 +28,6 @@ import net.world.guild.*;
 import java.util.Iterator;
 import tools.MaplePacketCreator;
 import client.MapleCharacter;
-import client.MaplePet;
 
 public final class GuildOperationHandler extends AbstractMaplePacketHandler {
     private final boolean isGuildNameAcceptable(String name) {
@@ -118,14 +117,14 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     return;
                 }
                 if (gid == 0) {
-                    c.getSession().write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
+                    c.announce(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
                     return;
                 }
                 mc.gainMeso(-MapleGuild.CREATE_GUILD_COST, true, false, true);
                 mc.setGuildId(gid);
                 mc.setGuildRank(1);
                 mc.saveGuildStatus();
-                c.getSession().write(MaplePacketCreator.showGuildInfo(mc));
+                c.announce(MaplePacketCreator.showGuildInfo(mc));
                 c.getPlayer().dropMessage(1, "You have successfully created a Guild.");
                 respawnPlayer(mc);
                 break;
@@ -136,7 +135,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                 String name = slea.readMapleAsciiString();
                 MapleGuildResponse mgr = MapleGuild.sendInvite(c, name);
                 if (mgr != null) {
-                    c.getSession().write(mgr.getPacket());
+                    c.announce(mgr.getPacket());
                 } else {
                     Invited inv = new Invited(name, mc.getGuildId());
                     if (!invited.contains(inv)) {
@@ -186,7 +185,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     mc.setGuildId(0);
                     return;
                 }
-                c.getSession().write(MaplePacketCreator.showGuildInfo(mc));
+                c.announce(MaplePacketCreator.showGuildInfo(mc));
                 mc.saveGuildStatus(); // update database
                 respawnPlayer(mc);
                 break;
@@ -204,7 +203,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     c.getPlayer().dropMessage(5, "Unable to connect to the World Server. Please try again later.");
                     return;
                 }
-                c.getSession().write(MaplePacketCreator.showGuildInfo(null));
+                c.announce(MaplePacketCreator.showGuildInfo(null));
                 mc.setGuildId(0);
                 mc.saveGuildStatus();
                 respawnPlayer(mc);
@@ -237,7 +236,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     c.getChannelServer().getWorldInterface().changeRankTitle(mc.getGuildId(), ranks);
                 } catch (java.rmi.RemoteException re) {
                     System.out.println("RemoteException occurred " + re);
-                    c.getSession().write(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
+                    c.announce(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
                     return;
                 }
                 break;
@@ -255,7 +254,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     c.getChannelServer().getWorldInterface().changeRank(mc.getGuildId(), cid, newRank);
                 } catch (java.rmi.RemoteException re) {
                     System.out.println("RemoteException occurred while attempting to change rank " + re);
-                    c.getSession().write(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
+                    c.announce(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
                     return;
                 }
                 break;
@@ -265,7 +264,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     return;
                 }
                 if (mc.getMeso() < MapleGuild.CHANGE_EMBLEM_COST) {
-                    c.getSession().write(MaplePacketCreator.serverNotice(1, "You do not have enough mesos to create a Guild."));
+                    c.announce(MaplePacketCreator.serverNotice(1, "You do not have enough mesos to create a Guild."));
                     return;
                 }
                 short bg = slea.readShort();
@@ -276,7 +275,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     c.getChannelServer().getWorldInterface().setGuildEmblem(mc.getGuildId(), bg, bgcolor, logo, logocolor);
                 } catch (java.rmi.RemoteException re) {
                     System.out.println("RemoteException occurred " + re);
-                    c.getSession().write(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
+                    c.announce(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
                     return;
                 }
                 mc.gainMeso(-MapleGuild.CHANGE_EMBLEM_COST, true, false, true);
@@ -295,7 +294,7 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
                     c.getChannelServer().getWorldInterface().setGuildNotice(mc.getGuildId(), notice);
                 } catch (java.rmi.RemoteException re) {
                     System.out.println("RemoteException occurred " + re);
-                    c.getSession().write(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
+                    c.announce(MaplePacketCreator.serverNotice(5, "Unable to connect to the World Server. Please try again later."));
                     return;
                 }
                 break;

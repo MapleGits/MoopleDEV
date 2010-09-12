@@ -55,7 +55,7 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
 	    }
                 player.setLastAttack(System.currentTimeMillis());
                 player.setCombo(combo);
-                c.getSession().write(MaplePacketCreator.showCombo(combo));
+                c.announce(MaplePacketCreator.showCombo(combo));
             }
         }
     }

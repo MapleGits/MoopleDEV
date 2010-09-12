@@ -37,13 +37,13 @@ public final class SpouseChatHandler extends AbstractMaplePacketHandler {
 //            if (c.getPlayer().isMarried()) {
 //                MapleCharacter wife = c.getChannelServer().getPlayerStorage().getCharacterById(c.getPlayer().getPartnerId());
 //                if (wife != null) {
-//                    wife.getClient().getSession().write(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
-//                    c.getSession().write(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
+//                    wife.getClient().announce(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
+//                    c.announce(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
 //                } else
 //                    try {
 //                        if (c.getChannelServer().getWorldInterface().isConnected(wife.getName())) {
 //                            c.getChannelServer().getWorldInterface().sendSpouseChat(c.getPlayer().getName(), wife.getName(), msg);
-//                            c.getSession().write(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
+//                            c.announce(MaplePacketCreator.sendSpouseChat(c.getPlayer(), msg));
 //                        } else
 //                            c.getPlayer().message("You are either not married or your spouse is currently offline.");
 //                    } catch (Exception e) {

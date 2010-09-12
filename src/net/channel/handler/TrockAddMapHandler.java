@@ -64,6 +64,6 @@ public final class TrockAddMapHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().message("You may not save this map.");
             }
         }
-        c.getSession().write(MaplePacketCreator.trockRefreshMapList(c.getPlayer().getId(), rocktype));
+        c.announce(MaplePacketCreator.trockRefreshMapList(c.getPlayer().getId(), rocktype));
     }
 }

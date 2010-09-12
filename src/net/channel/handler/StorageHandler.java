@@ -63,7 +63,7 @@ public final class StorageHandler extends AbstractMaplePacketHandler {
                 return;
             }
             if (storage.isFull()) {
-                c.getSession().write(MaplePacketCreator.getStorageFull());
+                c.announce(MaplePacketCreator.getStorageFull());
                 return;
             }
             if (c.getPlayer().getMeso() < 100) {

@@ -78,6 +78,6 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         eq_weapon.setPosition((byte) -11);
         equip.addFromDB(eq_weapon.copy());
         newchar.saveToDB(false);
-        c.getSession().write(MaplePacketCreator.addNewCharEntry(newchar));
+        c.announce(MaplePacketCreator.addNewCharEntry(newchar));
     }
 }

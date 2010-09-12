@@ -46,23 +46,23 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
         if (tempban != null) {
             if (tempban.getTimeInMillis() > System.currentTimeMillis()) {
                 long till = DateUtil.getFileTimestamp(tempban.getTimeInMillis());
-                c.getSession().write(MaplePacketCreator.getTempBan(till, c.getGReason()));
+                c.announce(MaplePacketCreator.getTempBan(till, c.getGReason()));
                 return;
             }
         }
         if (loginok == 3 && !isBanned) {
-            c.getSession().write(MaplePacketCreator.getPermBan(c.getGReason()));
+            c.announce(MaplePacketCreator.getPermBan(c.getGReason()));
             return;
         }
         if (loginok == 0 && isBanned) {
             loginok = 3;
             MapleCharacter.ban(c.getSession().getRemoteAddress().toString().split(":")[0], "Mac/IP Re-ban", false);
         } else if (loginok != 0) {
-            c.getSession().write(MaplePacketCreator.getLoginFailed(loginok));
+            c.announce(MaplePacketCreator.getLoginFailed(loginok));
             return;
         }
         if (c.finishLogin() == 0) {
-            c.getSession().write(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
+            c.announce(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
             final MapleClient client = c;
             c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
                 public void run() {
@@ -70,7 +70,7 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
                 }
             }, 600000));
         } else {
-            c.getSession().write(MaplePacketCreator.getLoginFailed(7));
+            c.announce(MaplePacketCreator.getLoginFailed(7));
         }
     }
 }

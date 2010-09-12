@@ -31,10 +31,10 @@ public final class DeleteCharHandler extends AbstractMaplePacketHandler {
         String pic = slea.readMapleAsciiString();
         int cid = slea.readInt();
         if (c.checkPic(pic)) {
-        c.getSession().write(MaplePacketCreator.deleteCharResponse(cid, 0));
+        c.announce(MaplePacketCreator.deleteCharResponse(cid, 0));
         c.deleteCharacter(cid);
         } else {
-        c.getSession().write(MaplePacketCreator.deleteCharResponse(cid, 0x14));
+        c.announce(MaplePacketCreator.deleteCharResponse(cid, 0x14));
         }
     }
 }

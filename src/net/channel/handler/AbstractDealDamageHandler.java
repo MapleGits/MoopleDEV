@@ -109,7 +109,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             theSkill = SkillFactory.getSkill(attack.skill);
             attackEffect = attack.getAttackEffect(player, theSkill);
             if (attackEffect == null) {
-                player.getClient().getSession().write(MaplePacketCreator.enableActions());
+                player.getClient().announce(MaplePacketCreator.enableActions());
                 return;
             }
 
@@ -120,7 +120,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 if (player.isAlive()) {
                     attackEffect.applyTo(player);
                 } else {
-                    player.getClient().getSession().write(MaplePacketCreator.enableActions());
+                    player.getClient().announce(MaplePacketCreator.enableActions());
                 }
             }
             if (attack.numAttacked > attackEffect.getMobCount()) {

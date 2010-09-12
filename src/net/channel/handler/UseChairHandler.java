@@ -35,6 +35,6 @@ public final class UseChairHandler extends AbstractMaplePacketHandler {
         }
         c.getPlayer().setChair(itemId);
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showChair(c.getPlayer().getId(), itemId), false);
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.enableActions());
     }
 }

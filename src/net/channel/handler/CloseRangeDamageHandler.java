@@ -84,7 +84,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
                     player.setBuffedValue(MapleBuffStat.COMBO, neworbcount);
                     int duration = ceffect.getDuration();
                     duration += (int) ((player.getBuffedStarttime(MapleBuffStat.COMBO) - System.currentTimeMillis()));
-                    c.getSession().write(MaplePacketCreator.giveBuff(oid, duration, stat, false, false, player.getMount()));
+                    c.announce(MaplePacketCreator.giveBuff(oid, duration, stat, false, false, player.getMount()));
                     player.getMap().broadcastMessage(player, MaplePacketCreator.giveForeignBuff(player.getId(), stat, false), false);
                 }
             } else if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(15100004) : SkillFactory.getSkill(5110001)) > 0 && (player.getJob().isA(MapleJob.MARAUDER) || player.getJob().isA(MapleJob.THUNDERBREAKER2))) {
@@ -128,7 +128,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
                 if (player.skillisCooling(attack.skill)) {
                     return;
                 } else {
-                    c.getSession().write(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
+                    c.announce(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
                     player.addCooldown(attack.skill, System.currentTimeMillis(), effect_.getCooldown() * 1000, TimerManager.getInstance().schedule(new CancelCooldownAction(player, attack.skill), effect_.getCooldown() * 1000));
                 }
             }

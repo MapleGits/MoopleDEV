@@ -34,12 +34,12 @@ public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         for (int i = 0; i < Math.min(1, 15); i++) {//input world numbers here change 1 to number of worlds
             try {
-                c.getSession().write(MaplePacketCreator.getServerList(i, names[i], LoginServer.getInstance().getWorldInterface().getChannelLoad()));
+                c.announce(MaplePacketCreator.getServerList(i, names[i], LoginServer.getInstance().getWorldInterface().getChannelLoad()));
             } catch (RemoteException e) {
             }
         }
-        c.getSession().write(MaplePacketCreator.getEndOfServerList());
-        c.getSession().write(MaplePacketCreator.enableRecommended(true));
-        c.getSession().write(MaplePacketCreator.sendRecommended(1, "Text here"));
+        c.announce(MaplePacketCreator.getEndOfServerList());
+        c.announce(MaplePacketCreator.enableRecommended(true));
+        c.announce(MaplePacketCreator.sendRecommended(1, "Text here"));
     }
 }

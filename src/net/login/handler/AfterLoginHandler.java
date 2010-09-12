@@ -35,23 +35,23 @@ public final class AfterLoginHandler extends AbstractMaplePacketHandler {
         }
         if (c2 == 1 && c3 == 1) {
             if (c.getPin() == null) {
-                c.getSession().write(MaplePacketCreator.registerPin());
+                c.announce(MaplePacketCreator.registerPin());
             } else {
-                c.getSession().write(MaplePacketCreator.requestPin());
+                c.announce(MaplePacketCreator.requestPin());
             }
         } else if (c2 == 1 && c3 == 0) {           
             String pin = slea.readMapleAsciiString();
             if (c.checkPin(pin)) {
-                c.getSession().write(MaplePacketCreator.pinAccepted());
+                c.announce(MaplePacketCreator.pinAccepted());
             } else {
-                c.getSession().write(MaplePacketCreator.requestPinAfterFailure());
+                c.announce(MaplePacketCreator.requestPinAfterFailure());
             }
         } else if (c2 == 2 && c3 == 0) {
             String pin = slea.readMapleAsciiString();
             if (c.checkPin(pin)) {
-                c.getSession().write(MaplePacketCreator.registerPin());
+                c.announce(MaplePacketCreator.registerPin());
             } else {
-                c.getSession().write(MaplePacketCreator.requestPinAfterFailure());
+                c.announce(MaplePacketCreator.requestPinAfterFailure());
             }
         } else if (c2 == 0 && c3 == 5) {
             c.updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);

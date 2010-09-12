@@ -54,7 +54,7 @@ public class AutoAssignHandler extends AbstractMaplePacketHandler {
         int remainingAp = (chr.getRemainingAp() - total) + extras;
         chr.setRemainingAp(remainingAp);
         chr.updateSingleStat(MapleStat.AVAILABLEAP, remainingAp);
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.enableActions());
     }
 
     private int gainStatByType(MapleCharacter chr, MapleStat type, int gain) {

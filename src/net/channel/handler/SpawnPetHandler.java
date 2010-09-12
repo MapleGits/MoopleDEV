@@ -55,7 +55,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
         {
             if (c.getPlayer().haveItem(petid + 1)) {
                 c.getPlayer().dropMessage(5, "You can't hatch your " + (petid == 5000028 ? "Dragon egg" : "Robo egg") + " if you already have a Baby " + (petid == 5000028 ? "Dragon." : "Robo."));
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             } else {
                 int evolveid = MapleDataTool.getInt("info/evol1", dataRoot.getData("Pet/" + petid + ".img"));
@@ -72,7 +72,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 }
                 MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, pet, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration());
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, petid, (short) 1, false, false);
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             }
         }
@@ -93,8 +93,8 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
             pet.setSummoned(true);
             c.getPlayer().addPet(pet);
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showPet(c.getPlayer(), pet, false, false), true);
-            c.getSession().write(MaplePacketCreator.petStatUpdate(c.getPlayer()));
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.petStatUpdate(c.getPlayer()));
+            c.announce(MaplePacketCreator.enableActions());
             c.getPlayer().startFullnessSchedule(PetDataFactory.getHunger(pet.getItemId()), pet, c.getPlayer().getPetIndex(pet));
         }
     }

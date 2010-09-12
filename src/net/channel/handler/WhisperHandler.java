@@ -43,18 +43,18 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
             String text = slea.readMapleAsciiString();
             MapleCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
             if (player != null) {
-                player.getClient().getSession().write(MaplePacketCreator.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
-                c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
+                player.getClient().announce(MaplePacketCreator.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
+                c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
             } else {// not found
                 try {
                     if (c.getChannelServer().getWorldInterface().isConnected(recipient)) {
                         c.getChannelServer().getWorldInterface().whisper(c.getPlayer().getName(), recipient, c.getChannel(), text);
-                        c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
+                        c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
                     } else {
-                        c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                        c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
                     }
                 } catch (RemoteException e) {
-                    c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                    c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
                     c.getChannelServer().reconnectWorld();
                 }
             }
@@ -63,11 +63,11 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
             MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
             if (victim != null && c.getPlayer().gmLevel() >= victim.gmLevel()) {
                 if (victim.getCashShop().isOpened()) {
-                    c.getSession().write(MaplePacketCreator.getFindReply(victim.getName(), -1, 2));
+                    c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 2));
                 } else if (victim.inMTS()) {
-                    c.getSession().write(MaplePacketCreator.getFindReply(victim.getName(), -1, 0));
+                    c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 0));
                 } else {
-                    c.getSession().write(MaplePacketCreator.getFindReply(victim.getName(), victim.getMap().getId(), 1));
+                    c.announce(MaplePacketCreator.getFindReply(victim.getName(), victim.getMap().getId(), 1));
                 }
             } else { // not found
                 try {
@@ -76,7 +76,7 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
                         if (rs.getInt("gm") > c.getPlayer().gmLevel()) {
-                            c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                            c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
                             return;
                         }
                     }
@@ -84,9 +84,9 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
                     ps.close();
                     int channel = c.getChannelServer().getWorldInterface().find(recipient);
                     if (channel > -1) {
-                        c.getSession().write(MaplePacketCreator.getFindReply(recipient, channel, 3));
+                        c.announce(MaplePacketCreator.getFindReply(recipient, channel, 3));
                     } else {
-                        c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                        c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
                     }
                 } catch (Exception e) {
                     c.getChannelServer().reconnectWorld();

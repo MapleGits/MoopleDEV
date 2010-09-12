@@ -85,24 +85,24 @@ public final class MessengerHandler extends AbstractMaplePacketHandler {
                     MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
                     if (target != null) {
                         if (target.getMessenger() == null) {
-                            target.getClient().getSession().write(MaplePacketCreator.messengerInvite(c.getPlayer().getName(), messenger.getId()));
-                            c.getSession().write(MaplePacketCreator.messengerNote(input, 4, 1));
+                            target.getClient().announce(MaplePacketCreator.messengerInvite(c.getPlayer().getName(), messenger.getId()));
+                            c.announce(MaplePacketCreator.messengerNote(input, 4, 1));
                         } else {
-                            c.getSession().write(MaplePacketCreator.messengerChat(player.getName() + " : " + input + " is already using Maple Messenger"));
+                            c.announce(MaplePacketCreator.messengerChat(player.getName() + " : " + input + " is already using Maple Messenger"));
                         }
                     } else {
                         try {
                             if (c.getChannelServer().getWorldInterface().isConnected(input)) {
                                 c.getChannelServer().getWorldInterface().messengerInvite(c.getPlayer().getName(), messenger.getId(), input, c.getChannel());
                             } else {
-                                c.getSession().write(MaplePacketCreator.messengerNote(input, 4, 0));
+                                c.announce(MaplePacketCreator.messengerNote(input, 4, 0));
                             }
                         } catch (RemoteException e) {
                             c.getChannelServer().reconnectWorld();
                         }
                     }
                 } else {
-                    c.getSession().write(MaplePacketCreator.messengerChat(player.getName() + " : You cannot have more than 3 people in the Maple Messenger"));
+                    c.announce(MaplePacketCreator.messengerChat(player.getName() + " : You cannot have more than 3 people in the Maple Messenger"));
                 }
                 break;
             case 0x05:
@@ -110,7 +110,7 @@ public final class MessengerHandler extends AbstractMaplePacketHandler {
                 MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) {
                     if (target.getMessenger() != null) {
-                        target.getClient().getSession().write(MaplePacketCreator.messengerNote(player.getName(), 5, 0));
+                        target.getClient().announce(MaplePacketCreator.messengerNote(player.getName(), 5, 0));
                     }
                 } else {
                     try {

@@ -63,11 +63,11 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
                             pet.setCloseness(newCloseness);
                             if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
                                 pet.setLevel(pet.getLevel() + 1);
-                                c.getSession().write(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
+                                c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
                                 c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
                             }
                         }
-                        c.getSession().write(MaplePacketCreator.updatePet(pet));
+                        c.announce(MaplePacketCreator.updatePet(pet));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), index, 1, true), true);
                     } else {
                         if (gainCloseness) {
@@ -80,7 +80,7 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
                                 pet.setLevel(pet.getLevel() - 1);
                             }
                         }
-                        c.getSession().write(MaplePacketCreator.updatePet(pet));
+                        c.announce(MaplePacketCreator.updatePet(pet));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), chr.getPetIndex(pet), 1, false), true);
                     }
 

@@ -2987,14 +2987,6 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket showForeignEffect(int cid, int effect) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
-        mplew.writeInt(cid);
-        mplew.write(effect);
-        return mplew.getPacket();
-    }
-
     public static MaplePacket showBuffeffect(int cid, int skillid, int effectid) {
         return showBuffeffect(cid, skillid, effectid, (byte) 3);
     }
@@ -5711,14 +5703,16 @@ public class MaplePacketCreator {
     }
 
     /**
+     * 6 = Exp did not drop (Safety Charms)
      * 7 = Enter portal sound
      * 8 = Job change
      * 9 = Quest complete
+     * 10 = damage O.O
      * 14 = Monster book pickup
-     * 16 = ??
+     * 15 = Equipment levelup
+     * 16 = Maker Skill Success
      * 17 = Equipment levelup
      * 19 = Exp card [500, 200, 50]
-     * 21++ = no effect
      * @param effect
      * @return 
      */
@@ -5726,6 +5720,22 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         mplew.write(effect);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket showForeignEffect(int cid, int effect) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
+        mplew.writeInt(cid);
+        mplew.write(effect);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket showWheelsLeft(int left) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
+        mplew.write(0x15);
+        mplew.write(left);
         return mplew.getPacket();
     }
 

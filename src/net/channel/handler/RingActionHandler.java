@@ -59,7 +59,7 @@ public final class RingActionHandler extends AbstractMaplePacketHandler {
                 boolean accepted = slea.readByte() > 0;
                 String proposerName = slea.readMapleAsciiString();
                 if (accepted) {
-                    c.getSession().write(MaplePacketCreator.sendEngagementRequest(proposerName));
+                    c.announce(MaplePacketCreator.sendEngagementRequest(proposerName));
                 }
                 break;
             case 3: //Drop Ring
@@ -96,7 +96,7 @@ public final class RingActionHandler extends AbstractMaplePacketHandler {
                 for (int i = 0; i < amount; i++) {
                     items[i] = slea.readMapleAsciiString();
                 }
-                c.getSession().write(MaplePacketCreator.sendGroomWishlist());
+                c.announce(MaplePacketCreator.sendGroomWishlist());
                 break;
             default:
                 System.out.println("NEW RING ACTION " + mode);

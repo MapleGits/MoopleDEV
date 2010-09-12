@@ -57,14 +57,14 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
         if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011) {
             skillLevel = 1;
             c.getPlayer().setDojoEnergy(0);
-            c.getSession().write(MaplePacketCreator.getEnergy(0));
+            c.announce(MaplePacketCreator.getEnergy(0));
         }
         MapleStatEffect effect = skill.getEffect(skillLevel);
         if (effect.getCooldown() > 0) {
             if (c.getPlayer().skillisCooling(skillid)) {
                 return;
             } else if (skillid != Corsair.BATTLE_SHIP) {
-                c.getSession().write(MaplePacketCreator.skillCooldown(skillid, effect.getCooldown()));
+                c.announce(MaplePacketCreator.skillCooldown(skillid, effect.getCooldown()));
                 ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(c.getPlayer(), skillid), effect.getCooldown() * 1000);
                 c.getPlayer().addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000, timer);
             }
@@ -84,7 +84,7 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
             }
             byte direction = slea.readByte();
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(c.getPlayer().getId(), skillid, c.getPlayer().getSkillLevel(skillid), direction), false);
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         } else if (skillid == Buccaneer.TIME_LEAP) { // Timeleap
             MapleParty p = c.getPlayer().getParty();
@@ -120,10 +120,10 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
                 skill.getEffect(skillLevel).applyTo(c.getPlayer(), pos);
             } else {
                 c.getPlayer().message("Please wait 5 seconds before casting Mystic Door again");
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
             }
         } else {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
         }
     }
 }

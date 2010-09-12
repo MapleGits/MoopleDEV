@@ -35,12 +35,12 @@ public final class NPCAnimation extends AbstractMaplePacketHandler {
             mplew.writeShort(SendOpcode.NPC_ACTION.getValue());
             mplew.writeInt(slea.readInt());
             mplew.writeShort(slea.readShort());
-            c.getSession().write(mplew.getPacket());
+            c.announce(mplew.getPacket());
         } else if (length > 6) { // NPC Move
             byte[] bytes = slea.read(length - 9);
             mplew.writeShort(SendOpcode.NPC_ACTION.getValue());
             mplew.write(bytes);
-            c.getSession().write(mplew.getPacket());
+            c.announce(mplew.getPacket());
         }
     }
 }

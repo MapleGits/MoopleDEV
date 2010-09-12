@@ -48,11 +48,11 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
             case 0x05:
             case 0x08: // osiris put this here
                 if (c.getPlayer().getMap().getMonsterByOid(monsobid).getId() == 9300101) {
-                    c.getSession().write(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 0));
+                    c.announce(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 0));
                     c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
-                    c.getSession().write(MaplePacketCreator.killMonster(monsobid, 0));
+                    c.announce(MaplePacketCreator.killMonster(monsobid, 0));
                     c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.killMonster(monsobid, 0));
-                    c.getSession().write(MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
+                    c.announce(MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
                     c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
                     MapleInventoryManipulator.addById(c, 1902000, (short) 1);
                 }
@@ -62,16 +62,16 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                 int monsMaxHp = c.getPlayer().getMap().getMonsterByOid(monsobid).getMaxHp();
                 if (c.getPlayer().getMap().getMonsterByOid(monsobid).getId() == 9300157 && monsHp < (monsMaxHp / 2)) {
                     if (monsHp + (monsMaxHp / 3) - Randomizer.getInstance().nextInt(monsMaxHp) <= 0) {
-                        c.getSession().write(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
+                        c.announce(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
-                        c.getSession().write(MaplePacketCreator.killMonster(monsobid, 0));
+                        c.announce(MaplePacketCreator.killMonster(monsobid, 0));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.killMonster(monsobid, 0));
-                        c.getSession().write(MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
+                        c.announce(MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.makeMonsterInvisible(c.getPlayer().getMap().getMonsterByOid(monsobid)));
                         c.getPlayer().getMap().getMonsterByOid(monsobid).setHp(0);
                         MapleInventoryManipulator.addById(c, 4031868, (short) 1);
                     } else {
-                        c.getSession().write(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 0));
+                        c.announce(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 0));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 0));
                     }
                 } else {

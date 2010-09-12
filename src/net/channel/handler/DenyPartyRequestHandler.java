@@ -32,7 +32,7 @@ public final class DenyPartyRequestHandler extends AbstractMaplePacketHandler {
         slea.readByte();
         MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
         if (cfrom != null) {
-            cfrom.getClient().getSession().write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
+            cfrom.getClient().announce(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
         }
     }
 }

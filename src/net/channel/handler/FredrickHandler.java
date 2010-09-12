@@ -50,14 +50,14 @@ public class FredrickHandler extends AbstractMaplePacketHandler {
 
         switch (operation) {
             case 0x19: //Will never come...
-                //c.getSession().write(MaplePacketCreator.getFredrick((byte) 0x24));
+                //c.announce(MaplePacketCreator.getFredrick((byte) 0x24));
                 break;
             case 0x1A:
             List<Pair<IItem, MapleInventoryType>> items;
         try {
             items = ItemFactory.MERCHANT.loadItems(chr.getId(), false);
                 if (!check(chr, items)) {
-                    c.getSession().write(MaplePacketCreator.fredrickMessage((byte) 0x21));
+                    c.announce(MaplePacketCreator.fredrickMessage((byte) 0x21));
                     return;
                 }
 
@@ -67,7 +67,7 @@ public class FredrickHandler extends AbstractMaplePacketHandler {
                 for (int i = 0; i < items.size(); i++) {
                     MapleInventoryManipulator.addFromDrop(c, items.get(i).getLeft(), false);
                 }
-                c.getSession().write(MaplePacketCreator.fredrickMessage((byte) 0x1E));
+                c.announce(MaplePacketCreator.fredrickMessage((byte) 0x1E));
             } else {
                 chr.message("An unknown error has occured.");
                 return;

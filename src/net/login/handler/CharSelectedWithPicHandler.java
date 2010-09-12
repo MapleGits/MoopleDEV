@@ -32,16 +32,16 @@ public class CharSelectedWithPicHandler extends AbstractMaplePacketHandler {
 			if (c.getIdleTask() != null) {
 				c.getIdleTask().cancel(true);
 			}
-			//c.getSession().write(MaplePacketCreator.getServerIP(InetAddress.getByName("127.0.0.1"), 7575, charId));
+			//c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName("127.0.0.1"), 7575, charId));
 			c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
 
 			String channelServerIP = MapleClient.getChannelServerIPFromSubnet(c.getSession().getRemoteAddress().toString().replace("/", "").split(":")[0], c.getChannel());
 			if(channelServerIP.equals("0.0.0.0")) {
 				String[] socket = LoginServer.getInstance().getIP(c.getChannel()).split(":");
-				c.getSession().write(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
+				c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
 			} else {
 				String[] socket = LoginServer.getInstance().getIP(c.getChannel()).split(":");
-				c.getSession().write(MaplePacketCreator.getServerIP(InetAddress.getByName(channelServerIP), Integer.parseInt(socket[1]), charId));
+				c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(channelServerIP), Integer.parseInt(socket[1]), charId));
 			}
 		} catch (UnknownHostException e) {
 			log.error("Host not found", e);
@@ -49,7 +49,7 @@ public class CharSelectedWithPicHandler extends AbstractMaplePacketHandler {
 
                 } else {
 
-            c.getSession().write(MaplePacketCreator.wrongPic());
+            c.announce(MaplePacketCreator.wrongPic());
             }
         }
 

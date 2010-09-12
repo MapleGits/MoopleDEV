@@ -78,7 +78,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                 effect = attack.getAttackEffect(player, null);
                 bulletCount = effect.getBulletCount();
                 if (effect.getCooldown() > 0) {
-                    c.getSession().write(MaplePacketCreator.skillCooldown(attack.skill, effect.getCooldown()));
+                    c.announce(MaplePacketCreator.skillCooldown(attack.skill, effect.getCooldown()));
                 }
             }
             boolean hasShadowPartner = player.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null;
@@ -172,7 +172,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                         if (player.skillisCooling(attack.skill)) {
                             return;
                         } else {
-                            c.getSession().write(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
+                            c.announce(MaplePacketCreator.skillCooldown(attack.skill, effect_.getCooldown()));
                             player.addCooldown(attack.skill, System.currentTimeMillis(), effect_.getCooldown() * 1000, TimerManager.getInstance().schedule(new CancelCooldownAction(player, attack.skill), effect_.getCooldown() * 1000));
                         }
                     }

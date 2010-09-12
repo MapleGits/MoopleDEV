@@ -59,7 +59,7 @@ public final class ViewCharHandler extends AbstractMaplePacketHandler {
             rs.close();
             ps.close();
             int unk = charsNum + 3 - charsNum % 3;
-            c.getSession().write(MaplePacketCreator.showAllCharacter(charsNum, unk));
+            c.announce(MaplePacketCreator.showAllCharacter(charsNum, unk));
             for (int w : worlds) {
                 List<MapleCharacter> chrsinworld = new ArrayList<MapleCharacter>();
                 for (MapleCharacter chr : chars) {
@@ -67,7 +67,7 @@ public final class ViewCharHandler extends AbstractMaplePacketHandler {
                         chrsinworld.add(chr);
                     }
                 }
-                c.getSession().write(MaplePacketCreator.showAllCharacterInfo(w, chrsinworld));
+                c.announce(MaplePacketCreator.showAllCharacterInfo(w, chrsinworld));
             }
         } catch (Exception e) {
         }

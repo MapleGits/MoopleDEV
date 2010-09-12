@@ -34,7 +34,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class PetAutoPotHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         slea.readByte();
@@ -45,17 +45,17 @@ public final class PetAutoPotHandler extends AbstractMaplePacketHandler {
         IItem toUse = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
         if (toUse != null && toUse.getQuantity() > 0) {
             if (toUse.getItemId() != itemId) {
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             }
             MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
             MapleStatEffect stat = MapleItemInformationProvider.getInstance().getItemEffect(toUse.getItemId());
             stat.applyTo(c.getPlayer());
             if (stat.getMp() > 0) {
-                c.getSession().write(MaplePacketCreator.sendAutoMpPot(itemId));
+                c.announce(MaplePacketCreator.sendAutoMpPot(itemId));
             }
             if (stat.getHp() > 0) {
-                c.getSession().write(MaplePacketCreator.sendAutoHpPot(itemId));
+                c.announce(MaplePacketCreator.sendAutoHpPot(itemId));
             }
         }
     }

@@ -33,7 +33,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class MesoDropHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         slea.skip(4);

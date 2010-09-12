@@ -49,10 +49,10 @@ public class EnterCashShopHandler extends AbstractMaplePacketHandler {
 		mc.saveToDB(true);
 		mc.getCashShop().open(true);
 		mc.getMap().removePlayer(mc);
-		c.getSession().write(MaplePacketCreator.openCashShop(c));
-		c.getSession().write(MaplePacketCreator.showCashInventory(c));
-		c.getSession().write(MaplePacketCreator.showGifts(mc.getCashShop().loadGifts()));
-		c.getSession().write(MaplePacketCreator.showWishList(mc, false));
-		c.getSession().write(MaplePacketCreator.showCash(mc));
+		c.announce(MaplePacketCreator.openCashShop(c));
+		c.announce(MaplePacketCreator.showCashInventory(c));
+		c.announce(MaplePacketCreator.showGifts(mc.getCashShop().loadGifts()));
+		c.announce(MaplePacketCreator.showWishList(mc, false));
+		c.announce(MaplePacketCreator.showCash(mc));
 	}
 }

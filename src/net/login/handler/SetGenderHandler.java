@@ -37,7 +37,7 @@ public class SetGenderHandler extends AbstractMaplePacketHandler {
         byte type = slea.readByte(); //?
         if (type == 0x01 && c.getGender() == 10) { //Packet shouldn't come if Gender isn't 10.
             c.setGender(slea.readByte());
-            c.getSession().write(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
+            c.announce(MaplePacketCreator.getAuthSuccess(c, c.getAccountName()));
             final MapleClient client = c;
             c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
                 public void run() {

@@ -48,6 +48,6 @@ public final class ServerStatusRequestHandler extends AbstractMaplePacketHandler
         } else {
             status = 0;
         }
-        c.getSession().write(MaplePacketCreator.getServerStatus(status));
+        c.announce(MaplePacketCreator.getServerStatus(status));
     }
 }

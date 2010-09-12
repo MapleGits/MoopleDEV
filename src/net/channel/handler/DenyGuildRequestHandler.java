@@ -36,7 +36,7 @@ public final class DenyGuildRequestHandler extends AbstractMaplePacketHandler {
         slea.readByte();
         MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
         if (cfrom != null) {
-            cfrom.getClient().getSession().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
+            cfrom.getClient().announce(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
         }
     }
 }
