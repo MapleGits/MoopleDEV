@@ -43,7 +43,8 @@ public enum MapleStat implements IntValueHolder {
     EXP(0x10000),
     FAME(0x20000),
     MESO(0x40000),
-    PET(0x180008);
+    PET(0x180008),
+    GACHAEXP(0x200000);
     private final int i;
 
     private MapleStat(int i) {

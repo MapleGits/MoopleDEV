@@ -74,7 +74,6 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 HiredMerchant.this.closeShop(owner.getClient(), true);
             }
         }, 1000 * 60 * 60 * 24);
-        owner.setHiredMerchant(this);
     }
 
     public void broadcastToVisitors(MaplePacket packet) {

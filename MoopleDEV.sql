@@ -240,6 +240,7 @@ CREATE TABLE `characters` (
   `name` varchar(13) NOT NULL DEFAULT '',
   `level` int(11) NOT NULL DEFAULT '0',
   `exp` int(11) NOT NULL DEFAULT '0',
+  `gachaexp` int(11) NOT NULL DEFAULT '0',
   `str` int(11) NOT NULL DEFAULT '0',
   `dex` int(11) NOT NULL DEFAULT '0',
   `luk` int(11) NOT NULL DEFAULT '0',

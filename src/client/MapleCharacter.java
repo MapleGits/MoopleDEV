@@ -207,6 +207,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private String chalktext;
     private String search = null;
     private AtomicInteger exp = new AtomicInteger();
+    private AtomicInteger gachaexp = new AtomicInteger();
     private AtomicInteger meso = new AtomicInteger();
     private int merchantmeso;
     private BuddyList buddylist;
@@ -1255,6 +1256,27 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         client.announce(MaplePacketCreator.addInventorySlot(type, item, false));
     }
 
+    public void gainGachaExp() {
+        int expgain = 0;
+        int currentgexp = gachaexp.get();
+        if ((currentgexp + exp.get()) >= ExpTable.getExpNeededForLevel(level)) {
+            expgain += ExpTable.getExpNeededForLevel(level) - exp.get();
+            int nextneed = ExpTable.getExpNeededForLevel(level + 1);
+            if ((currentgexp - expgain) >= nextneed) {
+                expgain += nextneed;
+            }
+            this.gachaexp.set(currentgexp - expgain);
+        } else {
+            expgain = this.gachaexp.getAndSet(0);
+        }
+        gainExp(expgain, false, false);
+        updateSingleStat(MapleStat.GACHAEXP, this.gachaexp.get());
+    }
+
+    public void gainGachaExp(int gain) {
+        updateSingleStat(MapleStat.GACHAEXP, gachaexp.addAndGet(gain));
+    }
+
     public void gainExp(int gain, boolean show, boolean inChat) {
         gainExp(gain, show, inChat, true);
     }
@@ -1270,11 +1292,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (show && gain != 0) {
                 client.announce(MaplePacketCreator.getShowExpGain(gain, inChat, white));
             }
-            if (gmLevel > 0) {
-                while (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
-                    levelUp(true);
-                }
-            } else if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
+            if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
                 levelUp(true);
                 int need = ExpTable.getExpNeededForLevel(level);
                 if (exp.get() >= need) {
@@ -1525,6 +1543,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public int getExp() {
         return exp.get();
+    }
+
+    public int getGachaExp() {
+        return gachaexp.get();
     }
 
     public int getExpRate() {
@@ -2338,6 +2360,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.int_ = rs.getInt("int");
             ret.luk = rs.getInt("luk");
             ret.exp.set(rs.getInt("exp"));
+            ret.gachaexp.set(rs.getInt("gachaexp"));
             ret.hp = rs.getInt("hp");
             ret.maxhp = rs.getInt("maxhp");
             ret.mp = rs.getInt("mp");
@@ -3045,9 +3068,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             con.setAutoCommit(false);
             PreparedStatement ps;
             if (update) {
-                ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
+                ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, gachaexp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             } else {
-                ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpMpUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, mountlevel, mounttiredness, mountexp, equipslots, useslots, setupslots, etcslots, monsterbookcover, vanquisherStage, dojopoints, lastDojoStage, finishedDojoTutorial, vanquisherKills, matchcardwins, matchcardlosses, matchcardties, omokwins, omoklosses, omokties, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, gachaexp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpMpUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, mountlevel, mounttiredness, mountexp, equipslots, useslots, setupslots, etcslots, monsterbookcover, vanquisherStage, dojopoints, lastDojoStage, finishedDojoTutorial, vanquisherKills, matchcardwins, matchcardlosses, matchcardties, omokwins, omoklosses, omokties, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             }
             if (gmLevel < 1 && level > 199) {
                 ps.setInt(1, isCygnus() ? 120 : 200);
@@ -3060,89 +3083,90 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(5, luk);
             ps.setInt(6, int_);
             ps.setInt(7, Math.abs(exp.get()));
-            ps.setInt(8, hp);
-            ps.setInt(9, mp);
-            ps.setInt(10, maxhp);
-            ps.setInt(11, maxmp);
-            ps.setInt(12, remainingSp);
-            ps.setInt(13, remainingAp);
-            ps.setInt(14, gmLevel);
-            ps.setInt(15, skinColor.getId());
-            ps.setInt(16, gender);
-            ps.setInt(17, job.getId());
-            ps.setInt(18, hair);
-            ps.setInt(19, face);
+            ps.setInt(8, Math.abs(gachaexp.get()));
+            ps.setInt(9, hp);
+            ps.setInt(10, mp);
+            ps.setInt(11, maxhp);
+            ps.setInt(12, maxmp);
+            ps.setInt(13, remainingSp);
+            ps.setInt(14, remainingAp);
+            ps.setInt(15, gmLevel);
+            ps.setInt(16, skinColor.getId());
+            ps.setInt(17, gender);
+            ps.setInt(18, job.getId());
+            ps.setInt(19, hair);
+            ps.setInt(20, face);
             if (map == null && getJob() == MapleJob.BEGINNER) {
-                ps.setInt(20, 0);
+                ps.setInt(21, 0);
             } else if (map == null && getJob() == MapleJob.NOBLESSE) {
-                ps.setInt(20, 130030000);
+                ps.setInt(21, 130030000);
             } else if (map == null && getJob() == MapleJob.LEGEND) {
-                ps.setInt(20, 914000000);
+                ps.setInt(21, 914000000);
             } else {
                 if (map.getForcedReturnId() != 999999999) {
-                    ps.setInt(20, map.getForcedReturnId());
+                    ps.setInt(21, map.getForcedReturnId());
                 } else {
-                    ps.setInt(20, map.getId());
+                    ps.setInt(21, map.getId());
                 }
             }
-            ps.setInt(21, meso.get());
-            ps.setInt(22, hpMpApUsed);
+            ps.setInt(22, meso.get());
+            ps.setInt(23, hpMpApUsed);
             if (map == null || map.getId() == 610020000 || map.getId() == 610020001) {
-                ps.setInt(23, 0);
+                ps.setInt(24, 0);
             } else {
                 MaplePortal closest = map.findClosestSpawnpoint(getPosition());
                 if (closest != null) {
-                    ps.setInt(23, closest.getId());
+                    ps.setInt(24, closest.getId());
                 } else {
-                    ps.setInt(23, 0);
+                    ps.setInt(24, 0);
                 }
             }
             if (party != null) {
-                ps.setInt(24, party.getId());
+                ps.setInt(25, party.getId());
             } else {
-                ps.setInt(24, -1);
+                ps.setInt(25, -1);
             }
-            ps.setInt(25, buddylist.getCapacity());
+            ps.setInt(26, buddylist.getCapacity());
             if (messenger != null) {
-                ps.setInt(26, messenger.getId());
-                ps.setInt(27, messengerposition);
+                ps.setInt(27, messenger.getId());
+                ps.setInt(28, messengerposition);
             } else {
-                ps.setInt(26, 0);
-                ps.setInt(27, 4);
+                ps.setInt(27, 0);
+                ps.setInt(28, 4);
             }
             if (maplemount != null) {
-                ps.setInt(28, maplemount.getLevel());
-                ps.setInt(29, maplemount.getExp());
-                ps.setInt(30, maplemount.getTiredness());
+                ps.setInt(29, maplemount.getLevel());
+                ps.setInt(30, maplemount.getExp());
+                ps.setInt(31, maplemount.getTiredness());
             } else {
-                ps.setInt(28, 1);
-                ps.setInt(29, 0);
+                ps.setInt(29, 1);
                 ps.setInt(30, 0);
+                ps.setInt(31, 0);
             }
             for (int i = 0; i < 4; i++)
-	          ps.setInt(i + 31, getSlots(i));
+	          ps.setInt(i + 32, getSlots(i));
             
             if (update) {
                 monsterbook.saveCards(getId());
             }
-            ps.setInt(35, bookCover);
-            ps.setInt(36, vanquisherStage);
-            ps.setInt(37, dojoPoints);
-            ps.setInt(38, dojoStage);
-            ps.setInt(39, finishedDojoTutorial ? 1 : 0);
-            ps.setInt(40, vanquisherKills);
-            ps.setInt(41, matchcardwins);
-            ps.setInt(42, matchcardlosses);
-            ps.setInt(43, matchcardties);
-            ps.setInt(44, omokwins);
-            ps.setInt(45, omoklosses);
-            ps.setInt(46, omokties);
+            ps.setInt(36, bookCover);
+            ps.setInt(37, vanquisherStage);
+            ps.setInt(38, dojoPoints);
+            ps.setInt(39, dojoStage);
+            ps.setInt(40, finishedDojoTutorial ? 1 : 0);
+            ps.setInt(41, vanquisherKills);
+            ps.setInt(42, matchcardwins);
+            ps.setInt(43, matchcardlosses);
+            ps.setInt(44, matchcardties);
+            ps.setInt(45, omokwins);
+            ps.setInt(46, omoklosses);
+            ps.setInt(47, omokties);
             if (update) {
-                ps.setInt(47, id);
+                ps.setInt(48, id);
             } else {
-                ps.setInt(47, accountid);
-                ps.setString(48, name);
-                ps.setInt(49, world);
+                ps.setInt(48, accountid);
+                ps.setString(49, name);
+                ps.setInt(50, world);
             }
             int updateRows = ps.executeUpdate();
             if (!update) {
@@ -3430,6 +3454,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void setExp(int amount) {
         this.exp.set(amount);
+    }
+
+    public void setGachaExp(int amount) {
+        this.gachaexp.set(amount);
     }
 
     public void setFace(int face) {

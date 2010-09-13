@@ -94,7 +94,6 @@ import server.life.MapleNPC;
 import server.life.MobSkill;
 import server.maps.HiredMerchant;
 import server.maps.MapleMap;
-import server.maps.MapleMapItem;
 import server.maps.MapleMist;
 import server.maps.MapleReactor;
 import server.maps.MapleSummon;
@@ -157,7 +156,7 @@ public class MaplePacketCreator {
         mplew.writeShort(chr.getRemainingSp()); // remaining sp
         mplew.writeInt(chr.getExp()); // current exp
         mplew.writeShort(chr.getFame()); // fame
-        mplew.writeInt(0); //Gacha Exp < Awesome shit btw :3
+        mplew.writeInt(chr.getGachaExp()); //Gacha Exp
         mplew.writeInt(chr.getMapId()); // current map id
         mplew.write(chr.getInitialSpawnpoint()); // spawnpoint
         mplew.writeInt(0);
@@ -2806,7 +2805,8 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.SET_ITEMS.getCode());
         mplew.write(number);
-        addItemInfo(mplew, item);
+        mplew.write(item.getPosition());
+        addItemInfo(mplew, item, true);
         return mplew.getPacket();
     }
 
@@ -4781,20 +4781,6 @@ public class MaplePacketCreator {
         return getMiniGameResult(game, 0, 0, 1, 3, 0, false);
     }
 
-    public static MaplePacket getHiredMerchant(MapleClient c, MapleMiniGame minigame, boolean owner, int piece) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
-        mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
-        mplew.write(HexTool.getByteArrayFromHexString("05 04 00 00 71 C0 4C 00"));
-        mplew.writeMapleAsciiString("Hired Merchant");
-        mplew.write(0xFF);
-        mplew.write(0);
-        mplew.write(0);
-        mplew.writeMapleAsciiString(c.getPlayer().getName());
-        mplew.write(HexTool.getByteArrayFromHexString("1F 7E 00 00 00 00 00 00 00 00 03 00 31 32 33 10 00 00 00 00 01 01 00 01 00 7B 00 00 00 02 52 8C 1E 00 00 00 80 05 BB 46 E6 17 02 01 00 00 00 00 00"));
-        return mplew.getPacket();
-    }
-
     public static MaplePacket fredrickMessage(byte operation) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.FREDRICK_MESSAGE.getValue());
@@ -4905,9 +4891,9 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue()); // header.
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
-        mplew.write(0x05);
-        mplew.write(0x04);
-        mplew.writeShort(hm.getVisitorSlot(chr)); //Short I guess :3
+        mplew.write(5);
+        mplew.write(4);
+        mplew.writeShort(hm.getVisitorSlot(chr)); 
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
         for (int i = 1; i <= 3; i++) {
@@ -4927,7 +4913,7 @@ public class MaplePacketCreator {
 	    mplew.write(0);
         }
         mplew.writeMapleAsciiString(hm.getDescription());
-        mplew.write(0x10);
+        mplew.write(10);
         mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
         if (hm.getItems().size() == 0) {
@@ -6063,7 +6049,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket sendMesoLimit() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(0x36); //Players under level 15 can only trade 1m per day
+        mplew.writeShort(SendOpcode.MESO_LIMIT.getValue()); //Players under level 15 can only trade 1m per day
         return mplew.getPacket();
     }
 

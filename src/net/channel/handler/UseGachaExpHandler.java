@@ -19,37 +19,26 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 package net.channel.handler;
 
-import client.IItem;
 import client.MapleClient;
-import client.MapleInventoryType;
+import client.autoban.AutobanFactory;
 import net.AbstractMaplePacketHandler;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
  *
- * @author XoticStory; modified by kevintjuh93
+ * @author kevintjuh93
  */
-public final class UseSolomonHandler extends AbstractMaplePacketHandler {
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.readInt();
-        byte slot = (byte) slea.readShort();
-        int itemId = slea.readInt();
-        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        IItem slotItem = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
-        int gachaexp = ii.getExpById(itemId);
-        if (c.getPlayer().getInventory(MapleInventoryType.USE).countById(itemId) <= 0 || slotItem.getItemId() != itemId || c.getPlayer().getLevel() > ii.getMaxLevelById(itemId)) {
-            return;
+public class UseGachaExpHandler extends AbstractMaplePacketHandler {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        if (c.getPlayer().getGachaExp() == 0) {
+            c.getPlayer().dropMessage(1, "Packet editing is for faggots like you.");
+            AutobanFactory.GACHA_EXP.autoban(c.getPlayer(), "Packet editing is for faggots like this nib.");
         }
-        if ((c.getPlayer().getGachaExp() + gachaexp) > Integer.MAX_VALUE) {
-            return;
-        }
-        c.getPlayer().gainGachaExp(gachaexp);
-        MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
+        c.getPlayer().gainGachaExp();
         c.announce(MaplePacketCreator.enableActions());
     }
 }
