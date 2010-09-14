@@ -45,6 +45,7 @@ public class AutobanManager {
 
         if (points.get(fac) >= fac.getMaximum())
             chr.autoban("Autobanned for " + fac.name() + ". Info: 100% correct, so fuck this player", 1);
+            chr.sendPolice("You have been blocked by #bMooplePolice for the HACK reason#k.");
     }
 
     public void addMiss() {

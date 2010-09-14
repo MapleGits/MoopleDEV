@@ -540,6 +540,13 @@ public class MaplePacketCreator {
 	return mplew.getPacket();
     }
 
+    public static MaplePacket sendPolice(String text) {
+	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.MAPLE_ADMIN.getValue());
+	mplew.writeMapleAsciiString(text);
+	return mplew.getPacket();
+    }
+
     public static MaplePacket getPermBan(byte reason) {
 	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 	mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
@@ -4462,6 +4469,7 @@ public class MaplePacketCreator {
         mplew.write(1);
         mplew.writeInt(chars);
         mplew.writeInt(unk);
+        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -4474,6 +4482,7 @@ public class MaplePacketCreator {
         for (MapleCharacter chr : chars) {
             addCharEntry(mplew, chr);
         }
+        mplew.writeShort(0);
         return mplew.getPacket();
     }
 

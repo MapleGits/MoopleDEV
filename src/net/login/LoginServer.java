@@ -26,18 +26,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 import tools.DatabaseConnection;
 import net.MapleServerHandler;
 import net.PacketProcessor;
 import net.ServerMode;
 import net.ServerMode.Mode;
+import net.channel.ChannelServer;
 import net.mina.MapleCodecFactory;
+import net.world.WorldRegistryImpl;
 import net.world.remote.WorldLoginInterface;
 import net.world.remote.WorldRegistry;
 import server.TimerManager;
@@ -78,8 +77,7 @@ public class LoginServer implements Runnable {
     @Override
     public void run() {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", Registry.REGISTRY_PORT, new SslRMIClientSocketFactory());
-            worldRegistry = (WorldRegistry) registry.lookup("WorldRegistry");
+            worldRegistry = WorldRegistryImpl.getInstance();
             lwi = new LoginWorldInterfaceImpl();
             wli = worldRegistry.registerLoginServer("releaselogin", lwi);
             Properties dbProp = new Properties();
@@ -133,6 +131,7 @@ public class LoginServer implements Runnable {
     public static void main(String args[]) {
         ServerMode.setServerMode(Mode.LOGIN);
         LoginServer.getInstance().run();
+        ChannelServer.launch();
     }
 
     public Properties getSubnetInfo() {

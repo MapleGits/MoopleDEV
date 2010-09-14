@@ -21,6 +21,8 @@
 */
 package client;
 
+import net.channel.ChannelServer;
+
 public class BuddylistEntry {
     private String name;
     private String group;

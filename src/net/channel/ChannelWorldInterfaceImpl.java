@@ -52,16 +52,14 @@ import tools.MaplePacketCreator;
  *
  * @author Matze
  */
-public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements ChannelWorldInterface {
+public class ChannelWorldInterfaceImpl implements ChannelWorldInterface {
     private static final long serialVersionUID = 7815256899088644192L;
     private ChannelServer server;
 
     public ChannelWorldInterfaceImpl() throws RemoteException {
-        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
     public ChannelWorldInterfaceImpl(ChannelServer server) throws RemoteException {
-        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
         this.server = server;
     }
 

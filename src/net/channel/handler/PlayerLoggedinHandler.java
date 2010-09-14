@@ -52,7 +52,6 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
     public final boolean validateState(MapleClient c) {
         return !c.isLoggedIn();
     }
-
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int cid = slea.readInt();
         MapleCharacter player = null;
@@ -81,6 +80,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                 cserv.reconnectWorld();
                 allowLogin = false;
             }
+
             if (state != MapleClient.LOGIN_SERVER_TRANSITION || !allowLogin) {
                 c.setPlayer(null);
                 c.getSession().close(true);

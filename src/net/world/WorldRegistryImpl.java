@@ -53,7 +53,7 @@ import net.world.remote.WorldRegistry;
  *
  * @author Matze
  */
-public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
+public class WorldRegistryImpl implements WorldRegistry {
     private static final long serialVersionUID = -8675328749226749056L;
     private static WorldRegistryImpl instance = null;
     private Map<Integer, ChannelWorldInterface> channelServer = new LinkedHashMap<Integer, ChannelWorldInterface>();
@@ -66,8 +66,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     private PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private Map<Integer, MapleAlliance> alliances = new LinkedHashMap<Integer, MapleAlliance>();
 
-    private WorldRegistryImpl() throws RemoteException {
-        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
+    private WorldRegistryImpl() {
         DatabaseConnection.initialize(WorldServer.getInstance().getDbProp());
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT MAX(party)+1 FROM characters");
@@ -86,7 +85,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         if (instance == null) {
             try {
                 instance = new WorldRegistryImpl();
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

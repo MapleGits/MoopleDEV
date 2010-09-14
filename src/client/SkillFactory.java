@@ -75,29 +75,43 @@ import constants.skills.WindArcher;
 import java.util.HashMap;
 import java.util.Map;
 import provider.MapleData;
+import provider.MapleDataDirectoryEntry;
+import provider.MapleDataFileEntry;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import server.MapleStatEffect;
 import server.life.Element;
-import tools.StringUtil;
 
 public class SkillFactory {
     private static Map<Integer, ISkill> skills = new HashMap<Integer, ISkill>();
     private static MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider(MapleDataProviderFactory.fileInWZPath("Skill.wz"));
 
     public static ISkill getSkill(int id) {
-        ISkill ret = skills.get(id);
-        if (ret == null) {
-            MapleData skillData = datasource.getData(StringUtil.getLeftPaddedStr(String.valueOf(id / 10000), '0', 3) + ".img").getChildByPath("skill/" + StringUtil.getLeftPaddedStr(String.valueOf(id), '0', 7));
-            if (skillData != null) {
-                ret = loadFromData(id, skillData);
-                skills.put(id, ret);
-            } else {
-                return null;
-            }
-        }
-        return ret;
+	if (skills.size() != 0) {
+	    return skills.get(Integer.valueOf(id));
+	}
+        System.out.println("Loading Skills");
+	final MapleDataDirectoryEntry root = datasource.getRoot();
+
+        int skillid;
+
+	for (MapleDataFileEntry topDir : root.getFiles()) { // Loop thru jobs
+	    if (topDir.getName().length() <= 8) {
+		for (MapleData data : datasource.getData(topDir.getName())) { // Loop thru each jobs
+		    if (data.getName().equals("skill")) {
+			for (MapleData data2 : data) { // Loop thru each jobs
+			    if (data2 != null) {
+				skillid = Integer.parseInt(data2.getName());
+				skills.put(skillid, loadFromData(skillid, data2));
+
+			    }
+			}
+		    }
+		}
+	    }
+	}
+        return null;
     }
 
     public static Skill loadFromData(int id, MapleData data) {

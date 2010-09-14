@@ -81,6 +81,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     String ip = target.getClient().getSession().getRemoteAddress().toString().split(":")[0];
                     reason += readableTargetName + " (IP: " + ip + ")";
                     target.ban(reason, true);
+                    target.sendPolice("You have been blocked by #b" + c.getPlayer().getName() + "for the HACK reason#k.");
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
                 } else if (MapleCharacter.ban(victim, reason, false)) {
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));

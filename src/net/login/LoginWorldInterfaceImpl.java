@@ -22,19 +22,15 @@
 package net.login;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
-import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 /**
  *
  * @author Matze
  */
-public class LoginWorldInterfaceImpl extends UnicastRemoteObject implements LoginWorldInterface {
+public class LoginWorldInterfaceImpl implements LoginWorldInterface {
     private static final long serialVersionUID = -4272249463358245100L;
 
     public LoginWorldInterfaceImpl() throws RemoteException {
-        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
     public void channelOnline(int channel, String ip) throws RemoteException {

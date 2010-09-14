@@ -471,20 +471,16 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void ban(String reason, boolean dc) {
         try {
-            client.banMacs();
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 1, banreason = ? WHERE id = ?");
             ps.setString(1, reason);
             ps.setInt(2, accountid);
             ps.executeUpdate();
             ps.close();
-            ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
-            ps.setString(1, client.getSession().getRemoteAddress().toString().split(":")[0]);
-            ps.executeUpdate();
-            ps.close();
+            this.isbanned = true;
         } catch (Exception e) {
         }
-        client.disconnect();
+
     }
 
     public static boolean ban(String id, String reason, boolean accountId) {
@@ -3312,6 +3308,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void sendPolice(int greason, String reason, int duration) {
         announce(MaplePacketCreator.sendPolice(greason, reason, duration));
+        this.isbanned = true;
         TimerManager.getInstance().schedule(new Runnable() {
 
             @Override
@@ -3319,6 +3316,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     client.disconnect(); //FAGGOTS
             }
         }, duration);
+    }
+
+    public void sendPolice(String text) {
+        announce(MaplePacketCreator.sendPolice(text));
+        this.isbanned = true;
+        TimerManager.getInstance().schedule(new Runnable() {
+
+            @Override
+            public void run() {
+                    client.disconnect(); //FAGGOTS
+            }
+        }, 6000);
     }
 
     public void sendKeymap() {
@@ -4193,10 +4202,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(4, accountid);
             ps.executeUpdate();
             ps.close();
-            this.isbanned = true;
         } catch (SQLException e) {
         }
-        sendPolice(greason, reason, 6000);
     }
 
     public boolean isBanned() {

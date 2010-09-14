@@ -57,7 +57,6 @@ import server.events.MapleOxQuiz;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
-import server.maps.HiredMerchant;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -380,6 +379,8 @@ public class Commands {
         } else if (sub[0].equals("sp")) {
             player.setRemainingSp(Integer.parseInt(sub[1]));
             player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
+        } else if (sub[0].equals("police")) {
+            player.sendPolice(joinStringFrom(sub, 1));
         } else if (sub[0].equals("unban")) {
             try {
                 PreparedStatement p = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET banned = -1 WHERE id = " + MapleCharacter.getIdByName(sub[1]));
@@ -405,14 +406,8 @@ public class Commands {
             for (int i = 8810002; i < 8810010; i++) {
                 player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(i), player.getPosition());
             }
-        } else if (sub[0].equals("merch")) {
-            HiredMerchant merchant = new HiredMerchant(player, 5030012, "TEST");
-            player.setHiredMerchant(merchant);
-            player.announce(MaplePacketCreator.getHiredMerchant(player, merchant, true));
-        } else if (sub[0].equals("merchp")) {
-        player.announce(MaplePacketCreator.getHiredMerchant(player, player.getHiredMerchant(), true));
         } else if (sub[0].equals("packet")) {
-            c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
+            player.getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
         } else if (sub[0].equals("npc")) {
             MapleNPC npc = MapleLifeFactory.getNPC(Integer.parseInt(sub[1]));
             if (npc != null) {

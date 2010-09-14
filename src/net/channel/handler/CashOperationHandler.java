@@ -26,6 +26,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventory;
 import client.MapleInventoryType;
+import client.MaplePet;
 import client.MapleRing;
 import constants.InventoryConstants;
 import java.util.Calendar;
@@ -64,11 +65,21 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             }
             if (action == 0x03) { // Item
                 IItem item = cItem.toItem();
+                if (InventoryConstants.isPet(item.getItemId())) {
+                    MaplePet pet = MaplePet.createPet(item.getItemId());
+                    if (pet != null)
+                        item.setPet(pet);
+                }
                 cs.addToInventory(item);               
                 c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
             } else { // Package
                 List<IItem> cashPackage = CashItemFactory.getPackage(cItem.getItemId());
                 for (IItem item : cashPackage) {
+                    if (InventoryConstants.isPet(item.getItemId())) {
+                        MaplePet pet = MaplePet.createPet(item.getItemId());
+                        if (pet != null)
+                            item.setPet(pet);
+                    }
                     cs.addToInventory(item);
                 }
                 c.announce(MaplePacketCreator.showBoughtCashPackage(cashPackage, c.getAccID()));
@@ -89,7 +100,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             } else if (recipient == null) {
                 c.announce(MaplePacketCreator.showCashShopMessage(0xA9));
                 return;
-            } else if (recipient.get("accountId").equals(String.valueOf(c.getAccID()))) {
+            } else if (recipient.get("accountid").equals(String.valueOf(c.getAccID()))) {
                 c.announce(MaplePacketCreator.showCashShopMessage(0xA8));
                 return;
             }
@@ -206,10 +217,10 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                         c.getPlayer().dropMessage("You and your partner are the same gender, please buy a friendship ring.");
                         return;
                     }
-                    //c.announce(MaplePacketCreator.showBoughtCashItem(ring, c.getAccID()));
+                    c.announce(MaplePacketCreator.showBoughtCashItem(ring.toItem(), c.getAccID()));
                     cs.gainCash(toCharge, -ring.getPrice());
                     MapleRing.createRing(ring.getItemId(), c.getPlayer(), partnerChar, text);
-                    c.getPlayer().getClient().announce(MaplePacketCreator.serverNotice(1, "Successfully created a ring for both you and your partner!"));
+                    c.getPlayer().dropMessage(1, "Successfully created a ring for both you and your partner!");
                 }
             } else {
                 c.getPlayer().dropMessage("The birthday you entered was incorrect.");

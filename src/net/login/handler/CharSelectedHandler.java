@@ -51,6 +51,7 @@ public final class CharSelectedHandler extends AbstractMaplePacketHandler {
                 c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(channelServerIP), Integer.parseInt(socket[1]), charId));
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

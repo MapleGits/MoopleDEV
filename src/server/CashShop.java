@@ -87,12 +87,6 @@ public class CashShop {
         public IItem toItem() {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             IItem item;
-            MaplePet pet = null;
-
-            if (InventoryConstants.isPet(itemId)) {
-                pet = MaplePet.createPet(itemId);
-
-            }
 
             if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP)) {
                 item = ii.getEquipById(itemId);
@@ -101,7 +95,6 @@ public class CashShop {
             }
             
             item.setSN(sn);
-            item.setPet(pet);
             item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
             return item;
         }

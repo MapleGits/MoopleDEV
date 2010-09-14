@@ -52,5 +52,6 @@ public enum AutobanFactory {
 
     public void autoban(MapleCharacter chr, String value) {
         chr.autoban("Autobanned for (" + this.name() + ": " + value + ")", 1);
+        chr.sendPolice("You have been blocked by #bMooplePolice for the HACK reason#k.");
     }
 }

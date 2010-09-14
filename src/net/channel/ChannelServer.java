@@ -22,14 +22,9 @@
 package net.channel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
@@ -38,10 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MalformedObjectNameException;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 import client.MapleCharacter;
+import client.SkillFactory;
 import constants.ServerConstants;
 import java.util.ArrayList;
 import java.util.Map.Entry;
@@ -54,6 +47,7 @@ import net.ServerMode;
 import net.ServerMode.Mode;
 import net.mina.MapleCodecFactory;
 import net.world.MaplePartyCharacter;
+import net.world.WorldRegistryImpl;
 import net.world.guild.MapleGuild;
 import net.world.guild.MapleGuildCharacter;
 import net.world.guild.MapleGuildSummary;
@@ -133,8 +127,7 @@ public class ChannelServer implements Runnable {
                 System.out.println("Reconnecting to world server");
                 synchronized (wci) {
                     try {
-                        Registry registry = LocateRegistry.getRegistry(ServerConstants.HOST, Registry.REGISTRY_PORT, new SslRMIClientSocketFactory());
-                        worldRegistry = (WorldRegistry) registry.lookup("WorldRegistry");
+                        worldRegistry = WorldRegistryImpl.getInstance();
                         cwi = new ChannelWorldInterfaceImpl(this);
                         wci = worldRegistry.registerChannelServer(key, cwi);
                         Properties dbProp = new Properties();
@@ -186,6 +179,7 @@ public class ChannelServer implements Runnable {
             acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
             acceptor.bind(new InetSocketAddress(port));
             ((SocketSessionConfig) acceptor.getSessionConfig()).setTcpNoDelay(true);
+            SkillFactory.getSkill(999999); //Load skills
             System.out.println("Channel " + getChannel() + ": Listening on port " + port);
             wci.serverReady();
             eventSM.init();
@@ -229,7 +223,7 @@ public class ChannelServer implements Runnable {
         return mapFactory;
     }
 
-    private static ChannelServer newInstance(String key) throws InstanceAlreadyExistsException, MalformedObjectNameException {
+    private static ChannelServer newInstance(String key) {
         ChannelServer instance = new ChannelServer(key);
         pendingInstances.put(key, instance);
         return instance;
@@ -384,12 +378,10 @@ public class ChannelServer implements Runnable {
         }
     }
 
-    public static void main(String args[]) throws FileNotFoundException, IOException, NotBoundException, InstanceAlreadyExistsException, MalformedObjectNameException {
-        ServerMode.setServerMode(Mode.CHANNEL);
-        Registry registry = LocateRegistry.getRegistry("localhost", Registry.REGISTRY_PORT, new SslRMIClientSocketFactory());
-        worldRegistry = (WorldRegistry) registry.lookup("WorldRegistry");
+    public static void launch() {
+        worldRegistry = WorldRegistryImpl.getInstance();
         for (int i = 0; i < ServerConstants.CHANNEL_NUMBER; i++) {
-            newInstance("release" + (i + 1)).run();
+                newInstance("release" + (i + 1)).run();
         }
         DatabaseConnection.getConnection();
         Runtime.getRuntime().addShutdownHook(new Thread() {
