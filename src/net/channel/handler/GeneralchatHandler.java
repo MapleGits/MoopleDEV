@@ -30,15 +30,22 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         String s = slea.readMapleAsciiString();
-        if (s.charAt(0) == '/' && c.getPlayer().isGM()) {
+        char heading = s.charAt(0);
+        if (heading == '/') {
             String[] sp = s.split(" ");
             sp[0] = sp[0].toLowerCase().substring(1);
-            c.getPlayer().addCommandToList(s);
-            if (!Commands.executeGMCommand(c, sp, '/') && c.getPlayer().isGM()) {
-                Commands.executeAdminCommand(c, sp, '/');
+            if (!Commands.executePlayerCommand(c, sp, heading)) {
+                if (c.getPlayer().isGM()) {
+                    c.getPlayer().addCommandToList(s);
+                    if (!Commands.executeGMCommand(c, sp, heading)) {
+                        Commands.executeAdminCommand(c, sp, heading);
+                    }
+                }
+            } else {
+                c.getPlayer().yellowMessage("Please use '!' or '/' for GM Commands.");
             }
         } else {
-        c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));
+            c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));
         }
     }
 }

@@ -22,9 +22,12 @@
 package net.world;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 import net.channel.ChannelWorldInterface;
 import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldLoginInterface;
@@ -33,10 +36,11 @@ import net.world.remote.WorldLoginInterface;
  *
  * @author Matze
  */
-public class WorldLoginInterfaceImpl implements WorldLoginInterface {
+public class WorldLoginInterfaceImpl extends UnicastRemoteObject implements WorldLoginInterface {
     private static final long serialVersionUID = 2292230575358218818L;
 
     public WorldLoginInterfaceImpl() throws RemoteException {
+        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
     public Properties getDatabaseProperties() throws RemoteException {

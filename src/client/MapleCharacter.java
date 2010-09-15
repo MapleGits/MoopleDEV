@@ -2616,6 +2616,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         dropMessage(5, m);
     }
 
+    public void yellowMessage(String m) {
+        announce(MaplePacketCreator.sendYellowTip(m));
+    }
+
     public void mobKilled(int id) {
         for (MapleQuestStatus q : quests.values()) {
             if (q.getStatus() == MapleQuestStatus.Status.COMPLETED || q.getQuest().canComplete(this, null)) {

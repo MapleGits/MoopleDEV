@@ -1,5 +1,5 @@
 @echo off
-@title MoopleDEV Server
-set CLASSPATH=.;dist\MoopleDEV.jar;dist\mina-core.jar;dist\slf4j-api.jar;dist\slf4j-jdk14.jar;dist\mysql-connector-java-bin.jar
-java -Xmx100m -Dwzpath=wz\ -Djavax.net.ssl.keyStore=filename.keystore -Djavax.net.ssl.keyStorePassword=passwd -Djavax.net.ssl.trustStore=filename.keystore -Djavax.net.ssl.trustStorePassword=passwd net.login.LoginServer
-pause
+color b
+start /b launch_world.bat
+start /b launch_login.bat
+start /b launch_channel.bat

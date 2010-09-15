@@ -70,10 +70,10 @@ public final class PacketProcessor {
         return instance;
     }
 
-    public void reset(Mode mode) { //Fk this shit
+    public void reset(Mode mode) {
         handlers = new MaplePacketHandler[handlers.length];
         registerHandler(RecvOpcode.PONG, new KeepAliveHandler());
-            //LOGIN
+        if (mode == Mode.LOGINSERVER) {
             registerHandler(RecvOpcode.AFTER_LOGIN, new AfterLoginHandler());
             registerHandler(RecvOpcode.SERVERLIST_REREQUEST, new ServerlistRequestHandler());
             registerHandler(RecvOpcode.CHARLIST_REQUEST, new CharlistRequestHandler());
@@ -92,7 +92,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.REGISTER_PIC, new RegisterPicHandler());
             registerHandler(RecvOpcode.CHAR_SELECT_WITH_PIC, new CharSelectedWithPicHandler());
             registerHandler(RecvOpcode.SET_GENDER, new SetGenderHandler());
-            //CHANNEL
+        } else if (mode == Mode.CHANNELSERVER) {
             registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
             registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());
             registerHandler(RecvOpcode.GENERAL_CHAT, new GeneralchatHandler());
@@ -214,6 +214,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.CLICK_GUIDE, new ClickGuideHandler());
             registerHandler(RecvOpcode.FREDRICK_ACTION, new FredrickHandler());
             registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
-            registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());        
+            registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());
+        }
     }
 }

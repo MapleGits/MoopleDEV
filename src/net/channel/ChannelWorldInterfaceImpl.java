@@ -33,7 +33,6 @@ import client.BuddylistEntry;
 import client.MapleCharacter;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
-import client.MaplePet;
 import java.sql.PreparedStatement;
 import tools.DatabaseConnection;
 import net.ByteArrayMaplePacket;
@@ -52,14 +51,16 @@ import tools.MaplePacketCreator;
  *
  * @author Matze
  */
-public class ChannelWorldInterfaceImpl implements ChannelWorldInterface {
+public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements ChannelWorldInterface {
     private static final long serialVersionUID = 7815256899088644192L;
     private ChannelServer server;
 
     public ChannelWorldInterfaceImpl() throws RemoteException {
+        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
     public ChannelWorldInterfaceImpl(ChannelServer server) throws RemoteException {
+        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
         this.server = server;
     }
 
@@ -419,13 +420,5 @@ public class ChannelWorldInterfaceImpl implements ChannelWorldInterface {
 
     public void broadcastGMMessage(String sender, byte[] message) throws RemoteException {
         server.broadcastGMPacket(new ByteArrayMaplePacket(message));
-    }
-
-    public void broadcastToClan(byte[] message, int clan) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public int onlineClanMembers(int clan) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

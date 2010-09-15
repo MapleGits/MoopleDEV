@@ -37,7 +37,7 @@ public class ServerConstants {
     public static final String EVENT_MESSAGE = "";
     public static final long RANKING_INTERVAL = 3600000;
     public static final boolean ENABLE_PIN = true;
-    public static final boolean ENABLE_PIC = true; //False = You can't delete characters now.
+    public static final boolean ENABLE_PIC = true; //False = You can't delete characters.
     // Channel Configuration
     public static String SERVER_MESSAGE = "";
     public static final String EVENTS = "automsg KerningPQ Boats Subway";

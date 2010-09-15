@@ -22,6 +22,7 @@
 package net.world;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 import net.MaplePacket;
 import tools.DatabaseConnection;
 import net.channel.ChannelWorldInterface;
@@ -44,16 +47,18 @@ import net.world.remote.WorldLocation;
  *
  * @author Matze
  */
-public class WorldChannelInterfaceImpl implements WorldChannelInterface {
+public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements WorldChannelInterface {
     private static final long serialVersionUID = -5948361439191412565L;
     private ChannelWorldInterface cb;
     private int dbId;
     private boolean ready = false;
 
     public WorldChannelInterfaceImpl() throws RemoteException {
+        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
     public WorldChannelInterfaceImpl(ChannelWorldInterface cb, int dbId) throws RemoteException {
+        super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
         this.cb = cb;
         this.dbId = dbId;
     }

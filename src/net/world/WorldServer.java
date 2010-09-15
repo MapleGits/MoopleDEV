@@ -69,6 +69,10 @@ public class WorldServer {
 
     public static void main(String[] args) {
         ServerMode.setServerMode(Mode.WORLD);
-        WorldRegistryImpl.getInstance();
+        try {
+            LocateRegistry.createRegistry(Registry.REGISTRY_PORT, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory()).rebind("WorldRegistry", WorldRegistryImpl.getInstance());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

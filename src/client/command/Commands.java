@@ -63,6 +63,20 @@ import tools.MaplePacketCreator;
 import tools.Pair;
 
 public class Commands {
+    public static boolean executePlayerCommand(MapleClient c, String[] sub, char heading) {
+        MapleCharacter chr = c.getPlayer();
+        if (sub[0].equals("dispose")) {
+            NPCScriptManager.getInstance().dispose(c);
+            c.announce(MaplePacketCreator.enableActions());
+            chr.message("Done.");
+        } else {
+            if (chr.gmLevel() == 0) {
+                chr.yellowMessage("Player Command " + heading + sub[0] + " does not excist");
+            }
+            return false;
+        }
+        return true;
+    }
     public static boolean executeGMCommand(MapleClient c, String[] sub, char heading) {
         MapleCharacter player = c.getPlayer();
         ChannelServer cserv = c.getChannelServer();
@@ -91,10 +105,6 @@ public class Commands {
             NPCScriptManager.getInstance().start(c, 9200000, null, null);
         } else if (sub[0].equals("dc")) {
             cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
-        } else if (sub[0].equals("dispose")) {
-            NPCScriptManager.getInstance().dispose(c);
-            c.announce(MaplePacketCreator.enableActions());
-            player.message("Done.");
         } else if (sub[0].equals("exprate")) {
             ServerConstants.EXP_RATE = (byte) (Integer.parseInt(sub[1]) % 128);
             cserv.broadcastPacket(MaplePacketCreator.serverNotice(6, "Exp Rate has been changed to " + Integer.parseInt(sub[1]) + "x."));
@@ -393,7 +403,7 @@ public class Commands {
             player.message("Unbanned " + sub[1]);
         } else {
             if (player.gmLevel() == 1) {
-                player.message("GM Command " + heading + sub[0] + " does not exist");
+                player.yellowMessage("GM Command " + heading + sub[0] + " does not exist");
             }
             return false;
         }
@@ -468,7 +478,7 @@ public class Commands {
                 player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(x), player.getPosition());
             }
         } else {
-            player.message("Command " + heading + sub[0] + " does not exist.");
+            player.yellowMessage("Command " + heading + sub[0] + " does not exist.");
         }
     }
 

@@ -91,7 +91,7 @@ public class SkillFactory {
 	if (skills.size() != 0) {
 	    return skills.get(Integer.valueOf(id));
 	}
-        System.out.println("Loading Skills");
+        System.out.println("Loading Skills:::");
 	final MapleDataDirectoryEntry root = datasource.getRoot();
 
         int skillid;
