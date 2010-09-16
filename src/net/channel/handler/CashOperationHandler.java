@@ -26,9 +26,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventory;
 import client.MapleInventoryType;
-import client.MaplePet;
 import client.MapleRing;
-import constants.InventoryConstants;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -59,27 +57,13 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             if (cItem == null || !cItem.isOnSale() || cs.getCash(useNX) < cItem.getPrice()) {
                 return;
             }
-            if (InventoryConstants.isPet(cItem.getItemId()) && !chr.isGM()) {
-                chr.dropMessage(1, "Pets are disabled for now because they are bugged, sorry for this epic problem.");
-                return;
-            }
             if (action == 0x03) { // Item
                 IItem item = cItem.toItem();
-                if (InventoryConstants.isPet(item.getItemId())) {
-                    MaplePet pet = MaplePet.createPet(item.getItemId());
-                    if (pet != null)
-                        item.setPet(pet);
-                }
                 cs.addToInventory(item);               
                 c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
             } else { // Package
                 List<IItem> cashPackage = CashItemFactory.getPackage(cItem.getItemId());
                 for (IItem item : cashPackage) {
-                    if (InventoryConstants.isPet(item.getItemId())) {
-                        MaplePet pet = MaplePet.createPet(item.getItemId());
-                        if (pet != null)
-                            item.setPet(pet);
-                    }
                     cs.addToInventory(item);
                 }
                 c.announce(MaplePacketCreator.showBoughtCashPackage(cashPackage, c.getAccID()));
@@ -226,7 +210,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 c.getPlayer().dropMessage("The birthday you entered was incorrect.");
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
-        } else if (action == 0x1F) { // everything is 1 meso...
+        } else if (action == 0x20) { // everything is 1 meso...
             int itemId = CashItemFactory.getItem(slea.readInt()).getItemId();
             if (c.getPlayer().getMeso() > 0) {
                 if (itemId == 4031180 || itemId == 4031192 || itemId == 4031191) {

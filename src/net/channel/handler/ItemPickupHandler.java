@@ -116,11 +116,13 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                         chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
                         chr.getMap().removeMapObject(ob);
                     } else if (mapitem.getItem().getItemId() >= 5000000 && mapitem.getItem().getItemId() <= 5000100) {
-                        MaplePet pet = MaplePet.createPet(mapitem.getItem().getItemId());
-                        if (pet == null) {
-                            return;
+                        if (mapitem.getItem().getPetId() == -1) {
+                            int petid = MaplePet.createPet(mapitem.getItem().getItemId());
+                            MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, petid, mapitem.getItem().getExpiration());
+                        } else {
+                            MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, mapitem.getItem().getPetId(), mapitem.getItem().getExpiration());
                         }
-                        MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, pet, mapitem.getItem().getExpiration());
+
                         chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
                         chr.getMap().removeMapObject(ob);
                     } else if (MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true)) {

@@ -86,8 +86,8 @@ public class MapleShop {
                 if (MapleInventoryManipulator.checkSpace(c, itemId, quantity, "")) {
                     if (!InventoryConstants.isRechargable(itemId)) {
                         if (itemId >= 5000000 && itemId <= 5000100) {
-                            MaplePet pet = MaplePet.createPet(itemId);
-                            MapleInventoryManipulator.addById(c, itemId, quantity, null, pet, -1);
+                            int petid = MaplePet.createPet(itemId);
+                            MapleInventoryManipulator.addById(c, itemId, quantity, null, petid, -1);
                         } else {
                             MapleInventoryManipulator.addById(c, itemId, quantity);
                         }
@@ -111,8 +111,8 @@ public class MapleShop {
                     int diff = cardreduce + c.getPlayer().getMeso();
                     if (MapleInventoryManipulator.checkSpace(c, itemId, quantity, "")) {
                         if (itemId >= 5000000 && itemId <= 5000100) {
-                            MaplePet pet = MaplePet.createPet(itemId);
-                            MapleInventoryManipulator.addById(c, itemId, quantity, null, pet, -1);
+                            int petid = MaplePet.createPet(itemId);
+                            MapleInventoryManipulator.addById(c, itemId, quantity, null, petid, -1);
                         } else {
                             MapleInventoryManipulator.addById(c, itemId, quantity);
                         }

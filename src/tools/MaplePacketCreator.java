@@ -139,8 +139,12 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getFace()); // face
         mplew.writeInt(chr.getHair()); // hair
 
-        for (int i = 0; i < 3; i++)
-	     mplew.writeLong(chr.getPet(i) == null ? 0 : chr.getPet(i).getUniqueId());
+        for (int i = 0; i < 3; i++) {
+             if (chr.getPet(i) != null && !chr.getCashShop().isOpened())
+                 mplew.writeLong(chr.getPet(i).getUniqueId());
+             else
+                 mplew.writeLong(0);
+        }
 
         mplew.write(chr.getLevel()); // level
         mplew.writeShort(chr.getJob().getId()); // job
@@ -291,7 +295,7 @@ public class MaplePacketCreator {
     private static void addItemInfo(MaplePacketLittleEndianWriter mplew, IItem item, boolean zeroPosition) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         boolean isCash = ii.isCash(item.getItemId());
-        boolean isPet = item.getPet() != null;
+        boolean isPet = item.getPetId() > -1;
         IEquip equip = null;
         byte pos = item.getPosition();
         if (item.getType() == IItem.EQUIP)
@@ -311,17 +315,17 @@ public class MaplePacketCreator {
         mplew.writeInt(item.getItemId());
         mplew.write(isCash ? 1 : 0);
         if (isCash) {
-            mplew.writeLong(isPet ? item.getPet().getUniqueId() : item.getCashId());
+            mplew.writeLong(isPet ? item.getPetId() : item.getCashId());
         }
         addExpirationTime(mplew, item.getExpiration());
         if (isPet) {
-            MaplePet pet = item.getPet();
+            MaplePet pet = MaplePet.loadFromDb(item.getItemId(), item.getPosition(), item.getPetId());
             mplew.writeAsciiString(StringUtil.getRightPaddedStr(pet.getName(), '\0', 13));
             mplew.write(pet.getLevel());
             mplew.writeShort(pet.getCloseness());
             mplew.write(pet.getFullness());
-            mplew.writeLong(item.getExpiration());// Water of life?
-            mplew.writeInt(0); //Or this xD
+            addExpirationTime(mplew, item.getExpiration());
+            mplew.writeInt(0);
             mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00")); //wonder what this is
             return;
         }
@@ -847,7 +851,7 @@ public class MaplePacketCreator {
      * @param chr The character to get info about.
      * @return The character info packet.
      */
-    public static MaplePacket getCharInfo(MapleCharacter chr) { // FIX f5, equip crash
+    public static MaplePacket getCharInfo(MapleCharacter chr) { 
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.WARP_TO_MAP.getValue());
         mplew.writeInt(chr.getClient().getChannel() - 1);
@@ -1760,14 +1764,13 @@ public class MaplePacketCreator {
         mplew.write(chr.getStance());
         mplew.writeShort(chr.getFh());
         mplew.write(0);
-          for (MaplePet pet : chr.getPets()) {
-              if (pet != null) {
-                if (pet.isSummoned()) {
-                    addPetInfo(mplew, pet, false);
-                }
-              }
-          }
-        mplew.write(0);
+        MaplePet[] pet = chr.getPets();
+        for (int i = 0; i < 3; i++) {
+             if (pet[i] != null) {
+                 addPetInfo(mplew, pet[i], false);
+             }
+        }
+        mplew.write(0); //end of pets
         if (chr.getMount() == null) {
             mplew.writeInt(1); // mob level
             mplew.writeLong(0); // mob exp + tiredness
@@ -2366,15 +2369,16 @@ public class MaplePacketCreator {
         mplew.writeMapleAsciiString(guildName);
         mplew.writeMapleAsciiString(allianceName);
         mplew.write(isSelf ? 1 : 0);
+        MaplePet[] pets = chr.getPets();
         IItem inv = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -114);
-        for (MaplePet pet : chr.getPets()) {
-            if (pet.isSummoned()) {
-                mplew.write(pet.getUniqueId());
-                mplew.writeInt(pet.getItemId()); // petid
-                mplew.writeMapleAsciiString(pet.getName());
-                mplew.write(pet.getLevel()); // pet level
-                mplew.writeShort(pet.getCloseness()); // pet closeness
-                mplew.write(pet.getFullness()); // pet fullness
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                mplew.write(pets[i].getUniqueId());
+                mplew.writeInt(pets[i].getItemId()); // petid
+                mplew.writeMapleAsciiString(pets[i].getName());
+                mplew.write(pets[i].getLevel()); // pet level
+                mplew.writeShort(pets[i].getCloseness()); // pet closeness
+                mplew.write(pets[i].getFullness()); // pet fullness
                 mplew.writeShort(0);
                 mplew.writeInt(inv != null ? inv.getItemId() : 0);
             }
@@ -4219,21 +4223,23 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(HexTool.getByteArrayFromHexString("00 02 03 05"));
-        mplew.write(pet.getInventoryPosition());
+        mplew.write(pet.getPosition());
         mplew.writeShort(0);
         mplew.write(5);
-        mplew.write(pet.getInventoryPosition());
+        mplew.write(pet.getPosition());
+        mplew.write(0);
         mplew.write(3);
         mplew.writeInt(pet.getItemId());
         mplew.write(1);
-        mplew.writeLong(pet.getUniqueId());
-	mplew.write(HexTool.getByteArrayFromHexString("00 80 F9 58 8D 3B C7 24"));
+        mplew.writeInt(pet.getUniqueId());
+        mplew.writeInt(0);
+        mplew.write(HexTool.getByteArrayFromHexString("00 40 6F E5 0F E7 17 02"));
         mplew.writeAsciiString(StringUtil.getRightPaddedStr(pet.getName(), '\0', 13));
         mplew.write(pet.getLevel());
         mplew.writeShort(pet.getCloseness());
         mplew.write(pet.getFullness());
-        mplew.writeLong(getKoreanTimestamp(System.currentTimeMillis()));// Water of life?
-        mplew.writeInt(1); //Or this xD
+        addExpirationTime(mplew, pet.getExpiration());
+        mplew.writeInt(0);
         mplew.write(HexTool.getByteArrayFromHexString("50 46 00 00 00 00"));
         return mplew.getPacket();
     }
@@ -4325,17 +4331,14 @@ public class MaplePacketCreator {
         mask |= MapleStat.PET.getValue();
         mplew.write(0);
         mplew.writeInt(mask);
-        byte count = 0;
-        for (MaplePet pet : chr.getPets()) {
-            if (pet.isSummoned()) {
-                mplew.writeInt(pet.getUniqueId());
+        MaplePet[] pets = chr.getPets();
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                mplew.writeInt(pets[i].getUniqueId());
                 mplew.writeInt(0);
-                count++;
+            } else {
+                mplew.writeLong(0);
             }
-        }
-        while (count < 3) {
-            mplew.writeLong(0);
-            count++;
         }
         mplew.write(0);
         return mplew.getPacket();
@@ -6518,7 +6521,7 @@ public class MaplePacketCreator {
 
     public static void addCashItemInformation(MaplePacketLittleEndianWriter mplew, IItem item, int accountId, String giftMessage) {
         boolean isGift = giftMessage != null;
-        mplew.writeLong(item.getPet() != null ? item.getPet().getUniqueId() : item.getCashId());
+        mplew.writeLong(item.getPetId() > -1  ? item.getPetId() : item.getCashId());
         if (!isGift) {
             mplew.writeInt(accountId);
             mplew.writeInt(0);

@@ -33,8 +33,8 @@ public interface IItem extends Comparable<IItem> {
     int getCashId();
     short getQuantity();
     String getOwner();
-    MaplePet getPet();
-    void setPet(MaplePet pet);
+    int getPetId();
+    void setPetId(int id);
     IItem copy();
     void setOwner(String owner);
     void setQuantity(short quantity);

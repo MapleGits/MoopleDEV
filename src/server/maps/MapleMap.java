@@ -46,6 +46,7 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
+import client.MaplePet;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -1166,12 +1167,23 @@ public class MapleMap {
                     }
                 }, 15 * 60 * 1000 + 3000);
             }
+            MaplePet[] pets = chr.getPets();
+            for (int i = 0; i < chr.getPets().length; i++) {
+                if (pets[i] != null) {
+                    pets[i].setPos(getGroundBelow(chr.getPosition()));
+                    chr.announce(MaplePacketCreator.showPet(chr, pets[i], false, false));
+                } else {
+                    break;
+                }
+            }
             sendObjectPlacement(chr.getClient());
+
             if (chr.isHidden())
                 broadcastGMMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
             else
                 broadcastMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
-            
+
+
             if (isStartingEventMap() && !eventStarted()) {
                 chr.getMap().getPortal("join00").setPortalStatus(false);
             }

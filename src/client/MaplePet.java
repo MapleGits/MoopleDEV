@@ -21,6 +21,7 @@
 */
 package client;
 
+import com.mysql.jdbc.Statement;
 import java.awt.Point;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,21 +37,20 @@ import server.movement.LifeMovementFragment;
  *
  * @author Matze
  */
-public class MaplePet {
+public class MaplePet extends Item {
     private String name;
-    private int level = 1, fullness = 100, closeness = 0, Fh, stance, uniqueid, itemid;
-    private boolean summoned = false;
-    private short invpos;
+    private int uniqueid;
+    private int closeness = 0;
+    private int level = 1;
+    private int fullness = 100;
+    private int Fh;
     private Point pos;
+    private int stance;
+    private boolean summoned;
 
-    private MaplePet() {
-    }
-
-    private MaplePet(int id, short position, int uniqueid) {
-	this.itemid = id;
-	this.uniqueid = uniqueid;
-	this.summoned = false;
-	this.invpos = position;
+    private MaplePet(int id, byte position, int uniqueid) {
+        super(id, position, (short) 1);
+        this.uniqueid = uniqueid;
     }
 
     public static MaplePet loadFromDb(int itemid, byte position, int petid) {
@@ -80,49 +80,47 @@ public class MaplePet {
             ps.setInt(2, getLevel());
             ps.setInt(3, getCloseness());
             ps.setInt(4, getFullness());
-            ps.setInt(5, getUniqueId());
-            ps.setInt(6, summoned ? 1 : 0);
+            ps.setInt(5, isSummoned() ? 1 : 0);
+            ps.setInt(6, getUniqueId());
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
         }
     }
 
-    public static MaplePet createPet(int itemid) {
-        int ret;
+    public static int createPet(int itemid) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness) VALUES (?, 1, 0, 100)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness, summoned) VALUES (?, 1, 0, 100, 0)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, MapleItemInformationProvider.getInstance().getName(itemid));
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
-            rs.next();
-            ret = rs.getInt(1);
+            int ret = -1;
+            if (rs.next()) {
+                ret = rs.getInt(1);
+            }
             rs.close();
             ps.close();
+            return ret;
         } catch (SQLException e) {
-            return null;
+            return -1;
         }
-	final MaplePet pet = new MaplePet();
-	pet.setName(MapleItemInformationProvider.getInstance().getName(itemid));
-	pet.setLevel(1);
-	pet.setCloseness(0);
-	pet.setFullness(100);
-	pet.setUniqueId(ret);
-        return pet;
     }
 
     public static int createPet(int itemid, int level, int closeness, int fullness) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness) VALUES (?, ?, ?, ?)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness, summoned) VALUES (?, ?, ?, ?, 0)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, MapleItemInformationProvider.getInstance().getName(itemid));
             ps.setInt(2, level);
             ps.setInt(3, closeness);
             ps.setInt(4, fullness);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
-            int ret = rs.getInt(1);
-            rs.close();
-            ps.close();
+            int ret = -1;
+            if (rs.next()) {
+                ret = rs.getInt(1);
+                rs.close();
+                ps.close();
+            }
             return ret;
         } catch (SQLException e) {
             return -1;
@@ -143,14 +141,6 @@ public class MaplePet {
 
     public void setUniqueId(int id) {
         this.uniqueid = id;
-    }
-
-    public final short getInventoryPosition() {
-	return invpos;
-    }
-
-    public final void setInventoryPosition(final short inventorypos) {
-	this.invpos = inventorypos;
     }
 
     public int getCloseness() {
@@ -213,13 +203,9 @@ public class MaplePet {
         this.summoned = yes;
     }
 
-    public int getItemId() {
-        return itemid;
-    }
-
     public boolean canConsume(int itemId) {
         for (int petId : MapleItemInformationProvider.getInstance().petsCanConsume(itemId)) {
-            if (petId == itemid) {
+            if (petId == this.getItemId()) {
                 return true;
             }
         }

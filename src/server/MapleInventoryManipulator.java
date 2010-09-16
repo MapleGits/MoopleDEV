@@ -53,14 +53,18 @@ public class MapleInventoryManipulator {
     }
 
     public static boolean addById(MapleClient c, int itemId, short quantity) {
-        return addById(c, itemId, quantity, null, null, -1);
+        return addById(c, itemId, quantity, null, -1, -1);
     }
 
-    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, long expiration) {
-        return addById(c, itemId, quantity, owner, pet, (byte) 0, expiration);
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid) {
+        return addById(c, itemId, quantity, owner, petid, -1);
     }
 
-    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, byte flag, long expiration) {
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid, long expiration) {
+        return addById(c, itemId, quantity, owner, petid, (byte) 0, expiration);
+    }
+
+    public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid, byte flag, long expiration) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         MapleInventoryType type = ii.getInventoryType(itemId);
         if (!type.equals(MapleInventoryType.EQUIP)) {
@@ -89,8 +93,8 @@ public class MapleInventoryManipulator {
                     short newQ = (short) Math.min(quantity, slotMax);
                     if (newQ != 0) {
                         quantity -= newQ;
-                        Item nItem = new Item(itemId, (byte) 0, newQ);
-                        nItem.setPet(pet);
+                        Item nItem = new Item(itemId, (byte) 0, newQ, petid);
+                        nItem.setFlag(flag);
                         nItem.setExpiration(expiration);
                         byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                         if (newSlot == -1) {
@@ -111,7 +115,8 @@ public class MapleInventoryManipulator {
                     }
                 }
             } else {
-                Item nItem = new Item(itemId, (byte) 0, quantity, flag);
+                Item nItem = new Item(itemId, (byte) 0, quantity, petid);
+                nItem.setFlag(flag);
                 nItem.setExpiration(expiration);
                 byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                 if (newSlot == -1) {
@@ -124,6 +129,7 @@ public class MapleInventoryManipulator {
             }
         } else if (quantity == 1) {
             IItem nEquip = ii.getEquipById(itemId);
+            nEquip.setFlag(flag);
             nEquip.setExpiration(expiration);
             if (owner != null) {
                 nEquip.setOwner(owner);

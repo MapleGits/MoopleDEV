@@ -23,6 +23,7 @@ package constants;
 
 public class ServerConstants {
     public static short VERSION = 83;
+    public static String SERVERNAME = "MoopleDEV";
     // Rate Configuration
     public static byte EXP_RATE = 20;
     public static byte MESO_RATE = 15;

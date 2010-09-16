@@ -37,6 +37,7 @@ import client.MapleJob;
 import client.MaplePet;
 import client.MapleStat;
 import client.SkillFactory;
+import constants.InventoryConstants;
 import constants.ServerConstants;
 import java.io.File;
 import java.sql.ResultSet;
@@ -53,7 +54,6 @@ import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleShopFactory;
 import server.events.MapleEvent;
-import server.events.MapleOxQuiz;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
@@ -142,11 +142,11 @@ public class Commands {
             } catch (Exception e) {
             }
             if (sub[0].equals("item")) {
-                MaplePet pet = null;
-                if (itemId >= 5000000 && itemId < 5000065) {
-                    pet = MaplePet.createPet(itemId);
+                int petid = -1;
+                if (InventoryConstants.isPet(itemId)) {
+                    petid = MaplePet.createPet(itemId);
                 } 
-                MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), pet, -1);
+                MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), petid, -1);
             } else {
                 IItem toDrop;
                 if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP) {
@@ -292,15 +292,6 @@ public class Commands {
                     player.dropMessage(s.substring(0, s.length() - 2));
                 }
             }
-        } else if (sub[0].equals("ox")) {
-            if (sub[1].equals("on") && player.getMapId() == 109020001) {
-                player.getMap().setOx(new MapleOxQuiz(player.getMap()));
-                player.getMap().getOx().sendQuestion();
-                player.getMap().setOxQuiz(true);
-            } else {
-                player.getMap().setOxQuiz(false);
-                player.getMap().setOx(null);
-            }
         } else if (sub[0].equals("pap")) {
             player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8500001), player.getPosition());
         } else if (sub[0].equals("pianus")) {
@@ -389,8 +380,6 @@ public class Commands {
         } else if (sub[0].equals("sp")) {
             player.setRemainingSp(Integer.parseInt(sub[1]));
             player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
-        } else if (sub[0].equals("police")) {
-            player.sendPolice(joinStringFrom(sub, 1));
         } else if (sub[0].equals("unban")) {
             try {
                 PreparedStatement p = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET banned = -1 WHERE id = " + MapleCharacter.getIdByName(sub[1]));

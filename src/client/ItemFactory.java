@@ -104,16 +104,11 @@ public enum ItemFactory {
                             equip.setGiftFrom(rs.getString("giftFrom"));
 				items.add(new Pair<IItem, MapleInventoryType>(equip, mit));
 			} else {
-                            Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getByte("flag"));
+                            Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getInt("petid"));
                             item.setOwner(rs.getString("owner"));
                             item.setExpiration(rs.getLong("expiration"));
                             item.setGiftFrom(rs.getString("giftFrom"));
-
-                           if (rs.getInt("petid") > -1) {
-                               MaplePet pet;
-                               pet = MaplePet.loadFromDb(item.getItemId(), item.getPosition(), rs.getInt("petid"));
-                               item.setPet(pet);
-                           }
+                            item.setFlag((byte) rs.getInt("flag"));
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
                 }
@@ -149,7 +144,7 @@ public enum ItemFactory {
 			ps.setInt(6, item.getPosition());
 			ps.setInt(7, item.getQuantity());
 			ps.setString(8, item.getOwner());
-			ps.setInt(9, item.getPet() == null ? -1 : item.getPet().getUniqueId());
+			ps.setInt(9, item.getPetId());
 			ps.setLong(10, item.getExpiration());
                         ps.setString(11, item.getGiftFrom());
 			ps.executeUpdate();

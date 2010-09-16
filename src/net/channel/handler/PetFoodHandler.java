@@ -21,7 +21,6 @@
 */
 package net.channel.handler;
 
-import client.MapleCharacter;
 import constants.ExpTable;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -34,61 +33,63 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class PetFoodHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        MapleCharacter chr = c.getPlayer();
+        if (c.getPlayer().getNoPets() == 0) {
+            c.getSession().write(MaplePacketCreator.enableActions());
+            return;
+        }
         int previousFullness = 100;
-        for (MaplePet pet : chr.getPets()) {
-            if (pet.isSummoned()) {
-                if (pet.getFullness() < previousFullness) {
-		    previousFullness = pet.getFullness();
-
-                    slea.skip(6);
-                    int itemId = slea.readInt();
-                    boolean gainCloseness = false;
-                    if (Randomizer.getInstance().nextInt(101) > 50) {
-                        gainCloseness = true;
-                    }
-                    if (pet.getFullness() < 100) {
-                        int newFullness = pet.getFullness() + 30;
-                        if (newFullness > 100) {
-                            newFullness = 100;
-                        }
-                        pet.setFullness(newFullness);
-                        final byte index = chr.getPetIndex(pet);
-
-                        if (gainCloseness && pet.getCloseness() < 30000) {
-                            int newCloseness = pet.getCloseness() + 1;
-                            if (newCloseness > 30000) {
-                                newCloseness = 30000;
-                            }
-                            pet.setCloseness(newCloseness);
-                            if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                                pet.setLevel(pet.getLevel() + 1);
-                                c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
-                                c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
-                            }
-                        }
-                        c.announce(MaplePacketCreator.updatePet(pet));
-                        c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), index, 1, true), true);
-                    } else {
-                        if (gainCloseness) {
-                            int newCloseness = pet.getCloseness() - 1;
-                            if (newCloseness < 0) {
-                                newCloseness = 0;
-                            }
-                            pet.setCloseness(newCloseness);
-                            if (newCloseness < ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                                pet.setLevel(pet.getLevel() - 1);
-                            }
-                        }
-                        c.announce(MaplePacketCreator.updatePet(pet));
-                        c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), chr.getPetIndex(pet), 1, false), true);
-                    }
-
-                MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, false);
-                return;
+        int slot = 0;
+        MaplePet[] pets = c.getPlayer().getPets();
+        for (int i = 0; i < 3; i++) {
+            if (pets[i] != null) {
+                if (pets[i].getFullness() < previousFullness) {
+                    slot = i;
+                    previousFullness = pets[i].getFullness();
                 }
             }
         }
-        chr.broadcast(MaplePacketCreator.enableActions());
+        MaplePet pet = c.getPlayer().getPet(slot);
+        slea.readInt();
+        slea.readShort();
+        int itemId = slea.readInt();
+        boolean gainCloseness = false;
+        if (Randomizer.getInstance().nextInt(101) > 50) {
+            gainCloseness = true;
+        }
+        if (pet.getFullness() < 100) {
+            int newFullness = pet.getFullness() + 30;
+            if (newFullness > 100) {
+                newFullness = 100;
+            }
+            pet.setFullness(newFullness);
+            if (gainCloseness && pet.getCloseness() < 30000) {
+                int newCloseness = pet.getCloseness() + 1;
+                if (newCloseness > 30000) {
+                    newCloseness = 30000;
+                }
+                pet.setCloseness(newCloseness);
+                if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
+                    pet.setLevel(pet.getLevel() + 1);
+                    c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
+                    c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
+                }
+            }
+            c.announce(MaplePacketCreator.updatePet(pet));
+            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), slot, 1, true), true);
+        } else {
+            if (gainCloseness) {
+                int newCloseness = pet.getCloseness() - 1;
+                if (newCloseness < 0) {
+                    newCloseness = 0;
+                }
+                pet.setCloseness(newCloseness);
+                if (newCloseness < ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
+                    pet.setLevel(pet.getLevel() - 1);
+                }
+            }
+            c.announce(MaplePacketCreator.updatePet(pet));
+            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), slot, 1, false), true);
+        }
+        MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, false);
     }
 }
