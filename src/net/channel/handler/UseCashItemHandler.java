@@ -145,27 +145,43 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 }
                 remove(c, itemId);
             } else if (itemType == 506) {
-                int tagType = itemId % 10;
                 IItem eq = null;
-                if (tagType == 0) { // Item tag.
+                if (itemId == 5060000) { // Item tag.
                     int equipSlot = slea.readShort();
                     if (equipSlot == 0) {
                         return;
                     }
                     eq = player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) equipSlot);
                     eq.setOwner(player.getName());
-                } else if (tagType == 1) { // Sealing lock
+                } else if (itemId == 5060001 || itemId == 5061000 || itemId == 5061001 || itemId == 5061002 || itemId == 5061003) { // Sealing lock
                     MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
                     IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
-                    if (item == null) {
+                    if (item == null) { //Check if the type is EQUIPMENT?
                         return;
                     }
                     byte flag = item.getFlag();
                     flag |= InventoryConstants.LOCK;
+                    if (item.getExpiration() > -1) return; //No perma items pls
+
                     item.setFlag(flag);
+
+                    long period = 0;
+                    if (itemId == 5061000)
+                        period = 7;
+                    else if (itemId == 5061001)
+                        period = 30;
+                    else if (itemId == 5061002)
+                        period = 90;
+                    else if (itemId == 5061003)
+                        period = 365;
+
+                    if (period > 0)
+                        item.setExpiration(System.currentTimeMillis() + (period * 60 * 60 * 24 * 1000)); 
+
                     c.announce(MaplePacketCreator.updateItemInSlot(item));
+
                     remove(c, itemId);
-                } else if (tagType == 2) { // Incubator
+                } else if (itemId == 5060002) { // Incubator
                     byte inventory2 = (byte) slea.readInt();
                     byte slot2 = (byte) slea.readInt();
                     IItem item2 = c.getPlayer().getInventory(MapleInventoryType.getByType(inventory2)).getItem(slot2);
@@ -244,7 +260,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                             if (item == null) //hack
                             {
                                 return;
-                            } else if (ii.isDropRestricted(item.getItemId())) {
+                            } else if (ii.isDropRestricted(item.getItemId())) { //Lol?
                                 player.dropMessage(1, "You cannot trade this item.");
                                 c.announce(MaplePacketCreator.enableActions());
                                 return;
@@ -388,8 +404,10 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 }
                 c.getChannelServer().getWorldInterface().broadcastMessage(null, MaplePacketCreator.getAvatarMega(c.getPlayer(), medal, c.getChannel(), itemId, lines, (slea.readByte() != 0)).getBytes());
                 remove(c, itemId);
-            } else if (itemType == 545) // MiuMiu's travel store
-            {
+            } else if (itemType == 545) { // MiuMiu's travel store
+                //Code the npc
+                c.announce(MaplePacketCreator.enableActions());
+            } else if (itemType == 550) { //Extend item expiration
                 c.announce(MaplePacketCreator.enableActions());
             } else if (itemType == 552) {
                 MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
@@ -402,6 +420,8 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 item.setFlag((byte) InventoryConstants.KARMA);
                 c.getPlayer().forceUpdateItem(type, item);
                 remove(c, itemId);
+                c.announce(MaplePacketCreator.enableActions());
+            } else if (itemType == 552) { //DS EGG THING
                 c.announce(MaplePacketCreator.enableActions());
             } else if (itemType == 557) {
                 slea.readInt();
@@ -417,6 +437,8 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 c.announce(MaplePacketCreator.enableActions());
                 c.announce(MaplePacketCreator.sendHammerData(equip.getVicious()));
                 c.announce(MaplePacketCreator.hammerItem(equip));
+            } else if (itemType == 561) { //VEGA'S SPELL
+                c.announce(MaplePacketCreator.enableActions());
             } else {
                 System.out.println("NEW CASH ITEM: " + itemType + "\n" + slea.toString());
                 c.announce(MaplePacketCreator.enableActions());

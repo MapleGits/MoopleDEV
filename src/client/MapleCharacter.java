@@ -85,6 +85,7 @@ import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldChannelInterface;
 import scripting.event.EventInstanceManager;
 import client.autoban.AutobanManager;
+import constants.InventoryConstants;
 import server.CashShop;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -771,9 +772,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (maxmp >= 30000) {
             maxmp = 30000;
         }
-        if (!isGM()) { //What's this nigger
+        if (!isGM()) {
             for (byte i = 1; i < 5; i++) {
-                gainSlots(i, 4, false);
+                gainSlots(i, 4, true);
 
             }
         }
@@ -786,6 +787,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         recalcLocalStats();
         client.announce(MaplePacketCreator.updatePlayerStats(statup));
         silentPartyUpdate();
+        getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + " has advanced as a(n) " + this.getJob().name()), this.getId()); //Change this.getJob().name() to the real job name.
         guildUpdate();
         getMap().broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 8), false);
     }
@@ -1232,7 +1234,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         for (MapleInventory inv : inventory) {
             for (IItem item : inv.list()) {
                 expiration = item.getExpiration();
-                if (expiration != -1 && expiration < currenttime) {
+                if (expiration != -1 && (expiration < currenttime) && ((item.getFlag() & InventoryConstants.LOCK) == InventoryConstants.LOCK)) {
+                    byte aids = item.getFlag();
+                    aids &= ~(InventoryConstants.LOCK);
+                    item.setFlag(aids); //Probably need a check, else people can make expiring items into permanent items...
+                    item.setExpiration(-1);
+                    forceUpdateItem(inv.getType(), item);   //TEST :3
+                } else if (expiration != -1 && expiration < currenttime) {
                         client.announce(MaplePacketCreator.itemExpired(item.getItemId()));
                         toberemove.add(item);
                 }
@@ -1956,8 +1964,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (!SavedLocationType.fromString(type).equals(SavedLocationType.WORLDTOUR)) {
             clearSavedLocation(SavedLocationType.fromString(type));
         }
-        if (savedLocations[SavedLocationType.fromString(type).ordinal()] == null)
-            m = 100000000;//Henesys ;o
         return m;
     }
 
@@ -2369,6 +2375,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         getMap().broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 0), false);
         recalcLocalStats();
         silentPartyUpdate();
+        getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + "has reached level " + this.getLevel() + "."), this.getId());
         guildUpdate();
     }
 

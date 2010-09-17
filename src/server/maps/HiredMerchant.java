@@ -269,6 +269,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         }
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }
+
     private static final boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
 	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 	for (MaplePlayerShopItem item : items) {

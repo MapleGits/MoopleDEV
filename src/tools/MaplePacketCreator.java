@@ -5619,7 +5619,8 @@ public class MaplePacketCreator {
         if (item == null) {
             mplew.write(0);
         } else {
-            addItemInfo(mplew, item);
+            mplew.write(item.getPosition());
+            addItemInfo(mplew, item, true);
         }
         return mplew.getPacket();
     }
@@ -5866,7 +5867,7 @@ public class MaplePacketCreator {
         mplew.write(item.getType());
         mplew.writeShort(item.getPosition());
         addItemInfo(mplew, item, true);
-        mplew.writeMapleAsciiString("");
+        mplew.writeMapleAsciiString(""); //Write short lolwut?
         return mplew.getPacket();
     }
 

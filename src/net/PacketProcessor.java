@@ -187,7 +187,6 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.USE_HAMMER, new UseHammerHandler());
             registerHandler(RecvOpcode.SCRIPTED_ITEM, new ScriptedItemHandler());
             registerHandler(RecvOpcode.TOUCHING_REACTOR, new TouchReactorHandler());
-            registerHandler(RecvOpcode.USE_REMOTE, new UseRemoteHandler());
             registerHandler(RecvOpcode.BEHOLDER, new BeholderHandler());
             registerHandler(RecvOpcode.ADMIN_COMMAND, new AdminCommandHandler());
             registerHandler(RecvOpcode.ADMIN_LOG, new AdminLogHandler());

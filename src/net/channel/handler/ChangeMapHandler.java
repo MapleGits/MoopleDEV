@@ -82,6 +82,8 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             } else if (targetid != -1 && chr.isGM()) {
                  MapleMap to = c.getChannelServer().getMapFactory().getMap(targetid);
                  chr.changeMap(to, to.getPortal(0));
+            } else if (targetid != -1 && !chr.isGM()) {
+                chr.announce(MaplePacketCreator.enableActions());
             }
             if (!portal.getPortalStatus()) {
                 c.getPlayer().message("The portal is closed for now.");
