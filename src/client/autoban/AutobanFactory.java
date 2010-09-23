@@ -19,7 +19,7 @@ public enum AutobanFactory {
     SHORT_ITEM_VAC,
     ITEM_VAC,
     FAST_ATTACK(10, 30000),
-    MPCON(10);
+    MPCON(25, 30000);
     
     private int points;
     private long expiretime;
@@ -46,8 +46,8 @@ public enum AutobanFactory {
         return expiretime;
     }
 
-    public void addPoint(AutobanManager ban) {
-        ban.addPoint(this);
+    public void addPoint(AutobanManager ban, String reason) {
+        ban.addPoint(this, reason);
     }
 
     public void autoban(MapleCharacter chr, String value) {

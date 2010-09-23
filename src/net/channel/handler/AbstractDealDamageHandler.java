@@ -57,6 +57,12 @@ import constants.skills.WindArcher;
 import tools.Randomizer;
 import net.AbstractMaplePacketHandler;
 import client.autoban.AutobanFactory;
+import constants.skills.Crossbowman;
+import constants.skills.DawnWarrior;
+import constants.skills.Fighter;
+import constants.skills.Hunter;
+import constants.skills.Page;
+import constants.skills.Spearman;
 import server.MapleInventoryManipulator;
 import server.MapleStatEffect;
 import server.TimerManager;
@@ -114,7 +120,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
 
             if (player.getMp() < attackEffect.getMpCon())
-                AutobanFactory.MPCON.autoban(player, "mpCon hack" + attack.skill + "; Player MP: " + player.getMp() + " MP Needed: " + attackEffect.getMpCon());
+                AutobanFactory.MPCON.addPoint(player.getAutobanManager(), "Skill: " + attack.skill + "; Player MP: " + player.getMp() + "; MP Needed: " + attackEffect.getMpCon());
 
             if (attack.skill != Cleric.HEAL) {
                 if (player.isAlive()) {
@@ -123,14 +129,24 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     player.getClient().announce(MaplePacketCreator.enableActions());
                 }
             }
-            if (attack.numAttacked > attackEffect.getMobCount()) {
-                AutobanFactory.MOB_COUNT.autoban(player, String.valueOf(attack.numAttacked));
-                return;
+            int mobCount = attackEffect.getMobCount();
+                if (attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Page.FINAL_ATTACK_BW || attack.skill == Page.FINAL_ATTACK_SWORD || attack.skill == Fighter.FINAL_ATTACK_SWORD
+                         || attack.skill == Fighter.FINAL_ATTACK_AXE || attack.skill == Spearman.FINAL_ATTACK_SPEAR || attack.skill == Spearman.FINAL_ATTACK_POLEARM || attack.skill == WindArcher.FINAL_ATTACK
+                          || attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Hunter.FINAL_ATTACK || attack.skill == Crossbowman.FINAL_ATTACK) {
+                    mobCount = player.getLastMobCount();
+                }
+            if (attack.numAttacked > mobCount) {
+                    AutobanFactory.MOB_COUNT.autoban(player, "Skill: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
+                    return;
+            } else {
+                player.setLastMobCount(attack.numAttacked);
             }
         }
         if (!player.isAlive()) {
             return;
         }
+
+        //WTF IS THIS F3,1
         if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST && attack.skill != NightLord.NINJA_AMBUSH && attack.skill != Shadower.NINJA_AMBUSH) {
             return;
         }
@@ -268,7 +284,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 }
                 if (attack.skill != 0) {
                     if (attackEffect.getFixDamage() != -1) {
-                        if (totDamageToOneMonster != attackEffect.getFixDamage())
+                        if (totDamageToOneMonster != attackEffect.getFixDamage() && totDamageToOneMonster != 0)
                             AutobanFactory.FIX_DAMAGE.autoban(player, String.valueOf(totDamageToOneMonster) + " damage");
                     }
                 }

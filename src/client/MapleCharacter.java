@@ -268,6 +268,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long portaldelay = 0;
     private int combocounter = 0;
     private long lastattack = 0;
+    private int lastmobcount = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
     private AutobanManager autoban;
@@ -589,6 +590,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public long getLastAttack() {
         return lastattack;
+    }
+
+    public int getLastMobCount() {
+        return lastmobcount;
+    }
+
+    public void setLastMobCount(int count) {
+        lastmobcount = count;
     }
 
     public static class CancelCooldownAction implements Runnable {

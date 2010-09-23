@@ -175,6 +175,12 @@ public class SkillFactory {
                 case NightWalker.SHADOW_WEB:
                 case NightWalker.POISON_BOMB:
                 case NightWalker.VAMPIRE:
+                case Priest.SUMMON_DRAGON:
+                case Bishop.BAHAMUT:
+                case Sniper.GOLDEN_EAGLE:
+                case Marksman.FROST_PREY:
+                case ILArchMage.IFRIT:
+                case FPArchMage.ELQUINES:
                 case Aran.COMBO_PENRIL:
                 case Aran.COMBO_SMASH:
                 case Aran.COMBO_TEMPEST:
@@ -230,7 +236,6 @@ public class SkillFactory {
                 case FPWizard.SLOW:
                 case FPMage.SEAL:
                 case FPMage.SPELL_BOOSTER:
-                case FPArchMage.ELQUINES:
                 case FPArchMage.HEROS_WILL:
                 case FPArchMage.INFINITY:
                 case FPArchMage.MANA_REFLECTION:
@@ -239,8 +244,7 @@ public class SkillFactory {
                 case ILMage.SEAL:
                 case ILWizard.SLOW:
                 case ILMage.SPELL_BOOSTER:
-                case ILArchMage.HEROS_WILL:
-                case ILArchMage.IFRIT:
+                case ILArchMage.HEROS_WILL:                
                 case ILArchMage.INFINITY:
                 case ILArchMage.MANA_REFLECTION:
                 case ILArchMage.MAPLE_WARRIOR:
@@ -249,8 +253,6 @@ public class SkillFactory {
                 case Priest.DISPEL:
                 case Priest.DOOM:
                 case Priest.HOLY_SYMBOL:
-                case Priest.SUMMON_DRAGON:
-                case Bishop.BAHAMUT:
                 case Bishop.HEROS_WILL:
                 case Bishop.HOLY_SHIELD:
                 case Bishop.INFINITY:
@@ -268,10 +270,8 @@ public class SkillFactory {
                 case Bowmaster.SHARP_EYES:
                 case Crossbowman.CROSSBOW_BOOSTER:
                 case Crossbowman.SOUL_ARROW:
-                case Sniper.GOLDEN_EAGLE:
                 case Sniper.PUPPET:
                 case Marksman.BLIND:
-                case Marksman.FROST_PREY:
                 case Marksman.HEROS_WILL:
                 case Marksman.MAPLE_WARRIOR:
                 case Marksman.SHARP_EYES:

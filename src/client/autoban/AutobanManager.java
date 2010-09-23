@@ -26,7 +26,7 @@ public class AutobanManager {
         this.chr = chr;
     }
 
-    public void addPoint(AutobanFactory fac) {
+    public void addPoint(AutobanFactory fac, String reason) {
         int tpoints = points.get(fac);
         if (lastTime.containsKey(fac)) {
             if (lastTime.get(fac) < (System.currentTimeMillis() - fac.getExpire())) {
@@ -44,7 +44,7 @@ public class AutobanManager {
             points.put(fac, 1);
 
         if (points.get(fac) >= fac.getMaximum())
-            chr.autoban("Autobanned for " + fac.name() + ". Info: 100% correct, so fuck this player", 1);
+            chr.autoban("Autobanned for " + fac.name() + " ;" + reason, 1);
             chr.sendPolice("You have been blocked by #bMooplePolice for the HACK reason#k.");
     }
 

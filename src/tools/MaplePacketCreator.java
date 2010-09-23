@@ -5730,6 +5730,15 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
+    public static MaplePacket showHpHealed(int cid, int amount) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
+        mplew.writeInt(cid);
+        mplew.write(0x0A);
+        mplew.write(amount);
+        return mplew.getPacket();
+    }
+
     public static MaplePacket showWheelsLeft(int left) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
