@@ -435,7 +435,7 @@ public class MaplePacketCreator {
             if (skill.getKey().isFourthJob()) {
                 mplew.writeInt(skill.getValue().masterlevel);
             }
-            addExpirationTime(mplew, -1);
+            addExpirationTime(mplew, skill.getValue().expiration);
         }
         mplew.writeShort(chr.getAllCooldowns().size());
         for (PlayerCoolDownValueHolder cooling : chr.getAllCooldowns()) {

@@ -1309,7 +1309,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (show && gain != 0) {
                 client.announce(MaplePacketCreator.getShowExpGain(gain, inChat, white));
             }
-            if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
+            if (ServerConstants.MULTI_LEVEL) {
+                while (level < getMaxLevel() && exp.get() >= ExpTable.getExpNeededForLevel(level)) {
+                    levelUp(true);
+                }
+            } else if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
                 levelUp(true);
                 int need = ExpTable.getExpNeededForLevel(level);
                 if (exp.get() >= need) {

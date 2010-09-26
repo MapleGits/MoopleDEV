@@ -14,6 +14,9 @@ import client.MapleCharacter;
 public enum AutobanFactory {
     MOB_COUNT,
     FIX_DAMAGE,
+    HIGH_HP_HEALING,
+    FAST_HP_HEALING(30),
+    FAST_MP_HEALING(30),
     GACHA_EXP,
     TUBI(20, 15000),
     SHORT_ITEM_VAC,

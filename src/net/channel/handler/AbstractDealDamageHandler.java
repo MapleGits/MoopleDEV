@@ -385,7 +385,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             for (int j = 0; j < ret.numDamage; j++) {
                 int damage = lea.readInt();
                 if (ret.skill == Marksman.SNIPE) {
-                    damage += 0x80000000;
+                    damage += 0x80000000; //Critical
                 }
                 allDamageNumbers.add(Integer.valueOf(damage));
             }

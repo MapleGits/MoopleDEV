@@ -23,6 +23,7 @@ package net.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import client.autoban.AutobanFactory;
 import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -35,6 +36,7 @@ public final class HealOvertimeHandler extends AbstractMaplePacketHandler {
         short healHP = slea.readShort();
         if (healHP != 0) {
             if (healHP > 140) {
+                AutobanFactory.HIGH_HP_HEALING.autoban(chr, "Healing: " + healHP + "; Max is 140.");
                 return;
             }
             chr.addHP(healHP);
