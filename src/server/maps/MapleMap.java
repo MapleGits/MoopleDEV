@@ -50,7 +50,7 @@ import client.MaplePet;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import tools.Randomizer;
 import constants.ServerConstants;
 import net.MaplePacket;
@@ -428,9 +428,9 @@ public class MapleMap {
                         idrop = ii.randomizeStats((Equip) ii.getEquipById(drop));
                     } else {
                         idrop = new Item(drop, (byte) 0, (short) 1);
-                        if (InventoryConstants.isArrowForBow(drop) || InventoryConstants.isArrowForCrossBow(drop)) {
+                        if (ItemConstants.isArrowForBow(drop) || ItemConstants.isArrowForCrossBow(drop)) {
                             idrop.setQuantity((short) (1 + Randomizer.getInstance().nextInt(101)));
-                        } else if (InventoryConstants.isRechargable(drop)) {
+                        } else if (ItemConstants.isRechargable(drop)) {
                             idrop.setQuantity((short) (1));
                         }
                     }

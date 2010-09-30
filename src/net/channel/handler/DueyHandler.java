@@ -27,7 +27,7 @@ import client.Item;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -139,7 +139,7 @@ public final class DueyHandler extends AbstractMaplePacketHandler {
                     MapleInventoryType inv = MapleInventoryType.getByType(inventId);
                     IItem item = c.getPlayer().getInventory(inv).getItem((byte) itemPos);
                     if (item != null && c.getPlayer().getItemQuantity(item.getItemId(), false) > amount) {
-                        if (InventoryConstants.isRechargable(item.getItemId())) {
+                        if (ItemConstants.isRechargable(item.getItemId())) {
                             MapleInventoryManipulator.removeFromSlot(c, inv, (byte) itemPos, item.getQuantity(), true);
                         } else {
                             MapleInventoryManipulator.removeFromSlot(c, inv, (byte) itemPos, amount, true, false);

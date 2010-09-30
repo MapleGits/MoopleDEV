@@ -25,7 +25,7 @@ import client.IItem;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import java.util.Arrays;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
@@ -386,13 +386,13 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             short quantity = slea.readShort();
             byte targetSlot = slea.readByte();
             if (chr.getTrade() != null) {
-                if ((quantity <= item.getQuantity() && quantity >= 0) || InventoryConstants.isRechargable(item.getItemId())) {
-                    if (ii.isDropRestricted(item.getItemId()) && item.getFlag() != InventoryConstants.KARMA) { // ensure that undroppable items do not make it to the trade window
+                if ((quantity <= item.getQuantity() && quantity >= 0) || ItemConstants.isRechargable(item.getItemId())) {
+                    if (ii.isDropRestricted(item.getItemId()) && item.getFlag() != ItemConstants.KARMA) { // ensure that undroppable items do not make it to the trade window
                         c.announce(MaplePacketCreator.enableActions());
                         return;
                     }
                     IItem tradeItem = item.copy();
-                    if (InventoryConstants.isRechargable(item.getItemId())) {
+                    if (ItemConstants.isRechargable(item.getItemId())) {
                         tradeItem.setQuantity(item.getQuantity());
                         MapleInventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), item.getQuantity(), true);
                     } else {
@@ -410,7 +410,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             MapleInventoryType type = MapleInventoryType.getByType(slea.readByte());
             byte slot = (byte) slea.readShort();
             short bundles = slea.readShort();
-            if (chr.getItemQuantity(chr.getInventory(type).getItem(slot).getItemId(), false) < bundles || chr.getInventory(type).getItem(slot).getFlag() == InventoryConstants.UNTRADEABLE) {
+            if (chr.getItemQuantity(chr.getInventory(type).getItem(slot).getItemId(), false) < bundles || chr.getInventory(type).getItem(slot).getFlag() == ItemConstants.UNTRADEABLE) {
                 return;
             }
             short perBundle = slea.readShort();
@@ -436,7 +436,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 merchant.addItem(item);
                 c.announce(MaplePacketCreator.updateHiredMerchant(merchant, c.getPlayer()));
             }
-            if (InventoryConstants.isRechargable(ivItem.getItemId())) {
+            if (ItemConstants.isRechargable(ivItem.getItemId())) {
                 MapleInventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
             } else {
                 MapleInventoryManipulator.removeFromSlot(c, type, slot, (short) (bundles * perBundle), true);

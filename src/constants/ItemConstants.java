@@ -25,7 +25,7 @@ package constants;
  *
  * @author Jay Estrella
  */
-public final class InventoryConstants {
+public final class ItemConstants {
     public final static int LOCK = 0x01;
     public final static int SPIKES = 0x02;
     public final static int LOCK_SPIKES = 0x03;
@@ -36,6 +36,8 @@ public final class InventoryConstants {
     public final static int UNKNOWN_SKILL = 0x100;
     public final static float ITEM_ARMOR_EXP = 1 / 350000;
     public static final float ITEM_WEAPON_EXP = 1 / 700000;
+
+    public final static boolean EXPIRING_ITEMS = true;
 
     public static final int getFlagByInt(int type) {
         if (type == 128) {

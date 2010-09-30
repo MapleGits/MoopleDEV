@@ -21,7 +21,7 @@
 */
 package client;
 
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -124,7 +124,7 @@ public class MapleInventory implements Iterable<IItem> {
             source.setPosition(dSlot);
             inventory.put(dSlot, source);
             inventory.remove(sSlot);
-        } else if (target.getItemId() == source.getItemId() && !InventoryConstants.isRechargable(source.getItemId())) {
+        } else if (target.getItemId() == source.getItemId() && !ItemConstants.isRechargable(source.getItemId())) {
             if (type.getType() == MapleInventoryType.EQUIP.getType()) {
                 swap(target, source);
             }

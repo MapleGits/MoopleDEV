@@ -44,7 +44,7 @@ import client.SkillFactory;
 import client.autoban.AutobanFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import constants.skills.Aran;
 import constants.skills.Assassin;
 import constants.skills.Bandit;
@@ -682,7 +682,7 @@ public class MapleStatEffect implements Serializable {
             for (int i = 0; i < 97; i++) { // impose order...
                 IItem item = use.getItem((byte) i);
                 if (item != null) {
-                    if (InventoryConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200) {
+                    if (ItemConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200) {
                         projectile = item.getItemId();
                         break;
                     }

@@ -35,7 +35,7 @@ import client.MapleJob;
 import client.MaplePet;
 import client.MapleStat;
 import client.SkillFactory;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import java.sql.SQLException;
 import net.AbstractMaplePacketHandler;
 import scripting.npc.NPCScriptManager;
@@ -160,7 +160,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                         return;
                     }
                     byte flag = item.getFlag();
-                    flag |= InventoryConstants.LOCK;
+                    flag |= ItemConstants.LOCK;
                     if (item.getExpiration() > -1) return; //No perma items pls
 
                     item.setFlag(flag);
@@ -413,11 +413,11 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
                 byte slot = (byte) slea.readInt();
                 IItem item = c.getPlayer().getInventory(type).getItem(slot);
-                if (item == null || item.getQuantity() <= 0 || (item.getFlag() & InventoryConstants.KARMA) > 0 && ii.isKarmaAble(item.getItemId())) {
+                if (item == null || item.getQuantity() <= 0 || (item.getFlag() & ItemConstants.KARMA) > 0 && ii.isKarmaAble(item.getItemId())) {
                     c.announce(MaplePacketCreator.enableActions());
                     return;
                 }
-                item.setFlag((byte) InventoryConstants.KARMA);
+                item.setFlag((byte) ItemConstants.KARMA);
                 c.getPlayer().forceUpdateItem(type, item);
                 remove(c, itemId);
                 c.announce(MaplePacketCreator.enableActions());

@@ -26,7 +26,7 @@ import client.Item;
 import client.ItemFactory;
 import client.MapleInventoryType;
 import client.MaplePet;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -90,7 +90,7 @@ public class CashShop {
 
             int petid = -1;
 
-            if (InventoryConstants.isPet(itemId))
+            if (ItemConstants.isPet(itemId))
                 petid = MaplePet.createPet(itemId);
 
             if (ii.getInventoryType(itemId).equals(MapleInventoryType.EQUIP)) {
@@ -99,8 +99,10 @@ public class CashShop {
                 item = new Item(itemId, (byte) 0, count, petid);
             }
 
+            if (ItemConstants.EXPIRING_ITEMS)
+                item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
+
             item.setSN(sn);
-            item.setExpiration(period == 1 ? System.currentTimeMillis() + (1000 * 60 * 60 * 4 * period) : System.currentTimeMillis() + (1000 * 60 * 60 * 24 * period));
             return item;
         }
     }

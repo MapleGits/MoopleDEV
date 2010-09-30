@@ -24,7 +24,7 @@ package net.channel.handler;
 import client.IItem;
 import client.MapleClient;
 import client.MapleInventoryType;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -71,8 +71,8 @@ public final class StorageHandler extends AbstractMaplePacketHandler {
             } else {
                 MapleInventoryType type = ii.getInventoryType(itemId);
                 IItem item = c.getPlayer().getInventory(type).getItem(slot).copy();
-                if (item.getItemId() == itemId && (item.getQuantity() >= quantity || InventoryConstants.isRechargable(itemId))) {
-                    if (InventoryConstants.isRechargable(itemId)) {
+                if (item.getItemId() == itemId && (item.getQuantity() >= quantity || ItemConstants.isRechargable(itemId))) {
+                    if (ItemConstants.isRechargable(itemId)) {
                         quantity = item.getQuantity();
                     }
                     c.getPlayer().gainMeso(c.getPlayer().getMap().getId() == 910000000 ? -500 : -100, false, true, false);

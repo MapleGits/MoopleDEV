@@ -55,7 +55,7 @@ import client.MapleStat;
 import client.SkillMacro;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import constants.ServerConstants;
 import constants.skills.Buccaneer;
 import constants.skills.Marauder;
@@ -334,7 +334,7 @@ public class MaplePacketCreator {
             mplew.writeMapleAsciiString(item.getOwner());
             mplew.writeShort(item.getFlag()); // flag
 
-            if (InventoryConstants.isRechargable(item.getItemId())) {
+            if (ItemConstants.isRechargable(item.getItemId())) {
                 mplew.writeInt(2);
                 mplew.write(HexTool.getByteArrayFromHexString("54 00 00 34"));
             }
@@ -2000,7 +2000,7 @@ public class MaplePacketCreator {
             mplew.writeInt(item.getPrice());
             mplew.writeLong(0);
             mplew.writeInt(0);
-            if (!InventoryConstants.isRechargable(item.getItemId())) {
+            if (!ItemConstants.isRechargable(item.getItemId())) {
                 mplew.writeShort(1); // stacksize o.o
                 mplew.writeShort(item.getBuyable());
             } else {
@@ -3434,7 +3434,7 @@ public class MaplePacketCreator {
                 addPartyStatus(forChannel, party, mplew, false);
                 break;
             case CHANGE_LEADER:
-                mplew.write(0x1A);
+                mplew.write(0x1B);
                 mplew.writeInt(target.getId());
                 mplew.write(1);
                 break;

@@ -85,7 +85,7 @@ import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldChannelInterface;
 import scripting.event.EventInstanceManager;
 import client.autoban.AutobanManager;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import server.CashShop;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -1243,9 +1243,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         for (MapleInventory inv : inventory) {
             for (IItem item : inv.list()) {
                 expiration = item.getExpiration();
-                if (expiration != -1 && (expiration < currenttime) && ((item.getFlag() & InventoryConstants.LOCK) == InventoryConstants.LOCK)) {
+                if (expiration != -1 && (expiration < currenttime) && ((item.getFlag() & ItemConstants.LOCK) == ItemConstants.LOCK)) {
                     byte aids = item.getFlag();
-                    aids &= ~(InventoryConstants.LOCK);
+                    aids &= ~(ItemConstants.LOCK);
                     item.setFlag(aids); //Probably need a check, else people can make expiring items into permanent items...
                     item.setExpiration(-1);
                     forceUpdateItem(inv.getType(), item);   //TEST :3

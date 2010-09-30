@@ -37,7 +37,7 @@ import client.MapleJob;
 import client.MaplePet;
 import client.MapleStat;
 import client.SkillFactory;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import constants.ServerConstants;
 import java.io.File;
 import java.sql.ResultSet;
@@ -143,7 +143,7 @@ public class Commands {
             }
             if (sub[0].equals("item")) {
                 int petid = -1;
-                if (InventoryConstants.isPet(itemId)) {
+                if (ItemConstants.isPet(itemId)) {
                     petid = MaplePet.createPet(itemId);
                 } 
                 MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), petid, -1);

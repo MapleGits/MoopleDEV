@@ -30,7 +30,7 @@ import client.MapleJob;
 import client.MapleQuestStatus;
 import client.MapleStat;
 import client.SkillFactory;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import constants.ServerConstants;
 import provider.MapleData;
 import provider.MapleDataTool;

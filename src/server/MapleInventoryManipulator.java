@@ -32,7 +32,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
 import client.MaplePet;
-import constants.InventoryConstants;
+import constants.ItemConstants;
 import tools.MaplePacketCreator;
 
 /**
@@ -70,7 +70,7 @@ public class MapleInventoryManipulator {
         if (!type.equals(MapleInventoryType.EQUIP)) {
             short slotMax = ii.getSlotMax(c, itemId);
             List<IItem> existing = c.getPlayer().getInventory(type).listById(itemId);
-            if (!InventoryConstants.isRechargable(itemId)) {
+            if (!ItemConstants.isRechargable(itemId)) {
                 if (existing.size() > 0) { // first update all existing slots to slotMax
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0) {
@@ -89,7 +89,7 @@ public class MapleInventoryManipulator {
                         }
                     }
                 }
-                while (quantity > 0 || InventoryConstants.isRechargable(itemId)) {
+                while (quantity > 0 || ItemConstants.isRechargable(itemId)) {
                     short newQ = (short) Math.min(quantity, slotMax);
                     if (newQ != 0) {
                         quantity -= newQ;
@@ -106,7 +106,7 @@ public class MapleInventoryManipulator {
                             nItem.setOwner(owner);
                         }
                         c.announce(MaplePacketCreator.addInventorySlot(type, nItem));
-                        if ((InventoryConstants.isRechargable(itemId)) && quantity == 0) {
+                        if ((ItemConstants.isRechargable(itemId)) && quantity == 0) {
                             break;
                         }
                     } else {
@@ -159,7 +159,7 @@ public class MapleInventoryManipulator {
         if (!type.equals(MapleInventoryType.EQUIP)) {
             short slotMax = ii.getSlotMax(c, item.getItemId());
             List<IItem> existing = c.getPlayer().getInventory(type).listById(item.getItemId());
-            if (!InventoryConstants.isRechargable(item.getItemId())) {
+            if (!ItemConstants.isRechargable(item.getItemId())) {
                 if (existing.size() > 0) { // first update all existing slots to slotMax
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0) {
@@ -177,7 +177,7 @@ public class MapleInventoryManipulator {
                         }
                     }
                 }
-                while (quantity > 0 || InventoryConstants.isRechargable(item.getItemId())) {
+                while (quantity > 0 || ItemConstants.isRechargable(item.getItemId())) {
                     short newQ = (short) Math.min(quantity, slotMax);
                     quantity -= newQ;
                     Item nItem = new Item(item.getItemId(), (byte) 0, newQ);
@@ -190,7 +190,7 @@ public class MapleInventoryManipulator {
                         return false;
                     }
                     c.announce(MaplePacketCreator.addInventorySlot(type, nItem, true));
-                    if ((InventoryConstants.isRechargable(item.getItemId())) && quantity == 0) {
+                    if ((ItemConstants.isRechargable(item.getItemId())) && quantity == 0) {
                         break;
                     }
                 }
@@ -228,7 +228,7 @@ public class MapleInventoryManipulator {
         if (!type.equals(MapleInventoryType.EQUIP)) {
             short slotMax = ii.getSlotMax(c, itemid);
             List<IItem> existing = c.getPlayer().getInventory(type).listById(itemid);
-            if (!InventoryConstants.isRechargable(itemid)) {
+            if (!ItemConstants.isRechargable(itemid)) {
                 if (existing.size() > 0) // first update all existing slots to slotMax
                 {
                     for (IItem eItem : existing) {
@@ -246,7 +246,7 @@ public class MapleInventoryManipulator {
             final int numSlotsNeeded;
             if (slotMax > 0) {
                 numSlotsNeeded = (int) (Math.ceil(((double) quantity) / slotMax));
-            } else if (InventoryConstants.isRechargable(itemid)) {
+            } else if (ItemConstants.isRechargable(itemid)) {
                 numSlotsNeeded = 1;
             } else {
                 numSlotsNeeded = 1;
@@ -264,7 +264,7 @@ public class MapleInventoryManipulator {
 
     public static void removeFromSlot(MapleClient c, MapleInventoryType type, byte slot, short quantity, boolean fromDrop, boolean consume) {
         IItem item = c.getPlayer().getInventory(type).getItem(slot);
-        boolean allowZero = consume && InventoryConstants.isRechargable(item.getItemId());
+        boolean allowZero = consume && ItemConstants.isRechargable(item.getItemId());
         c.getPlayer().getInventory(type).removeItem(slot, quantity, allowZero);
         if (item.getQuantity() == 0 && !allowZero) {
             c.announce(MaplePacketCreator.clearInventoryItem(type, item.getPosition(), fromDrop));
@@ -308,7 +308,7 @@ public class MapleInventoryManipulator {
         short oldsrcQ = source.getQuantity();
         short slotMax = ii.getSlotMax(c, source.getItemId());
         c.getPlayer().getInventory(type).move(src, dst, slotMax);
-        if (!type.equals(MapleInventoryType.EQUIP) && initialTarget != null && initialTarget.getItemId() == source.getItemId() && !InventoryConstants.isRechargable(source.getItemId())) {
+        if (!type.equals(MapleInventoryType.EQUIP) && initialTarget != null && initialTarget.getItemId() == source.getItemId() && !ItemConstants.isRechargable(source.getItemId())) {
             if ((olddstQ + oldsrcQ) > slotMax) {
                 c.announce(MaplePacketCreator.moveAndMergeWithRestInventoryItem(type, src, dst, (short) ((olddstQ + oldsrcQ) - slotMax), slotMax));
             } else {
@@ -328,7 +328,7 @@ public class MapleInventoryManipulator {
             return;
         }
         if (MapleItemInformationProvider.getInstance().isUntradeableOnEquip(source.getItemId())) {
-            source.setFlag((byte) InventoryConstants.UNTRADEABLE);
+            source.setFlag((byte) ItemConstants.UNTRADEABLE);
         }
         if (dst == -6) { // unequip the overall
             IItem top = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -5);
@@ -441,11 +441,11 @@ public class MapleInventoryManipulator {
                 c.getPlayer().setChalkboard(null);
             }
         }
-        if (c.getPlayer().getItemQuantity(itemId, true) < quantity || quantity < 0 || source == null || quantity == 0 && !InventoryConstants.isRechargable(itemId)) {
+        if (c.getPlayer().getItemQuantity(itemId, true) < quantity || quantity < 0 || source == null || quantity == 0 && !ItemConstants.isRechargable(itemId)) {
             return;
         }
         Point dropPos = new Point(c.getPlayer().getPosition());
-        if (quantity < source.getQuantity() && !InventoryConstants.isRechargable(itemId)) {
+        if (quantity < source.getQuantity() && !ItemConstants.isRechargable(itemId)) {
             IItem target = source.copy();
             target.setQuantity(quantity);
             source.setQuantity((short) (source.getQuantity() - quantity));
