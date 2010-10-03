@@ -1800,8 +1800,9 @@ public class MaplePacketCreator {
         } else {
             mplew.write(0);
         }
-        mplew.write(0);
+        mplew.write(0); //WUT?
         if (chr.getMarriageRings().size() + chr.getFriendshipRings().size() + chr.getCrushRings().size() > 0) {
+            mplew.write(0);
             if (chr.getMarriageRings().size() > 0) {
                 checkRing(mplew, chr.getCrushRings());
                 checkRing(mplew, chr.getFriendshipRings());
@@ -4903,12 +4904,12 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue()); // header.
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
-        mplew.write(5);
-        mplew.write(4);
-        mplew.writeShort(hm.getVisitorSlot(chr)); 
+        mplew.write(0x05);
+        mplew.write(0x04);
+        mplew.writeShort(hm.getVisitorSlot(chr)); //BUG IN getVisitorSlot hm.isOwner(chr) ? 0 : 
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (hm.getVisitors()[i] != null) {
                 mplew.write(i);
                 addCharLook(mplew, hm.getVisitors()[i], false);
@@ -4925,7 +4926,7 @@ public class MaplePacketCreator {
 	    mplew.write(0);
         }
         mplew.writeMapleAsciiString(hm.getDescription());
-        mplew.write(10);
+        mplew.write(0x10);
         mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
         if (hm.getItems().size() == 0) {

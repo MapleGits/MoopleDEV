@@ -31,6 +31,7 @@ import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
+import constants.ItemConstants;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import tools.DatabaseConnection;
@@ -103,7 +104,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public int getVisitorSlot(MapleCharacter visitor) {
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (visitors[i] == visitor) {
                 return i;
             }
@@ -127,7 +128,12 @@ public class HiredMerchant extends AbstractMapleMapObject {
         MaplePlayerShopItem pItem = items.get(item);
         synchronized (items) {
             IItem newItem = pItem.getItem().copy();
-            newItem.setQuantity((short) (newItem.getQuantity() * quantity));
+            newItem.setQuantity((short) ((pItem.getItem().getQuantity() / pItem.getBundles()) * quantity));
+            if ((newItem.getFlag() & ItemConstants.KARMA) == ItemConstants.KARMA) {
+                byte aids = newItem.getFlag();
+                aids &= ~(ItemConstants.KARMA);
+                newItem.setFlag(aids);
+            }
             if (quantity < 1 || pItem.getBundles() < 1 || newItem.getQuantity() > pItem.getBundles() || !pItem.isExist()) {
                 return;
             } else if (newItem.getType() == 1 && newItem.getQuantity() > 1) {
@@ -166,7 +172,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public void closeShop(MapleClient c, boolean timeout) {
         map.removeMapObject(this);
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(ownerId));
-
+        MapleItemInformationProvider.getInstance().isUntradeableOnEquip(itemId);
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?");
             ps.setInt(1, ownerId);
@@ -174,10 +180,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
             ps.close();
             if (check(c.getPlayer(), getItems()) && !timeout) {
                 for (MaplePlayerShopItem mpsi : getItems()) {
-                    if (mpsi.getBundles() > 1) {
-                        MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getExpiration());
+                    if (mpsi.isExist() && (mpsi.getItem().getType() == IItem.EQUIP)) {
+                        MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), false);
                     } else if (mpsi.isExist()) {
-                        MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), true);
+                        MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getExpiration());
                     }
                 }
                 items.clear();
@@ -262,7 +268,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
         for (MaplePlayerShopItem pItems : items) {
-            IItem newItem = pItems.getItem();
+            IItem newItem = pItems.getItem().copy();
             newItem.setQuantity((short) (pItems.getBundles() * pItems.getItem().getQuantity()));
             if (pItems.getBundles() > 0)
                 itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));

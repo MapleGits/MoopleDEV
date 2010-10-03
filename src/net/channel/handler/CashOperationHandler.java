@@ -220,7 +220,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
-        } else if (action == 0x22) {
+        } else if (action == 0x23) {
             if (checkBirthday(c, slea.readInt())) {
                 int payment = slea.readByte();
                 slea.skip(3); //0s

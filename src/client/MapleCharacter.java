@@ -3614,7 +3614,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
-            return;
+            e.printStackTrace();
         }
         hasMerchant = set;
     }

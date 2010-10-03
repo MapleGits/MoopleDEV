@@ -46,24 +46,31 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         int face = slea.readInt();
         newchar.setFace(face);
         newchar.setHair(slea.readInt() + slea.readInt());
-        newchar.setSkinColor(MapleSkinColor.getById(slea.readInt()));
+        int skincolor = slea.readInt();
+        if (skincolor > 3) {
+            return;
+        }
+        newchar.setSkinColor(MapleSkinColor.getById(skincolor));
         int top = slea.readInt();
         int bottom = slea.readInt();
         int shoes = slea.readInt();
         int weapon = slea.readInt();
         newchar.setGender(slea.readByte());
         newchar.setName(name);
+
         if (job == 0) { // Knights of Cygnus
-	            newchar.setJob(MapleJob.NOBLESSE);
-	            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
-	        } else if (job == 1) { // Adventurer
-	            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
-	        } else if (job == 2) { // Aran
-	            newchar.setJob(MapleJob.LEGEND);
-	            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
-	        } else {
-	            System.out.println("[CHAR CREATION] A new job ID has been found: " + job);
-	        }
+	    newchar.setJob(MapleJob.NOBLESSE);
+	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
+	} else if (job == 1) { // Adventurer
+	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
+	} else if (job == 2) { // Aran
+	    newchar.setJob(MapleJob.LEGEND);
+	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
+	} else {
+	    System.out.println("[CHAR CREATION] A new job ID has been found: " + job); //I should ban for packet editing!
+            return;
+	}
+        //CHECK FOR EQUIPS
         MapleInventory equip = newchar.getInventory(MapleInventoryType.EQUIPPED);
         IItem eq_top = MapleItemInformationProvider.getInstance().getEquipById(top);
         eq_top.setPosition((byte) -5);

@@ -36,8 +36,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public class RemoteStoreHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter chr = c.getPlayer();
-        if (chr.hasMerchant()) {
-            HiredMerchant hm = chr.getHiredMerchant();
+        HiredMerchant hm = chr.getHiredMerchant();
+        if (chr.hasMerchant() && hm != null) {
             if (hm.getChannel() == chr.getClient().getChannel()) {
                 hm.setOpen(false);
                 hm.removeAllVisitors("");
