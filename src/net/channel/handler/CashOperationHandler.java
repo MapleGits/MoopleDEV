@@ -154,7 +154,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
         } else if (action == 0x08) { // Increase Character Slots
-                slea.skip(1); //Wild guess that this is the world the character is in.
+                slea.skip(1); 
                 int cash = slea.readInt();
                 CashItem cItem = CashItemFactory.getItem(slea.readInt());
 

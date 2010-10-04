@@ -4902,16 +4902,16 @@ public class MaplePacketCreator {
 
     public static MaplePacket getHiredMerchant(MapleCharacter chr, HiredMerchant hm, boolean firstTime) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue()); // header.
+        mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
         mplew.write(0x05);
         mplew.write(0x04);
-        mplew.writeShort(hm.getVisitorSlot(chr)); //BUG IN getVisitorSlot hm.isOwner(chr) ? 0 : 
+        mplew.writeShort(hm.getVisitorSlot(chr));
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
         for (int i = 0; i < 3; i++) {
             if (hm.getVisitors()[i] != null) {
-                mplew.write(i);
+                mplew.write(i + 1);
                 addCharLook(mplew, hm.getVisitors()[i], false);
                 mplew.writeMapleAsciiString(hm.getVisitors()[i].getName());
             }

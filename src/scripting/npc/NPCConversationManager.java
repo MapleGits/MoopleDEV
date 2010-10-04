@@ -293,7 +293,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
             try {
                 ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
-                if ((skill.getId() / 10000 % 10 == 2 || (getClient().getPlayer().isCygnus() && skill.getId() / 10000 % 10 == 1)) && getPlayer().getSkillLevel(skill) < 1) {
+                if ((skill.getId() / 10000 % 10 == 2 || ((getClient().getPlayer().isCygnus() || getClient().getPlayer().isAran()) && skill.getId() / 10000 % 10 == 1)) && getPlayer().getSkillLevel(skill) < 1) {
                     getPlayer().changeSkillLevel(skill, 0, skill.getMaxLevel(), -1);
                 }
             } catch (NumberFormatException nfe) {
