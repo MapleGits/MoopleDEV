@@ -4906,7 +4906,7 @@ public class MaplePacketCreator {
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
         mplew.write(0x05);
         mplew.write(0x04);
-        mplew.writeShort(hm.getVisitorSlot(chr));
+        mplew.writeShort(hm.getVisitorSlot(chr) + 1);
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
         for (int i = 0; i < 3; i++) {
@@ -4967,11 +4967,11 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket hiredMerchantVisitorLeave(int slot, boolean owner) {
+    public static MaplePacket hiredMerchantVisitorLeave(int slot) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.EXIT.getCode());
-        if (!owner) {
+        if (slot != 0) {
             mplew.write(slot);
         }
         return mplew.getPacket();

@@ -77,6 +77,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import server.MapleSquad;
 import server.MapleSquadType;
 import server.events.MapleEvent;
+import server.maps.HiredMerchant;
 import server.maps.MapleMap;
 
 public class ChannelServer implements Runnable {
@@ -96,6 +97,7 @@ public class ChannelServer implements Runnable {
     private static Map<Integer, ChannelServer> instances = new HashMap<Integer, ChannelServer>();
     private static Map<String, ChannelServer> pendingInstances = new HashMap<String, ChannelServer>();
     private Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
+    private Map<Integer, HiredMerchant> hiredMerchants = new HashMap<Integer, HiredMerchant>();
     private Boolean worldReady = true;
     private int instanceId = 0;
     private MapleEvent event;
@@ -479,6 +481,18 @@ public class ChannelServer implements Runnable {
         } else {
             return false;
         }
+    }
+
+    public Map<Integer, HiredMerchant> getHiredMerchants() {
+        return hiredMerchants;
+    }
+
+    public void addHiredMerchant(int chrid, HiredMerchant hm) {
+        hiredMerchants.put(chrid, hm);
+    }
+
+    public void removeHiredMerchant(int chrid) {
+        hiredMerchants.remove(chrid);
     }
 //
 //    public void weddingMessage(String husband, String wife) {

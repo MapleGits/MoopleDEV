@@ -97,8 +97,8 @@ public class HiredMerchant extends AbstractMapleMapObject {
         int slot = getVisitorSlot(visitor);
         if (visitors[slot] == visitor) {
             visitors[slot] = null;
-            if (slot != 0) {
-                broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorLeave(slot + 1, false));
+            if (slot != -1) {
+                broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorLeave(slot + 1));
             }
         }
     }
@@ -109,7 +109,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 return i;
             }
         }
-        return 0;
+        return -1; //Actually 0 because of the +1's.
     }
 
     public void removeAllVisitors(String message) {
@@ -172,6 +172,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public void closeShop(MapleClient c, boolean timeout) {
         map.removeMapObject(this);
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(ownerId));
+        c.getChannelServer().removeHiredMerchant(ownerId);
         MapleItemInformationProvider.getInstance().isUntradeableOnEquip(itemId);
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?");

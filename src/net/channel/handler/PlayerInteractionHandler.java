@@ -164,6 +164,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     } else {
                         HiredMerchant merchant = new HiredMerchant(chr, itemId, desc);
                         chr.setHiredMerchant(merchant);
+                        chr.getClient().getChannelServer().addHiredMerchant(chr.getId(), merchant);
                         chr.announce(MaplePacketCreator.getHiredMerchant(chr, merchant, true));
                     }
                 }
@@ -271,11 +272,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                         game.removeVisitor(c.getPlayer());
                     }
                 } else if (merchant != null) {
-                    if (!merchant.isOwner(c.getPlayer())) {
-                        merchant.removeVisitor(c.getPlayer());
-                    } else {
-                        c.announce(MaplePacketCreator.hiredMerchantVisitorLeave(0, true));
-                    }
+                    merchant.removeVisitor(c.getPlayer());
                     chr.setHiredMerchant(null);
                 }
             }
