@@ -784,7 +784,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (!isGM()) {
             for (byte i = 1; i < 5; i++) {
                 gainSlots(i, 4, true);
-
             }
         }
         List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(5);
@@ -796,7 +795,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         recalcLocalStats();
         client.announce(MaplePacketCreator.updatePlayerStats(statup));
         silentPartyUpdate();
-        getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + " has advanced as a(n) " + this.getJob().name()), this.getId()); //Change this.getJob().name() to the real job name.
+        //getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + " has advanced as a(n) " + this.getJob().name()), this.getId()); //Change this.getJob().name() to the real job name.
         guildUpdate();
         getMap().broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 8), false);
     }
@@ -2388,7 +2387,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         getMap().broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 0), false);
         recalcLocalStats();
         silentPartyUpdate();
-        getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + "has reached level " + this.getLevel() + "."), this.getId());
+        //getGuild().broadcast(MaplePacketCreator.serverNotice(5, "<Guild> " + this.getName() + "has reached level " + this.getLevel() + "."), this.getId());
         guildUpdate();
     }
 
@@ -2707,7 +2706,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
                 rs.close();
-                ps = con.prepareStatement("INSERT INTO playernpcs (name, hair, face, skin, x, cy, map, ScriptId, Foothold, rx0, rx1) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                ps = con.prepareStatement("INSERT INTO playernpcs (name, hair, face, skin, x, cy, map, ScriptId, Foothold, rx0, rx1) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, v.getName());
                 ps.setInt(2, v.getHair());
                 ps.setInt(3, v.getFace());

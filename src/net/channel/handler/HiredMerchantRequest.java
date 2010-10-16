@@ -25,8 +25,6 @@ import client.ItemFactory;
 import java.sql.SQLException;
 import java.util.Arrays;
 import client.MapleClient;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;

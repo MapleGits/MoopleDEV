@@ -34,7 +34,6 @@ import server.movement.JumpDownMovement;
 import server.movement.LifeMovement;
 import server.movement.LifeMovementFragment;
 import server.movement.RelativeLifeMovement;
-import server.movement.TeleportMovement;
 import tools.data.input.LittleEndianAccessor;
 
 public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketHandler {
@@ -94,8 +93,7 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     break;
                 } */
                 case 10: // Change Equip
-                    byte equip = lea.readByte();
-                    res.add(new ChangeEquip(equip));
+                    res.add(new ChangeEquip(lea.readByte()));
                     break;
                 case 11: { // Chair
                     short xpos = lea.readShort();

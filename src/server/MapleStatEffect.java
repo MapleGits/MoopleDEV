@@ -112,6 +112,7 @@ import constants.skills.WhiteKnight;
 import constants.skills.WindArcher;
 import net.MaplePacket;
 import server.maps.FieldLimit;
+import server.movement.LifeMovementFragment;
 
 /**
  * @author Matze
@@ -365,8 +366,9 @@ public class MapleStatEffect implements Serializable {
                 case ThunderBreaker.DASH:
                 case Beginner.SPACE_DASH:
                 case Noblesse.SPACE_DASH:
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPEED, Integer.valueOf(ret.x)));
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.JUMP, Integer.valueOf(ret.y)));
+		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1));
+		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPEED, ret.x));
+		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.JUMP, ret.y));
                     break;
                 case Corsair.SPEED_INFUSION:
                 case Buccaneer.SPEED_INFUSION:
@@ -627,6 +629,8 @@ public class MapleStatEffect implements Serializable {
         if (!primary && isResurrection()) {
             hpchange = applyto.getMaxHp();
             applyto.setStance(0);
+            applyto.getMap().removePlayer(applyto); //Fixes floating shit
+            applyto.getMap().addPlayer(applyto); //Fixes floating shit
         }
         if (isDispel() && makeChanceResult()) {
             applyto.dispelDebuffs();
@@ -636,9 +640,9 @@ public class MapleStatEffect implements Serializable {
         if (isComboReset()) {
             applyto.setCombo(0);
         }
-        if (applyfrom.getMp() < getMpCon()) {
+        /*if (applyfrom.getMp() < getMpCon()) {
             AutobanFactory.MPCON.addPoint(applyfrom.getAutobanManager(), "mpCon hack for skill:" + sourceid + "; Player MP: " + applyto.getMp() + " MP Needed: " + getMpCon());
-        }
+        } */
         if (hpchange != 0) {
             if (hpchange < 0 && (-hpchange) > applyto.getHp()) {
                 return false;
@@ -833,8 +837,6 @@ public class MapleStatEffect implements Serializable {
         int localDuration = duration;
         int localsourceid = sourceid;
         int seconds = localDuration / 1000;
-        int localX = x;
-        int localY = y;
         MapleMount givemount = null;
         if (isMonsterRiding()) {
             int ridingLevel = 0;
@@ -883,78 +885,61 @@ public class MapleStatEffect implements Serializable {
         }
         if (primary) {
             localDuration = alchemistModifyVal(applyfrom, localDuration, false);
-        }
-        if (localstatups.size() > 0) {
-            MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
-            if (isDash()) {
-                if ((applyto.getJob().getId() / 100) % 10 != 5 && (sourceid != Beginner.SPACE_DASH || sourceid != Noblesse.SPACE_DASH)) {
-                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10, -1);
-                } else {
-                    applyto.getClient().getSession().write(MaplePacketCreator.giveDash(Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1)), sourceid, localX, localY, seconds));
-                }
-            } else if (isInfusion()) {
-                applyto.getClient().getSession().write(MaplePacketCreator.giveInfusion(seconds, x));
-            } else if (isMonsterRiding()) {
-                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
-            } else if (isCygnusFA()) {
-                buff = MaplePacketCreator.giveFinalAttack(sourceid, seconds);
-            } else if (isHomingBeacon()) {
-                buff = MaplePacketCreator.useHomingBeacon(applyto, sourceid, statups);
-            }
-            applyto.getClient().getSession().write(buff);
-        }
-        if (isDash()) {
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showDash(applyto.getId(), sourceid, localDuration, localstatups), false);
-        } else if (isInfusion()) {
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showSpeedInfusion(applyto.getId(), sourceid, localDuration, localstatups), false);
-        } else if (isDs()) {
-            List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, 0));
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat, false), false);
-        } else if (isCombo()) {
-            List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO, 1));
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false), false);
-        } else if (isMonsterRiding()) {
-            if (applyto.getMount().getItemId() != 0) {
-                applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount), false);
-            }
-            localDuration = duration;
-        } else if (isShadowPartner()) {
-            List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SHADOWPARTNER, 0));
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false), false);
-        } else if (isSoulArrow()) {
-            List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SOULARROW, 0));
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false), false);
-        } else if (isEnrage()) {
-            applyto.handleOrbconsume();
-        } else if (isMorph()) {
-            List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
-            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, true), false);
-        } else if (isTimeLeap()) {
-            for (PlayerCoolDownValueHolder i : applyto.getAllCooldowns()) {
-                if (i.skillId != Buccaneer.TIME_LEAP) {
-                    applyto.removeCooldown(i.skillId);
-                }
-            }
+            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1, (byte) 3), false);
         }
         if (localstatups.size() > 0) {
             long starttime = System.currentTimeMillis();
             CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
             ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
             applyto.registerEffect(this, starttime, schedule);
-        }
-        if (primary) {
+
+            MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
+            MaplePacket mbuff = null;
             if (isDash()) {
-                if ((applyto.getJob().getId() / 100) % 10 != 5) {
-                    applyto.changeSkillLevel(SkillFactory.getSkill(sourceid), 0, 10, -1);
-                } else {
-                    applyto.getClient().getSession().write(MaplePacketCreator.giveDash(Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1)), sourceid, localX, localY, seconds));
-                }
+                buff = MaplePacketCreator.giveDash(statups, seconds);
+                mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, localDuration, localstatups);
             } else if (isInfusion()) {
-                applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, seconds), false);
-            } else {
-                applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1, (byte) 3), false);
+                buff = MaplePacketCreator.giveInfusion(seconds, x);
+                mbuff = MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, seconds);
+            } else if (isDs()) {
+                List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, 0));
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat, false);
+            } else if (isCombo()) {
+                List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO, 1));
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+            } else if (isMonsterRiding()) {
+                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
+                if (applyto.getMount().getItemId() != 0) {
+                    mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
+                }
+                localDuration = duration;
+            } else if (isShadowPartner()) {
+                List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SHADOWPARTNER, 0));
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+            } else if (isSoulArrow()) {
+                List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SOULARROW, 0));
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+            } else if (isEnrage()) {
+                applyto.handleOrbconsume();
+            } else if (isMorph()) {
+                List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, true);
+            } else if (isCygnusFA()) {
+                buff = MaplePacketCreator.giveFinalAttack(sourceid, seconds);
+            } else if (isHomingBeacon()) {
+                buff = MaplePacketCreator.useHomingBeacon(applyto, sourceid, statups);
+            } else if (isTimeLeap()) {
+                for (PlayerCoolDownValueHolder i : applyto.getAllCooldowns()) {
+                    if (i.skillId != Buccaneer.TIME_LEAP) {
+                        applyto.removeCooldown(i.skillId);
+                    }
+                }
             }
-        }
+            applyto.getClient().getSession().write(buff);
+            if (mbuff != null) {
+                applyto.getMap().broadcastMessage(applyto, mbuff, false);
+            }
+        }         
     }
 
     private int calcHPChange(MapleCharacter applyfrom, boolean primary) {

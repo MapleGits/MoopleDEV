@@ -136,9 +136,9 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                     }
                     mapitem.setPickedUp(true);
                 }
-            }
-            c.announce(MaplePacketCreator.enableActions());
+            }            
         }
+        c.announce(MaplePacketCreator.enableActions());
     }
 
     static final boolean useItem(final MapleClient c, final int id) {

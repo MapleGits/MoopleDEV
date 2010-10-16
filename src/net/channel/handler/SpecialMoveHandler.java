@@ -24,6 +24,7 @@ package net.channel.handler;
 import java.awt.Point;
 import java.util.concurrent.ScheduledFuture;
 import client.ISkill;
+import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
 import client.MapleStat;
@@ -48,12 +49,13 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
 
-        slea.readInt();
+        int chrid = slea.readInt(); //WILD GUESS
         int skillid = slea.readInt();
         Point pos = null;
         int __skillLevel = slea.readByte();
         ISkill skill = SkillFactory.getSkill(skillid);
         int skillLevel = c.getPlayer().getSkillLevel(skill);
+        //MapleCharacter applyfrom = c.getPlayer().getMap().getCharacterById(chrid); //Uses map because it always casted the map right? :)
         if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011) {
             skillLevel = 1;
             c.getPlayer().setDojoEnergy(0);

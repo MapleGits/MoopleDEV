@@ -31,7 +31,7 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         String s = slea.readMapleAsciiString();
         char heading = s.charAt(0);
-        if (heading == '/') {
+        if (heading == '/' || heading == '!' || heading == '@') {
             String[] sp = s.split(" ");
             sp[0] = sp[0].toLowerCase().substring(1);
             if (!Commands.executePlayerCommand(c, sp, heading)) {

@@ -1,0 +1,9 @@
+[-] = Not fixed
+[/] = Temp fix
+[+] = Fixed
+
+Combat Step/Dash [-]
+Ranged attack without arrow crash [-]
+Floating when resurrected [+]
+
+

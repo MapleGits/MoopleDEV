@@ -3007,19 +3007,13 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
         mplew.writeInt(cid); // ?
-        if (skillid == Buccaneer.SUPER_TRANSFORMATION || skillid == Marauder.TRANSFORMATION || skillid == WindArcher.EAGLE_EYE || skillid == ThunderBreaker.TRANSFORMATION) {
-            mplew.write(effectid); //Skill level >.>
-            mplew.writeInt(skillid);
-            mplew.write(direction);
-            mplew.write(1);
-            mplew.writeLong(0);
-        } else {
-            mplew.write(effectid); //buff level
-            mplew.writeInt(skillid);
-            mplew.write(direction);
-            mplew.write(1);
-            mplew.writeLong(0);
-        }
+        mplew.write(effectid); //Skill level >.>
+        mplew.writeInt(skillid);
+	if (direction != (byte) 3) {
+	    mplew.write(direction);
+	}
+        mplew.write(1);
+        mplew.writeLong(0);
         return mplew.getPacket();
     }
 
@@ -5072,69 +5066,53 @@ public class MaplePacketCreator {
         mplew.writeLong(getLongMask(statups));
         mplew.write0(10);
         mplew.write(0xA9);
-        mplew.writeInt(statups.get(0).getRight().intValue());
-        mplew.writeInt(buffid);
-        mplew.write0(10);
-        mplew.writeShort(bufflength);
+        for (Pair<MapleBuffStat, Integer> statup : statups) {
+            mplew.writeInt(statup.getRight().shortValue());
+            mplew.writeInt(buffid);
+            mplew.writeInt(0);
+            mplew.writeShort(bufflength);
+            mplew.write(0);
+        }
         mplew.write(0x58);
         mplew.write(0x02);
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveDash(List<Pair<MapleBuffStat, Integer>> statups, int skillid, int x, int y, int duration) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        mplew.writeInt(0);
-        mplew.writeLong(getLongMask(statups));
-        mplew.writeShort(0);
-        mplew.writeInt(0);
-        mplew.writeInt(x);
-        mplew.writeInt(skillid);
-        mplew.write(new byte[5]);
-        mplew.writeShort(duration);
-        mplew.writeInt(y);
-        mplew.writeInt(skillid);
-        mplew.write(new byte[5]);
-        mplew.writeShort(duration);
-        mplew.writeShort(0);
-        mplew.write(0x02);
-        return mplew.getPacket();
+    public static MaplePacket giveDash(List<Pair<MapleBuffStat, Integer>> statups, int duration) {
+	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
+	mplew.writeLong(MapleBuffStat.DASH.getValue());
+	mplew.writeLong(0);
+	mplew.writeShort(0);
+	for (Pair<MapleBuffStat, Integer> stat : statups) {
+	    if (stat.getLeft().getValue() != MapleBuffStat.DASH.getValue()) {
+		mplew.writeInt(stat.getRight().shortValue());
+		mplew.writeInt(5001005);
+		mplew.writeInt(0);
+		mplew.writeShort(duration);
+		mplew.write(0);
+	    }
+	}
+	mplew.writeShort(0);
+	mplew.write(2);
+	return mplew.getPacket();
     }
 
-    public static MaplePacket showDash(int cid, int skillid, int time, List<Pair<MapleBuffStat, Integer>> statups) {
+    public static MaplePacket giveForeignDash(int cid, int skillid, int time, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
-        long mask = getLongMask(statups);
-        mplew.writeLong(mask);
-        mplew.writeLong(0);
+	mplew.writeLong(0);
+	mplew.writeLong(MapleBuffStat.DASH.getValue());
         mplew.writeShort(0);
         for (Pair<MapleBuffStat, Integer> statup : statups) {
-            mplew.writeShort(statup.getRight());
-            mplew.writeShort(0);
-            mplew.writeInt(skillid);
-            mplew.writeInt(0);
-            mplew.write(0);
-            mplew.writeShort(time);
+            if (statup.getLeft().getValue() != MapleBuffStat.DASH.getValue()) {
+                mplew.writeInt(statup.getRight().shortValue());
+                mplew.writeInt(skillid);
+                mplew.write(new byte[] {(byte) 0x1A, (byte) 0x7C, (byte) 0x8D, (byte) 0x35});
+                mplew.writeShort(time);
+            }
         }
-        mplew.writeShort(0);
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket showSpeedInfusion(int cid, int skillid, int time, List<Pair<MapleBuffStat, Integer>> statups) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
-        mplew.writeInt(cid);
-        long mask = getLongMask(statups);
-        mplew.writeLong(mask);
-        mplew.writeLong(0);
-        mplew.writeShort(0);
-        mplew.writeInt(statups.get(0).getRight());
-        mplew.writeInt(skillid);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeShort(0);
-        mplew.writeShort(time);
         mplew.writeShort(0);
         return mplew.getPacket();
     }
