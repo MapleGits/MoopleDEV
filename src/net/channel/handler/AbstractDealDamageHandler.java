@@ -133,13 +133,11 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 if (attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Page.FINAL_ATTACK_BW || attack.skill == Page.FINAL_ATTACK_SWORD || attack.skill == Fighter.FINAL_ATTACK_SWORD
                          || attack.skill == Fighter.FINAL_ATTACK_AXE || attack.skill == Spearman.FINAL_ATTACK_SPEAR || attack.skill == Spearman.FINAL_ATTACK_POLEARM || attack.skill == WindArcher.FINAL_ATTACK
                           || attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Hunter.FINAL_ATTACK || attack.skill == Crossbowman.FINAL_ATTACK) {
-                    mobCount = player.getLastMobCount();
+                          mobCount = 15;
                 }
             if (attack.numAttacked > mobCount) {
                     AutobanFactory.MOB_COUNT.autoban(player, "Skill: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
                     return;
-            } else {
-                player.setLastMobCount(attack.numAttacked);
             }
         }
         if (!player.isAlive()) {

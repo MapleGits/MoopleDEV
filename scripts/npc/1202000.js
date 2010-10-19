@@ -60,7 +60,7 @@ function action(mode, type, selection) {
 		} else if (status == 7) {
 			cm.sendNextPrev("I can't remember anything. Where am I? And who are you...?", 2);
 		} else if (status == 8) {
-			cm.sendNextPrev("Stay clam. There is no need to panic. You can't remember anything because the curse of the Black Mage erased your memory. I'll tell you everything you need to know...step by step.");
+			cm.sendNextPrev("Stay calm. There is no need to panic. You can't remember anything because the curse of the Black Mage erased your memory. I'll tell you everything you need to know...step by step.");
 		} else if (status == 9) {
 			cm.sendNextPrev("You're a hero who fought the Black Mage and saved Maple World hundreds of years ago. But at the very last moment, the curse of the Black Mage put you to sleep for a long, long time. That's when you lost all of your memories.");
 		} else if (status == 10) {
@@ -91,7 +91,7 @@ function action(mode, type, selection) {
 					cm.sendNext("Let's not waste any more time and just get to town. I'll give you the details when we get there.");
 					cm.dispose();
 				} else if(selection == 4) {
-					cm.displayGuide(14);
+					cm.guideHint(14);
 					cm.dispose();
 				} else if(selection == 5) {
 					cm.guideHint(15);

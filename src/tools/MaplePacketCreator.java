@@ -3533,7 +3533,7 @@ public class MaplePacketCreator {
             mask |= stat.getValue();
         }
         mplew.writeInt(mask);
-        mplew.write(0); //012345676586863483795632?
+        mplew.writeInt(0);
         return mplew.getPacket();
     }
 

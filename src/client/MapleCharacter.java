@@ -592,7 +592,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return lastattack;
     }
 
-    public int getLastMobCount() {
+    public int getLastMobCount() { //Used for skills that have mobCount at 1. (a/b)
         return lastmobcount;
     }
 

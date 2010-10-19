@@ -57,8 +57,10 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        System.out.println(((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName() + " caught an exception: " + cause.toString());
-        cause.printStackTrace();
+        String accountname = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName();
+        if (accountname != null)
+            System.out.println(accountname + " caught an exception: " + cause.toString());
+        //cause.printStackTrace();
     }
 
     @Override

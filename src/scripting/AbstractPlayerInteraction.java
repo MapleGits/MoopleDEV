@@ -104,11 +104,11 @@ public class AbstractPlayerInteraction {
     }
 
     public boolean haveItem(int itemid, int quantity) {
-        return c.getPlayer().getItemQuantity(itemid, false) >= quantity;
+        return getPlayer().getItemQuantity(itemid, false) >= quantity;
     }
 
     public boolean canHold(int itemid) {
-        return c.getPlayer().getInventory(MapleItemInformationProvider.getInstance().getInventoryType(itemid)).getNextFreeSlot() > -1;
+        return getPlayer().getInventory(MapleItemInformationProvider.getInstance().getInventoryType(itemid)).getNextFreeSlot() > -1;
     }
 
     public void openNpc(int npcid) {
@@ -283,6 +283,10 @@ public class AbstractPlayerInteraction {
     public void showInstruction(String msg, int width, int height) {
         c.announce(MaplePacketCreator.sendHint(msg, width, height));
         c.announce(MaplePacketCreator.enableActions());
+    }
+
+    public void disableMinimap() {
+        c.announce(MaplePacketCreator.disableMinimap());
     }
 
     public void resetMap(int mapid) {
