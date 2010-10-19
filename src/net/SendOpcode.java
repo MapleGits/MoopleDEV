@@ -98,7 +98,7 @@ public enum SendOpcode {
     FAMILY_SENIOR_MESSAGE(0x63),
     LOAD_FAMILY(0x64),
     FAMILY_GAIN_REP(0x65),
-    //66 00 01 00 00 00 - ? is logged in... o.o
+    FAMILY_LOGIN(0x66), //? is logged in. LOLWUT
     FAMILY_BUFF(0x67),
     FAMILY_USE_REQUEST(0x68),
     LEVELUP_MSG(0x69),

@@ -57,6 +57,10 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import constants.ServerConstants;
+import constants.skills.Buccaneer;
+import constants.skills.Marauder;
+import constants.skills.ThunderBreaker;
+import constants.skills.WindArcher;
 import java.rmi.RemoteException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -1881,6 +1885,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket movePlayer(int cid, List<LifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        //B9 00 01 00 00 00 00 00 00 00 07 00 CC 02 04 00 00 00 00 00 3B 00 05 2C 01 14 00 00 00 00 05 00 00 00 CC 02 03 00 00 00 00 00 3B 00 05 00 00 02 18 FC 00 00 07 00 00 00 AE 02 04 00 0D FE 00 00 00 00 07 1E 00 00 A3 02 04 00 31 FE 00 00 3B 00 05 17 00 00 6C 02 04 00 21 FF 00 00 39
         mplew.writeShort(SendOpcode.MOVE_PLAYER.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(0);
@@ -3013,16 +3018,13 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket showBuffeffect(int cid, int skillid, int effectid, byte direction) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(12);
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
-        mplew.writeInt(cid); // ?
-        mplew.write(effectid); //Skill level >.>
+        mplew.writeInt(cid); 
+        mplew.write(effectid); //buff level
         mplew.writeInt(skillid);
-	if (direction != (byte) 3) {
-	    mplew.write(direction);
-	}
-        mplew.write(1);
-        mplew.writeLong(0);
+        mplew.write(direction);
+        mplew.write(1);  
         return mplew.getPacket();
     }
 
@@ -3032,7 +3034,7 @@ public class MaplePacketCreator {
         mplew.write(effectid);
         mplew.writeInt(skillid);
         mplew.write(0xA9);
-        mplew.write(1); // Buff level, and yes it does matter.
+        mplew.write(1);
         return mplew.getPacket();
     }
 
@@ -5095,10 +5097,11 @@ public class MaplePacketCreator {
         for (Pair<MapleBuffStat, Integer> statup : statups) {
                 mplew.writeInt(statup.getRight().shortValue());
                 mplew.writeInt(buffid);
-                mplew.write(new byte[] {(byte) 0x1A, (byte) 0x7C, (byte) 0x8D, (byte) 0x35});
+                mplew.write0(5);
                 mplew.writeShort(time);
         }
         mplew.writeShort(0);
+        mplew.write(2);
         return mplew.getPacket();
     }
 
@@ -5106,8 +5109,8 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
+        mplew.writeLong(MapleBuffStat.SPEED_INFUSION.getValue());
         mplew.writeLong(0);
-        mplew.writeLong(MapleBuffStat.MORPH.getValue());
         mplew.writeShort(0);
         mplew.writeInt(speed);
         mplew.writeInt(5121009);

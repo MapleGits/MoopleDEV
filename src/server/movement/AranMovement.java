@@ -12,9 +12,10 @@ public class AranMovement extends AbstractLifeMovement {
         super(type, position, duration, newstate);
     }
 
-    public void serialize(LittleEndianWriter slea) {
-        slea.write(getType());
-        slea.write(getNewstate());
-        slea.writeShort(getDuration());
+    @Override
+    public void serialize(LittleEndianWriter lew) {
+        lew.write(getType());
+        lew.write(getNewstate());
+        lew.writeShort(getDuration());
     }
 }

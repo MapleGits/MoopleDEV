@@ -122,8 +122,6 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     res.add(jdm);
                     break;
                 }
-                case 19:
-                case 20:
                 case 21: {
                     byte newstate = lea.readByte();
                     short unk = lea.readShort();
