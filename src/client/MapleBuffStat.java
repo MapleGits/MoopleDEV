@@ -79,6 +79,8 @@ public enum MapleBuffStat implements LongValueHolder, Serializable {
     FINALATTACK(0x80000000),
     SPARK(0x20000000),
     BATTLESHIP(0xA00000040L),
+    DASH2(0x8000000000000L, true), // correct (speed)
+    DASH(0x10000000000000L, true), // correct (jump)
     ELEMENTAL_RESET(0x200000000L, true), 
     ARAN_COMBO(0x1000000000L, true),
     COMBO_DRAIN(0x2000000000L, true),
@@ -86,8 +88,6 @@ public enum MapleBuffStat implements LongValueHolder, Serializable {
     BODY_PRESSURE(0x8000000000L, true),
     SMART_KNOCKBACK(0x10000000000L, true),
     PYRAMID_PQ(0x20000000000L, true),
-    DASH2(0x8000000000000L, true),
-    DASH(0x10000000000000L, true),
     ENERGY_CHARGE(0x4000000000000L, true),
     MONSTER_RIDING(0x20000000000000L, true),
     HOMING_BEACON(0x80000000000000L, true),

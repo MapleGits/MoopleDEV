@@ -78,12 +78,17 @@ public enum SendOpcode {
     SPAWN_PORTAL(0x43),
     SERVERMESSAGE(0x44),
     SOMETHING_WITH_INVENTORY(0x45), //45 00 00 = Inventory is full betches
-    FAMILY_ACTION(0x48),
+    OWL_OF_MINERVA(0x46), //WOOT
+    RING_ACTION(0x48),
+    RING_ACTION2(0x49),
+    MARRIAGE_ACTION(0x4A),
+    PET_MESSAGE(0x4C), //4C 00 01 00 00 00
     YELLOW_TIP(0x4D),
     CATCH_MESSAGE(0x4F),
     PLAYER_NPC(0x51),
     MONSTERBOOK_ADD(0x53),
     MONSTER_BOOK_CHANGE_COVER(0x55),
+    MINIMAP_SHIT(0x56), //Resets minimap or something xD
     ENERGY(0x5C),
     SHOW_PEDIGREE(0x5E),
     OPEN_FAMILY(0x5F),
@@ -93,8 +98,13 @@ public enum SendOpcode {
     FAMILY_SENIOR_MESSAGE(0x63),
     LOAD_FAMILY(0x64),
     FAMILY_GAIN_REP(0x65),
+    //66 00 01 00 00 00 - ? is logged in... o.o
+    FAMILY_BUFF(0x67),
     FAMILY_USE_REQUEST(0x68),
-    BLANK_MESSAGE(0x6D), 
+    LEVELUP_MSG(0x69),
+    MARRIAGE_MSG(0x6A),
+    JOB_MSG(0x6B),
+    BLANK_MESSAGE(0x6D), //It's not blank, It's a popup nibs
     AVATAR_MEGA(0x6F),
     NAME_CHANGE_MESSAGE(0x71),
     CHARACTER_TRANSFER_MESSAGE(0x72),
@@ -110,15 +120,14 @@ public enum SendOpcode {
     MTS_OPEN(0x7E),
     OPEN_CASHSHOP(0x7F),
     RESET_SCREEN(0x82),
-    CS_BLOCKED(0x83),
-    MTS_BLOCKED(0x84),
+    BLOCK_MESSAGE(0x83),
+    BLOCK_MESSAGE2(0x84),
     FORCED_MAP_EQUIP(0x85),
     MULTICHAT(0x86),
     WHISPER(0x87),
     SPOUSE_CHAT(0x88),
     WEIRD_MSG(0x89), //You can't use it in this map
     BOSS_ENV(0x8A),
-    BLOCK_PORTAL(0x8A), //What the fuck is this?
     BLOCK_PORTAL_SHOP(0x8B), 
     MAP_EFFECT(0x8E),
     HPQ_MOON(0x8F),

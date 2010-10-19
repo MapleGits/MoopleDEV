@@ -62,6 +62,8 @@ public final class RingActionHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.sendEngagementRequest(proposerName));
                 }
                 break;
+            case 2:
+                byte type = slea.readByte();
             case 3: //Drop Ring
                 /*
                 if (player.getPartner() != null) {
@@ -96,7 +98,7 @@ public final class RingActionHandler extends AbstractMaplePacketHandler {
                 for (int i = 0; i < amount; i++) {
                     items[i] = slea.readMapleAsciiString();
                 }
-                c.announce(MaplePacketCreator.sendGroomWishlist());
+                c.announce(MaplePacketCreator.sendGroomWishlist()); //WTF<
                 break;
             default:
                 System.out.println("NEW RING ACTION " + mode);

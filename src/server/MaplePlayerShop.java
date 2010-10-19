@@ -127,7 +127,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
                 return;
             }
             synchronized (c.getPlayer()) {
-                if (c.getPlayer().getMeso() >= pItem.getPrice() * quantity) {
+                if (c.getPlayer().getMeso() >= (long) pItem.getPrice() * quantity) {
                     if (MapleInventoryManipulator.addFromDrop(c, newItem, false)) {
                         c.getPlayer().gainMeso(-pItem.getPrice() * quantity, true);
                         owner.gainMeso(pItem.getPrice() * quantity, true);

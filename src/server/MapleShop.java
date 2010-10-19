@@ -82,7 +82,7 @@ public class MapleShop {
         MapleShopItem item = findById(itemId);
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         if (item != null && item.getPrice() > 0) {
-            if (c.getPlayer().getMeso() >= item.getPrice() * quantity) {
+            if (c.getPlayer().getMeso() >= (long) item.getPrice() * quantity) {
                 if (MapleInventoryManipulator.checkSpace(c, itemId, quantity, "")) {
                     if (!ItemConstants.isRechargable(itemId)) {
                         if (itemId >= 5000000 && itemId <= 5000100) {

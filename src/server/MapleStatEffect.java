@@ -41,7 +41,6 @@ import client.MapleJob;
 import client.MapleMount;
 import client.MapleStat;
 import client.SkillFactory;
-import client.autoban.AutobanFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
@@ -112,7 +111,6 @@ import constants.skills.WhiteKnight;
 import constants.skills.WindArcher;
 import net.MaplePacket;
 import server.maps.FieldLimit;
-import server.movement.LifeMovementFragment;
 
 /**
  * @author Matze
@@ -366,9 +364,8 @@ public class MapleStatEffect implements Serializable {
                 case ThunderBreaker.DASH:
                 case Beginner.SPACE_DASH:
                 case Noblesse.SPACE_DASH:
-		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, 1));
-		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPEED, ret.x));
-		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.JUMP, ret.y));
+		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH2, Integer.valueOf(ret.x)));
+		    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DASH, Integer.valueOf(ret.y)));
                     break;
                 case Corsair.SPEED_INFUSION:
                 case Buccaneer.SPEED_INFUSION:
@@ -866,11 +863,11 @@ public class MapleStatEffect implements Serializable {
                 givemount = new MapleMount(applyto, 1932000, sourceid);
             } else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP) {
                 givemount = new MapleMount(applyto, 1932000 + applyto.getSkillLevel(sourceid), sourceid);
-            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1) {
+            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1) {
                 givemount = new MapleMount(applyto, 1932003, sourceid);
-            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2) {
+            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2) {
                 givemount = new MapleMount(applyto, 1932004, sourceid);
-            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK) {
+            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK) {
                 givemount = new MapleMount(applyto, 1932005, sourceid);
             } else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT) {
                 givemount = new MapleMount(applyto, 1932010, sourceid);
@@ -888,19 +885,14 @@ public class MapleStatEffect implements Serializable {
             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1, (byte) 3), false);
         }
         if (localstatups.size() > 0) {
-            long starttime = System.currentTimeMillis();
-            CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-            ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
-            applyto.registerEffect(this, starttime, schedule);
-
             MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
             MaplePacket mbuff = null;
             if (isDash()) {
-                buff = MaplePacketCreator.giveDash(statups, seconds);
-                mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, localDuration, localstatups);
+                buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
+                mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
             } else if (isInfusion()) {
-                buff = MaplePacketCreator.giveInfusion(seconds, x);
-                mbuff = MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, seconds);
+                buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
+                mbuff = MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, localDuration);
             } else if (isDs()) {
                 List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat, false);
@@ -935,6 +927,11 @@ public class MapleStatEffect implements Serializable {
                     }
                 }
             }
+            long starttime = System.currentTimeMillis();
+            CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
+            ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
+            applyto.registerEffect(this, starttime, schedule);
+
             applyto.getClient().getSession().write(buff);
             if (mbuff != null) {
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);

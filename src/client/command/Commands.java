@@ -9,7 +9,7 @@
     published by the Free Software Foundation version 3 as published by
     the Free Software Foundation. You may not use, modify or distribute
     this program under any other version of the GNU Affero General Public
-    License.
+    License.te
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,6 +30,7 @@ import java.util.List;
 import client.IItem;
 import client.ISkill;
 import client.Item;
+import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -43,6 +44,8 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tools.DatabaseConnection;
 import net.channel.ChannelServer;
 import provider.MapleData;

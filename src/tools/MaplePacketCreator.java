@@ -57,10 +57,6 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import constants.ServerConstants;
-import constants.skills.Buccaneer;
-import constants.skills.Marauder;
-import constants.skills.ThunderBreaker;
-import constants.skills.WindArcher;
 import java.rmi.RemoteException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -2363,7 +2359,6 @@ public class MaplePacketCreator {
                     allianceName = alliance.getName();
                 }
             } catch (RemoteException re) {
-                re.printStackTrace();
                 chr.getClient().getChannelServer().reconnectWorld();
             }
         }
@@ -2721,6 +2716,20 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
+    private static void writeLongMask(MaplePacketLittleEndianWriter mplew, List<Pair<MapleBuffStat, Integer>> statups) {
+	long firstmask = 0;
+	long secondmask = 0;
+	for (Pair<MapleBuffStat, Integer> statup : statups) {
+	    if (statup.getLeft().isFirst()) {
+		firstmask |= statup.getLeft().getValue();
+	    } else {
+		secondmask |= statup.getLeft().getValue();
+	    }
+	}
+	mplew.writeLong(firstmask);
+	mplew.writeLong(secondmask);
+    }
+
     private static void writeLongMaskFromList(MaplePacketLittleEndianWriter mplew, List<MapleBuffStat> statups) {
         long firstmask = 0;
         long secondmask = 0;
@@ -3023,7 +3032,7 @@ public class MaplePacketCreator {
         mplew.write(effectid);
         mplew.writeInt(skillid);
         mplew.write(0xA9);
-        mplew.write(1); // probably buff level but we don't know it and it doesn't really matter
+        mplew.write(1); // Buff level, and yes it does matter.
         return mplew.getPacket();
     }
 
@@ -4829,7 +4838,6 @@ public class MaplePacketCreator {
                 addItemInfo(mplew, items.get(i).getLeft(), true);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         mplew.write0(3);
         return mplew.getPacket();
@@ -4923,7 +4931,7 @@ public class MaplePacketCreator {
         mplew.write(0x10);
         mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
         mplew.write(hm.getItems().size());
-        if (hm.getItems().size() == 0) {
+        if (hm.getItems().isEmpty()) {
             mplew.write(0);
         } else {
             for (MaplePlayerShopItem item : hm.getItems()) {
@@ -5047,71 +5055,48 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveInfusion(int bufflength, int speed) {
+    public static MaplePacket giveInfusion(int buffid, int bufflength, int speed) {//This ain't correct
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
+        mplew.writeLong(MapleBuffStat.SPEED_INFUSION.getValue());
         mplew.writeLong(0);
-        mplew.writeLong(MapleBuffStat.MORPH.getValue());
         mplew.writeShort(speed);
-        mplew.writeInt(5121009);
-        mplew.writeLong(0);
+        mplew.writeInt(buffid);
+        mplew.write(0);
         mplew.writeShort(bufflength);
+        mplew.writeShort(0);
+        mplew.writeShort(0);
         mplew.writeShort(0);
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveSpeedInfusion(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        mplew.writeLong(getLongMask(statups));
-        mplew.write0(10);
-        mplew.write(0xA9);
-        for (Pair<MapleBuffStat, Integer> statup : statups) {
-            mplew.writeInt(statup.getRight().shortValue());
-            mplew.writeInt(buffid);
-            mplew.writeInt(0);
-            mplew.writeShort(bufflength);
-            mplew.write(0);
-        }
-        mplew.write(0x58);
-        mplew.write(0x02);
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket giveDash(List<Pair<MapleBuffStat, Integer>> statups, int duration) {
+    public static MaplePacket givePirateBuff(List<Pair<MapleBuffStat, Integer>> statups, int buffid, int duration) {
 	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 	mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-	mplew.writeLong(MapleBuffStat.DASH.getValue());
-	mplew.writeLong(0);
+	writeLongMask(mplew, statups);
 	mplew.writeShort(0);
 	for (Pair<MapleBuffStat, Integer> stat : statups) {
-	    if (stat.getLeft().getValue() != MapleBuffStat.DASH.getValue()) {
-		mplew.writeInt(stat.getRight().shortValue());
-		mplew.writeInt(5001005);
-		mplew.writeInt(0);
-		mplew.writeShort(duration);
-		mplew.write(0);
-	    }
+            mplew.writeInt(stat.getRight().shortValue());
+            mplew.writeInt(buffid);
+            mplew.write0(5);
+            mplew.writeShort(duration);
 	}
 	mplew.writeShort(0);
 	mplew.write(2);
 	return mplew.getPacket();
     }
 
-    public static MaplePacket giveForeignDash(int cid, int skillid, int time, List<Pair<MapleBuffStat, Integer>> statups) {
+    public static MaplePacket giveForeignDash(int cid, int buffid, int time, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
-	mplew.writeLong(0);
-	mplew.writeLong(MapleBuffStat.DASH.getValue());
+	writeLongMask(mplew, statups);
         mplew.writeShort(0);
         for (Pair<MapleBuffStat, Integer> statup : statups) {
-            if (statup.getLeft().getValue() != MapleBuffStat.DASH.getValue()) {
                 mplew.writeInt(statup.getRight().shortValue());
-                mplew.writeInt(skillid);
+                mplew.writeInt(buffid);
                 mplew.write(new byte[] {(byte) 0x1A, (byte) 0x7C, (byte) 0x8D, (byte) 0x35});
                 mplew.writeShort(time);
-            }
         }
         mplew.writeShort(0);
         return mplew.getPacket();
@@ -5794,6 +5779,7 @@ public class MaplePacketCreator {
      * 6 with Mode 1: You have entered an invalid character name.<br>
      * 16: GM Hide, mode determines whether or not it is on.<br>
      * 29: Mode 0: Failed to send warning Mode 1: Sent warning<br>
+     * 0x13 : Hired Merchant finder :O
      *
      * @param type The type
      * @param mode The mode
@@ -5804,6 +5790,13 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.GM_PACKET.getValue());
         mplew.write(type);
         mplew.write(mode);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket disableMinimap() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.GM_PACKET.getValue());
+        mplew.writeShort(0x1C);
         return mplew.getPacket();
     }
 
@@ -6056,7 +6049,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket sendEngagementRequest(String name) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.FAMILY_ACTION.getValue()); //<name> has requested engagement. Will you accept this proposal?
+        mplew.writeShort(SendOpcode.RING_ACTION.getValue()); //<name> has requested engagement. Will you accept this proposal?
         mplew.write(0);
         mplew.writeMapleAsciiString(name); // name
         mplew.writeInt(10); // playerid
@@ -6065,8 +6058,21 @@ public class MaplePacketCreator {
 
     public static MaplePacket sendGroomWishlist() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.FAMILY_ACTION.getValue()); //<name> has requested engagement. Will you accept this proposal?
+        mplew.writeShort(SendOpcode.RING_ACTION.getValue()); //<name> has requested engagement. Will you accept this proposal?
         mplew.write(9);
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket sendBrideWishList(List<IItem> items) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MARRIAGE_ACTION.getValue());
+        mplew.write(0x0A);
+        mplew.writeLong(-1); // ?
+        mplew.writeInt(0); // ?
+        mplew.write(items.size());
+        for (IItem item : items) {
+            addItemInfo(mplew, item, true);
+        }
         return mplew.getPacket();
     }
 
@@ -6189,18 +6195,40 @@ public class MaplePacketCreator {
      * Gets a "block" packet (ie. the cash shop is unavailable, etc)
      *
      * Possible values for <code>type</code>:<br>
-     * 1: You cannot move that channel. Please try again later.<br>
-     * 2: You cannot go into the cash shop. Please try again later.<br>
-     * 3: The Item-Trading shop is currently unavailable, please try again later.<br>
-     * 4: You cannot go into the trade shop, due to the limitation of user count.<br>
-     * 5: You do not meet the minimum level requirement to access the Trade Shop.<br>
+     * 1: The portal is closed for now.<br>
+     * 2: You cannot go to that place.<br>
+     * 3: Unable to approach due to the force of the ground.<br>
+     * 4: You cannot teleport to or on this map.<br>
+     * 5: Unable to approach due to the force of the ground.<br>
+     * 6: This map can only be entered by party members.<br>
+     * 7: The Cash Shop is currently not available. Stay tuned...<br>
      *
      * @param type The type
      * @return The "block" packet.
      */
     public static MaplePacket blockedMessage(int type) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CS_BLOCKED.getValue());
+        mplew.writeShort(SendOpcode.BLOCK_MESSAGE.getValue());
+        mplew.write(type);
+        return mplew.getPacket();
+    }
+
+    /**
+     * Gets a "block" packet (ie. the cash shop is unavailable, etc)
+     *
+     * Possible values for <code>type</code>:<br>
+     * 1: You cannot move that channel. Please try again later.<br>
+     * 2: You cannot go into the cash shop. Please try again later.<br>
+     * 3: The Item-Trading Shop is currently unavailable. Please try again later.<br>
+     * 4: You cannot go into the trade shop, due to limitation of user count.<br>
+     * 5: You do not meet the minimum level requirement to access the Trade Shop.<br>
+     *
+     * @param type The type
+     * @return The "block" packet.
+     */
+    public static MaplePacket blockedMessage2(int type) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.BLOCK_MESSAGE2.getValue());
         mplew.write(type);
         return mplew.getPacket();
     }
@@ -6211,6 +6239,67 @@ public class MaplePacketCreator {
         mplew.write(0x0a);
         mplew.write(HexTool.getByteArrayFromHexString("B7 04")); //?
         mplew.writeMapleAsciiString("pt=" + chr.getDojoPoints() + ";belt=" + belt + ";tuto=" + (chr.getFinishedDojoTutorial() ? "1" : "0"));
+        return mplew.getPacket();
+    }
+
+    /**
+     * Sends a "levelup"  packet to the guild or family.
+     *
+     * Possible values for <code>type</code>:<br>
+     * 0: <Family> ? has reached Lv. ?.<br>
+     * - The Reps you have received from ? will be reduced in half.
+     * 1: <Family> ? has reached Lv. ?.<br>
+     * 2: <Guild> ? has reached Lv. ?.<br>
+     *
+     * @param type The type
+     * @return The "levelup" packet.
+     */
+    public static MaplePacket levelUpMessage(int type, int level, String charname) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.LEVELUP_MSG.getValue());
+        mplew.write(type);
+        mplew.writeInt(level);
+        mplew.writeMapleAsciiString(charname);
+
+        return mplew.getPacket();
+    }
+
+    /**
+     * Sends a "married"  packet to the guild or family.
+     *
+     * Possible values for <code>type</code>:<br>
+     * 0: <Guild ? is now married. Please congratulate them.<br>
+     * 1: <Family ? is now married. Please congratulate them.<br>
+     *
+     * @param type The type
+     * @return The "married" packet.
+     */
+    public static MaplePacket marriageMessage(int type, String charname) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.MARRIAGE_MSG.getValue());
+        mplew.write(type);
+        mplew.writeMapleAsciiString("> " + charname); //To fix the stupid packet lol
+
+        return mplew.getPacket();
+    }
+
+    /**
+     * Sends a "job advance"  packet to the guild or family.
+     *
+     * Possible values for <code>type</code>:<br>
+     * 0: <Guild ? has advanced to a(an) ?.<br>
+     * 1: <Family ? has advanced to a(an) ?.<br>
+     *
+     * @param type The type
+     * @return The "job advance" packet.
+     */
+    public static MaplePacket jobMessage(int type, int job, String charname) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.JOB_MSG.getValue());
+        mplew.write(type);
+        mplew.writeInt(job); //Why fking int?
+        mplew.writeMapleAsciiString("> " + charname); //To fix the stupid packet lol
+
         return mplew.getPacket();
     }
 
