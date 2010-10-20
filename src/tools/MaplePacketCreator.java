@@ -57,10 +57,6 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import constants.ServerConstants;
-import constants.skills.Buccaneer;
-import constants.skills.Marauder;
-import constants.skills.ThunderBreaker;
-import constants.skills.WindArcher;
 import java.rmi.RemoteException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -2700,15 +2696,12 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.CANCEL_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
         long mask = getLongMaskFromList(statups);
-        long mask2 = 42949673024L;
-        if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.DASH.getValue() || mask == mask2) {
+        if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.BATTLESHIP.getValue()) {
+            mplew.writeInt(0);
+            mplew.writeLong(mask);
             mplew.writeInt(0);
         } else {
-            mplew.writeLong(0);
-        }
-        mplew.writeLong(mask);
-        if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.DASH.getValue() || mask == mask2) {
-            mplew.writeInt(0);
+            writeLongMaskFromList(mplew, statups);
         }
         return mplew.getPacket();
     }
@@ -2716,8 +2709,21 @@ public class MaplePacketCreator {
     public static MaplePacket cancelBuff(List<MapleBuffStat> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CANCEL_BUFF.getValue());
-        writeLongMaskFromList(mplew, statups);
-        mplew.write(3);
+        long mask = getLongMaskFromList(statups);
+        if (!isFirstLong(statups)) {
+            if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.BATTLESHIP.getValue()) {
+                mplew.writeInt(0);
+                mplew.writeLong(mask);
+                mplew.writeInt(0);
+            } else {
+                mplew.writeLong(0);
+                mplew.writeLong(mask);
+            }
+        } else {
+            mplew.writeLong(mask);
+            mplew.writeLong(0);
+        }
+        mplew.write(mask == MapleBuffStat.DASH.getValue() ? 4 : 3);
         return mplew.getPacket();
     }
 

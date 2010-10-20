@@ -901,9 +901,7 @@ public class MapleStatEffect implements Serializable {
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
             } else if (isMonsterRiding()) {
                 buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
-                if (applyto.getMount().getItemId() != 0) {
-                    mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
-                }
+                mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
                 localDuration = duration;
             } else if (isShadowPartner()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SHADOWPARTNER, 0));

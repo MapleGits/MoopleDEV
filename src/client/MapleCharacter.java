@@ -715,7 +715,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             recalcLocalStats();
             enforceMaxHpMp();
             client.announce(MaplePacketCreator.cancelBuff(buffstats));
-            getMap().broadcastMessage(this, MaplePacketCreator.cancelForeignBuff(getId(), buffstats), false);
+            if (buffstats.size() > 0)
+                getMap().broadcastMessage(this, MaplePacketCreator.cancelForeignBuff(getId(), buffstats), false);
         }
     }
 
