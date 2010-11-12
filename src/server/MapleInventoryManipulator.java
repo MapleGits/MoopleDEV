@@ -31,7 +31,6 @@ import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
-import client.MaplePet;
 import constants.ItemConstants;
 import tools.MaplePacketCreator;
 
@@ -376,6 +375,9 @@ public class MapleInventoryManipulator {
                 c.getPlayer().getMount().setItemId(source.getItemId());
             }
         }
+        if (source.getItemId() == 1122017) {
+            c.getPlayer().equipPendantOfSpirit();
+        }
         source = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem(src);
         target = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
         c.getPlayer().getInventory(MapleInventoryType.EQUIP).removeSlot(src);
@@ -409,6 +411,9 @@ public class MapleInventoryManipulator {
             c.announce(MaplePacketCreator.getInventoryFull());
             return;
         }
+        if (source.getItemId() == 1122017) {
+            c.getPlayer().unequipPendantOfSpirit();
+        }
         c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).removeSlot(src);
         if (target != null) {
             c.getPlayer().getInventory(MapleInventoryType.EQUIP).removeSlot(dst);
@@ -432,6 +437,9 @@ public class MapleInventoryManipulator {
         int itemId = source.getItemId();
         if (itemId >= 5000000 && itemId <= 5000100) {
             return;
+        }
+        if (type == MapleInventoryType.EQUIPPED && itemId == 1122017) {
+            c.getPlayer().unequipPendantOfSpirit();
         }
         if (c.getPlayer().getItemEffect() == itemId && source.getQuantity() == 1) {
             c.getPlayer().setItemEffect(0);

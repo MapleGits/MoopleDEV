@@ -139,6 +139,16 @@ public class MapleMap {
         }
     }
 
+    public void broadcastGMMessage(MapleCharacter source, MaplePacket packet) {
+        synchronized (characters) {
+            for (MapleCharacter chr : characters) {
+                if (chr != source && (chr.gmLevel() > source.gmLevel())) {
+                    chr.getClient().announce(packet);
+                }
+            }
+        }
+    }
+
     public void toggleDrops() {
         this.dropsOn = !dropsOn;
     }
@@ -1216,7 +1226,7 @@ public class MapleMap {
                 public void run() {
                     chr.getClient().announce(MaplePacketCreator.aranGodlyStats());
                 }
-            }, 1000);
+            }, 1500);
         }
         if (chr.getEnergyBar() >= 10000) {
             broadcastMessage(chr, (MaplePacketCreator.giveForeignEnergyCharge(chr.getId(), 10000)));
@@ -1304,6 +1314,10 @@ public class MapleMap {
 
     public void broadcastMessage(MaplePacket packet) {
         broadcastMessage(null, packet, Double.POSITIVE_INFINITY, null);
+    }
+
+    public void broadcastGMMessage(MaplePacket packet) {
+        broadcastGMMessage(null, packet, Double.POSITIVE_INFINITY, null);
     }
 
     /**

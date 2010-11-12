@@ -37,8 +37,8 @@ public final class UseItemEffectHandler extends AbstractMaplePacketHandler {
         } else {
             toUse = c.getPlayer().getInventory(MapleInventoryType.CASH).findById(itemId);
         }
-        if (itemId != 0 || toUse == null) {
-            return;
+        if (toUse == null || toUse.getQuantity() < 1) {
+            if (itemId != 0) return;
         }
         c.getPlayer().setItemEffect(itemId);
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.itemEffect(c.getPlayer().getId(), itemId), false);

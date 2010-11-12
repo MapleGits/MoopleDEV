@@ -124,7 +124,7 @@ public enum RecvOpcode {
     USE_DOOR(0x85),
     CHANGE_KEYMAP(0x87),
     RING_ACTION(0x89),
-    MARRIAGE_ACTION(0x8A),
+    WEDDING_ACTION(0x8A),
     OPEN_FAMILY(0x92),
     ADD_FAMILY(0x93),
     ACCEPT_FAMILY(0x96),

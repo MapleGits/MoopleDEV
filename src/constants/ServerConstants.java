@@ -31,7 +31,7 @@ public class ServerConstants {
     public static final byte BOSS_DROP_RATE = 2;
     public static final byte QUEST_EXP_RATE = 4;
     public static final byte QUEST_MESO_RATE = 3;
-    public static final boolean MULTI_LEVEL = false;
+    public static final boolean GMS_LIKE = true; //Includes MULTI_LEVEL
     // Login Configuration
     public static final byte FLAG = 3;
     public static final int CHANNEL_NUMBER = 2;

@@ -136,7 +136,7 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getHair()); // hair
 
         for (int i = 0; i < 3; i++) {
-             if (chr.getPet(i) != null && !chr.getCashShop().isOpened())
+             if (chr.getPet(i) != null) //Checked GMS.. and your pets stay when going into the cash shop. (No idea, if it's only one pet)
                  mplew.writeLong(chr.getPet(i).getUniqueId());
              else
                  mplew.writeLong(0);
@@ -200,7 +200,7 @@ public class MaplePacketCreator {
         MapleInventory equip = chr.getInventory(MapleInventoryType.EQUIPPED);
         Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
-        for (IItem item : equip.list()) {
+        for (IItem item : MapleItemInformationProvider.getInstance().canWearEquipment(chr, equip.list())) {
             byte pos = (byte) (item.getPosition() * -1);
             if (pos < 100 && myEquip.get(pos) == null) {
                 myEquip.put(pos, item.getItemId());
@@ -307,7 +307,7 @@ public class MaplePacketCreator {
 	        }
         }
 
-        mplew.write(isPet ? 3 : item.getType());
+        mplew.write(item.getType());
         mplew.writeInt(item.getItemId());
         mplew.write(isCash ? 1 : 0);
         if (isCash) {
@@ -1456,7 +1456,7 @@ public class MaplePacketCreator {
      * @param white White text or yellow?
      * @return The exp gained packet.
      */
-    public static MaplePacket getShowExpGain(int gain, boolean inChat, boolean white) {
+    public static MaplePacket getShowExpGain(int gain, int equip, boolean inChat, boolean white) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(3); // 3 = exp, 4 = fame, 5 = mesos, 6 = guildpoints
@@ -1468,7 +1468,7 @@ public class MaplePacketCreator {
         mplew.writeInt(0); //wedding bonus
         mplew.write(0); //0 = party bonus, 1 = Bonus Event party Exp () x0
         mplew.writeInt(0); // party bonus
-        mplew.writeInt(0); //equip bonus
+        mplew.writeInt(equip); //equip bonus
         mplew.writeInt(0); //Internet Cafe Bonus
         mplew.writeInt(0); //Rainbow Week Bonus
         if (inChat) {
@@ -1796,9 +1796,9 @@ public class MaplePacketCreator {
         } else {
             mplew.write(0);
         }
-        mplew.write(0); //WUT?
+        mplew.write(0); 
         if (chr.getMarriageRings().size() + chr.getFriendshipRings().size() + chr.getCrushRings().size() > 0) {
-            mplew.write(0);
+            mplew.write(0); //Not needed I guess.......
             if (chr.getMarriageRings().size() > 0) {
                 checkRing(mplew, chr.getCrushRings());
                 checkRing(mplew, chr.getFriendshipRings());
@@ -6074,7 +6074,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket sendBrideWishList(List<IItem> items) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MARRIAGE_ACTION.getValue());
+        mplew.writeShort(SendOpcode.WEDDING_ACTION.getValue());
         mplew.write(0x0A);
         mplew.writeLong(-1); // ?
         mplew.writeInt(0); // ?
@@ -6082,6 +6082,18 @@ public class MaplePacketCreator {
         for (IItem item : items) {
             addItemInfo(mplew, item, true);
         }
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket addItemToWeddingRegistry(MapleCharacter chr, IItem item) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.WEDDING_ACTION.getValue());
+        mplew.write(0x0B);
+        mplew.writeInt(0);
+        for (int i = 0; i < 0; i++) // f4
+            mplew.write(0);
+
+        addItemInfo(mplew, item, true);
         return mplew.getPacket();
     }
 

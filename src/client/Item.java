@@ -96,6 +96,9 @@ public class Item implements IItem {
 
     @Override
     public byte getType() {
+        if (getPetId() > -1) {
+            return IItem.PET;
+        }
         return IItem.ITEM;
     }
 

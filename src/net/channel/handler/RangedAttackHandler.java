@@ -91,7 +91,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                     int id = item.getItemId();
                     boolean bow = ItemConstants.isArrowForBow(id);
                     boolean cbow = ItemConstants.isArrowForCrossBow(id);
-                    if (item.getQuantity() > bulletCount) {
+                    if (item.getQuantity() > (bulletCount == 1 ? 0 : bulletCount)) { //Fixes the bug where you can't use your last arrow.
                         if (type == MapleWeaponType.CLAW && ItemConstants.isThrowingStar(id) && weapon.getItemId() != 1472063) {
                             if (((id == 2070007 || id == 2070018) && player.getLevel() < 70) || (id == 2070016 && player.getLevel() < 50)) {
                             } else {

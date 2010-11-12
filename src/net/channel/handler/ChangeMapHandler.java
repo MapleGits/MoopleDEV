@@ -86,7 +86,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
                 chr.announce(MaplePacketCreator.enableActions());
             }
             if (!portal.getPortalStatus()) {
-                c.getPlayer().message("The portal is closed for now.");
+                c.announce(MaplePacketCreator.blockedMessage(1));
                 c.announce(MaplePacketCreator.enableActions());
                 return;
             }

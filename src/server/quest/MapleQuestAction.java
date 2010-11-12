@@ -95,7 +95,7 @@ public class MapleQuestAction {
                 if (status.getStatus() == MapleQuestStatus.Status.NOT_STARTED && status.getForfeited() > 0) {
                     break;
                 }
-                if (c.isBeginnerJob()) {
+                if (c.isBeginnerJob() && ServerConstants.GMS_LIKE) {
                     c.gainExp(MapleDataTool.getInt(data), true, true);
                 } else {
                     c.gainExp(MapleDataTool.getInt(data) * ServerConstants.QUEST_EXP_RATE, true, true);

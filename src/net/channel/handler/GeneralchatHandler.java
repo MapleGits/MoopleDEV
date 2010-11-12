@@ -41,11 +41,9 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
                         Commands.executeAdminCommand(c, sp, heading);
                     }
                 }
-            } else {
-                c.getPlayer().yellowMessage("Please use '!' or '/' for GM Commands.");
             }
         } else {
-            c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));
+                c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));
         }
     }
 }

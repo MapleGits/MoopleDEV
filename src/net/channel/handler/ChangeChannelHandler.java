@@ -53,18 +53,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         if (c.getPlayer().getTrade() != null) {
             MapleTrade.cancelTrade(c.getPlayer());
         }
-        c.getPlayer().cancelMagicDoor();
-        c.getPlayer().saveCooldowns();
-        if (c.getPlayer().getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
-            c.getPlayer().cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
-        }
-        if (c.getPlayer().getBuffedValue(MapleBuffStat.PUPPET) != null) {
-            c.getPlayer().cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
-        }
-        if (c.getPlayer().getBuffedValue(MapleBuffStat.COMBO) != null) {
-            c.getPlayer().cancelEffectFromBuffStat(MapleBuffStat.COMBO);
-        }
-        c.getPlayer().expiretask.cancel(false);
+
         HiredMerchant merchant = c.getPlayer().getHiredMerchant();
         if (merchant != null) {
             if (merchant.isOwner(c.getPlayer())) {
@@ -78,7 +67,6 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         } catch (RemoteException e) {
             c.getChannelServer().reconnectWorld();
         }
-        c.getPlayer().saveToDB(true);
         if (c.getPlayer().getMessenger() != null) {
             MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(c.getPlayer());
             try {
@@ -87,9 +75,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
                 c.getChannelServer().reconnectWorld();
             }
         }
-        c.getPlayer().getMap().removePlayer(c.getPlayer());
-        c.getChannelServer().removePlayer(c.getPlayer());
-        c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
+        c.getPlayer().changeChannel();
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
         } catch (IOException e) {

@@ -214,6 +214,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.FREDRICK_ACTION, new FredrickHandler());
             registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
             registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());
+            registerHandler(RecvOpcode.WEDDING_ACTION, new WeddingHandler());
         }
     }
 }

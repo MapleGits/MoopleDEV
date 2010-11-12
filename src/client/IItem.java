@@ -22,6 +22,7 @@
 package client;
 
 public interface IItem extends Comparable<IItem> {
+    public final int PET = 3;
     public final int ITEM = 2;
     public final int EQUIP = 1;
     public void setFlag(byte b);

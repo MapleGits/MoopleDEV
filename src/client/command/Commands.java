@@ -68,6 +68,11 @@ import tools.Pair;
 public class Commands {
     public static boolean executePlayerCommand(MapleClient c, String[] sub, char heading) {
         MapleCharacter chr = c.getPlayer();
+        if (heading == '!' && chr.gmLevel() == 0) {
+            chr.yellowMessage("You may not use !" + sub + ", please try /" + sub);
+            return false;
+        }
+
         if (sub[0].equals("dispose")) {
             NPCScriptManager.getInstance().dispose(c);
             c.announce(MaplePacketCreator.enableActions());
