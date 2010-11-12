@@ -29,6 +29,7 @@ import client.BuddylistEntry;
 import client.CharacterNameAndId;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleInventoryType;
 import client.MapleQuestStatus;
 import client.SkillFactory;
 import constants.skills.SuperGM;
@@ -207,6 +208,9 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), -1, false));
             c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
+        }
+        if (player.getInventory(MapleInventoryType.EQUIPPED).findById(1122017) != null) {
+            player.equipPendantOfSpirit();
         }
         c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
         c.announce(MaplePacketCreator.updateGender(player));

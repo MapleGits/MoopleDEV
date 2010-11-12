@@ -37,6 +37,7 @@ import client.BuddylistEntry;
 import client.IEquip;
 import client.IEquip.ScrollResult;
 import client.IItem;
+import client.IItem;
 import client.ISkill;
 import client.Item;
 import client.ItemFactory;
@@ -198,9 +199,10 @@ public class MaplePacketCreator {
 
     private static void addCharEquips(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
         MapleInventory equip = chr.getInventory(MapleInventoryType.EQUIPPED);
+        Collection<IItem> ii = MapleItemInformationProvider.getInstance().canWearEquipment(chr, equip.list());
         Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
-        for (IItem item : MapleItemInformationProvider.getInstance().canWearEquipment(chr, equip.list())) {
+        for (IItem item : ii) {
             byte pos = (byte) (item.getPosition() * -1);
             if (pos < 100 && myEquip.get(pos) == null) {
                 myEquip.put(pos, item.getItemId());

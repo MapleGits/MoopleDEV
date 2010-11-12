@@ -394,9 +394,16 @@ public class MapleItemInformationProvider {
         for (MapleData data : info.getChildren()) {
             if (data.getName().startsWith("inc")) 
                 ret.put(data.getName().substring(3), MapleDataTool.getIntConvert(data));
-            else if (data.getName().startsWith("req"))
-	        ret.put(data.getName(), MapleDataTool.getIntConvert(data));
+            /*else if (data.getName().startsWith("req"))
+	        ret.put(data.getName(), MapleDataTool.getInt(data.getName(), info, 0));*/
         }
+        ret.put("reqJob", MapleDataTool.getInt("reqJob", info, 0));
+        ret.put("reqLevel", MapleDataTool.getInt("reqLevel", info, 0));
+        ret.put("reqDEX", MapleDataTool.getInt("reqDEX", info, 0));
+        ret.put("reqSTR", MapleDataTool.getInt("reqSTR", info, 0));
+        ret.put("reqINT", MapleDataTool.getInt("reqINT", info, 0));
+        ret.put("reqLUK", MapleDataTool.getInt("reqLUK", info, 0));
+        ret.put("reqPOP", MapleDataTool.getInt("reqPOP", info, 0));
         ret.put("cash", MapleDataTool.getInt("cash", info, 0));
         ret.put("tuc", MapleDataTool.getInt("tuc", info, 0));
         ret.put("cursed", MapleDataTool.getInt("cursed", info, 0));
@@ -920,13 +927,15 @@ public class MapleItemInformationProvider {
     public Collection<IItem> canWearEquipment(MapleCharacter chr, Collection<IItem> items) {
         Collection<IItem> itemz = new LinkedList<IItem>();
         boolean highfivestamp = chr.getInventory(MapleInventoryType.CASH).countById(5590000) > 0;
-        int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk();
-        for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
-            IEquip equip = (IEquip) item;
-            tdex += equip.getDex();
-            tstr += equip.getStr();
-            tluk += equip.getLuk();
-            tint += equip.getInt();
+        int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk(), fame = chr.getFame();
+        if (chr.getJob() != MapleJob.SUPERGM || chr.getJob() != MapleJob.GM) {
+            for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
+                IEquip equip = (IEquip) item;
+                tdex += equip.getDex();
+                tstr += equip.getStr();
+                tluk += equip.getLuk();
+                tint += equip.getInt();
+            }
         }
         for (IItem item : items) {
             if (chr.getJob() == MapleJob.SUPERGM || chr.getJob() == MapleJob.GM) {
@@ -945,6 +954,7 @@ public class MapleItemInformationProvider {
             else if(getEquipStats(item.getItemId()).get("reqSTR") > tstr) continue;
             else if(getEquipStats(item.getItemId()).get("reqLUK") > tluk) continue;
             else if(getEquipStats(item.getItemId()).get("reqINT") > tint) continue;
+            else if(getEquipStats(item.getItemId()).get("reqPOP") > fame) continue;
             itemz.add(item);
         }
         return itemz;

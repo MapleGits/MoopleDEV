@@ -273,8 +273,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public ArrayList<String> area_data = new ArrayList<String>();
     private AutobanManager autoban;
     private boolean isbanned = false;
-    private ScheduledFuture<?> pendantOfSpirit; //1122017
-    private int pendantExp = 1; //Actually should just be equipExp
+    private ScheduledFuture<?> pendantOfSpirit = null; //1122017
+    private int pendantExp = 0; //Actually should just be equipExp
 
     private MapleCharacter() {
         setStance(0);
@@ -2263,7 +2263,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public boolean isBeginnerJob() {
-        return getJob().getId() == 0 || getJob().getId() == 1000 || getJob().getId() == 2000;
+        return (getJob().getId() == 0 || getJob().getId() == 1000 || getJob().getId() == 2000) && getLevel() < 11;
     }
 
     public boolean isGM() {
@@ -2299,7 +2299,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         int improvingMaxHPLevel = 0;
         int improvingMaxMPLevel = 0;
 
-        if (getLevel() < 11 && isBeginnerJob()) {
+        if (isBeginnerJob()) {
             remainingAp = 0;
             if (getLevel() < 6) {
                 str += 5;
@@ -4399,18 +4399,17 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void equipPendantOfSpirit() {
-        pendantOfSpirit = TimerManager.getInstance().schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                if (pendantExp < 3)
-                    pendantExp++;
-                else {
-                    pendantOfSpirit.cancel(false);
-                    pendantOfSpirit = null;
+        if (pendantOfSpirit == null) {
+            pendantOfSpirit = TimerManager.getInstance().register(new Runnable() {
+                @Override
+                public void run() {
+                    if (pendantExp < 3) {
+                        pendantExp++;
+                        message("Pendant of the Spirit has been equipped for " + pendantExp + " hour(s), you will now receive " + pendantExp + "0% bonus exp.");
+                    }
                 }
-            }
-        }, 3600000); //1 hour
+            }, 3600000, 3600000); //1 hour
+        }
     }
 
     public void unequipPendantOfSpirit() {
