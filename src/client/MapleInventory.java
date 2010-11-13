@@ -38,7 +38,8 @@ public class MapleInventory implements Iterable<IItem> {
     private Map<Byte, IItem> inventory = new LinkedHashMap<Byte, IItem>();
     private byte slotLimit;
     private MapleInventoryType type;
-
+    private boolean checked = false;
+    
     public MapleInventory(MapleInventoryType type, byte slotLimit) {
         this.inventory = new LinkedHashMap<Byte, IItem>();
         this.type = type;
@@ -230,5 +231,13 @@ public class MapleInventory implements Iterable<IItem> {
             }
 
 	return null;
+    }
+
+    public boolean checked() {
+        return checked;
+    }
+
+    public void check() {
+        checked = true;
     }
 }

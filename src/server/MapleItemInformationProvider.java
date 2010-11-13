@@ -31,8 +31,10 @@ import java.util.Map.Entry;
 import client.Equip;
 import client.IEquip;
 import client.IItem;
+import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleInventory;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleWeaponType;
@@ -925,11 +927,24 @@ public class MapleItemInformationProvider {
     }
 
     public Collection<IItem> canWearEquipment(MapleCharacter chr, Collection<IItem> items) {
+        MapleInventory inv = chr.getInventory(MapleInventoryType.EQUIPPED);
+        if (inv.checked()) return items;
+
         Collection<IItem> itemz = new LinkedList<IItem>();
-        boolean highfivestamp = chr.getInventory(MapleInventoryType.CASH).countById(5590000) > 0;
+        boolean highfivestamp = false;
+        try {
+            for (Pair<IItem, MapleInventoryType> ii : ItemFactory.INVENTORY.loadItems(chr.getId(), false)) {
+                if (ii.getRight() == MapleInventoryType.CASH) {
+                    if (ii.getLeft().getItemId() == 5590000) {
+                        highfivestamp = true;
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+        }
         int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk(), fame = chr.getFame();
         if (chr.getJob() != MapleJob.SUPERGM || chr.getJob() != MapleJob.GM) {
-            for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
+            for (IItem item : inv.list()) {
                 IEquip equip = (IEquip) item;
                 tdex += equip.getDex();
                 tstr += equip.getStr();
@@ -938,15 +953,16 @@ public class MapleItemInformationProvider {
             }
         }
         for (IItem item : items) {
+            IEquip equip = (IEquip) item;
             if (chr.getJob() == MapleJob.SUPERGM || chr.getJob() == MapleJob.GM) {
                 itemz.add(item);
+                equip.wear(true);
                 continue;
             }
             int reqLevel = getEquipStats(item.getItemId()).get("reqLevel");
             if (highfivestamp) {
-                if ((reqLevel - 5) > -1)
-                    reqLevel -= 5;
-                else
+                reqLevel -= 5;
+                if (reqLevel < 0)
                     reqLevel = 0;
             }
             if(reqLevel > chr.getLevel()) continue;
@@ -956,7 +972,55 @@ public class MapleItemInformationProvider {
             else if(getEquipStats(item.getItemId()).get("reqINT") > tint) continue;
             else if(getEquipStats(item.getItemId()).get("reqPOP") > fame) continue;
             itemz.add(item);
+            equip.wear(true);
         }
+        inv.check();
         return itemz;
+    }
+
+    public boolean canWearEquipment(MapleCharacter chr, Equip equip) {
+        if (chr.getJob() == MapleJob.SUPERGM || chr.getJob() == MapleJob.GM) {
+            equip.wear(true);
+            return true;
+        }
+        boolean highfivestamp = false;
+        try {
+            for (Pair<IItem, MapleInventoryType> ii : ItemFactory.INVENTORY.loadItems(chr.getId(), false)) {
+                if (ii.getRight() == MapleInventoryType.CASH) {
+                    if (ii.getLeft().getItemId() == 5590000) {
+                        highfivestamp = true;
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+        }
+        int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk();
+        if (chr.getJob() != MapleJob.SUPERGM || chr.getJob() != MapleJob.GM) {
+            for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
+                IEquip eq = (IEquip) item;
+                tdex += eq.getDex();
+                tstr += eq.getStr();
+                tluk += eq.getLuk();
+                tint += eq.getInt();
+            }
+        }
+            int reqLevel = getEquipStats(equip.getItemId()).get("reqLevel");
+            if (highfivestamp) {
+                reqLevel -= 5;
+            }
+            int i = 0; //lol xD
+            if(reqLevel > chr.getLevel()) i++;
+            else if(getEquipStats(equip.getItemId()).get("reqDEX") > tdex) i++;
+            else if(getEquipStats(equip.getItemId()).get("reqSTR") > tstr) i++;
+            else if(getEquipStats(equip.getItemId()).get("reqLUK") > tluk) i++;
+            else if(getEquipStats(equip.getItemId()).get("reqINT") > tint) i++;
+            else if(getEquipStats(equip.getItemId()).get("reqPOP") > chr.getFame()) i++;
+
+            if (i > 0) {
+                equip.wear(false);
+                return false;
+            }
+        equip.wear(true);
+        return true;
     }
 }

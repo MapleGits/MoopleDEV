@@ -50,4 +50,6 @@ public interface IEquip extends IItem {
     public short getVicious();
     public int getItemExp();
     public int getItemLevel();
+    public boolean isWearing();
+    public void wear(boolean yes);
 }

@@ -37,7 +37,6 @@ import client.BuddylistEntry;
 import client.IEquip;
 import client.IEquip.ScrollResult;
 import client.IItem;
-import client.IItem;
 import client.ISkill;
 import client.Item;
 import client.ItemFactory;
@@ -203,17 +202,20 @@ public class MaplePacketCreator {
         Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
         for (IItem item : ii) {
-            byte pos = (byte) (item.getPosition() * -1);
-            if (pos < 100 && myEquip.get(pos) == null) {
-                myEquip.put(pos, item.getItemId());
-            } else if (pos > 100 && pos != 111) { // don't ask. o.o
-                pos -= 100;
-                if (myEquip.get(pos) != null) {
-                    maskedEquip.put(pos, myEquip.get(pos));
+            IEquip eq = (IEquip) item;
+            if (eq.isWearing()) {
+                byte pos = (byte) (item.getPosition() * -1);
+                if (pos < 100 && myEquip.get(pos) == null) {
+                    myEquip.put(pos, item.getItemId());
+                } else if (pos > 100 && pos != 111) { // don't ask. o.o
+                    pos -= 100;
+                    if (myEquip.get(pos) != null) {
+                        maskedEquip.put(pos, myEquip.get(pos));
+                    }
+                    myEquip.put(pos, item.getItemId());
+                } else if (myEquip.get(pos) != null) {
+                    maskedEquip.put(pos, item.getItemId());
                 }
-                myEquip.put(pos, item.getItemId());
-            } else if (myEquip.get(pos) != null) {
-                maskedEquip.put(pos, item.getItemId());
             }
         }
         for (Entry<Byte, Integer> entry : myEquip.entrySet()) {
@@ -1963,7 +1965,7 @@ public class MaplePacketCreator {
     private static void addAttackBody(LittleEndianWriter lew, MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, int projectile, List<Pair<Integer, List<Integer>>> damage, int speed, int direction, int display) {
         lew.writeInt(chr.getId());
         lew.write(numAttackedAndDamage);
-        lew.write(0);
+        lew.write(0x5B);//?
         lew.write(skilllevel);
         if (skilllevel > 0) {
             lew.writeInt(skill);
@@ -1978,6 +1980,8 @@ public class MaplePacketCreator {
             if (oned.getRight() != null) {
                 lew.writeInt(oned.getLeft().intValue());
                 lew.write(0xFF);
+                if (skill == 4211006)
+                    lew.write(oned.getRight().size());
                 for (Integer eachd : oned.getRight()) {
                     lew.writeInt(eachd.intValue());
                 }
