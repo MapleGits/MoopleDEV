@@ -939,7 +939,8 @@ public class MapleItemInformationProvider {
             return itemz;
         }
         boolean highfivestamp = false;
-        try {
+        /* Removed because players shouldn't even get this, and gm's should just be gm job.
+         try {
             for (Pair<IItem, MapleInventoryType> ii : ItemFactory.INVENTORY.loadItems(chr.getId(), false)) {
                 if (ii.getRight() == MapleInventoryType.CASH) {
                     if (ii.getLeft().getItemId() == 5590000) {
@@ -948,7 +949,7 @@ public class MapleItemInformationProvider {
                 }
             }
         } catch (SQLException ex) {
-        }
+        }*/
         int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk(), fame = chr.getFame();
         if (chr.getJob() != MapleJob.SUPERGM || chr.getJob() != MapleJob.GM) {
             for (IItem item : inv.list()) {
@@ -992,7 +993,8 @@ public class MapleItemInformationProvider {
             return true;
         }
         boolean highfivestamp = false;
-        try {
+        /* Removed check above for message ><
+         try {
             for (Pair<IItem, MapleInventoryType> ii : ItemFactory.INVENTORY.loadItems(chr.getId(), false)) {
                 if (ii.getRight() == MapleInventoryType.CASH) {
                     if (ii.getLeft().getItemId() == 5590000) {
@@ -1001,7 +1003,7 @@ public class MapleItemInformationProvider {
                 }
             }
         } catch (SQLException ex) {
-        }
+        }*/
         int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk();
             for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
                 IEquip eq = (IEquip) item;

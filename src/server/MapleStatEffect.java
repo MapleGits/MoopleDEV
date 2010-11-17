@@ -1181,13 +1181,17 @@ public class MapleStatEffect implements Serializable {
     }
 
     private boolean hasNoIcon() {
-        return (sourceid == 3111002 || sourceid == 3211002 || + // puppet, puppet
-                sourceid == 3211005 || sourceid == 2311002 || + // golden eagle, mystic door
-                sourceid == 2121005 || sourceid == 2221005 || + // elquines, ifrit
-                sourceid == 2321003 || sourceid == 3121006 || + // bahamut, phoenix
-                sourceid == 3221005 || sourceid == 3111005 || + // frostprey, silver hawk
-                sourceid == 2311006 || sourceid == 5220002 || + // summon dragon, wrath of the octopi
-                sourceid == 5211001 || sourceid == 5211002); // octopus, gaviota
+        return (sourceid == 3111002 || sourceid == 3211002 || // puppet, puppet
+                sourceid == 3211005 || sourceid == 2311002 || // golden eagle, mystic door
+                sourceid == 2121005 || sourceid == 2221005 || // elquines, ifrit
+                sourceid == 2321003 || sourceid == 3121006 || // bahamut, phoenix
+                sourceid == 3221005 || sourceid == 3111005 || // frostprey, silver hawk
+                sourceid == 2311006 || sourceid == 5220002 || // summon dragon, wrath of the octopi
+                sourceid == 5211001 || sourceid == 5211002 || // octopus, gaviota
+                sourceid == 14001005 || sourceid == 11001004 ||
+                sourceid == 12001004 || sourceid == 12111004 || 
+                sourceid == 15001004 || sourceid == 13001004 || sourceid == 13111004);
+
     }
 
     private boolean isDash() {

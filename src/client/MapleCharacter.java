@@ -255,7 +255,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private ScheduledFuture<?> BerserkSchedule;
     private ScheduledFuture<?> expiretask;
     private NumberFormat nf = new DecimalFormat("#,###,###,###");
-    private static List<Pair<Byte, Integer>> inventorySlots = new ArrayList<Pair<Byte, Integer>>();
     private ArrayList<String> commands = new ArrayList<String>();
     private ArrayList<Integer> excluded = new ArrayList<Integer>();
     private MonsterBook monsterbook;
@@ -280,6 +279,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         setStance(0);
         inventory = new MapleInventory[MapleInventoryType.values().length];
         savedLocations = new SavedLocation[SavedLocationType.values().length];
+
         for (MapleInventoryType type : MapleInventoryType.values()) {
             inventory[type.ordinal()] = new MapleInventory(type, (byte) 24);
         }
@@ -1219,7 +1219,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         getMap().broadcastMessage(this, MaplePacketCreator.updateCharLook(this), false);
         recalcLocalStats();
         enforceMaxHpMp();
-        saveToDB(true);
+        //saveToDB(true);
         if (getMessenger() != null) {
             WorldChannelInterface wci = client.getChannelServer().getWorldInterface();
             try {
@@ -1350,10 +1350,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (show) {
             client.announce(MaplePacketCreator.getShowMesoGain(gain, inChat));
         }
-    }
-
-    public void clearSlots() {
-        inventorySlots.clear();
     }
 
     public void genericGuildMessage(int code) {
@@ -2400,6 +2396,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             getGuild().broadcast(MaplePacketCreator.levelUpMessage(2, level, name), this.getId());
         }
         guildUpdate();
+        if (ServerConstants.GMS_LIKE) saveToDB(true);
     }
 
     public static MapleCharacter loadCharFromDB(int charid, MapleClient client, boolean channelserver) throws SQLException {
@@ -3245,8 +3242,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ps.setInt(30, 0);
                 ps.setInt(31, 0);
             }
-            for (int i = 0; i < 4; i++)
-	          ps.setInt(i + 32, getSlots(i));
+            for (int i = 1; i < 5; i++)
+	          ps.setInt(i + 31, getSlots(i));
             
             if (update) {
                 monsterbook.saveCards(getId());
@@ -3859,31 +3856,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return gainSlots(type, slots, true);
     }
 
-    public boolean gainSlots(int type, int slots, boolean update) { //fix gay method
+    public boolean gainSlots(int type, int slots, boolean update) {
         slots += inventory[type].getSlotLimit();
-
         if (slots <= 96) {
             inventory[type].setSlotLimit(slots);
 
-            Connection con = DatabaseConnection.getConnection();
-            try {
-                PreparedStatement ps = con.prepareStatement("");
-            if (type == MapleInventoryType.EQUIP.getType()) {
-                ps = con.prepareStatement("UPDATE characters SET equipslots = ? WHERE id = ?");
-            } else if (type == MapleInventoryType.USE.getType()) {
-                ps = con.prepareStatement("UPDATE characters SET useslots = ? WHERE id = ?");
-            } else if (type == MapleInventoryType.ETC.getType()) {
-                ps = con.prepareStatement("UPDATE characters SET etcslots = ? WHERE id = ?");
-            } else if (type == MapleInventoryType.SETUP.getType()) {
-                ps = con.prepareStatement("UPDATE characters SET setupslots = ? WHERE id = ?");
-            }
-            ps.setInt(1, slots);
-            ps.setInt(2, id);
-            ps.execute();
-            ps.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            saveToDB(true);
             if (update) {
                 client.announce(MaplePacketCreator.updateInventorySlotLimit(type, slots));
             }
@@ -4440,6 +4418,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (getBuffedValue(MapleBuffStat.COMBO) != null) {
             cancelEffectFromBuffStat(MapleBuffStat.COMBO);
         }
+        getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
         saveToDB(true);
         getMap().removePlayer(this);
         getClient().getChannelServer().removePlayer(this);

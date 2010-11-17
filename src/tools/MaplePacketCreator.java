@@ -202,8 +202,6 @@ public class MaplePacketCreator {
         Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
         for (IItem item : ii) {
-            IEquip eq = (IEquip) item;
-            if (eq.isWearing()) {
                 byte pos = (byte) (item.getPosition() * -1);
                 if (pos < 100 && myEquip.get(pos) == null) {
                     myEquip.put(pos, item.getItemId());
@@ -215,8 +213,7 @@ public class MaplePacketCreator {
                     myEquip.put(pos, item.getItemId());
                 } else if (myEquip.get(pos) != null) {
                     maskedEquip.put(pos, item.getItemId());
-                }
-            }
+                }            
         }
         for (Entry<Byte, Integer> entry : myEquip.entrySet()) {
             mplew.write(entry.getKey());
