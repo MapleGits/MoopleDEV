@@ -24,7 +24,6 @@ package net.channel.handler;
 import java.awt.Point;
 import java.util.concurrent.ScheduledFuture;
 import client.ISkill;
-import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
 import client.MapleStat;
@@ -49,18 +48,19 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
 
-        int chrid = slea.readInt(); //WILD GUESS
+        slea.readInt();
         int skillid = slea.readInt();
         Point pos = null;
         int __skillLevel = slea.readByte();
         ISkill skill = SkillFactory.getSkill(skillid);
         int skillLevel = c.getPlayer().getSkillLevel(skill);
-        //MapleCharacter applyfrom = c.getPlayer().getMap().getCharacterById(chrid); //Uses map because it always casted the map right? :)
         if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011) {
             skillLevel = 1;
             c.getPlayer().setDojoEnergy(0);
             c.announce(MaplePacketCreator.getEnergy(0));
         }
+        if (skillLevel == 0 || skillLevel != __skillLevel) return;
+        
         MapleStatEffect effect = skill.getEffect(skillLevel);
         if (effect.getCooldown() > 0) {
             if (c.getPlayer().skillisCooling(skillid)) {
@@ -115,9 +115,7 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
         if (slea.available() == 5) {
             pos = new Point(slea.readShort(), slea.readShort());
         }
-        if (skillLevel == 0 || skillLevel != __skillLevel) {
-            return;
-        } else if (c.getPlayer().isAlive()) {
+        if (c.getPlayer().isAlive()) {
             if (skill.getId() != Priest.MYSTIC_DOOR || c.getPlayer().canDoor()) {
                 skill.getEffect(skillLevel).applyTo(c.getPlayer(), pos);
             } else {

@@ -1219,6 +1219,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         getMap().broadcastMessage(this, MaplePacketCreator.updateCharLook(this), false);
         recalcLocalStats();
         enforceMaxHpMp();
+        saveToDB(true);
         if (getMessenger() != null) {
             WorldChannelInterface wci = client.getChannelServer().getWorldInterface();
             try {
@@ -1263,8 +1264,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             toberemove.clear();
         }
-                }
-            }, 60000);
+          saveToDB(true);
+        }
+        }, 60000);
     }
 
     public enum FameStatus {
@@ -1315,7 +1317,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (show && gain != 0) {
                 client.announce(MaplePacketCreator.getShowExpGain(gain, equip, inChat, white));
             }
-            if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
+            if (ServerConstants.GMS_LIKE) {
+		while (level < getMaxLevel() && exp.get() >= ExpTable.getExpNeededForLevel(level + 1)) {
+			levelUp(true);
+		}
+            } else if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
                 levelUp(true);
                 int need = ExpTable.getExpNeededForLevel(level);
                 if (exp.get() >= need) {
@@ -2258,8 +2264,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return getJobType() == 1;
     }
 
-    public boolean isAran() { //Wrong when Evan comes out
-        return getJobType() == 2;
+    public boolean isAran() {
+        return getJob().getId() >= 2000 && getJob().getId() <= 2112;
     }
 
     public boolean isBeginnerJob() {

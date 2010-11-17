@@ -30,7 +30,6 @@ import java.util.List;
 import client.IItem;
 import client.ISkill;
 import client.Item;
-import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -44,8 +43,6 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import tools.DatabaseConnection;
 import net.channel.ChannelServer;
 import provider.MapleData;
@@ -166,8 +163,7 @@ public class Commands {
             }
         } else if (sub[0].equals("job")) {
             player.changeJob(MapleJob.getById(Integer.parseInt(sub[1])));
-        } else if (sub[0].equals("jobperson")) {
-            cserv.getPlayerStorage().getCharacterByName(sub[1]).changeJob(MapleJob.getById(Integer.parseInt(sub[2])));
+            player.equipChanged();
         } else if (sub[0].equals("kill")) {
             cserv.getPlayerStorage().getCharacterByName(sub[1]).setHpMp(0);
         } else if (sub[0].equals("killall")) {
@@ -426,6 +422,10 @@ public class Commands {
                 player.getMap().addMapObject(npc);
                 player.getMap().broadcastMessage(MaplePacketCreator.spawnNPC(npc));
             }
+        } else if (sub[0].equals("jobperson")) {
+            MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
+            victim.changeJob(MapleJob.getById(Integer.parseInt(sub[2])));
+            player.equipChanged();
         } else if (sub[0].equals("pinkbean")) {
             player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8820009), player.getPosition());
         } else if (sub[0].equals("playernpc")) {

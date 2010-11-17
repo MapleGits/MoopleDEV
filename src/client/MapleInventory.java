@@ -237,7 +237,7 @@ public class MapleInventory implements Iterable<IItem> {
         return checked;
     }
 
-    public void check() {
-        checked = true;
+    public void checked(boolean yes) {
+        checked = yes;
     }
 }

@@ -175,15 +175,6 @@ public class SkillFactory {
                 case NightWalker.SHADOW_WEB:
                 case NightWalker.POISON_BOMB:
                 case NightWalker.VAMPIRE:
-                case Priest.SUMMON_DRAGON:
-                case Bishop.BAHAMUT:
-                case Sniper.GOLDEN_EAGLE:
-                case Marksman.FROST_PREY:
-                case ILArchMage.IFRIT:
-                case FPArchMage.ELQUINES:
-                case Aran.COMBO_PENRIL:
-                case Aran.COMBO_SMASH:
-                case Aran.COMBO_TEMPEST:
                 case Priest.MYSTIC_DOOR:
                     isBuff = false;
                     break;

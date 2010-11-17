@@ -22,6 +22,7 @@
 package net.channel.handler;
 
 import client.ItemFactory;
+import client.MapleCharacter;
 import java.sql.SQLException;
 import java.util.Arrays;
 import client.MapleClient;
@@ -36,21 +37,22 @@ import tools.data.input.SeekableLittleEndianAccessor;
  */
 public final class HiredMerchantRequest extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), 23000, Arrays.asList(MapleMapObjectType.HIRED_MERCHANT)).size() == 0 && c.getPlayer().getMapId() > 910000000 && c.getPlayer().getMapId() < 910000023) {
-            if (!c.getPlayer().hasMerchant()) {
+        MapleCharacter chr = c.getPlayer();
+        if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 23000, Arrays.asList(MapleMapObjectType.HIRED_MERCHANT)).isEmpty() && chr.getMapId() > 910000000 && chr.getMapId() < 910000023) {
+            if (!chr.hasMerchant()) {
                 try {
-                    if (ItemFactory.MERCHANT.loadItems(c.getPlayer().getId(), false).isEmpty()) {
+                    if (ItemFactory.MERCHANT.loadItems(chr.getId(), false).isEmpty()) {
                         c.announce(MaplePacketCreator.hiredMerchantBox());
                     } else {
-                        c.getPlayer().dropMessage(1, "Please claim your items from Fredrick first.");
+                        chr.announce(MaplePacketCreator.retrieveFirstMessage());
                     }
                 } catch (SQLException ex) {
                 }
             } else {
-                c.getPlayer().dropMessage(1, "You already have a store open.");
+                chr.dropMessage(1, "You already have a store open.");
             }
         } else {
-            c.getPlayer().dropMessage(1, "You cannot open your hired merchant here.");
+            chr.dropMessage(1, "You cannot open your hired merchant here.");
         }
     }
 }

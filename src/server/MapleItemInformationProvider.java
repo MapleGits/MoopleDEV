@@ -929,8 +929,15 @@ public class MapleItemInformationProvider {
     public Collection<IItem> canWearEquipment(MapleCharacter chr, Collection<IItem> items) {
         MapleInventory inv = chr.getInventory(MapleInventoryType.EQUIPPED);
         if (inv.checked()) return items;
-
         Collection<IItem> itemz = new LinkedList<IItem>();
+        if (chr.getJob() == MapleJob.SUPERGM || chr.getJob() == MapleJob.GM) {
+            for (IItem item : items) {
+                IEquip equip = (IEquip) item;
+                equip.wear(true);
+                itemz.add(item);
+            }
+            return itemz;
+        }
         boolean highfivestamp = false;
         try {
             for (Pair<IItem, MapleInventoryType> ii : ItemFactory.INVENTORY.loadItems(chr.getId(), false)) {
@@ -954,27 +961,28 @@ public class MapleItemInformationProvider {
         }
         for (IItem item : items) {
             IEquip equip = (IEquip) item;
-            if (chr.getJob() == MapleJob.SUPERGM || chr.getJob() == MapleJob.GM) {
-                itemz.add(item);
-                equip.wear(true);
-                continue;
-            }
-            int reqLevel = getEquipStats(item.getItemId()).get("reqLevel");
+            int reqLevel = getEquipStats(equip.getItemId()).get("reqLevel");
             if (highfivestamp) {
                 reqLevel -= 5;
                 if (reqLevel < 0)
                     reqLevel = 0;
             }
+            /*
+            int reqJob = getEquipStats(equip.getItemId()).get("reqJob");
+            if (reqJob != 0) {
+                Really hard check, and not really needed in this one
+                Gm's should just be GM job, and players cannot change jobs.
+            }*/
             if(reqLevel > chr.getLevel()) continue;
-            else if(getEquipStats(item.getItemId()).get("reqDEX") > tdex) continue;
-            else if(getEquipStats(item.getItemId()).get("reqSTR") > tstr) continue;
-            else if(getEquipStats(item.getItemId()).get("reqLUK") > tluk) continue;
-            else if(getEquipStats(item.getItemId()).get("reqINT") > tint) continue;
-            else if(getEquipStats(item.getItemId()).get("reqPOP") > fame) continue;
-            itemz.add(item);
+            else if(getEquipStats(equip.getItemId()).get("reqDEX") > tdex) continue;
+            else if(getEquipStats(equip.getItemId()).get("reqSTR") > tstr) continue;
+            else if(getEquipStats(equip.getItemId()).get("reqLUK") > tluk) continue;
+            else if(getEquipStats(equip.getItemId()).get("reqINT") > tint) continue;
+            else if(getEquipStats(equip.getItemId()).get("reqPOP") > fame) continue;
             equip.wear(true);
+            itemz.add(equip);
         }
-        inv.check();
+        inv.checked(true);
         return itemz;
     }
 
@@ -995,7 +1003,6 @@ public class MapleItemInformationProvider {
         } catch (SQLException ex) {
         }
         int tdex = chr.getDex(), tstr = chr.getStr(), tint = chr.getInt(), tluk = chr.getLuk();
-        if (chr.getJob() != MapleJob.SUPERGM || chr.getJob() != MapleJob.GM) {
             for (IItem item : chr.getInventory(MapleInventoryType.EQUIPPED).list()) {
                 IEquip eq = (IEquip) item;
                 tdex += eq.getDex();
@@ -1003,12 +1010,12 @@ public class MapleItemInformationProvider {
                 tluk += eq.getLuk();
                 tint += eq.getInt();
             }
-        }
             int reqLevel = getEquipStats(equip.getItemId()).get("reqLevel");
             if (highfivestamp) {
                 reqLevel -= 5;
             }
             int i = 0; //lol xD
+            //Removed job check. Shouldn't really be needed.
             if(reqLevel > chr.getLevel()) i++;
             else if(getEquipStats(equip.getItemId()).get("reqDEX") > tdex) i++;
             else if(getEquipStats(equip.getItemId()).get("reqSTR") > tstr) i++;

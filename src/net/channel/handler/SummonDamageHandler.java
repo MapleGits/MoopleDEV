@@ -72,17 +72,18 @@ public final class SummonDamageHandler extends AbstractMaplePacketHandler {
         }
         ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
         MapleStatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
-        slea.skip(5);
+        slea.skip(4);
+        byte direction = slea.readByte();
         List<SummonAttackEntry> allDamage = new ArrayList<SummonAttackEntry>();
         int numAttacked = slea.readByte();
+        slea.skip(8); //Thanks Gerald :D, I failed lol (mob x,y and summon x,y)
         for (int x = 0; x < numAttacked; x++) {
-            slea.skip(8);
             int monsterOid = slea.readInt(); // attacked oid
-            slea.skip(18); // who knows (used to be 14 pre-83)
+            slea.skip(18);
             int damage = slea.readInt();
             allDamage.add(new SummonAttackEntry(monsterOid, damage));
         }
-        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), 4, allDamage), summon.getPosition());
+        player.getMap().broadcastMessage(player, MaplePacketCreator.summonAttack(player.getId(), summon.getSkill(), direction, 4, allDamage), summon.getPosition());
         for (SummonAttackEntry attackEntry : allDamage) {
             int damage = attackEntry.getDamage();
             MapleMonster target = player.getMap().getMonsterByOid(attackEntry.getMonsterOid());

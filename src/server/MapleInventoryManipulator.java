@@ -321,8 +321,10 @@ public class MapleInventoryManipulator {
     public static void equip(MapleClient c, byte src, byte dst) {
         Equip source = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem(src);
         Equip target = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
-        if (source == null || !MapleItemInformationProvider.getInstance().canWearEquipment(c.getPlayer(), source)) {
+        if (source == null) {
             return;
+        } else if (!MapleItemInformationProvider.getInstance().canWearEquipment(c.getPlayer(), source)) {
+            c.getPlayer().equipChanged();
         } else if ((((source.getItemId() >= 1902000 && source.getItemId() <= 1902002) || source.getItemId() == 1912000) && c.getPlayer().isCygnus()) || ((source.getItemId() >= 1902005 && source.getItemId() <= 1902007) || source.getItemId() == 1912005) && !c.getPlayer().isCygnus()) {// Adventurer taming equipment
             return;
         }

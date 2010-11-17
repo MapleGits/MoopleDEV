@@ -626,8 +626,8 @@ public class MapleStatEffect implements Serializable {
         if (!primary && isResurrection()) {
             hpchange = applyto.getMaxHp();
             applyto.setStance(0);
-            applyto.getMap().removePlayer(applyto); //Fixes floating shit
-            applyto.getMap().addPlayer(applyto); //Fixes floating shit
+            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.removePlayerFromMap(applyto.getId()), false);
+            applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.spawnPlayerMapobject(applyto), false);
         }
         if (isDispel() && makeChanceResult()) {
             applyto.dispelDebuffs();
@@ -885,8 +885,10 @@ public class MapleStatEffect implements Serializable {
             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1, (byte) 3), false);
         }
         if (localstatups.size() > 0) {
-            MaplePacket buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
+            MaplePacket buff = null;
             MaplePacket mbuff = null;
+            if (!hasNoIcon())buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
+
             if (isDash()) {
                 buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
@@ -930,10 +932,10 @@ public class MapleStatEffect implements Serializable {
             ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
             applyto.registerEffect(this, starttime, schedule);
 
+            if (buff != null)
             applyto.getClient().getSession().write(buff);
-            if (mbuff != null) {
+            if (mbuff != null)
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);
-            }
         }         
     }
 
@@ -1176,6 +1178,16 @@ public class MapleStatEffect implements Serializable {
             }
         }
         return false;
+    }
+
+    private boolean hasNoIcon() {
+        return (sourceid == 3111002 || sourceid == 3211002 || + // puppet, puppet
+                sourceid == 3211005 || sourceid == 2311002 || + // golden eagle, mystic door
+                sourceid == 2121005 || sourceid == 2221005 || + // elquines, ifrit
+                sourceid == 2321003 || sourceid == 3121006 || + // bahamut, phoenix
+                sourceid == 3221005 || sourceid == 3111005 || + // frostprey, silver hawk
+                sourceid == 2311006 || sourceid == 5220002 || + // summon dragon, wrath of the octopi
+                sourceid == 5211001 || sourceid == 5211002); // octopus, gaviota
     }
 
     private boolean isDash() {

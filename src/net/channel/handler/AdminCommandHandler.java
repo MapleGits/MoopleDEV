@@ -74,14 +74,14 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                 break;
             case 0x03: // Ban
                 victim = slea.readMapleAsciiString();
-                String reason = c.getPlayer().getName() + " used /ban to ban";
+                String reason = victim + " permanent banned by " + c.getPlayer().getName();
                 target = c.getChannelServer().getPlayerStorage().getCharacterByName(victim);
                 if (target != null) {
                     String readableTargetName = MapleCharacter.makeMapleReadable(target.getName());
                     String ip = target.getClient().getSession().getRemoteAddress().toString().split(":")[0];
                     reason += readableTargetName + " (IP: " + ip + ")";
                     target.ban(reason, true);
-                    target.sendPolice("You have been blocked by #b" + c.getPlayer().getName() + "for the HACK reason#k.");
+                    target.sendPolice("You have been blocked by #b" + c.getPlayer().getName() + " #kfor the HACK reason.");
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
                 } else if (MapleCharacter.ban(victim, reason, false)) {
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
@@ -118,7 +118,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     sb.append(mc.getName());
                     sb.append(" ");
                 }
-                c.getPlayer().dropMessage(sb.toString());
+                c.getPlayer().message(sb.toString());
                 break;
             case 0x12: // Send
                 victim = slea.readMapleAsciiString();
@@ -164,9 +164,9 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                 target = c.getChannelServer().getPlayerStorage().getCharacterByName(victim);
                 if (target != null) {
                     target.getClient().announce(MaplePacketCreator.serverNotice(1, message));
-                    c.announce(MaplePacketCreator.getGMEffect(29, (byte) 1));
+                    c.announce(MaplePacketCreator.getGMEffect(0x1E, (byte) 1));
                 } else {
-                    c.announce(MaplePacketCreator.getGMEffect(29, (byte) 0));
+                    c.announce(MaplePacketCreator.getGMEffect(0x1E, (byte) 0));
                 }
                 break;
             default:

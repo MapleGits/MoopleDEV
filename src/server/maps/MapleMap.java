@@ -1393,14 +1393,22 @@ public class MapleMap {
     }
 
     private void sendObjectPlacement(MapleClient mapleClient) {
+        MapleCharacter chr = mapleClient.getPlayer();
         for (MapleMapObject o : mapobjects.values()) {
+            if (o.getType() == MapleMapObjectType.SUMMON) {
+                MapleSummon summon = (MapleSummon) o;
+                if (summon.getOwner() == chr) {
+                    if (chr.getSummons().isEmpty() || !chr.getSummons().containsValue(summon)) {
+                        mapobjects.remove(o); continue;
+                    }
+                }
+            }
             if (isNonRangedType(o.getType())) {
                 o.sendSpawnData(mapleClient);
             } else if (o.getType() == MapleMapObjectType.MONSTER) {
                 updateMonsterController((MapleMonster) o);
             }
         }
-        MapleCharacter chr = mapleClient.getPlayer();
         if (chr != null) {
             for (MapleMapObject o : getMapObjectsInRange(chr.getPosition(), 722500, rangedMapobjectTypes)) {
                 if (o.getType() == MapleMapObjectType.REACTOR) {
