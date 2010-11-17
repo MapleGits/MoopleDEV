@@ -669,6 +669,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             cancelPlayerBuffs(buffstats);
             if (effect.isHide() && (MapleCharacter) getMap().getMapObject(getObjectId()) != null) {
                 this.hidden = false;
+                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 0));
                 getMap().broadcastNONGMMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
             }
         }
@@ -2933,6 +2934,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void registerEffect(MapleStatEffect effect, long starttime, ScheduledFuture<?> schedule) {
         if (effect.isHide() && gmLevel > 0) {
             this.hidden = true;
+            announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
             getMap().broadcastNONGMMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
         } else if (effect.isDragonBlood()) {
             prepareDragonBlood(effect);

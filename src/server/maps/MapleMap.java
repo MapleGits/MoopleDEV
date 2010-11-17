@@ -1188,9 +1188,10 @@ public class MapleMap {
             }
             sendObjectPlacement(chr.getClient());
 
-            if (chr.isHidden())
+            if (chr.isHidden()) {
                 broadcastGMMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
-            else
+                chr.announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
+            } else
                 broadcastMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
 
 

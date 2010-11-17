@@ -112,7 +112,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.getGMEffect(6, (byte) 1));
                 }
                 break;
-            case 0x11: // /h, information by vana
+            case 0x10: // /h, information by vana
                 StringBuilder sb = new StringBuilder("USERS ON THIS MAP: ");
                 for (MapleCharacter mc : c.getPlayer().getMap().getCharacters()) {
                     sb.append(mc.getName());

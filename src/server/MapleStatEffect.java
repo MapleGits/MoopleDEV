@@ -320,6 +320,8 @@ public class MapleStatEffect implements Serializable {
                 case Ranger.PUPPET:
                 case Sniper.PUPPET:
                 case WindArcher.PUPPET:
+                case Outlaw.OCTOPUS:
+                case Corsair.WRATH_OF_THE_OCTOPI:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.PUPPET, Integer.valueOf(1)));
                     break;
                 case Bowmaster.CONCENTRATE:
@@ -457,8 +459,6 @@ public class MapleStatEffect implements Serializable {
                 case ILArchMage.IFRIT:
                 case Bishop.BAHAMUT:
                 case DarkKnight.BEHOLDER:
-                case Outlaw.OCTOPUS:
-                case Corsair.WRATH_OF_THE_OCTOPI:
                 case Outlaw.GAVIOTA:
                 case DawnWarrior.SOUL:
                 case BlazeWizard.FLAME:
@@ -827,9 +827,12 @@ public class MapleStatEffect implements Serializable {
     }
 
     private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary) {
-        if (!isMonsterRiding()) {
-            applyto.cancelEffect(this, true, -1);
+        if (!isMonsterRiding()) applyto.cancelEffect(this, true, -1);
+        if (applyfrom.isHidden() && sourceid == SuperGM.HIDE) {
+            applyfrom.cancelEffect(this, false, -1);
+            return;
         }
+
         List<Pair<MapleBuffStat, Integer>> localstatups = statups;
         int localDuration = duration;
         int localsourceid = sourceid;
@@ -887,8 +890,7 @@ public class MapleStatEffect implements Serializable {
         if (localstatups.size() > 0) {
             MaplePacket buff = null;
             MaplePacket mbuff = null;
-            if (!hasNoIcon())buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
-
+            if (sourceid != SuperGM.HIDE) buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
             if (isDash()) {
                 buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
@@ -1178,20 +1180,6 @@ public class MapleStatEffect implements Serializable {
             }
         }
         return false;
-    }
-
-    private boolean hasNoIcon() {
-        return (sourceid == 3111002 || sourceid == 3211002 || // puppet, puppet
-                sourceid == 3211005 || sourceid == 2311002 || // golden eagle, mystic door
-                sourceid == 2121005 || sourceid == 2221005 || // elquines, ifrit
-                sourceid == 2321003 || sourceid == 3121006 || // bahamut, phoenix
-                sourceid == 3221005 || sourceid == 3111005 || // frostprey, silver hawk
-                sourceid == 2311006 || sourceid == 5220002 || // summon dragon, wrath of the octopi
-                sourceid == 5211001 || sourceid == 5211002 || // octopus, gaviota
-                sourceid == 14001005 || sourceid == 11001004 ||
-                sourceid == 12001004 || sourceid == 12111004 || 
-                sourceid == 15001004 || sourceid == 13001004 || sourceid == 13111004);
-
     }
 
     private boolean isDash() {

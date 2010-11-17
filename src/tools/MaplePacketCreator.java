@@ -5816,7 +5816,7 @@ public class MaplePacketCreator {
      * 0x05: The unblocking has been successful.<br>
      * 0x06 with Mode 0: You have successfully removed the name from the ranks.<br>
      * 0x06 with Mode 1: You have entered an invalid character name.<br>
-     * 16: GM Hide, mode determines whether or not it is on.<br>
+     * 0x10: GM Hide, mode determines whether or not it is on.<br>
      * 0x1E: Mode 0: Failed to send warning Mode 1: Sent warning<br>
      * 0x13 with Mode 0: + mapid
      * 0x13 with Mode 1: + ch (FF = Unable to find merchant)
