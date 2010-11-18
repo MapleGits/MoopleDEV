@@ -39,8 +39,6 @@ import client.MapleStat;
 import client.SkillFactory;
 import constants.ItemConstants;
 import constants.ServerConstants;
-import constants.skills.GM;
-import constants.skills.SuperGM;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,7 +53,6 @@ import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleShopFactory;
-import server.MapleStatEffect;
 import server.events.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
@@ -312,8 +309,6 @@ public class Commands {
                 if (!sub[1].equalsIgnoreCase("ITEM")) {
                     if (sub[1].equalsIgnoreCase("NPC")) {
                         data = dataProvider.getData("Npc.img");
-                    } else if (sub[1].equalsIgnoreCase("MAP")) {
-                        data = dataProvider.getData("Map.img");
                     } else if (sub[1].equalsIgnoreCase("MOB")) {
                         List<String> retMobs = new LinkedList<String>();
                         data = dataProvider.getData("Mob.img");
@@ -361,7 +356,7 @@ public class Commands {
                     player.dropMessage("Search Complete.");
                 }
             } else {
-                player.dropMessage("Invalid search.\nSyntax: '/search [type] [name]', where [type] is NPC, MAP, ITEM, MOB, or SKILL.");
+                player.dropMessage("Invalid search.\nSyntax: '/search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
             }
         } else if (sub[0].equals("servermessage")) {
             for (int i = 1; i <= ChannelServer.getAllInstances().size(); i++) {

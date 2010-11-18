@@ -232,7 +232,22 @@ public class MapleStatEffect implements Serializable {
                 case Beginner.MONSTER_RIDER:
                 case Noblesse.MONSTER_RIDER:
                 case Legend.MONSTER_RIDER:
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MONSTER_RIDING, Integer.valueOf(1)));
+                case Corsair.BATTLE_SHIP:
+                case Beginner.SPACESHIP:
+                case Noblesse.SPACESHIP:
+                case Beginner.YETI_MOUNT1:
+                case Beginner.YETI_MOUNT2:
+                case Noblesse.YETI_MOUNT1:
+                case Noblesse.YETI_MOUNT2:
+                case Legend.YETI_MOUNT1:
+                case Legend.YETI_MOUNT2:
+                case Beginner.WITCH_BROOMSTICK:
+                case Noblesse.WITCH_BROOMSTICK:
+                case Legend.WITCH_BROOMSTICK:
+                case Beginner.BALROG_MOUNT:
+                case Noblesse.BALROG_MOUNT:
+                case Legend.BALROG_MOUNT:
+                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MONSTER_RIDING, Integer.valueOf(sourceid)));
                     break;
                 case Beginner.BERSERK_FURY:
                 case Noblesse.BERSERK_FURY:
@@ -377,23 +392,6 @@ public class MapleStatEffect implements Serializable {
                 case Outlaw.HOMING_BEACON:
                 case Corsair.BULLSEYE:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.HOMING_BEACON, Integer.valueOf(x)));
-                    break;
-                case Corsair.BATTLE_SHIP:
-                case Beginner.SPACESHIP:
-                case Noblesse.SPACESHIP:
-                case Beginner.YETI_MOUNT1:
-                case Beginner.YETI_MOUNT2:
-                case Noblesse.YETI_MOUNT1:
-                case Noblesse.YETI_MOUNT2:
-                case Legend.YETI_MOUNT1:
-                case Legend.YETI_MOUNT2:
-                case Beginner.WITCH_BROOMSTICK:
-                case Noblesse.WITCH_BROOMSTICK:
-                case Legend.WITCH_BROOMSTICK:
-                case Beginner.BALROG_MOUNT:
-                case Noblesse.BALROG_MOUNT:
-                case Legend.BALROG_MOUNT:  
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MONSTER_RIDING, Integer.valueOf(sourceid)));
                     break;
                 case ThunderBreaker.SPARK:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPARK, Integer.valueOf(x)));

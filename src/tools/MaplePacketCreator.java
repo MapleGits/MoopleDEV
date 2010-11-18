@@ -2699,9 +2699,8 @@ public class MaplePacketCreator {
         mplew.writeInt(cid);
         long mask = getLongMaskFromList(statups);
         if (mask == MapleBuffStat.MONSTER_RIDING.getValue() || mask == MapleBuffStat.BATTLESHIP.getValue()) {
-            mplew.writeInt(0);
             mplew.writeLong(mask);
-            mplew.writeInt(0);
+            mplew.writeLong(0);
         } else {
             writeLongMaskFromList(mplew, statups);
         }

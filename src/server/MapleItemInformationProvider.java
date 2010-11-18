@@ -979,7 +979,10 @@ public class MapleItemInformationProvider {
             else if(getEquipStats(equip.getItemId()).get("reqSTR") > tstr) continue;
             else if(getEquipStats(equip.getItemId()).get("reqLUK") > tluk) continue;
             else if(getEquipStats(equip.getItemId()).get("reqINT") > tint) continue;
-            else if(getEquipStats(equip.getItemId()).get("reqPOP") > fame) continue;
+            int reqPOP = getEquipStats(equip.getItemId()).get("reqPOP");
+            if (reqPOP > 0) {
+                if(getEquipStats(equip.getItemId()).get("reqPOP") > fame) continue;
+            }
             equip.wear(true);
             itemz.add(equip);
         }
@@ -1023,7 +1026,10 @@ public class MapleItemInformationProvider {
             else if(getEquipStats(equip.getItemId()).get("reqSTR") > tstr) i++;
             else if(getEquipStats(equip.getItemId()).get("reqLUK") > tluk) i++;
             else if(getEquipStats(equip.getItemId()).get("reqINT") > tint) i++;
-            else if(getEquipStats(equip.getItemId()).get("reqPOP") > chr.getFame()) i++;
+            int reqPOP = getEquipStats(equip.getItemId()).get("reqPOP");
+            if (reqPOP > 0) {
+                if(getEquipStats(equip.getItemId()).get("reqPOP") > chr.getFame()) i++;
+            }
 
             if (i > 0) {
                 equip.wear(false);
