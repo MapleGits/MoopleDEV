@@ -1318,8 +1318,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (show && gain != 0) {
                 client.announce(MaplePacketCreator.getShowExpGain(gain, equip, inChat, white));
             }
-            if (ServerConstants.GMS_LIKE) {
-		while (level < getMaxLevel() && exp.get() >= ExpTable.getExpNeededForLevel(level + 1)) {
+            if (!ServerConstants.GMS_LIKE) {
+		while (level < getMaxLevel() && exp.get() >= ExpTable.getExpNeededForLevel(level)) {
 			levelUp(true);
 		}
             } else if (exp.get() >= ExpTable.getExpNeededForLevel(level)) {
