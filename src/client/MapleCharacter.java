@@ -119,6 +119,7 @@ import server.quest.MapleQuest;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 import tools.Pair;
+import tools.Randomizer;
 
 public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
@@ -274,6 +275,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
     private int pendantExp = 0; //Actually should just be equipExp
+    public int test1 = 0, test2 = 0, test3 = 0, test4 = 0;
 
     private MapleCharacter() {
         setStance(0);
@@ -764,20 +766,20 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         int job_ = job.getId() % 1000; // lame temp "fix"
         if (job_ == 100) {
-            maxhp += rand(200, 250);
+            maxhp += Randomizer.rand(200, 250);
         } else if (job_ == 200) {
-            maxmp += rand(100, 150);
+            maxmp += Randomizer.rand(100, 150);
         } else if (job_ % 100 == 0) {
-            maxhp += rand(100, 150);
-            maxhp += rand(25, 50);
+            maxhp += Randomizer.rand(100, 150);
+            maxhp += Randomizer.rand(25, 50);
         } else if (job_ > 0 && job_ < 200) {
-            maxhp += rand(300, 350);
+            maxhp += Randomizer.rand(300, 350);
         } else if (job_ < 300) {
-            maxmp += rand(450, 500);
+            maxmp += Randomizer.rand(450, 500);
         } //handle KoC here (undone)
         else if (job_ > 0 && job_ != 1000) {
-            maxhp += rand(300, 350);
-            maxmp += rand(150, 200);
+            maxhp += Randomizer.rand(300, 350);
+            maxmp += Randomizer.rand(150, 200);
         }
         if (maxhp >= 30000) {
             maxhp = 30000;
@@ -1942,6 +1944,15 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return possibleReports;
     }
 
+    public final byte getQuestStatus(final int quest) {
+	for (final MapleQuestStatus q : quests.values()) {
+	    if (q.getQuest().getId() == quest) {
+		return (byte) q.getStatus().getId();
+	    }
+	}
+	return 0;
+    }
+
     public MapleQuestStatus getQuest(MapleQuest quest) {
         if (!quests.containsKey(quest)) {
             return new MapleQuestStatus(quest, MapleQuestStatus.Status.NOT_STARTED);
@@ -2317,8 +2328,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
         }
         if (job == MapleJob.BEGINNER || job == MapleJob.NOBLESSE || job == MapleJob.LEGEND) {
-            maxhp += rand(12, 16);
-            maxmp += rand(10, 12);
+            maxhp += Randomizer.rand(12, 16);
+            maxmp += Randomizer.rand(10, 12);
         } else if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1)) {
             improvingMaxHP = isCygnus() ? SkillFactory.getSkill(DawnWarrior.MAX_HP_INCREASE) : SkillFactory.getSkill(Swordsman.IMPROVED_MAX_HP_INCREASE);
             if (job.isA(MapleJob.CRUSADER)) {
@@ -2327,27 +2338,27 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 improvingMaxMP = SkillFactory.getSkill(11110000);
             }
             improvingMaxHPLevel = getSkillLevel(improvingMaxHP);
-            maxhp += rand(24, 28);
-            maxmp += rand(4, 6);
+            maxhp += Randomizer.rand(24, 28);
+            maxmp += Randomizer.rand(4, 6);
         } else if (job.isA(MapleJob.MAGICIAN) || job.isA(MapleJob.BLAZEWIZARD1)) {
             improvingMaxMP = isCygnus() ? SkillFactory.getSkill(BlazeWizard.INCREASING_MAX_MP) : SkillFactory.getSkill(Magician.IMPROVED_MAX_MP_INCREASE);
             improvingMaxMPLevel = getSkillLevel(improvingMaxMP);
-            maxhp += rand(10, 14);
-            maxmp += rand(22, 24);
+            maxhp += Randomizer.rand(10, 14);
+            maxmp += Randomizer.rand(22, 24);
         } else if (job.isA(MapleJob.BOWMAN) || job.isA(MapleJob.THIEF) || (job.getId() > 1299 && job.getId() < 1500)) {
-            maxhp += rand(20, 24);
-            maxmp += rand(14, 16);
+            maxhp += Randomizer.rand(20, 24);
+            maxmp += Randomizer.rand(14, 16);
         } else if (job.isA(MapleJob.GM)) {
             maxhp = 30000;
             maxmp = 30000;
         } else if (job.isA(MapleJob.PIRATE) || job.isA(MapleJob.THUNDERBREAKER1)) {
             improvingMaxHP = isCygnus() ? SkillFactory.getSkill(ThunderBreaker.IMPROVE_MAX_HP) : SkillFactory.getSkill(5100000);
             improvingMaxHPLevel = getSkillLevel(improvingMaxHP);
-            maxhp += rand(22, 28);
-            maxmp += rand(18, 23);
+            maxhp += Randomizer.rand(22, 28);
+            maxmp += Randomizer.rand(18, 23);
         } else if (job.isA(MapleJob.ARAN1)) {
-            maxhp += rand(44, 48);
-            int aids = rand(4, 8);
+            maxhp += Randomizer.rand(44, 48);
+            int aids = Randomizer.rand(4, 8);
             maxmp += aids + Math.floor(aids * 0.1);
         }
         if (improvingMaxHPLevel > 0 && (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.PIRATE) || job.isA(MapleJob.DAWNWARRIOR1))) {
@@ -2835,10 +2846,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 checkBerserk();
             }
         }, 4000, 4000);
-    }
-
-    private static int rand(int l, int u) {
-        return (int) ((Math.random() * (u - l + 1)) + l);
     }
 
     private void recalcLocalStats() {

@@ -49,7 +49,7 @@ public final class PetCommandHandler extends AbstractMaplePacketHandler {
             return;
         }
         boolean success = false;
-        if (Randomizer.getInstance().nextInt(101) <= petCommand.getProbability()) {
+        if (Randomizer.nextInt(101) <= petCommand.getProbability()) {
             success = true;
             if (pet.getCloseness() < 30000) {
                 int newCloseness = pet.getCloseness() + petCommand.getIncrease();

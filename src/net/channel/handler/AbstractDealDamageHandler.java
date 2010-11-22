@@ -54,6 +54,7 @@ import constants.skills.Rogue;
 import constants.skills.Shadower;
 import constants.skills.ThunderBreaker;
 import constants.skills.WindArcher;
+import server.life.MonsterDropEntry;
 import tools.Randomizer;
 import net.AbstractMaplePacketHandler;
 import client.autoban.AutobanFactory;
@@ -69,6 +70,7 @@ import server.TimerManager;
 import server.life.Element;
 import server.life.ElementalEffectiveness;
 import server.life.MapleMonster;
+import server.life.MapleMonsterInformationProvider;
 import server.maps.MapleMap;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
@@ -105,7 +107,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         }
     }
 
-    protected synchronized void applyAttack(AttackInfo attack, MapleCharacter player, int attackCount) {
+    protected synchronized void applyAttack(AttackInfo attack, final MapleCharacter player, int attackCount) {
         ISkill theSkill = null;
         MapleStatEffect attackEffect = null;
 
@@ -181,7 +183,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
         }
         for (Pair<Integer, List<Integer>> oned : attack.allDamage) {
-            MapleMonster monster = map.getMonsterByOid(oned.getLeft().intValue());
+            final MapleMonster monster = map.getMonsterByOid(oned.getLeft().intValue());
             if (monster != null) {
                 int totDamageToOneMonster = 0;
                 for (Integer eachd : oned.getRight()) {
@@ -192,32 +194,28 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 if (player.getBuffedValue(MapleBuffStat.PICKPOCKET) != null && (attack.skill == 0 || attack.skill == Rogue.DOUBLE_STAB || attack.skill == Bandit.SAVAGE_BLOW || attack.skill == ChiefBandit.ASSAULTER || attack.skill == ChiefBandit.BAND_OF_THIEVES || attack.skill == Shadower.ASSASSINATE || attack.skill == Shadower.TAUNT || attack.skill == Shadower.BOOMERANG_STEP)) {
                     ISkill pickpocket = SkillFactory.getSkill(ChiefBandit.PICKPOCKET);
                     int delay = 0;
-                    int maxmeso = player.getBuffedValue(MapleBuffStat.PICKPOCKET).intValue();
-                    Point monsterPosition = monster.getPosition();
-                    for (Integer eachd : oned.getRight()) {
+                    final int maxmeso = player.getBuffedValue(MapleBuffStat.PICKPOCKET).intValue();
+                    for (final Integer eachd : oned.getRight()) {
                         if (pickpocket.getEffect(player.getSkillLevel(pickpocket)).makeChanceResult()) {
-                            final int todrop = Math.min((int) Math.max(((double) eachd / (double) 200) * (double) maxmeso, (double) 1), maxmeso);
-                            final MapleMap tdmap = player.getMap();
-                            final Point tdpos = new Point((int) (monsterPosition.getX() + Randomizer.getInstance().nextInt(101) - 50), (int) (monsterPosition.getY()));
-                            final MapleMonster tdmob = monster;
-                            final MapleCharacter tdchar = player;
                             TimerManager.getInstance().schedule(new Runnable() {
 
                                 public void run() {
-                                    tdmap.spawnMesoDrop(todrop, todrop, tdpos, tdmob, tdchar, false);
+                                    player.getMap().spawnMesoDrop(Math.min((int) Math.max(((double) eachd / (double) 20000) * (double) maxmeso, (double) 1), maxmeso), new Point((int) (monster.getPosition().getX() + Randomizer.nextInt(100) - 50), (int) (monster.getPosition().getY())), monster, player, true, (byte) 0);
                                 }
                             }, delay);
                             delay += 100;
                         }
                     }
                 } else if (attack.skill == Marksman.SNIPE) {
-                    totDamageToOneMonster = 195000 + Randomizer.getInstance().nextInt(5000);
+                    totDamageToOneMonster = 195000 + Randomizer.nextInt(5000);
                 } else if (attack.skill == Marauder.ENERGY_DRAIN || attack.skill == ThunderBreaker.ENERGY_DRAIN || attack.skill == NightWalker.VAMPIRE || attack.skill == Assassin.DRAIN) {
                     player.addHP(Math.min(monster.getMaxHp(), Math.min((int) ((double) totDamage * (double) SkillFactory.getSkill(attack.skill).getEffect(player.getSkillLevel(SkillFactory.getSkill(attack.skill))).getX() / 100.0), player.getMaxHp() / 2)));
                 } else if (attack.skill == Bandit.STEAL) {
                     ISkill steal = SkillFactory.getSkill(Bandit.STEAL);
                     if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) {
-                        int toSteal = monster.getDrop();
+                        List<MonsterDropEntry> toSteals = MapleMonsterInformationProvider.getInstance().retrieveDrop(monster.getId());
+                        Collections.shuffle(toSteals);
+                        int toSteal = toSteals.get(rand(0, toSteals.size())).itemId;
                         MapleInventoryManipulator.addById(player.getClient(), toSteal, (short) 1);
                         monster.addStolen(toSteal);
                     }
@@ -393,5 +391,8 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             ret.allDamage.add(new Pair<Integer, List<Integer>>(Integer.valueOf(oid), allDamageNumbers));
         }
         return ret;
+    }
+    private static int rand(int l, int u) {
+        return (int) ((Math.random() * (u - l + 1)) + l);
     }
 }

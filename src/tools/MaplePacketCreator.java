@@ -64,6 +64,7 @@ import java.util.Random;
 import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
+import net.channel.ChannelServer;
 import net.channel.handler.PlayerInteractionHandler;
 import net.channel.handler.SummonDamageHandler.SummonAttackEntry;
 import net.world.MapleParty;
@@ -90,6 +91,7 @@ import server.life.MapleNPC;
 import server.life.MobSkill;
 import server.maps.HiredMerchant;
 import server.maps.MapleMap;
+import server.maps.MapleMapItem;
 import server.maps.MapleMist;
 import server.maps.MapleReactor;
 import server.maps.MapleSummon;
@@ -363,12 +365,13 @@ public class MaplePacketCreator {
                 mplew.write(0x40);
             }
         } else {
+            MapleCharacter chr = ChannelServer.getCharacterFromAllServers(30001);
             mplew.write(0);
-            mplew.write(equip.getItemLevel());
+            mplew.write(equip.getItemLevel()); //Item Level
             mplew.writeShort(0);
-            mplew.writeShort(1);// item exp
-            mplew.writeShort(equip.getVicious());
-            mplew.write(new byte[10]);
+            mplew.writeShort(equip.getItemExp()); //Works pretty weird :s
+            mplew.writeInt(equip.getVicious()); //WTF NEXON ARE YOU SERIOUS?
+                mplew.write(new byte[8]);
         }
 
         mplew.write(HexTool.getByteArrayFromHexString("00 40 E0 FD 3B 37 4F 01"));
@@ -457,7 +460,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SEND_LINK.getValue());
         mplew.writeShort(0x100);
-        mplew.writeInt(Randomizer.getInstance().nextInt(999999));
+        mplew.writeInt(Randomizer.nextInt(999999));
         mplew.writeLong(0);
         mplew.write(HexTool.getByteArrayFromHexString("40 E0 FD 3B 37 4F 01"));
         mplew.writeLong(getKoreanTimestamp(System.currentTimeMillis()));
@@ -965,8 +968,7 @@ public class MaplePacketCreator {
         mplew.writeInt(townId);
         mplew.writeInt(targetId);
         if (pos != null) {
-            mplew.writeShort(pos.x);
-            mplew.writeShort(pos.y);
+            mplew.writePos(pos);
         }
         return mplew.getPacket();
     }
@@ -984,8 +986,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SPAWN_DOOR.getValue());
         mplew.write(town ? 1 : 0);
         mplew.writeInt(oid);
-        mplew.writeShort(pos.x);
-        mplew.writeShort(pos.y);
+        mplew.writePos(pos);
         return mplew.getPacket();
     }
 
@@ -1026,8 +1027,7 @@ public class MaplePacketCreator {
         mplew.writeInt(summon.getSkill());
         mplew.write(0x0A); //v83
         mplew.write(skillLevel);
-        mplew.writeShort(summon.getPosition().x);
-        mplew.writeShort(summon.getPosition().y);
+        mplew.writePos(summon.getPosition());
         mplew.write(3); // test
         mplew.write(0); // test
         mplew.write(0); // test
@@ -1309,8 +1309,7 @@ public class MaplePacketCreator {
         mplew.write(life.getController() == null ? 5 : 1);
         mplew.writeInt(life.getId());
         mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
-        mplew.writeShort(life.getPosition().x);
-        mplew.writeShort(life.getPosition().y);
+        mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
         mplew.writeShort(life.getStartFh()); //Origin FH
         mplew.writeShort(life.getFh());
@@ -1342,8 +1341,7 @@ public class MaplePacketCreator {
         mplew.write(5);
         mplew.writeInt(life.getId());
         mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
-        mplew.writeShort(life.getPosition().x);
-        mplew.writeShort(life.getPosition().y);
+        mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
         mplew.writeShort(life.getStartFh());
         mplew.writeShort(life.getFh());
@@ -1370,8 +1368,7 @@ public class MaplePacketCreator {
         mplew.write(5);
         mplew.writeInt(life.getId());
         mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
-        mplew.writeShort(life.getPosition().x);
-        mplew.writeShort(life.getPosition().y);
+        mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
         mplew.writeShort(life.getStartFh());
         mplew.writeShort(life.getFh());
@@ -1582,81 +1579,27 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    /**
-     * Gets a packet telling the client to show mesos coming out of a map
-     * object.
-     *
-     * @param amount The amount of mesos.
-     * @param itemoid The ObjectID of the dropped mesos.
-     * @param dropperoid The OID of the dropper.
-     * @param ownerid The ID of the drop owner.
-     * @param dropfrom Where to drop from.
-     * @param dropto Where the drop lands.
-     * @param mod ?
-     * @return The drop mesos packet.
-     */
-    public static MaplePacket dropMesoFromMapObject(int amount, int itemoid, int dropperoid, int ownerid, Point dropfrom, Point dropto, byte mod) {
-        return dropItemFromMapObjectInternal(amount, itemoid, dropperoid, ownerid, dropfrom, dropto, mod, true);
-    }
-
-    /**
-     * Gets a packet telling the client to show an item coming out of a map
-     * object.
-     *
-     * @param itemid The ID of the dropped item.
-     * @param itemoid The ObjectID of the dropped item.
-     * @param dropperoid The OID of the dropper.
-     * @param ownerid The ID of the drop owner.
-     * @param dropfrom Where to drop from.
-     * @param dropto Where the drop lands.
-     * @param mod ?
-     * @return The drop mesos packet.
-     */
-    public static MaplePacket dropItemFromMapObject(int itemid, int itemoid, int dropperoid, int ownerid, Point dropfrom, Point dropto, byte mod) {
-        return dropItemFromMapObjectInternal(itemid, itemoid, dropperoid, ownerid, dropfrom, dropto, mod, false);
-    }
-
-    /**
-     * Internal function to get a packet to tell the client to drop an item onto
-     * the map.
-     *
-     * @param itemid The ID of the item to drop.
-     * @param itemoid The ObjectID of the dropped item.
-     * @param dropperoid The OID of the dropper.
-     * @param ownerid The ID of the drop owner.
-     * @param dropfrom Where to drop from.
-     * @param dropto Where the drop lands.
-     * @param mod ?
-     * @param mesos Is the drop mesos?
-     * @return The item drop packet.
-     */
-    public static MaplePacket dropItemFromMapObjectInternal(int itemid, int itemoid, int dropperoid, int ownerid, Point dropfrom, Point dropto, byte mod, boolean mesos) {
+    public static MaplePacket dropItemFromMapObject(MapleMapItem drop, Point dropfrom, Point dropto, byte mod) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.DROP_ITEM_FROM_MAPOBJECT.getValue());
         mplew.write(mod);
-        mplew.writeInt(itemoid);
-        mplew.write(mesos ? 1 : 0); // 1 = mesos, 0 =item
-        mplew.writeInt(itemid);
-        mplew.writeInt(ownerid); // owner charid
-        mplew.write(0);
-        mplew.writeShort(dropto.x);
-        mplew.writeShort(dropto.y);
+        mplew.writeInt(drop.getObjectId());
+	mplew.write(drop.getMeso() > 0 ? 1 : 0); // 1 mesos, 0 item, 2 and above all item meso bag,
+	mplew.writeInt(drop.getItemId()); // drop object ID
+	mplew.writeInt(drop.getOwner()); // owner charid
+        mplew.write(drop.getDropType()); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
+        mplew.writePos(dropto);
+        mplew.writeInt(drop.getOwner());
+
         if (mod != 2) {
-            mplew.writeInt(ownerid);
-            mplew.writeShort(dropfrom.x);
-            mplew.writeShort(dropfrom.y);
-        } else {
-            mplew.writeInt(dropperoid);
+            mplew.writePos(dropfrom);
+            mplew.writeShort(0);
         }
-        mplew.write(0);
-        if (mod != 2) {
-            mplew.write(1); //fuck knows, so does your mom
-            mplew.write(mesos ? 1 : 0); //PET Meso pickup
+        if (drop.getMeso() == 0) {
+            mplew.write(0);
+            addExpirationTime(mplew, drop.getItem().getExpiration(), false);
         }
-        if (!mesos) {
-            addExpirationTime(mplew, System.currentTimeMillis(), false);
-            mplew.write(1); //pet EQP pickup
-        }
+        mplew.write(drop.isPlayerDrop() ? 0 : 1); //pet EQP pickup
         return mplew.getPacket();
     }
 
@@ -1724,7 +1667,7 @@ public class MaplePacketCreator {
             }
         }
         mplew.writeInt((int) (buffmask & 0xffffffffL));
-        int CHAR_MAGIC_SPAWN = Randomizer.getInstance().nextInt();
+        int CHAR_MAGIC_SPAWN = Randomizer.nextInt();
         mplew.write0(6);
         mplew.writeInt(CHAR_MAGIC_SPAWN);
         mplew.write0(11);
@@ -1756,8 +1699,7 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getInventory(MapleInventoryType.CASH).countById(5110000));
         mplew.writeInt(chr.getItemEffect());
         mplew.writeInt(chr.getChair());
-        mplew.writeShort(chr.getPosition().x);
-        mplew.writeShort(chr.getPosition().y);
+        mplew.writePos(chr.getPosition());
         mplew.write(chr.getStance());
         mplew.writeShort(chr.getFh());
         mplew.write(0);
@@ -1894,8 +1836,6 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.MOVE_SUMMON.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(oid);
-        mplew.writeShort(startPos.x);
-        mplew.writeShort(startPos.y);
         serializeMovementList(mplew, moves);
         return mplew.getPacket();
     }
@@ -1911,8 +1851,7 @@ public class MaplePacketCreator {
         mplew.write(skill_2);
         mplew.write(skill_3);
         mplew.write(skill_4);
-        mplew.writeShort(startPos.x);
-        mplew.writeShort(startPos.y);
+        mplew.writePos(startPos);
         serializeMovementList(mplew, moves);
         return mplew.getPacket();
     }
@@ -3461,8 +3400,7 @@ public class MaplePacketCreator {
         mplew.writeShort(0x23);
         mplew.writeInt(townId);
         mplew.writeInt(targetId);
-        mplew.writeShort(position.x);
-        mplew.writeShort(position.y);
+        mplew.writePos(position);
         return mplew.getPacket();
     }
 
@@ -3713,8 +3651,7 @@ public class MaplePacketCreator {
         mplew.writeInt(reactor.getObjectId());
         mplew.writeInt(reactor.getId());
         mplew.write(reactor.getState());
-        mplew.writeShort(pos.x);
-        mplew.writeShort(pos.y);
+        mplew.writePos(pos);
         mplew.writeShort(0);
         mplew.write(0);
         return mplew.getPacket();
@@ -3726,8 +3663,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.REACTOR_HIT.getValue());
         mplew.writeInt(reactor.getObjectId());
         mplew.write(reactor.getState());
-        mplew.writeShort(pos.x);
-        mplew.writeShort(pos.y);
+        mplew.writePos(pos);
         mplew.writeShort(stance);
         mplew.write(0);
         mplew.write(5); // frame delay, set to 5 since there doesn't appear to be a fixed formula for it
@@ -3740,8 +3676,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.REACTOR_DESTROY.getValue());
         mplew.writeInt(reactor.getObjectId());
         mplew.write(reactor.getState());
-        mplew.writeShort(pos.x);
-        mplew.writeShort(pos.y);
+        mplew.writePos(pos);
         return mplew.getPacket();
     }
 
@@ -4226,8 +4161,7 @@ public class MaplePacketCreator {
         mplew.writeMapleAsciiString(pet.getName());
         mplew.writeInt(pet.getUniqueId());
         mplew.writeInt(0);
-        mplew.writeShort(pet.getPos().x);
-        mplew.writeShort(pet.getPos().y);
+        mplew.writePos(pet.getPos());
         mplew.write(pet.getStance());
         mplew.writeInt(pet.getFh());
     }
@@ -6195,7 +6129,7 @@ public class MaplePacketCreator {
                 mplew.writeLong(getQuestTimestamp(dp.sentTimeInMilliseconds()));
                 mplew.writeLong(0); // Contains message o____o.
                 for (int i = 0; i < 48; i++) {
-                    mplew.writeInt(Randomizer.getInstance().nextInt(Integer.MAX_VALUE));
+                    mplew.writeInt(Randomizer.nextInt(Integer.MAX_VALUE));
                 }
                 mplew.writeInt(0);
                 mplew.write(0);
@@ -6561,7 +6495,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.ROLL_SNOWBALL.getValue());
         if (entermap) {
-            mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"));
+            mplew.write0(21);
         } else {
             mplew.write(type);// 0 = move, 1 = roll, 2 is down disappear, 3 is up disappear
             mplew.writeInt(ball0.getSnowmanHP() / 75);

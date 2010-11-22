@@ -40,9 +40,7 @@ public class MapleMonsterStats {
     private int removeAfter;
     private int dropPeriod;
     private int cp;
-    private boolean boss;
-    private boolean undead;
-    private boolean ffaLoot;
+    private boolean boss, undead, ffaLoot, isExplosiveReward;
     private String name;
     private Map<String, Integer> animationTimes = new HashMap<String, Integer>();
     private Map<Element, ElementalEffectiveness> resistance = new HashMap<Element, ElementalEffectiveness>();
@@ -252,5 +250,13 @@ public class MapleMonsterStats {
 
     public void setCP(int cp) {
         this.cp = cp;
+    }
+
+    public void setExplosiveReward(boolean isExplosiveReward) {
+        this.isExplosiveReward = isExplosiveReward;
+    }
+
+    public boolean isExplosiveReward() {
+        return isExplosiveReward;
     }
 }

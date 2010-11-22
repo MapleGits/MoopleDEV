@@ -158,7 +158,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                     int money = effect.getMoneyCon();
                     if (money != 0) {
                         int moneyMod = money / 2;
-                        money += Randomizer.getInstance().nextInt(moneyMod);
+                        money += Randomizer.nextInt(moneyMod);
                         if (money > player.getMeso()) {
                             money = player.getMeso();
                         }

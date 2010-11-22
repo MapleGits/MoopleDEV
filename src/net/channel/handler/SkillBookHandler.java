@@ -62,7 +62,7 @@ public final class SkillBookHandler extends AbstractMaplePacketHandler {
                 canuse = false;
             } else if (player.getMasterLevel(SkillFactory.getSkill(skilldata.get("skillid"))) >= skilldata.get("reqSkillLevel") || skilldata.get("reqSkillLevel") == 0) {
                 canuse = true;
-                if (Randomizer.getInstance().nextInt(101) < skilldata.get("success") && skilldata.get("success") != 0) {
+                if (Randomizer.nextInt(101) < skilldata.get("success") && skilldata.get("success") != 0) {
                     success = true;
                     ISkill skill2 = SkillFactory.getSkill(skilldata.get("skillid"));
                     player.changeSkillLevel(skill2, player.getSkillLevel(skill2), Math.max(skilldata.get("masterLevel"), player.getMasterLevel(skill2)), -1);

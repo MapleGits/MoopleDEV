@@ -144,7 +144,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 chr.getMap().broadcastMessage(MaplePacketCreator.addMatchCardBox(chr, 1, 0));
                 game.sendMatchCard(c, type);
             } else if (createType == 4 || createType == 5) { // shop
-                if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 23000, Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.HIRED_MERCHANT)).size() != 0) {
+                if (!chr.getMap().getMapObjectsInRange(chr.getPosition(), 23000, Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.HIRED_MERCHANT)).isEmpty()) {
                     return;
                 }
                 String desc = slea.readMapleAsciiString();

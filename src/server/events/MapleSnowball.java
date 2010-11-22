@@ -37,7 +37,7 @@ public class MapleSnowball {
     private int position = 0;
     private int hits = 25;
     private int snowmanhp = 7500;
-    private boolean hittable = true;
+    private boolean hittable = false;
     private int team;
     private boolean winner = false;
     List<MapleCharacter> characters = new LinkedList<MapleCharacter>();
@@ -53,12 +53,15 @@ public class MapleSnowball {
     }
 
     public void startEvent() {
+        if (hittable == true) return;
+
         for (MapleCharacter chr : characters) {
             if (chr != null) {
                 chr.broadcast(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
                 chr.broadcast(MaplePacketCreator.getClock(600));
             }
         }
+        hittable = true;
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
@@ -67,16 +70,14 @@ public class MapleSnowball {
                         if (chr != null)
                             chr.broadcast(MaplePacketCreator.rollSnowBall(false, 3, map.getSnowball(0), map.getSnowball(0)));
                     }
-                    setWinner(true);
+                    winner = true;
                 } else if (map.getSnowball(team == 0 ? 1 : 0).getPosition() > map.getSnowball(team).getPosition()) {
                     for (MapleCharacter chr : characters) {
                         if (chr != null)
                             chr.broadcast(MaplePacketCreator.rollSnowBall(false, 4, map.getSnowball(0), map.getSnowball(0)));
                     }
-                    setWinner(false);
-                } else { //Tie
-                    setWinner(false);
-                }
+                    winner = true;
+                } //Else
                 warpOut();
             }
         }, 600000);
@@ -101,10 +102,6 @@ public class MapleSnowball {
 
     public void setSnowmanHP(int hp) {
         this.snowmanhp = hp;
-    }
-
-    public void setWinner(boolean winner) {
-        this.winner = winner;
     }
 
     public void hit(int what, int damage) {

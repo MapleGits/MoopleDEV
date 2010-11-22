@@ -21,6 +21,8 @@
 */
 package tools.data.output;
 
+import java.awt.Point;
+
 /**
  * Provides an interface to a writer class that writes a little-endian sequence
  * of bytes.
@@ -92,4 +94,11 @@ public interface LittleEndianWriter {
      * @param s The ASCII string to use maple-convention to write.
      */
     void writeMapleAsciiString(String s);
+    
+    /**
+     * Writes a 2D 4 byte position information
+     *
+     * @param s The Point position to write.
+     */
+    void writePos(Point s);
 }

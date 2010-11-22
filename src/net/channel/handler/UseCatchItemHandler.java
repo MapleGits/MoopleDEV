@@ -61,7 +61,7 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                 int monsHp = c.getPlayer().getMap().getMonsterByOid(monsobid).getHp();
                 int monsMaxHp = c.getPlayer().getMap().getMonsterByOid(monsobid).getMaxHp();
                 if (c.getPlayer().getMap().getMonsterByOid(monsobid).getId() == 9300157 && monsHp < (monsMaxHp / 2)) {
-                    if (monsHp + (monsMaxHp / 3) - Randomizer.getInstance().nextInt(monsMaxHp) <= 0) {
+                    if (monsHp + (monsMaxHp / 3) - Randomizer.nextInt(monsMaxHp) <= 0) {
                         c.announce(MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
                         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.catchMonster(monsobid, itemid, (byte) 1));
                         c.announce(MaplePacketCreator.killMonster(monsobid, 0));

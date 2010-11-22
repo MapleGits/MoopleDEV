@@ -269,7 +269,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
         for (MaplePlayerShopItem pItems : items) {
-            IItem newItem = pItems.getItem().copy();
+            IItem newItem = pItems.getItem();
             newItem.setQuantity((short) (pItems.getBundles() * pItems.getItem().getQuantity()));
             if (pItems.getBundles() > 0)
                 itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));
@@ -277,7 +277,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }
 
-    private static final boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
+    private static boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
 	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 	for (MaplePlayerShopItem item : items) {
 	    final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getItem().getItemId());

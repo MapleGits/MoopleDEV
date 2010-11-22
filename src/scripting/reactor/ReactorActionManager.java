@@ -36,10 +36,10 @@ import server.MapleItemInformationProvider;
 import server.MaplePortal;
 import server.life.MapleLifeFactory;
 import server.life.MapleNPC;
-import server.life.MapleMonsterInformationProvider.DropEntry;
 import server.maps.MapleReactor;
 import tools.MaplePacketCreator;
 import server.maps.MapMonitor;
+import server.maps.ReactorDropEntry;
 
 /**
  * @author Lerk
@@ -63,33 +63,33 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
     }
 
     public void dropItems(boolean meso, int mesoChance, int minMeso, int maxMeso, int minItems) {
-        List<DropEntry> chances = getDropChances();
-        List<DropEntry> items = new LinkedList<DropEntry>();
+        List<ReactorDropEntry> chances = getDropChances();
+        List<ReactorDropEntry> items = new LinkedList<ReactorDropEntry>();
         int numItems = 0;
         if (meso && Math.random() < (1 / (double) mesoChance)) {
-            items.add(new DropEntry(0, mesoChance));
+            items.add(new ReactorDropEntry(0, mesoChance));
         }
-        Iterator<DropEntry> iter = chances.iterator();
+        Iterator<ReactorDropEntry> iter = chances.iterator();
         while (iter.hasNext()) {
-            DropEntry d = iter.next();
+            ReactorDropEntry d = iter.next();
             if (Math.random() < (1 / (double) d.chance)) {
                 numItems++;
                 items.add(d);
             }
         }
         while (items.size() < minItems) {
-            items.add(new DropEntry(0, mesoChance));
+            items.add(new ReactorDropEntry(0, mesoChance));
             numItems++;
         }
         java.util.Collections.shuffle(items);
         final Point dropPos = reactor.getPosition();
         dropPos.x -= (12 * numItems);
-        for (DropEntry d : items) {
+        for (ReactorDropEntry d : items) {
             if (d.itemId == 0) {
                 int range = maxMeso - minMeso;
                 int displayDrop = (int) (Math.random() * range) + minMeso;
                 int mesoDrop = (displayDrop * ServerConstants.MESO_RATE);
-                reactor.getMap().spawnMesoDrop(mesoDrop, displayDrop, dropPos, reactor, getPlayer(), meso);
+                reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, reactor, c.getPlayer(), false, (byte) 0);
             } else {
                 IItem drop;
                 MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
@@ -105,7 +105,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
         }
     }
 
-    private List<DropEntry> getDropChances() {
+    private List<ReactorDropEntry> getDropChances() {
         return ReactorScriptManager.getInstance().getDrops(reactor.getId());
     }
 

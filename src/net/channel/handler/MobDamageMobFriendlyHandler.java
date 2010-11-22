@@ -36,7 +36,7 @@ public final class MobDamageMobFriendlyHandler extends AbstractMaplePacketHandle
         int attacker = slea.readInt();
         slea.readInt(); //charId
         int damaged = slea.readInt();
-        int damage = Randomizer.getInstance().nextInt(((c.getPlayer().getMap().getMonsterByOid(damaged).getMaxHp() / 13 + c.getPlayer().getMap().getMonsterByOid(attacker).getPADamage() * 10)) * 2 + 500); //Beng's formula.
+        int damage = Randomizer.nextInt(((c.getPlayer().getMap().getMonsterByOid(damaged).getMaxHp() / 13 + c.getPlayer().getMap().getMonsterByOid(attacker).getPADamage() * 10)) * 2 + 500); //Beng's formula.
         if (c.getPlayer().getMap().getMonsterByOid(damaged) == null || c.getPlayer().getMap().getMonsterByOid(attacker) == null) {
             return;
         }

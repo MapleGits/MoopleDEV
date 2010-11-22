@@ -113,7 +113,7 @@ public class MapleQuestAction {
                 int selection = 0;
                 int extNum = 0;
                 if (props.size() > 0) {
-                    selection = props.get(Randomizer.getInstance().nextInt(props.size()));
+                    selection = props.get(Randomizer.nextInt(props.size()));
                 }
                 for (MapleData iEntry : data.getChildren()) {
                     if (!canGetItem(iEntry, c)) {

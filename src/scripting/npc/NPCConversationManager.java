@@ -306,7 +306,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void processGachapon(int[] id, boolean remote) {
         int[] gacMap = {100000000, 101000000, 102000000, 103000000, 105040300, 800000000, 809000101, 809000201, 600000000, 120000000};
-        int itemid = id[Randomizer.getInstance().nextInt(id.length)];
+        int itemid = id[Randomizer.nextInt(id.length)];
         addRandomItem(itemid);
         if (!remote) {
             gainItem(5220000, (short) -1);

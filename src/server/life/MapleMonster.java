@@ -46,7 +46,6 @@ import net.world.MaplePartyCharacter;
 import scripting.event.EventInstanceManager;
 import server.TimerManager;
 import server.life.MapleLifeFactory.BanishInfo;
-import server.life.MapleMonsterInformationProvider.DropEntry;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
@@ -103,32 +102,6 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         this.map = map;
     }
 
-    public int getDrop() {
-        MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
-        int lastAssigned = -1;
-        int minChance = 1;
-        List<DropEntry> dl = mi.retrieveDropChances(getId());
-        for (DropEntry d : dl) {
-            if (d.chance > minChance) {
-                minChance = d.chance;
-            }
-        }
-        for (DropEntry d : dl) {
-            d.assignedRangeStart = lastAssigned + 1;
-            d.assignedRangeLength = (int) Math.ceil(((double) 1 / (double) d.chance) * minChance);
-            lastAssigned += d.assignedRangeLength;
-        }
-        int c = Randomizer.getInstance().nextInt(minChance);
-        for (DropEntry d : dl) {
-            if (c >= d.assignedRangeStart && c < (d.assignedRangeStart + d.assignedRangeLength)) {
-                if (stolenItems.contains(d.itemId)) {
-                    return -1;
-                }
-                return d.itemId;
-            }
-        }
-        return -1;
-    }
     public int getHp() {
         return hp;
     }
@@ -184,6 +157,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         this.VenomMultiplier = multiplier;
     }
 
+    public MapleMonsterStats getStats() {
+        return stats;
+    }
+    
     public boolean isBoss() {
         return stats.isBoss() || isHT();
     }
@@ -517,7 +494,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 	    final MonsterStatusEffect oldEffect = stati.get(stat);
 	    if (oldEffect != null) {
 		oldEffect.removeActiveStatus(stat);
-		if (oldEffect.getStati().size() == 0) {
+		if (oldEffect.getStati().isEmpty()) {
 		    oldEffect.cancelTask();
 		    oldEffect.cancelDamageSchedule();
 		}
@@ -567,7 +544,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 }
                 int poisonDamage = 0;
                 for (int i = 0; i < getVenomMulti(); i++) {
-                    poisonDamage += (Randomizer.getInstance().nextInt(gap) + minDmg);
+                    poisonDamage += (Randomizer.nextInt(gap) + minDmg);
                 }
                 poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
                 status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));

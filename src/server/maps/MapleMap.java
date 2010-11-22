@@ -73,6 +73,9 @@ import server.events.MapleSnowball;
 import server.events.MonsterCarnival;
 import server.events.MonsterCarnivalParty;
 import server.life.MapleLifeFactory;
+import server.life.MapleMonsterInformationProvider;
+import server.life.MonsterDropEntry;
+import server.life.MonsterGlobalDropEntry;
 
 public class MapleMap {
 
@@ -306,165 +309,110 @@ public class MapleMap {
         return ret;
     }
 
-    protected final void dropFromMonster(MapleCharacter dropOwner, MapleMonster monster) {
-        if (monster.dropsDisabled() || dropRate < 1 || !dropsOn) {
-            return;
-        }
-        final boolean isBoss = monster.isBoss();
-        int maxDrops = isBoss ? 8 : 4;
-        if (monster.getId() > 9300183 && monster.getId() < 9300216) {
-            maxDrops = 1;
-        } else if (monster.getId() > 9300215 && monster.getId() < 9300271) {
-            maxDrops = 2;
-        } else if (isBoss && monster.getMaxHp() >= 1000000) {
-            maxDrops = 20;
-        }
-        List<Integer> toDrop = new ArrayList<Integer>();
-        for (int i = 0; i < maxDrops; i++) {
-            toDrop.add(monster.getDrop());
-        }
-        Set<Integer> alreadyDropped = new HashSet<Integer>();
-        int htpendants = 0;
-        int htstones = 0;
-        int mesos = 0;
-        for (int i = 0; i < toDrop.size(); i++) {
-            if (toDrop.get(i) == -1) {
-                if (alreadyDropped.contains(-1)) {
-                    if (!isBoss) {
-                        toDrop.remove(i);
-                        i--;
-                    } else if (mesos < 7) {
-                        mesos++;
-                    } else {
-                        toDrop.remove(i);
-                        i--;
-                    }
-                } else {
-                    alreadyDropped.add(-1);
-                }
-            } else if (alreadyDropped.contains(toDrop.get(i)) && !(monster.getId() > 8810000 && monster.getId() < 8810018) && monster.getId() != 8810018 && monster.getId() != 8810026) {
-                toDrop.remove(i);
-                i--;
-            } else {
-                if (toDrop.get(i) == 2041200) {// stone
-                    if (htstones > 2) {
-                        toDrop.remove(i);
-                        toDrop.add(monster.getDrop());
-                        i--;
-                        continue;
-                    } else {
-                        htstones++;
-                    }
-                } else if (toDrop.get(i) == 1122000) {// pendant
-                    if (htstones > 2) {
-                        toDrop.remove(i);
-                        toDrop.add(monster.getDrop());
-                        i--;
-                        continue;
-                    } else {
-                        htpendants++;
-                    }
-                }
-                alreadyDropped.add(toDrop.get(i));
-            }
-        }
-        if (toDrop.size() > maxDrops) {
-            toDrop = toDrop.subList(0, maxDrops);
-        }
-        if (mesos < 7 && isBoss) {
-            for (int i = mesos; i < 7; i++) {
-                toDrop.add(-1);
-            }
-        }
-        Point[] toPoint = new Point[toDrop.size()];
-        int shiftDirection = 0;
-        int shiftCount = 0;
-        int curX = Math.min(Math.max(monster.getPosition().x - 25 * (toDrop.size() / 2), footholds.getMinDropX() + 25), footholds.getMaxDropX() - toDrop.size() * 25);
-        int curY = Math.max(monster.getPosition().y, footholds.getY1());
-        while (shiftDirection < 3 && shiftCount < 1000) {
-            if (shiftDirection == 1) {
-                curX += 25;
-            } else if (shiftDirection == 2) {
-                curX -= 25;
-            }
-            for (int i = 0; i < toDrop.size(); i++) {
-                MapleFoothold wall = footholds.findWall(new Point(curX, curY), new Point(curX + toDrop.size() * 25, curY));
-                if (wall != null) {
-                    if (wall.getX1() < curX) {
-                        shiftDirection = 1;
-                        shiftCount++;
-                        break;
-                    } else if (wall.getX1() == curX) {
-                        if (shiftDirection == 0) {
-                            shiftDirection = 1;
-                        }
-                        shiftCount++;
-                        break;
-                    } else {
-                        shiftDirection = 2;
-                        shiftCount++;
-                        break;
-                    }
-                } else if (i == toDrop.size() - 1) {
-                    shiftDirection = 3;
-                }
-                final Point dropPos = calcDropPos(new Point(curX + i * 25, curY), new Point(monster.getPosition()));
-                toPoint[i] = new Point(curX + i * 25, curY);
-                final int drop = toDrop.get(i);
-                if (drop == -1) { // meso
-                    double mesoDecrease = Math.pow(0.98, monster.getExp() / 300.0);
-                    if (mesoDecrease > 1.0) {
-                        mesoDecrease = 1.0;
-                    }
-                    int tempmeso = Math.min(50000, (int) (mesoDecrease * (monster.getExp()) * (1.0 + new Random().nextInt(20)) / 10.0));
-                    if (dropOwner.getBuffedValue(MapleBuffStat.MESOUP) != null) {
-                        tempmeso = (int) (tempmeso * dropOwner.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
-                    }
-                    final int meso = tempmeso * dropOwner.getMesoRate();
-                    if (meso > 0 && !(mapid >= 925020000 && mapid <= 925030000 || mapid >= 970030000 && mapid <= 970042711 || mapid >= 980030000 && mapid <= 980033400)) {
-                        final MapleMonster dropMonster = monster;
-                        final MapleCharacter dropChar = dropOwner;
-                        TimerManager.getInstance().schedule(new Runnable() {
+    private void dropFromMonster(final MapleCharacter chr, final MapleMonster mob) {
+	if (mob.dropsDisabled() || !dropsOn) {
+	    return;
+	}
+	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
+	final int mobpos = mob.getPosition().x, chServerrate = ServerConstants.DROP_RATE;
+	IItem idrop;
+	byte d = 1;
+	Point pos = new Point(0, mob.getPosition().y);
 
-                            public void run() {
-                                spawnMesoDrop(meso, meso, dropPos, dropMonster, dropChar, isBoss);
-                            }
-                        }, monster.getAnimationTime("die1"));
-                    }
-                } else {
-                    IItem idrop;
-                    MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-                    if (ii.getInventoryType(drop).equals(MapleInventoryType.EQUIP)) {
-                        idrop = ii.randomizeStats((Equip) ii.getEquipById(drop));
-                    } else {
-                        idrop = new Item(drop, (byte) 0, (short) 1);
-                        if (ItemConstants.isArrowForBow(drop) || ItemConstants.isArrowForCrossBow(drop)) {
-                            idrop.setQuantity((short) (1 + Randomizer.getInstance().nextInt(101)));
-                        } else if (ItemConstants.isRechargable(drop)) {
-                            idrop.setQuantity((short) (1));
-                        }
-                    }
-                    final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, monster, dropOwner);
-                    final MapleMapObject dropMonster = monster;
-                    final MapleCharacter dropChar = dropOwner;
-                    final TimerManager tMan = TimerManager.getInstance();
-                    tMan.schedule(new Runnable() {
+	final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
+	final List<MonsterDropEntry> dropEntry = new ArrayList<MonsterDropEntry>(mi.retrieveDrop(mob.getId()));
 
-                        public void run() {
-                            spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+	Collections.shuffle(dropEntry);
 
-                                public void sendPackets(MapleClient c) {
-                                    c.announce(MaplePacketCreator.dropItemFromMapObject(drop, mdrop.getObjectId(), dropMonster.getObjectId(), isBoss ? 0 : dropChar.getId(), dropMonster.getPosition(), dropPos, (byte) 1));
-                                }
-                            });
-                            tMan.schedule(new ExpireMapItemJob(mdrop), dropLife);
-                        }
-                    }, monster.getAnimationTime("die1"));
-                }
-            }
-        }
+	for (final MonsterDropEntry de : dropEntry) {
+	    if (Randomizer.nextInt(999999) < de.chance * chServerrate) {
+		if (droptype == 3) {
+		    pos.x = (int) (mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2))));
+		} else {
+		    pos.x = (int) (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
+		}
+		if (de.itemId == 0) { // meso
+		    int mesos = Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum;
+
+		    if (mesos > 0) {
+			if (chr.getBuffedValue(MapleBuffStat.MESOUP) != null) {
+			    mesos = (int) (mesos * chr.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
+			}
+			spawnMesoDrop(mesos * ServerConstants.MESO_RATE, calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
+		    }
+		} else {
+		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
+			idrop = ii.randomizeStats((Equip) ii.getEquipById(de.itemId));
+		    } else {
+			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1), (byte) 0);
+		    }
+		    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
+		}
+		d++;
+	    }
+	}
+	final List<MonsterGlobalDropEntry> globalEntry = mi.getGlobalDrop();
+	// Global Drops
+	for (final MonsterGlobalDropEntry de : globalEntry) {
+	    if (Randomizer.nextInt(999999) < de.chance) {
+		if (droptype == 3) {
+		    pos.x = (int) (mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2))));
+		} else {
+		    pos.x = (int) (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
+		}
+		if (de.itemId == 0) {
+		    chr.getCashShop().gainCash(1, 80);
+		} else {
+		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
+			idrop = ii.randomizeStats((Equip) ii.getEquipById(de.itemId));
+		    } else {
+			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1), (byte) 0);
+		    }
+		    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
+		    d++;
+		}
+	    }
+	}
     }
 
+    private void spawnDrop(final IItem idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
+	final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
+
+	spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+
+	    @Override
+	    public void sendPackets(MapleClient c) {
+		if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
+		    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
+		}
+	    }
+	}, null);
+
+	TimerManager.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
+	activateItemReactors(mdrop, chr.getClient());
+    }
+
+    public final void spawnMesoDrop(final int meso, final Point position, final MapleMapObject dropper, final MapleCharacter owner, final boolean playerDrop, final byte droptype) {
+	final MapleMapItem mdrop = new MapleMapItem(meso, position, dropper, owner, droptype, playerDrop);
+
+	spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+
+	    @Override
+	    public void sendPackets(MapleClient c) {
+		c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
+	    }
+	}, null);
+
+	TimerManager.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
+    }
+
+    public final void disappearingItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, final Point pos) {
+	final Point droppos = calcDropPos(pos, pos);
+	final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner, (byte) 1, false);
+	broadcastMessage(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
+    }
+    
     public MapleMonster getMonsterById(int id) {
         synchronized (mapobjects) {
             for (MapleMapObject obj : mapobjects.values()) {
@@ -894,7 +842,7 @@ public class MapleMap {
                             public void run() {
                                 killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false, false, 4);
                             }
-                        }, 4500 + Randomizer.getInstance().nextInt(500));
+                        }, 4500 + Randomizer.nextInt(500));
                     }
                 }
             }, null);
@@ -917,7 +865,7 @@ public class MapleMap {
 
     public void spawnDojoMonster(final MapleMonster monster) {
         Point[] pts = {new Point(140, 0), new Point(190, 7), new Point(187, 7)};
-        spawnMonsterWithEffect(monster, 15, pts[Randomizer.getInstance().nextInt(3)]);
+        spawnMonsterWithEffect(monster, 15, pts[Randomizer.nextInt(3)]);
     }
 
     public void spawnMonsterWithEffect(final MapleMonster monster, final int effect, Point pos) {
@@ -1062,64 +1010,48 @@ public class MapleMap {
         }, duration);
     }
 
-    public void disappearingItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, Point pos) {
-        final Point droppos = calcDropPos(pos, pos);
-        final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner);
-        broadcastMessage(MaplePacketCreator.dropItemFromMapObject(item.getItemId(), drop.getObjectId(), 0, 0, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
+    public final void spawnItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean playerDrop) {
+	final Point droppos = calcDropPos(pos, pos);
+	final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner, (byte) 0, playerDrop);
+
+	spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
+
+	    @Override
+	    public void sendPackets(MapleClient c) {
+		c.getSession().write(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
+	    }
+	}, null);
+	broadcastMessage(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 0));
+
+	if (!everlast) {
+	    TimerManager.getInstance().schedule(new ExpireMapItemJob(drop), 180000);
+	    activateItemReactors(drop, owner.getClient());
+	}
     }
 
-    public void spawnItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean expire) {
-        final Point droppos = calcDropPos(pos, pos);
+    private void activateItemReactors(final MapleMapItem drop, final MapleClient c) {
+	final IItem item = drop.getItem();
 
-        final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner);
-        spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
+	for (final MapleMapObject o : getAllReactor()) {
+	    final MapleReactor react = (MapleReactor) o;
 
-            public void sendPackets(MapleClient c) {
-                c.announce(MaplePacketCreator.dropItemFromMapObject(item.getItemId(), drop.getObjectId(), 0, ffaDrop ? 0 : owner.getId(), dropper.getPosition(), droppos, (byte) 1));
-            }
-        });
-        broadcastMessage(MaplePacketCreator.dropItemFromMapObject(item.getItemId(), drop.getObjectId(), 0, ffaDrop ? 0 : owner.getId(), dropper.getPosition(), droppos, (byte) 0), drop.getPosition());
-        if (expire) {
-            TimerManager.getInstance().schedule(new ExpireMapItemJob(drop), dropLife);
-        }
-        activateItemReactors(drop);
+	    if (react.getReactorType() == 100) {
+		if (react.getReactItem().getLeft() == item.getItemId() && react.getReactItem().getRight() == item.getQuantity()) {
+
+		    if (react.getArea().contains(drop.getPosition())) {
+			if (!react.isTimerActive()) {
+			    TimerManager.getInstance().schedule(new ActivateItemReactor(drop, react, c), 5000);
+			    react.setTimerActive(true);
+			    break;
+			}
+		    }
+		}
+	    }
+	}
     }
 
-    private void activateItemReactors(MapleMapItem drop) {
-        IItem item = drop.getItem();
-        final TimerManager tMan = TimerManager.getInstance();
-        for (MapleMapObject o : mapobjects.values()) {
-            if (o.getType() == MapleMapObjectType.REACTOR) {
-                if (((MapleReactor) o).getReactorType() == 100) {
-                    if (((MapleReactor) o).getReactItem().getLeft() == item.getItemId() && ((MapleReactor) o).getReactItem().getRight() <= item.getQuantity()) {
-                        Rectangle area = ((MapleReactor) o).getArea();
-                        if (area.contains(drop.getPosition())) {
-                            MapleClient ownerClient = null;
-                            if (drop.getOwner() != null) {
-                                ownerClient = drop.getOwner().getClient();
-                            }
-                            MapleReactor reactor = (MapleReactor) o;
-                            if (!reactor.isTimerActive()) {
-                                tMan.schedule(new ActivateItemReactor(drop, reactor, ownerClient), 5000);
-                                reactor.setTimerActive(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void spawnMesoDrop(final int meso, final int displayMeso, Point position, final MapleMapObject dropper, final MapleCharacter owner, final boolean ffaLoot) {
-        final Point droppos = calcDropPos(position, position);
-        final MapleMapItem mdrop = new MapleMapItem(meso, displayMeso, droppos, dropper, owner);
-        spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
-
-            public void sendPackets(MapleClient c) {
-                c.announce(MaplePacketCreator.dropMesoFromMapObject(displayMeso, mdrop.getObjectId(), dropper.getObjectId(), ffaLoot ? 0 : owner.getId(), dropper.getPosition(), droppos, (byte) 1));
-            }
-        });
-        TimerManager.getInstance().schedule(new ExpireMapItemJob(mdrop), dropLife);
+    public final List<MapleMapObject> getAllReactor() {
+	return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.REACTOR));
     }
 
     public void startMapEffect(String msg, int itemId) {
@@ -1239,9 +1171,9 @@ public class MapleMap {
         if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));
         }
-        if (chr.getFitness() != null && chr.getFitness().isTimerStarted()) {
+        if (chr.getFitness() != null && chr.getFitness().isTimerStarted()) 
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getFitness().getTimeLeft() / 1000)));
-        }
+        
         if (chr.getOla() != null && chr.getOla().isTimerStarted()) 
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getOla().getTimeLeft() / 1000)));
 

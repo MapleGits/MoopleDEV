@@ -28,10 +28,10 @@ import tools.Randomizer;
 
 public class Equip extends Item implements IEquip {
     private byte upgradeSlots;
-    private byte level, flag;
+    private byte level, flag, itemLevel;
     private short str, dex, _int, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, vicious;
     private int ringid;
-    private int itemExp, itemLevel;
+    private int itemExp;
     private boolean wear = false;
 
     public Equip(int id, byte position) {
@@ -78,6 +78,8 @@ public class Equip extends Item implements IEquip {
         ret.vicious = vicious;
         ret.upgradeSlots = upgradeSlots;
         ret.level = level;
+        ret.itemExp = itemExp;
+        ret.itemLevel = itemLevel;
         ret.log = new LinkedList<String>(log);
         ret.setOwner(getOwner());
         ret.setQuantity(getQuantity());
@@ -249,14 +251,14 @@ public class Equip extends Item implements IEquip {
         this.level = level;
     }
 
-    public void gainLevel(MapleClient c, boolean timeless) {
+    public void gainLevel(MapleClient c, boolean timeless) { //GEY METHOD IS GEY
         if (level < 6) {
             if (c.getPlayer().getJob().isA(MapleJob.MAGICIAN)) {
-                this.matk += Randomizer.getInstance().nextInt(5);
-                this._int += Randomizer.getInstance().nextInt(1) + 1;
-                this.luk += Randomizer.getInstance().nextInt(1);
+                this.matk += Randomizer.nextInt(5);
+                this._int += Randomizer.nextInt(1) + 1;
+                this.luk += Randomizer.nextInt(1);
             } else {
-                this.watk += Randomizer.getInstance().nextInt(3);
+                this.watk += Randomizer.nextInt(3);
             }
         }
         this.level++;
@@ -282,7 +284,6 @@ public class Equip extends Item implements IEquip {
 
     public void setItemExp(int itemExp) {
         this.itemExp = itemExp;
-        this.itemLevel = Math.max((itemExp - 70) / 10, 0);
     }
 
     public int getItemLevel() {

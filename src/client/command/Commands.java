@@ -87,7 +87,6 @@ public class Commands {
         ChannelServer cserv = c.getChannelServer();
         if (sub[0].equals("ap")) {
             player.setRemainingAp(Integer.parseInt(sub[1]));
-            player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
         } else if (sub[0].equals("buffme")) {
             final int[] array = {9001000, 9101002, 9101003, 9101008, 2001002, 1101007, 1005, 2301003, 5121009, 1111002, 4111001, 4111002, 4211003, 4211005, 1321000, 2321004, 3121002};
             for (int i : array) {
@@ -118,6 +117,15 @@ public class Commands {
                     mc.setRates();
                 }
             }
+        } else if (sub[0].equals("test1")) {
+            player.test1 = Integer.parseInt(sub[1]);
+            } else if (sub[0].equals("test2")) {
+                player.test2 = Integer.parseInt(sub[1]);
+                } else if (sub[0].equals("test3")) {
+                    player.test3 = Integer.parseInt(sub[1]);
+                    } else if (sub[0].equals("test4")) {
+                        player.test4 = Integer.parseInt(sub[1]);
+
         } else if (sub[0].equals("fame")) {
             MapleCharacter victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
             victim.setFame(Integer.parseInt(sub[2]));

@@ -21,6 +21,7 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
@@ -32,7 +33,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
  */
 public final class MesoDropHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (!c.getPlayer().isAlive()) {
+        MapleCharacter chr = c.getPlayer();
+        if (!chr.isAlive()) {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
@@ -40,7 +42,7 @@ public final class MesoDropHandler extends AbstractMaplePacketHandler {
         int meso = slea.readInt();
         if (meso <= c.getPlayer().getMeso() && meso > 9 && meso < 50001) {
             c.getPlayer().gainMeso(-meso, false, true, false);
-            c.getPlayer().getMap().spawnMesoDrop(meso, meso, c.getPlayer().getPosition(), c.getPlayer(), c.getPlayer(), false);
+            c.getPlayer().getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
         }
     }
 }

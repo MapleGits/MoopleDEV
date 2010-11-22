@@ -133,7 +133,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                                 canWash = false;
                             }
                             if (canWash) {
-                                player.setMp(player.getMp() - Randomizer.getInstance().nextInt(4) - 10);
+                                player.setMp(player.getMp() - Randomizer.nextInt(4) - 10);
                             }
                             break;
                         default:
@@ -235,7 +235,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                         for (int i = 0; i < 5; i++) {
                             String message = slea.readMapleAsciiString();
                             if (megassenger) {
-                                builder.append(" " + message);
+                                builder.append(" ").append(message);
                             }
                             messages.add(message);
                         }
@@ -447,11 +447,11 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
         }
     }
 
-    private static final void remove(MapleClient c, int itemId) {
+    private static void remove(MapleClient c, int itemId) {
         MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, itemId, 1, true, false);
     }
 
-    private static final boolean getIncubatedItem(MapleClient c, int id) {
+    private static boolean getIncubatedItem(MapleClient c, int id) {
         final int[] ids = {1012070, 1302049, 1302063, 1322027, 2000004, 2000005, 2020013, 2020015, 2040307, 2040509, 2040519, 2040521, 2040533, 2040715, 2040717, 2040810, 2040811, 2070005, 2070006, 4020009,};
         final int[] quantitys = {1, 1, 1, 1, 240, 200, 200, 200, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3};
         int amount = 0;

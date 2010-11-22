@@ -21,6 +21,7 @@
 */
 package server;
 
+import client.MapleCharacter;
 import java.rmi.RemoteException;
 import net.channel.ChannelServer;
 
@@ -36,6 +37,9 @@ public class ShutdownServer implements Runnable {
 
     @Override
     public void run() {
+        for (ChannelServer cs : ChannelServer.getAllInstances()) {
+            for (MapleCharacter chr : cs.getPlayerStorage().getAllCharacters()) chr.getClient().disconnect();
+        }
         try {
             ChannelServer.getInstance(myChannel).shutdown();
         } catch (Exception t) {

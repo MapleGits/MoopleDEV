@@ -21,6 +21,8 @@
 */
 package constants;
 
+import client.MapleInventoryType;
+
 /**
  *
  * @author Jay Estrella
@@ -39,7 +41,7 @@ public final class ItemConstants {
 
     public final static boolean EXPIRING_ITEMS = true;
 
-    public static final int getFlagByInt(int type) {
+    public static int getFlagByInt(int type) {
         if (type == 128) {
             return PET_COME;
         } else if (type == 256) {
@@ -48,27 +50,35 @@ public final class ItemConstants {
         return 0;
     }
 
-    public static final boolean isThrowingStar(int itemId) {
+    public static boolean isThrowingStar(int itemId) {
         return itemId / 10000 == 207;
     }
 
-    public static final boolean isBullet(int itemId) {
+    public static boolean isBullet(int itemId) {
         return itemId / 10000 == 233;
     }
 
-    public static final boolean isRechargable(int itemId) {
+    public static boolean isRechargable(int itemId) {
         return itemId / 10000 == 233 || itemId / 10000 == 207;
     }
 
-    public static final boolean isArrowForCrossBow(int itemId) {
+    public static boolean isArrowForCrossBow(int itemId) {
         return itemId / 1000 == 2061;
     }
 
-    public static final boolean isArrowForBow(int itemId) {
+    public static boolean isArrowForBow(int itemId) {
         return itemId / 1000 == 2060;
     }
 
-    public static final boolean isPet(int itemId) {
+    public static boolean isPet(int itemId) {
         return itemId / 1000 == 5000;
+    }
+
+    public static MapleInventoryType getInventoryType(final int itemId) {
+	final byte type = (byte) (itemId / 1000000);
+	if (type < 1 || type > 5) {
+	    return MapleInventoryType.UNDEFINED;
+	}
+	return MapleInventoryType.getByType(type);
     }
 }

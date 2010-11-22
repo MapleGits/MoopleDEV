@@ -90,7 +90,7 @@ public class MapleQuestStatus {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public final void setStatus(Status status) {
         this.status = status;
     }
 
@@ -98,7 +98,7 @@ public class MapleQuestStatus {
         return npc;
     }
 
-    public void setNpc(int npc) {
+    public final void setNpc(int npc) {
         this.npc = npc;
     }
 

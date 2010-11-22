@@ -21,6 +21,7 @@
 */
 package tools.data.output;
 
+import java.awt.Point;
 import java.nio.charset.Charset;
 
 /**
@@ -167,5 +168,16 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
         bos.writeByte((byte) ((l >>> 40) & 0xFF));
         bos.writeByte((byte) ((l >>> 48) & 0xFF));
         bos.writeByte((byte) ((l >>> 56) & 0xFF));
+    }
+
+    /**
+     * Writes a 2D 4 byte position information
+     *
+     * @param s The Point position to write.
+     */
+    @Override
+    public void writePos(Point s) {
+	writeShort(s.x);
+	writeShort(s.y);
     }
 }

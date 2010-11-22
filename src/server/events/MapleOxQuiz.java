@@ -44,7 +44,7 @@ public final class MapleOxQuiz {
 
     public MapleOxQuiz(MapleMap map) {
         this.map = map;
-        this.round = Randomizer.getInstance().nextInt(9);
+        this.round = Randomizer.nextInt(9);
         this.question = 1;
     }
 
@@ -101,7 +101,7 @@ public final class MapleOxQuiz {
         }, 30000); // Time to answer = 30 seconds ( Ox Quiz packet shows a 30 second timer.
     }
 
-    private static final int getOXAnswer(int imgdir, int id) {
+    private static int getOXAnswer(int imgdir, int id) {
         return MapleDataTool.getInt(stringData.getData("OXQuiz.img").getChildByPath("" + imgdir + "").getChildByPath("" + id + "").getChildByPath("a"));
     }
 }

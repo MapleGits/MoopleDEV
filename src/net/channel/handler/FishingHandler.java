@@ -40,7 +40,7 @@ public final class FishingHandler extends AbstractMaplePacketHandler {
             return;
         }
         for (MapleFish fish : MapleItemInformationProvider.getInstance().getFishReward(itemId)) {
-            if (fish.getProb() >= Randomizer.getInstance().nextInt(9) + 1) { // out of 10 for now.
+            if (fish.getProb() >= Randomizer.nextInt(9) + 1) { // out of 10 for now.
                 MapleInventoryManipulator.addById(c, fish.getItemId(), (short) fish.getCount());
             }
         }

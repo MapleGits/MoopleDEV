@@ -31,15 +31,15 @@ import javax.script.Invocable;
 import client.MapleClient;
 import tools.DatabaseConnection;
 import scripting.AbstractScriptManager;
-import server.life.MapleMonsterInformationProvider.DropEntry;
 import server.maps.MapleReactor;
+import server.maps.ReactorDropEntry;
 
 /**
  * @author Lerk
  */
 public class ReactorScriptManager extends AbstractScriptManager {
     private static ReactorScriptManager instance = new ReactorScriptManager();
-    private Map<Integer, List<DropEntry>> drops = new HashMap<Integer, List<DropEntry>>();
+    private Map<Integer, List<ReactorDropEntry>> drops = new HashMap<Integer, List<ReactorDropEntry>>();
 
     public synchronized static ReactorScriptManager getInstance() {
         return instance;
@@ -61,16 +61,16 @@ public class ReactorScriptManager extends AbstractScriptManager {
         }
     }
 
-    public List<DropEntry> getDrops(int rid) {
-        List<DropEntry> ret = drops.get(rid);
+    public List<ReactorDropEntry> getDrops(int rid) {
+        List<ReactorDropEntry> ret = drops.get(rid);
         if (ret == null) {
-            ret = new LinkedList<DropEntry>();
+            ret = new LinkedList<ReactorDropEntry>();
             try {
                 PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT itemid, chance FROM reactordrops WHERE reactorid = ? AND chance >= 0");
                 ps.setInt(1, rid);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    ret.add(new DropEntry(rs.getInt("itemid"), rs.getInt("chance")));
+                    ret.add(new ReactorDropEntry(rs.getInt("itemid"), rs.getInt("chance")));
                 }
                 rs.close();
                 ps.close();

@@ -53,7 +53,7 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
         slea.readShort();
         int itemId = slea.readInt();
         boolean gainCloseness = false;
-        if (Randomizer.getInstance().nextInt(101) > 50) {
+        if (Randomizer.nextInt(101) > 50) {
             gainCloseness = true;
         }
         if (pet.getFullness() < 100) {

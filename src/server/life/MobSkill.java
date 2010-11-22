@@ -220,7 +220,7 @@ public class MobSkill {
                                 ypos = -590;
                                 break;
                             case 8500004: // Pap bomb
-                                xpos = (int) (monster.getPosition().getX() + Randomizer.getInstance().nextInt(1000) - 500);
+                                xpos = (int) (monster.getPosition().getX() + Randomizer.nextInt(1000) - 500);
                                 if (ypos != -590) {
                                     ypos = (int) monster.getPosition().getY();
                                 }
@@ -228,9 +228,9 @@ public class MobSkill {
                             case 8510100: //Pianus bomb
                                 if (Math.ceil(Math.random() * 5) == 1) {
                                     ypos = 78;
-                                    xpos = (int) Randomizer.getInstance().nextInt(5) + (Randomizer.getInstance().nextInt(2) == 1 ? 180 : 0);
+                                    xpos = (int) Randomizer.nextInt(5) + (Randomizer.nextInt(2) == 1 ? 180 : 0);
                                 } else {
-                                    xpos = (int) (monster.getPosition().getX() + Randomizer.getInstance().nextInt(1000) - 500);
+                                    xpos = (int) (monster.getPosition().getX() + Randomizer.nextInt(1000) - 500);
                                 }
                                 break;
                         }
