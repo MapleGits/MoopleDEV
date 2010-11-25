@@ -30,6 +30,7 @@ import client.MapleJob;
 import client.MapleQuestStatus;
 import client.MapleStat;
 import client.SkillFactory;
+import constants.ItemConstants;
 import constants.ServerConstants;
 import provider.MapleData;
 import provider.MapleDataTool;
@@ -153,7 +154,6 @@ public class MapleQuestAction {
                     break;
                 }
                 c.getClient().getSession().write(MaplePacketCreator.updateQuestFinish((short) quest.getId(), status.getNpc(), (short) nextQuest));
-                MapleQuest.getInstance(nextQuest).start(c, status.getNpc());
                 break;
             case MESO:
                 status = c.getQuest(quest);
@@ -217,7 +217,7 @@ public class MapleQuestAction {
                     break;
                 }
                 int flag = MapleDataTool.getInt("petskill", data);
-                //c.getPetIndex(0).setFlag((byte) (c.getPet(0).getFlag() || InventoryConstants.getFlagByInt(flag)));
+                c.getPet(0).setFlag((byte) ItemConstants.getFlagByInt(flag));
                 break;
             default:
         }

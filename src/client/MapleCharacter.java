@@ -275,7 +275,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
     private int pendantExp = 0; //Actually should just be equipExp
-    public int test1 = 0, test2 = 0, test3 = 0, test4 = 0;
 
     private MapleCharacter() {
         setStance(0);
@@ -1231,6 +1230,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 client.getChannelServer().reconnectWorld();
             }
         }
+    }
+
+    public ScheduledFuture<?> getExpirationTask() {
+        return expiretask;
     }
 
     public void expirationTask() {

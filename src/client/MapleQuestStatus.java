@@ -67,9 +67,8 @@ public class MapleQuestStatus {
         this.quest = quest;
         this.setStatus(status);
         this.completionTime = System.currentTimeMillis();
-        if (status == Status.STARTED) {
-            registerMobs();
-        }
+        if (status == Status.STARTED) 
+            registerMobs();      
     }
 
     public MapleQuestStatus(MapleQuest quest, Status status, int npc) {

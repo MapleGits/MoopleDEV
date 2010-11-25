@@ -614,6 +614,7 @@ public class MapleClient {
                 player.setHp(50, true);
             }
             player.setMessenger(null);
+            player.getExpirationTask().cancel(true);
             player.saveToDB(true);
             player.getMap().removePlayer(player);
             try {

@@ -2503,9 +2503,8 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(1);
         mplew.writeShort(quest);
-        mplew.write(HexTool.getByteArrayFromHexString("02 A0 67 B9 DA 69 3A C8 01"));
-        mplew.writeInt(0);
-        mplew.writeInt(0);
+        mplew.write(2);
+        mplew.writeLong(System.currentTimeMillis());
         return mplew.getPacket();
     }
 
@@ -4875,7 +4874,11 @@ public class MaplePacketCreator {
             }
         }
         mplew.write(-1);
-        mplew.writeShort(0); //Messages
+        mplew.writeShort(hm.isOwner(chr) ? hm.getMessages().size() : 0);
+        if (hm.isOwner(chr)) {
+            for (int i = 0; i < hm.getMessages().size(); i++)
+                mplew.writeMapleAsciiString(hm.getMessages().get(i));
+        }
         mplew.writeMapleAsciiString(hm.getOwner());
         if (hm.isOwner(chr)) {
             mplew.writeInt(hm.getTimeLeft());
@@ -5546,11 +5549,11 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket removeNPC(int objid) {
+    public static MaplePacket removeNPC(int oid) { //Make npc's invisible
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
         mplew.write(0);
-        mplew.writeInt(objid);
+        mplew.writeInt(oid);
         return mplew.getPacket();
     }
 
@@ -5679,7 +5682,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateQuestFinish(short quest, int npc, short nextquest) {
+    public static MaplePacket updateQuestFinish(short quest, int npc, short nextquest) { //Check
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_QUEST_INFO.getValue());
         mplew.write(8);

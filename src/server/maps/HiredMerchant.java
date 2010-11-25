@@ -56,6 +56,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     private String description = "";
     private MapleCharacter[] visitors = new MapleCharacter[3];
     private List<MaplePlayerShopItem> items = new LinkedList<MaplePlayerShopItem>();
+    private List<String> messages = new LinkedList<String>();
     private boolean open;
     public ScheduledFuture<?> schedule = null;
     private MapleMap map;
@@ -309,6 +310,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
     public int getTimeLeft() {
 	return (int) ((System.currentTimeMillis() - start) / 1000);
+    }
+
+    public List<String> getMessages() {
+        return messages;
     }
     
     @Override

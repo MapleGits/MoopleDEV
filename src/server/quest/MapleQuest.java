@@ -54,7 +54,7 @@ public class MapleQuest {
     private boolean autoStart;
     private boolean autoPreComplete;
     private boolean repeatable = false;
-    private static MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Quest.wz"));
+    private final static MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Quest.wz"));
     private static MapleData actions = questData.getData("Act.img");
     private static MapleData requirements = questData.getData("Check.img");
     private static MapleData info = questData.getData("QuestInfo.img");
@@ -122,7 +122,7 @@ public class MapleQuest {
         return ret;
     }
 
-    private boolean canStart(MapleCharacter c, Integer npcid) { //FIX f5
+    private boolean canStart(MapleCharacter c, int npcid) {
         if (c.getQuest(this).getStatus() != Status.NOT_STARTED && !(c.getQuest(this).getStatus() == Status.COMPLETED && repeatable)) {
             return false;
         }
@@ -134,7 +134,7 @@ public class MapleQuest {
         return true;
     }
 
-    public boolean canComplete(MapleCharacter c, Integer npcid) { //FIX TOO
+    public boolean canComplete(MapleCharacter c, Integer npcid) {
         if (!c.getQuest(this).getStatus().equals(Status.STARTED)) {
             return false;
         }
@@ -147,7 +147,7 @@ public class MapleQuest {
     }
 
     public void start(MapleCharacter c, int npc) {
-        if ((autoStart || checkNPCOnMap(c, npc))) { // && canStart(c, npc)
+        if ((autoStart || checkNPCOnMap(c, npc)) && canStart(c, npc)) {//
             for (MapleQuestAction a : startActs) {
                 a.run(c, null);
             }
@@ -169,10 +169,10 @@ public class MapleQuest {
                     return;
                 }
             } */
+            forceComplete(c, npc);
             for (MapleQuestAction a : completeActs) {
                 a.run(c, selection);
             }
-            forceComplete(c, npc);
         }
     }
 

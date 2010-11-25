@@ -236,8 +236,9 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     game.chat(c, slea.readMapleAsciiString());
                 }
             } else if (merchant != null) {
-                String message = slea.readMapleAsciiString();
-                merchant.broadcastToVisitors(MaplePacketCreator.hiredMerchantChat(chr.getName() + " : " + message, merchant.getVisitorSlot(c.getPlayer()) + 1));
+                String message = chr.getName() + " : " + slea.readMapleAsciiString();
+                merchant.getMessages().add(message);
+                merchant.broadcastToVisitors(MaplePacketCreator.hiredMerchantChat(message, merchant.getVisitorSlot(c.getPlayer()) + 1));
             }
         } else if (mode == Action.EXIT.getCode()) {
             if (chr.getTrade() != null) {
@@ -493,6 +494,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 chr.setHasMerchant(false);
             }
             if (merchant != null && merchant.isOwner(c.getPlayer())) {
+                merchant.getMessages().clear();
                 merchant.setOpen(true);
             }
             c.announce(MaplePacketCreator.enableActions());

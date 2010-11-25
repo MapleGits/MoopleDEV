@@ -35,41 +35,37 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class QuestActionHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte action = slea.readByte();
-        short quest = slea.readShort();
+        short questid = slea.readShort();
         //System.out.println("Quest Run: " + slea);
         MapleCharacter player = c.getPlayer();
+        MapleQuest quest = MapleQuest.getInstance(questid);
         if (action == 1) { //Start Quest
-            //6B 00 01 E0 50 CA CC 10 00 00 00
             int npc = slea.readInt();
             if (slea.available() >= 4) {
                 slea.readInt();
             }
-            MapleQuest.getInstance(quest).start(player, npc);
+            quest.start(player, npc);
         } else if (action == 2) { // Complete Quest
             int npc = slea.readInt();
             slea.readInt();
             if (slea.available() >= 2) {
                 int selection = slea.readShort();
-                MapleQuest.getInstance(quest).complete(player, npc, selection);
+                quest.complete(player, npc, selection);
             } else {
-                MapleQuest.getInstance(quest).complete(player, npc);
+                quest.complete(player, npc);
             }
         } else if (action == 3) {// forfeit quest
-            MapleQuest.getInstance(quest).forfeit(player);
+            quest.forfeit(player);
         } else if (action == 4) { // scripted start quest
             //System.out.println(slea.toString());
             int npc = slea.readInt();
             slea.readInt();
-            if (quest == 21001) {
-            QuestScriptManager.getInstance().start(c, 1209006, quest);
-            } else {
-            QuestScriptManager.getInstance().start(c, npc, quest);
-            }
+            QuestScriptManager.getInstance().start(c, npc, questid);            
         } else if (action == 5) { // scripted end quests
             //System.out.println(slea.toString());
             int npc = slea.readInt();
             slea.readInt();
-            QuestScriptManager.getInstance().end(c, npc, quest);
+            QuestScriptManager.getInstance().end(c, npc, questid);
         }
     }
 }

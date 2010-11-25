@@ -117,15 +117,6 @@ public class Commands {
                     mc.setRates();
                 }
             }
-        } else if (sub[0].equals("test1")) {
-            player.test1 = Integer.parseInt(sub[1]);
-            } else if (sub[0].equals("test2")) {
-                player.test2 = Integer.parseInt(sub[1]);
-                } else if (sub[0].equals("test3")) {
-                    player.test3 = Integer.parseInt(sub[1]);
-                    } else if (sub[0].equals("test4")) {
-                        player.test4 = Integer.parseInt(sub[1]);
-
         } else if (sub[0].equals("fame")) {
             MapleCharacter victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
             victim.setFame(Integer.parseInt(sub[2]));

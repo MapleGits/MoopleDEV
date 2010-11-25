@@ -24,7 +24,6 @@ package scripting.portal;
 import client.MapleClient;
 import scripting.AbstractPlayerInteraction;
 import server.MaplePortal;
-import tools.MaplePacketCreator;
 
 public class PortalPlayerInteraction extends AbstractPlayerInteraction {
     private MaplePortal portal;

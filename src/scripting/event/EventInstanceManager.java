@@ -122,7 +122,7 @@ public class EventInstanceManager {
     public void unregisterMonster(MapleMonster mob) {
         mobs.remove(mob);
         mob.setEventInstance(null);
-        if (mobs.size() == 0) {
+        if (mobs.isEmpty()) {
             try {
                 em.getIv().invokeFunction("allMonstersDead", this);
             } catch (Exception ex) {
