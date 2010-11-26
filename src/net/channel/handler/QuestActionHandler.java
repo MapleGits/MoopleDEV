@@ -23,6 +23,7 @@ package net.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleQuestStatus;
 import net.AbstractMaplePacketHandler;
 import scripting.quest.QuestScriptManager;
 import server.quest.MapleQuest;
@@ -60,12 +61,12 @@ public final class QuestActionHandler extends AbstractMaplePacketHandler {
             //System.out.println(slea.toString());
             int npc = slea.readInt();
             slea.readInt();
-            QuestScriptManager.getInstance().start(c, npc, questid);            
+            QuestScriptManager.getInstance().start(c, questid, npc);
         } else if (action == 5) { // scripted end quests
             //System.out.println(slea.toString());
             int npc = slea.readInt();
             slea.readInt();
-            QuestScriptManager.getInstance().end(c, npc, questid);
+            QuestScriptManager.getInstance().end(c, questid, npc);
         }
     }
 }

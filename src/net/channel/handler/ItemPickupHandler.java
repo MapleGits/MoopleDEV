@@ -72,6 +72,11 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
             if (ob instanceof MapleMapItem) {
                 MapleMapItem mapitem = (MapleMapItem) ob;
                 synchronized (mapitem) {
+                    if (!chr.needQuestItem(mapitem.getQuest(), mapitem.getItemId())) {
+                        c.announce(MaplePacketCreator.enableActions());
+                        c.announce(MaplePacketCreator.showItemUnavailable());
+                        return;
+                    }
                     if (mapitem.isPickedUp()) {
                         c.announce(MaplePacketCreator.getInventoryFull());
                         c.announce(MaplePacketCreator.getShowInventoryFull());
@@ -141,7 +146,7 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
         c.announce(MaplePacketCreator.enableActions());
     }
 
-    static final boolean useItem(final MapleClient c, final int id) {
+    static boolean useItem(final MapleClient c, final int id) {
         if (id / 1000000 == 2) {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             if (ii.isConsumeOnPickup(id)) {

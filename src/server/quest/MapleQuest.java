@@ -30,9 +30,6 @@ import java.util.Map;
 import client.MapleCharacter;
 import client.MapleQuestStatus;
 import client.MapleQuestStatus.Status;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -216,14 +213,21 @@ public class MapleQuest {
         return player.getMap().containsNPC(npcid);
     }
 
-    public List<Integer> getQuestItemsToShowOnlyIfQuestIsActivated() {
-            Set<Integer> delta = new HashSet<Integer>();
-            for(MapleQuestRequirement mqr : this.completeReqs) {
-		if(mqr.getType() != MapleQuestRequirementType.ITEM) continue;
-                    delta.addAll(mqr.getQuestItemsToShowOnlyIfQuestIsActivated());
+    public int getItemAmountNeeded(int itemid) {
+        MapleData data = requirements.getChildByPath(String.valueOf(id)).getChildByPath("1");
+        if (data != null) {
+            for (MapleData req : data.getChildren()) {
+                MapleQuestRequirementType type = MapleQuestRequirementType.getByWZName(req.getName());
+                if (!type.equals(MapleQuestRequirementType.ITEM)) continue;
+
+                for (MapleData d : req.getChildren()) {
+                    for (MapleData s : d.getChildren()) {
+                        if (MapleDataTool.getInt(s.getChildByPath("id"), 0) == itemid)
+                            return MapleDataTool.getInt(s.getChildByPath("count"), 0);
+                    }
+                }
             }
-            List<Integer> returnThis = new ArrayList<Integer>();
-            returnThis.addAll(delta);
-	return Collections.unmodifiableList(returnThis);
+        }
+        return 0;
     }
 }

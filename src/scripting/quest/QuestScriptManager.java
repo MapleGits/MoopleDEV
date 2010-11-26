@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.script.Invocable;
 import client.MapleClient;
+import client.MapleQuestStatus;
 import scripting.AbstractScriptManager;
+import server.quest.MapleQuest;
 
 /**
  *
@@ -40,14 +42,19 @@ public class QuestScriptManager extends AbstractScriptManager {
         return instance;
     }
 
-    public void start(MapleClient c, int npc, int quest) {
+    public void start(MapleClient c, int questid, int npc) {
+        MapleQuest quest = MapleQuest.getInstance(questid);
+        if (!c.getPlayer().getQuest(quest).getStatus().equals(MapleQuestStatus.Status.NOT_STARTED) || !c.getPlayer().getMap().containsNPC(npc)) {
+            dispose(c);
+            return;
+        }
         try {
-            QuestActionManager qm = new QuestActionManager(c, npc, quest, true);
+            QuestActionManager qm = new QuestActionManager(c, questid, npc, true);
             if (qms.containsKey(c)) {
                 return;
             }
             qms.put(c, qm);
-            Invocable iv = getInvocable("quest/" + quest + ".js", c);
+            Invocable iv = getInvocable("quest/" + questid + ".js", c);
             if (iv == null) {
                 qm.dispose();
                 return;
@@ -74,14 +81,19 @@ public class QuestScriptManager extends AbstractScriptManager {
         }
     }
 
-    public void end(MapleClient c, int npc, int quest) {
+    public void end(MapleClient c, int questid, int npc) {
+        MapleQuest quest = MapleQuest.getInstance(questid);
+        if (!c.getPlayer().getQuest(quest).getStatus().equals(MapleQuestStatus.Status.STARTED) || !c.getPlayer().getMap().containsNPC(npc)) {
+            dispose(c);
+            return;
+        }
         try {
-            QuestActionManager qm = new QuestActionManager(c, npc, quest, false);
+            QuestActionManager qm = new QuestActionManager(c, questid, npc, false);
             if (qms.containsKey(c)) {
                 return;
             }
             qms.put(c, qm);
-            Invocable iv = getInvocable("quest/" + quest + ".js", c);
+            Invocable iv = getInvocable("quest/" + questid + ".js", c);
             if (iv == null) {
                 qm.dispose();
                 return;

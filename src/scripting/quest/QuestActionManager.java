@@ -33,7 +33,7 @@ public class QuestActionManager extends NPCConversationManager {
     private boolean start; // this is if the script in question is start or end
     private int quest;
 
-    public QuestActionManager(MapleClient c, int npc, int quest, boolean start) {
+    public QuestActionManager(MapleClient c, int quest, int npc, boolean start) {
         super(c, npc);
         this.quest = quest;
         this.start = start;

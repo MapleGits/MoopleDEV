@@ -378,12 +378,12 @@ public class MapleMap {
 
     private void spawnDrop(final IItem idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
 	final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
-
 	spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 	    @Override
 	    public void sendPackets(MapleClient c) {
 		if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
+                    if (!c.getPlayer().needQuestItem(questid, idrop.getItemId()))
 		    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
 		}
 	    }
