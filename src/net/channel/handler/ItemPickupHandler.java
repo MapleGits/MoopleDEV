@@ -73,8 +73,8 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                 MapleMapItem mapitem = (MapleMapItem) ob;
                 synchronized (mapitem) {
                     if (!chr.needQuestItem(mapitem.getQuest(), mapitem.getItemId())) {
-                        c.announce(MaplePacketCreator.enableActions());
                         c.announce(MaplePacketCreator.showItemUnavailable());
+                        c.announce(MaplePacketCreator.enableActions());
                         return;
                     }
                     if (mapitem.isPickedUp()) {

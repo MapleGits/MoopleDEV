@@ -1964,7 +1964,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public boolean needQuestItem(int questid, int itemid) {
         MapleQuest quest = MapleQuest.getInstance(questid);
-        return quest.getItemAmountNeeded(itemid) >= getInventory(ItemConstants.getInventoryType(itemid)).countById(itemid);
+        return quest.getItemAmountNeeded(itemid) > getInventory(ItemConstants.getInventoryType(itemid)).countById(itemid);
     }
     public int getRank() {
         return rank;
@@ -2695,9 +2695,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void mobKilled(int id) {
         for (MapleQuestStatus q : quests.values()) {
-            if (q.getStatus() == MapleQuestStatus.Status.COMPLETED || q.getQuest().canComplete(this, null)) {
-                continue;
-            }
+            if (q.getStatus() == MapleQuestStatus.Status.COMPLETED || q.getQuest().canComplete(this, null)) continue;
+            if (q.getMobKills(id) > q.getQuest().getMobAmountNeeded(id)) continue;
             if (q.mobKilled(id)) {
                 client.announce(MaplePacketCreator.updateQuestMobKills(q));
                 if (q.getQuest().canComplete(this, null)) {

@@ -382,8 +382,7 @@ public class MapleMap {
 
 	    @Override
 	    public void sendPackets(MapleClient c) {
-		if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
-                    if (!c.getPlayer().needQuestItem(questid, idrop.getItemId()))
+		if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId()))) {
 		    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
 		}
 	    }

@@ -166,7 +166,7 @@ public class MapleQuestStatus {
     }
 
     public String getQuestData() {
-        if (killedMobs.size() == 0) {
+        if (killedMobs.isEmpty()) {
             return "";
         }
         StringBuilder str = new StringBuilder();

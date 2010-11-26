@@ -51,6 +51,11 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
         if (ob instanceof MapleMapItem) {
             MapleMapItem mapitem = (MapleMapItem) ob;
             synchronized (mapitem) {
+                if (!c.getPlayer().needQuestItem(mapitem.getQuest(), mapitem.getItemId())) {
+                    c.announce(MaplePacketCreator.showItemUnavailable());
+                    c.announce(MaplePacketCreator.enableActions());
+                    return;
+                }
                 if (mapitem.isPickedUp()) {
                     c.announce(MaplePacketCreator.getInventoryFull());
                     return;

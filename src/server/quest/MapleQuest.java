@@ -206,7 +206,7 @@ public class MapleQuest {
     }
 
     public List<Integer> getRelevantMobs() {
-        return Collections.unmodifiableList(relevantMobs);
+        return relevantMobs;
     }
 
     private boolean checkNPCOnMap(MapleCharacter player, int npcid) {
@@ -221,10 +221,24 @@ public class MapleQuest {
                 if (!type.equals(MapleQuestRequirementType.ITEM)) continue;
 
                 for (MapleData d : req.getChildren()) {
-                    for (MapleData s : d.getChildren()) {
-                        if (MapleDataTool.getInt(s.getChildByPath("id"), 0) == itemid)
-                            return MapleDataTool.getInt(s.getChildByPath("count"), 0);
-                    }
+                        if (MapleDataTool.getInt(d.getChildByPath("id"), 0) == itemid)
+                            return MapleDataTool.getInt(d.getChildByPath("count"), 0);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int getMobAmountNeeded(int mid) {
+        MapleData data = requirements.getChildByPath(String.valueOf(id)).getChildByPath("1");
+        if (data != null) {
+            for (MapleData req : data.getChildren()) {
+                MapleQuestRequirementType type = MapleQuestRequirementType.getByWZName(req.getName());
+                if (!type.equals(MapleQuestRequirementType.MOB)) continue;
+
+                for (MapleData d : req.getChildren()) {
+                        if (MapleDataTool.getInt(d.getChildByPath("id"), 0) == mid)
+                            return MapleDataTool.getInt(d.getChildByPath("count"), 0);
                 }
             }
         }
