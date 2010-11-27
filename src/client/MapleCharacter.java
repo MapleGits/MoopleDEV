@@ -1963,9 +1963,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public boolean needQuestItem(int questid, int itemid) {
+        if (questid <= 0) return true; //For non quest items :3
         MapleQuest quest = MapleQuest.getInstance(questid);
         return quest.getItemAmountNeeded(itemid) > getInventory(ItemConstants.getInventoryType(itemid)).countById(itemid);
     }
+
     public int getRank() {
         return rank;
     }
