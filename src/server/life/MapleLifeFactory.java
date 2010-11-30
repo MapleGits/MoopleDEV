@@ -37,7 +37,7 @@ import tools.StringUtil;
 
 public class MapleLifeFactory {
     private static MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Mob.wz"));
-    private static MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz"));
+    private final static MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz"));
     private static MapleData mobStringData = stringDataWZ.getData("Mob.img");
     private static MapleData npcStringData = stringDataWZ.getData("Npc.img");
     private static Map<Integer, MapleMonsterStats> monsterStats = new HashMap<Integer, MapleMonsterStats>();
@@ -66,7 +66,7 @@ public class MapleLifeFactory {
             stats.setMp(MapleDataTool.getIntConvert("maxMP", monsterInfoData, 0));
             stats.setExp(MapleDataTool.getIntConvert("exp", monsterInfoData, 0));
             stats.setLevel(MapleDataTool.getIntConvert("level", monsterInfoData));
-            stats.setRemoveAfter(MapleDataTool.getIntConvert("removeAfter", monsterInfoData, 0));
+            stats.setRemoveAfter(MapleDataTool.getIntConvert("removeAfter", monsterInfoData, 0) > 0);
             stats.setBoss(MapleDataTool.getIntConvert("boss", monsterInfoData, 0) > 0);
             stats.setExplosiveReward(MapleDataTool.getIntConvert("explosiveReward", monsterInfoData, 0) > 0);
             stats.setFfaLoot(MapleDataTool.getIntConvert("publicReward", monsterInfoData, 0) > 0);
@@ -74,6 +74,12 @@ public class MapleLifeFactory {
             stats.setName(MapleDataTool.getString(mid + "/name", mobStringData, "MISSINGNO"));
             stats.setBuffToGive(MapleDataTool.getIntConvert("buff", monsterInfoData, -1));
             stats.setCP(MapleDataTool.getIntConvert("getCP", monsterInfoData, 0));
+            MapleData loseItemData = monsterInfoData.getChildByPath("loseItem");
+            if (loseItemData != null) {
+                for (MapleData liData : loseItemData.getChildren()) {
+                    stats.setLoseItem(new loseItem(MapleDataTool.getInt(liData.getChildByPath("id")), (byte) MapleDataTool.getInt(liData.getChildByPath("prop")), (byte) MapleDataTool.getInt(liData.getChildByPath("x"))));
+                }
+            }
             MapleData firstAttackData = monsterInfoData.getChildByPath("firstAttack");
             int firstAttack = 0;
             if (firstAttackData != null) {
@@ -164,6 +170,28 @@ public class MapleLifeFactory {
 
         public String getMsg() {
             return msg;
+        }
+    }
+
+    public static class loseItem {
+        private int id;
+        private byte chance, x;
+        private loseItem(int id, byte chance, byte x) {
+            this.id = id;
+            this.chance = chance;
+            this.x = x;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public byte getChance() {
+            return chance;
+        }
+
+        public byte getX() {
+            return x;
         }
     }
 }

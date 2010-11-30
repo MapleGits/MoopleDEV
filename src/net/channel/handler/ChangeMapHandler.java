@@ -85,7 +85,7 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             } else if (targetid != -1 && !chr.isGM()) {
                 chr.announce(MaplePacketCreator.enableActions());
             }
-            if (!portal.getPortalStatus()) {
+            if (portal != null && !portal.getPortalStatus()) {
                 c.announce(MaplePacketCreator.blockedMessage(1));
                 c.announce(MaplePacketCreator.enableActions());
                 return;

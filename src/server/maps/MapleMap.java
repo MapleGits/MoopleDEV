@@ -28,14 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Calendar;
@@ -101,7 +99,6 @@ public class MapleMap {
     private boolean everlast = false;
     private int forcedReturnMap = 999999999;
     private int timeLimit;
-    private int dropLife = 180000;
     private int decHP = 0;
     private int protectItem = 0;
     private boolean town;
@@ -110,7 +107,6 @@ public class MapleMap {
     private boolean dropsOn = true;
     private String onFirstUserEnter;
     private String onUserEnter;
-    private byte dropRate;
     private int fieldType;
     private int timeMobId;
     private String timeMobMessage = "";
@@ -129,7 +125,6 @@ public class MapleMap {
         this.channel = (short) channel;
         this.returnMapId = returnMapId;
         this.monsterRate = monsterRate;
-        this.dropRate = ServerConstants.DROP_RATE;
     }
 
     public void broadcastMessage(MapleCharacter source, MaplePacket packet) {
@@ -302,7 +297,7 @@ public class MapleMap {
     }
 
     private Point calcDropPos(Point initial, Point fallback) {
-        Point ret = calcPointBelow(new Point(initial.x, initial.y - 99));
+        Point ret = calcPointBelow(new Point(initial.x, initial.y - 50));
         if (ret == null) {
             return fallback;
         }
@@ -362,7 +357,7 @@ public class MapleMap {
 		    pos.x = (int) (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
 		}
 		if (de.itemId == 0) {
-		    chr.getCashShop().gainCash(1, 80);
+		    //chr.getCashShop().gainCash(1, 80);
 		} else {
 		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
 			idrop = ii.randomizeStats((Equip) ii.getEquipById(de.itemId));
@@ -468,7 +463,7 @@ public class MapleMap {
                                 }
                             }
                         }
-                    } else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {//zakum
+                    } else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {//Horntail
                         for (MapleMapObject object : chr.getMap().getMapObjects()) {
                             MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
                             if (mons != null) {
@@ -505,32 +500,28 @@ public class MapleMap {
             }, 3000);
             return;
         }
-        if (monster.getBuffToGive() > -1) {
+        int buff = monster.getBuffToGive();
+        if (buff > -1) {
             for (MapleMapObject mmo : this.getAllPlayer()) {
                 MapleCharacter character = (MapleCharacter) mmo;
                 if (character.isAlive()) {
-                    MapleStatEffect statEffect = mii.getItemEffect(monster.getBuffToGive());
+                    MapleStatEffect statEffect = mii.getItemEffect(buff);
+                    character.getClient().announce(MaplePacketCreator.showOwnBuffEffect(buff, 1));
+                    character.getMap().broadcastMessage(character, MaplePacketCreator.showBuffeffect(character.getId(), buff, 1), false);
                     statEffect.applyTo(character);
                 }
             }
         }
-        if (monster.getId() == 8810018 || monster.getId() == 8810026) {
+        if (monster.getId() == 8810018) {
             for (ChannelServer cserv : ChannelServer.getAllInstances()) {
                 for (MapleCharacter player : cserv.getPlayerStorage().getAllCharacters()) {
-                    if (player.getMapId() == 240000000) {
+                    if (player.getMapId() == 240000000) 
                         player.message("Mysterious power arose as I heard the powerful cry of the Nine Spirit Baby Dragon.");
-                        player.getClient().announce(MaplePacketCreator.showOwnBuffEffect(2022109, 13)); // The Breath of Nine Spirit
-                        player.getMap().broadcastMessage(player, MaplePacketCreator.showBuffeffect(player.getId(), 2022109, 13), false); // The Breath of Nine Spirit
-                        mii.getItemEffect(2022109).applyTo(player);
-                    } else {
+                    else {
                         player.dropMessage("To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!");
                         if (player.isGM()) {
                             player.message("[GM-Message] Horntail was killed by : " + chr.getName());
                         }
-                        if (player.isAlive()) {
-                            player.getClient().announce(MaplePacketCreator.showOwnBuffEffect(2022108, 11));
-                        }
-                        player.getMap().broadcastMessage(player, MaplePacketCreator.showBuffeffect(player.getId(), 2022108, 11), false); // HT nine spirit
                     }
                 }
             }
@@ -601,6 +592,17 @@ public class MapleMap {
 
     public List<MapleMapObject> getAllPlayer() {
         return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.PLAYER));
+    }
+
+    public void addMapTimer(int time, final int mapid) {
+        broadcastMessage(MaplePacketCreator.getClock(time));
+        TimerManager.getInstance().schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    warpEveryone(mapid);
+                }
+            }, time);
     }
 
     public void destroyReactor(int oid) {
@@ -834,15 +836,16 @@ public class MapleMap {
 
                 public void sendPackets(MapleClient c) {
                     c.announce(MaplePacketCreator.spawnMonster(monster, true));
-                    if (monster.getId() == 9300166 || monster.getId() == 8810026) {
+                    if (monster.getId() == 9300166) { // || monster.getId() == 8810026
                         TimerManager.getInstance().schedule(new Runnable() {
 
                             @Override
                             public void run() {
                                 killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false, false, 4);
                             }
-                        }, 4500 + Randomizer.nextInt(500));
-                    }
+                        }, 2000 + Randomizer.nextInt(500));
+                    } else if (monster.getStats().removeAfter())
+                        killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
                 }
             }, null);
             updateMonsterController(monster);
@@ -1766,14 +1769,17 @@ public class MapleMap {
         return timeMobMessage;
     }
 
-    public void clearDrops(MapleCharacter player, boolean command) {
+    public void clearDrops(MapleCharacter player) {
         List<MapleMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
         for (MapleMapObject i : items) {
             player.getMap().removeMapObject(i);
             player.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, player.getId()));
         }
-        if (command) {
-            player.message("Items Destroyed: " + items.size());
+    }
+
+    public void clearDrops() {
+        for (MapleMapObject i : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM))) {
+            removeMapObject(i);
         }
     }
 
@@ -1793,7 +1799,13 @@ public class MapleMap {
         this.allowHPQSummon = b;
     }
 
-    public void showAllMonsters() {
+    /*public void showAllMonsters() {
+    }*/
+
+    public void warpEveryone(int to) {
+        for (MapleCharacter chr : getCharacters()) {
+            chr.changeMap(to);
+        }
     }
 
     // BEGIN EVENTS

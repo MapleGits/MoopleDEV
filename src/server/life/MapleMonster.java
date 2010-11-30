@@ -307,7 +307,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 reviveMap.broadcastMessage(MaplePacketCreator.serverNotice(6, reviveMap.getTimeMobMessage()));
             }
             for (Integer mid : toSpawn) {
-                MapleMonster mob = MapleLifeFactory.getMonster(mid);
+                final MapleMonster mob = MapleLifeFactory.getMonster(mid);
                 if (eventInstance != null) {
                     eventInstance.registerMonster(mob);
                 }
@@ -315,7 +315,13 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 if (dropsDisabled()) {
                     mob.disableDrops();
                 }
-                reviveMap.spawnMonster(mob);
+                    TimerManager.getInstance().schedule(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            reviveMap.spawnMonster(mob);
+                    }
+                    }, getAnimationTime("die1"));
             }
         }
         if (eventInstance != null) {

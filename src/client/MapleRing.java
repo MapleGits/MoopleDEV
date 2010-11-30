@@ -41,7 +41,7 @@ public class MapleRing implements Comparable<MapleRing> {
     private int itemId;
     private String partnerName;
 
-    private MapleRing(int id, int id2, int partnerId, int itemid, String partnername) {
+    public MapleRing(int id, int id2, int partnerId, int itemid, String partnername) {
         this.ringId = id;
         this.ringId2 = id2;
         this.partnerId = partnerId;

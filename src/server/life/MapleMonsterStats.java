@@ -27,30 +27,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import server.life.MapleLifeFactory.BanishInfo;
+import server.life.MapleLifeFactory.loseItem;
 import tools.Pair;
 
 /**
  * @author Frz
  */
 public class MapleMonsterStats {
-    private int exp;
-    private int hp, mp;
-    private int level;
-    private int PADamage;
-    private int removeAfter;
-    private int dropPeriod;
-    private int cp;
-    private boolean boss, undead, ffaLoot, isExplosiveReward;
+    private int exp, hp, mp, level, PADamage, dropPeriod, cp, buffToGive;
+    private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack, removeAfter;
     private String name;
     private Map<String, Integer> animationTimes = new HashMap<String, Integer>();
     private Map<Element, ElementalEffectiveness> resistance = new HashMap<Element, ElementalEffectiveness>();
     private List<Integer> revives = Collections.emptyList();
-    private byte tagColor;
-    private byte tagBgColor;
+    private byte tagColor, tagBgColor;
     private List<Pair<Integer, Integer>> skills = new ArrayList<Pair<Integer, Integer>>();
-    private boolean firstAttack;
-    private int buffToGive;
     private BanishInfo banish;
+    private loseItem loseItem;
 
     public int getExp() {
         return exp;
@@ -84,11 +77,11 @@ public class MapleMonsterStats {
         this.level = level;
     }
 
-    public int getRemoveAfter() {
+    public boolean removeAfter() {
         return removeAfter;
     }
 
-    public void setRemoveAfter(int removeAfter) {
+    public void setRemoveAfter(boolean removeAfter) {
         this.removeAfter = removeAfter;
     }
 
@@ -250,6 +243,14 @@ public class MapleMonsterStats {
 
     public void setCP(int cp) {
         this.cp = cp;
+    }
+
+    public loseItem loseItem() {
+        return loseItem;
+    }
+
+    public void setLoseItem(loseItem li) {
+        this.loseItem = li;
     }
 
     public void setExplosiveReward(boolean isExplosiveReward) {

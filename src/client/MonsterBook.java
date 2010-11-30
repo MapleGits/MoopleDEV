@@ -59,7 +59,7 @@ public final class MonsterBook {
         c.getPlayer().saveToDB(true);
     }
 
-    private final void calculateLevel() {
+    private void calculateLevel() {
         bookLevel = (int) Math.max(1, Math.sqrt((normalCard + specialCard) / 5));
     }
 
@@ -104,7 +104,7 @@ public final class MonsterBook {
     }
 
     public void saveCards(final int charid) {
-        if (cards.size() == 0) {
+        if (cards.isEmpty()) {
             return;
         }
         try {

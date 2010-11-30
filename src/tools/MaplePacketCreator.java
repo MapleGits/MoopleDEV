@@ -60,7 +60,6 @@ import constants.ServerConstants;
 import java.rmi.RemoteException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.Random;
 import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
@@ -192,7 +191,7 @@ public class MaplePacketCreator {
         addQuestInfo(mplew, chr);
         addRingInfo(mplew, chr);
         for (int x = 0; x < 15; x++) {
-            mplew.write(CHAR_INFO_MAGIC);
+            mplew.write(CHAR_INFO_MAGIC); //Teleport rock
         }
         addMonsterBookInfo(mplew, chr);
         mplew.writeShort(0);
@@ -855,11 +854,9 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.WARP_TO_MAP.getValue());
         mplew.writeInt(chr.getClient().getChannel() - 1);
-        mplew.write(1);
-        mplew.write(1);
-        mplew.writeShort(0);
+        mplew.writeInt(0);
         for (int i = 0; i < 3; i++) {
-            mplew.writeInt(new Random().nextInt());
+            mplew.writeInt(Randomizer.nextInt());
         }
         addCharacterInfo(mplew, chr);
         mplew.writeInt(0);
@@ -1308,11 +1305,14 @@ public class MaplePacketCreator {
         mplew.writeInt(life.getObjectId());
         mplew.write(life.getController() == null ? 5 : 1);
         mplew.writeInt(life.getId());
-        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
+        mplew.write0(15);
+        mplew.write(0x88);
+        mplew.write0(6);
         mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
-        mplew.writeShort(life.getStartFh()); //Origin FH
+        mplew.writeShort(0); //Origin FH //life.getStartFh()
         mplew.writeShort(life.getFh());
+        
         if (effect > 0) {
             mplew.write(effect);
             mplew.write(0);
@@ -1340,10 +1340,12 @@ public class MaplePacketCreator {
         mplew.writeInt(life.getObjectId());
         mplew.write(5);
         mplew.writeInt(life.getId());
-        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
+        mplew.write0(15);
+        mplew.write(0x88);
+        mplew.write0(6);
         mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
-        mplew.writeShort(life.getStartFh());
+        mplew.writeShort(0);//life.getStartFh()
         mplew.writeShort(life.getFh());
         if (effect > 0) {
             mplew.write(effect);
@@ -1367,10 +1369,12 @@ public class MaplePacketCreator {
         mplew.writeInt(life.getObjectId());
         mplew.write(5);
         mplew.writeInt(life.getId());
-        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00 00 00 00 00 00"));
+        mplew.write0(15);
+        mplew.write(0x88);
+        mplew.write0(6);
         mplew.writePos(life.getPosition());
         mplew.write(life.getStance());
-        mplew.writeShort(life.getStartFh());
+        mplew.writeShort(0);//life.getStartFh()
         mplew.writeShort(life.getFh());
         mplew.writeShort(-1);
         mplew.writeInt(0);
@@ -1589,7 +1593,7 @@ public class MaplePacketCreator {
 	mplew.writeInt(drop.getOwner()); // owner charid
         mplew.write(drop.getDropType()); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         mplew.writePos(dropto);
-        mplew.writeInt(drop.getOwner());
+        mplew.writeInt(drop.getOwner()); //?
 
         if (mod != 2) {
             mplew.writePos(dropfrom);
@@ -1701,7 +1705,7 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getChair());
         mplew.writePos(chr.getPosition());
         mplew.write(chr.getStance());
-        mplew.writeShort(chr.getFh());
+        mplew.writeShort(0);//chr.getFh()
         mplew.write(0);
         MaplePet[] pet = chr.getPets();
         for (int i = 0; i < 3; i++) {
@@ -1739,42 +1743,36 @@ public class MaplePacketCreator {
         } else {
             mplew.write(0);
         }
-        mplew.write(0); 
-        if (chr.getMarriageRings().size() + chr.getFriendshipRings().size() + chr.getCrushRings().size() > 0) {
-            if (chr.getMarriageRings().size() > 0) {
-                checkRing(mplew, chr.getCrushRings());
-                checkRing(mplew, chr.getFriendshipRings());
-                addRingPacketInfo(mplew, chr.getMarriageRings());
-            } else if (chr.getFriendshipRings().size() > 0) {
-                checkRing(mplew, chr.getCrushRings());
-                addRingPacketInfo(mplew, chr.getFriendshipRings());
-            } else if (chr.getCrushRings().size() > 0) {
-                addRingPacketInfo(mplew, chr.getCrushRings());
-            }
-        } else {
-            mplew.writeInt(0);
-        }
-        mplew.write(0);
+        addRingLook(mplew, chr, true);
+        addRingLook(mplew, chr, false);
+        addMarriageRingLook(mplew, chr);
+        mplew.write0(3);
         mplew.write(chr.getTeam());
         return mplew.getPacket();
     }
 
-    private static void checkRing(MaplePacketLittleEndianWriter mplew, List<MapleRing> ringlist) {
-        if (ringlist.isEmpty()) {
-            mplew.write(0);
-        } else {
-            addRingPacketInfo(mplew, ringlist);
+    private static void addRingLook(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean crush) {
+        List<MapleRing> rings;
+        if (crush)
+            rings = chr.getCrushRings();
+        else
+            rings = chr.getFriendshipRings();
+        mplew.write(rings.size() > 0 ? 1 : 0);
+        for (MapleRing ring : rings) {
+            mplew.writeInt(ring.getRingId());
+            mplew.writeInt(0);
+            mplew.writeInt(ring.getPartnerRingId());
+            mplew.writeInt(0);
+            mplew.writeInt(ring.getItemId());
         }
     }
 
-    private static void addRingPacketInfo(MaplePacketLittleEndianWriter mplew, List<MapleRing> ringlist) {
-        for (MapleRing mr : ringlist) {
-            mplew.write(1);
-            mplew.writeInt(mr.getRingId());
-            mplew.writeInt(0);
-            mplew.writeInt(mr.getPartnerRingId());
-            mplew.writeInt(0);
-            mplew.writeInt(mr.getItemId());
+    private static void addMarriageRingLook(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        mplew.write(chr.getMarriageRing() != null ? 1 : 0);
+        if (chr.getMarriageRing() != null) {
+            mplew.writeInt(chr.getMarriageRing().getPartnerChrId());
+            mplew.writeInt(chr.getId());
+            mplew.writeInt(chr.getMarriageRing().getItemId());
         }
     }
 
@@ -1823,7 +1821,6 @@ public class MaplePacketCreator {
 
     public static MaplePacket movePlayer(int cid, List<LifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        //B9 00 01 00 00 00 00 00 00 00 07 00 CC 02 04 00 00 00 00 00 3B 00 05 2C 01 14 00 00 00 00 05 00 00 00 CC 02 03 00 00 00 00 00 3B 00 05 00 00 02 18 FC 00 00 07 00 00 00 AE 02 04 00 0D FE 00 00 00 00 07 1E 00 00 A3 02 04 00 31 FE 00 00 3B 00 05 17 00 00 6C 02 04 00 21 FF 00 00 39
         mplew.writeShort(SendOpcode.MOVE_PLAYER.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(0);
@@ -1836,6 +1833,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.MOVE_SUMMON.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(oid);
+        mplew.writePos(startPos);
         serializeMovementList(mplew, moves);
         return mplew.getPacket();
     }
@@ -2159,6 +2157,9 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getId());
         mplew.write(1);
         addCharLook(mplew, chr, false);
+        addRingLook(mplew, chr, true);
+        addRingLook(mplew, chr, false);
+        addMarriageRingLook(mplew, chr);        
         mplew.writeInt(0);
         return mplew.getPacket();
     }
@@ -6426,17 +6427,17 @@ public class MaplePacketCreator {
     }
 
     private static void addMarriageRings(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeShort(chr.getMarriageRings().size());
+        mplew.writeShort(chr.getMarriageRing() != null ? 1 : 0);
         int marriageId = 30000;
-        for (MapleRing ring : chr.getMarriageRings()) {
+        if (chr.getMarriageRing() != null) {
             mplew.writeInt(marriageId);
             mplew.writeInt(chr.getId());
-            mplew.writeInt(ring.getPartnerChrId());
+            mplew.writeInt(chr.getMarriageRing().getPartnerChrId());
             mplew.writeShort(3);
-            mplew.writeInt(ring.getRingId());
-            mplew.writeInt(ring.getPartnerRingId());
+            mplew.writeInt(chr.getMarriageRing().getRingId());
+            mplew.writeInt(chr.getMarriageRing().getPartnerRingId());
             mplew.writeAsciiString(getRightPaddedStr(chr.getName(), '\0', 13));
-            mplew.writeAsciiString(getRightPaddedStr(ring.getPartnerName(), '\0', 13));
+            mplew.writeAsciiString(getRightPaddedStr(chr.getMarriageRing().getPartnerName(), '\0', 13));
             marriageId++;
         }
     }

@@ -40,22 +40,46 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         if (!MapleCharacter.canCreateChar(name)) {
             return;
         }
-        MapleCharacter newchar = MapleCharacter.getDefault(c);
-        newchar.setWorld(c.getWorld());
         int job = slea.readInt();
         int face = slea.readInt();
-        newchar.setFace(face);
-        newchar.setHair(slea.readInt() + slea.readInt());
+        int hair = slea.readInt();
+
+        int haircolor = slea.readInt();
+        if (haircolor != 0 || haircolor != 7 || haircolor != 3 || haircolor != 2) return;
+
         int skincolor = slea.readInt();
-        if (skincolor > 3) {
-            return;
-        }
-        newchar.setSkinColor(MapleSkinColor.getById(skincolor));
+        if (skincolor > 3) return;
+
         int top = slea.readInt();
         int bottom = slea.readInt();
         int shoes = slea.readInt();
         int weapon = slea.readInt();
-        newchar.setGender(slea.readByte());
+        byte gender = slea.readByte();
+        if (job == 2) { //Lazy to do it for others lol
+            if (gender == 0) {
+                if (face != 20100 || face != 20401 || face != 20402)
+                    return;
+                else if (hair != 30030 || hair != 30020 || hair != 30000)
+                    return;
+            } else if (gender == 1 && job == 2) {
+                if (face != 21700 || face != 21201 || face != 21002)
+                    return;
+                else if (hair != 31000 || hair != 31040 || hair != 31050)
+                    return;
+            }
+            if (top != 1042167)
+                return;
+            else if (bottom != 1062115)
+                return;
+            else if (shoes != 1072383)
+                return;
+        }
+        MapleCharacter newchar = MapleCharacter.getDefault(c);
+        newchar.setWorld(c.getWorld());
+        newchar.setFace(face);
+        newchar.setHair(hair + haircolor);
+        newchar.setSkinColor(MapleSkinColor.getById(skincolor));
+        newchar.setGender(gender);
         newchar.setName(name);
 
         if (job == 0) { // Knights of Cygnus

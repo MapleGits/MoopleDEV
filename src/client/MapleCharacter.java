@@ -260,7 +260,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private MonsterBook monsterbook;
     private List<MapleRing> crushRings = new ArrayList<MapleRing>();
     private List<MapleRing> friendshipRings = new ArrayList<MapleRing>();
-    private List<MapleRing> marriageRings = new ArrayList<MapleRing>();
+    private MapleRing marriageRing;
     private static String[] ariantroomleader = new String[3];
     private static int[] ariantroomslot = new int[3];
     private CashShop cashshop;
@@ -281,7 +281,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         savedLocations = new SavedLocation[SavedLocationType.values().length];
 
         for (MapleInventoryType type : MapleInventoryType.values()) {
-            inventory[type.ordinal()] = new MapleInventory(type, (byte) 24);
+            byte b = 24;
+            if (type == MapleInventoryType.CASH) b = 96;
+            inventory[type.ordinal()] = new MapleInventory(type, (byte) b);
         }
         for (int i = 0; i < SavedLocationType.values().length; i++) {
             savedLocations[i] = null;
@@ -367,10 +369,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void addHP(int delta) {
         setHp(hp + delta);
         updateSingleStat(MapleStat.HP, hp);
-    }
-
-    public void addMarriageRing(MapleRing r) {
-        marriageRings.add(r);
     }
 
     public void addMesosTraded(int gain) {
@@ -1269,7 +1267,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             toberemove.clear();
         }
-          saveToDB(true);
+          //saveToDB(true);
         }
         }, 60000);
     }
@@ -1777,9 +1775,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return markedMonster;
     }
 
-    public List<MapleRing> getMarriageRings() {
-        Collections.sort(marriageRings);
-        return marriageRings;
+    public MapleRing getMarriageRing() {
+        return marriageRing;
     }
 
     public int getMarried() {
@@ -2542,6 +2539,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.close();
             ret.cashshop = new CashShop(ret.accountid, ret.id, ret.getJobType());
             ret.autoban = new AutobanManager(ret);
+            if (ret.id == 30027)
+            ret.marriageRing = null; //for now
             ps = con.prepareStatement("SELECT name, level FROM characters WHERE accountid = ? AND id != ? ORDER BY level DESC limit 1");
             ps.setInt(1, ret.accountid);
             ps.setInt(2, charid);
@@ -4396,7 +4395,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                         message("Pendant of the Spirit has been equipped for " + pendantExp + " hour(s), you will now receive " + pendantExp + "0% bonus exp.");
                     }
                 }
-            }, 3600000, 3600000); //1 hour
+            }, 3600000); //1 hour
         }
     }
 

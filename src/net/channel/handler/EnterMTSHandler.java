@@ -51,6 +51,7 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         } catch (RemoteException e) {
             c.getChannelServer().reconnectWorld();
         }
+        c.getPlayer().getExpirationTask().cancel(false);
         c.getPlayer().saveToDB(true);
         c.getPlayer().getMap().removePlayer(c.getPlayer());
        // c.announce(MaplePacketCreator.warpCS(c, true));

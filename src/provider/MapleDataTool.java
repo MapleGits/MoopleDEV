@@ -58,16 +58,6 @@ public class MapleDataTool {
         return ((Integer) data.getData()).intValue();
     }
 
-    public static int getInt(MapleData data, int def) {
-        if (data == null || data.getData() == null) {
-            return def;
-        } else if (data.getType() == MapleDataType.STRING) {
-            return Integer.parseInt(getString(data));
-        } else {
-            return ((Integer) data.getData()).intValue();
-        }
-    }
-
     public static int getInt(String path, MapleData data) {
         return getInt(data.getChildByPath(path));
     }
@@ -86,6 +76,16 @@ public class MapleDataTool {
             return Integer.parseInt(getString(d));
         } else {
             return getInt(d);
+        }
+    }
+
+    public static int getInt(MapleData data, int def) {
+        if (data == null || data.getData() == null) {
+            return  def;
+        } else if (data.getType() == MapleDataType.STRING) {
+            return Integer.parseInt(getString(data));
+        } else {
+            return ((Integer) data.getData()).intValue();
         }
     }
 

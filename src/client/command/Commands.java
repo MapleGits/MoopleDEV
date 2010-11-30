@@ -104,7 +104,7 @@ public class Commands {
             player.toggleGMChat();
             player.message("You now chat in " + (player.getGMChat() ? "white." : "black."));
         } else if (sub[0].equals("cleardrops")) {
-            player.getMap().clearDrops(player, true);
+            player.getMap().clearDrops(player);
         } else if (sub[0].equals("cody")) {
             NPCScriptManager.getInstance().start(c, 9200000, null, null);
         } else if (sub[0].equals("dc")) {
