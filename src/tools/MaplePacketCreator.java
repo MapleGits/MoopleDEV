@@ -854,7 +854,9 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.WARP_TO_MAP.getValue());
         mplew.writeInt(chr.getClient().getChannel() - 1);
-        mplew.writeInt(0);
+        mplew.write(1);
+        mplew.write(1);
+        mplew.writeShort(0);
         for (int i = 0; i < 3; i++) {
             mplew.writeInt(Randomizer.nextInt());
         }
