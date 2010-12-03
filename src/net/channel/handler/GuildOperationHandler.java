@@ -30,7 +30,7 @@ import tools.MaplePacketCreator;
 import client.MapleCharacter;
 
 public final class GuildOperationHandler extends AbstractMaplePacketHandler {
-    private final boolean isGuildNameAcceptable(String name) {
+    private boolean isGuildNameAcceptable(String name) {
         if (name.length() < 3 || name.length() > 12) {
             return false;
         }
@@ -94,6 +94,9 @@ public final class GuildOperationHandler extends AbstractMaplePacketHandler {
         MapleCharacter mc = c.getPlayer();
         byte type = slea.readByte();
         switch (type) {
+            case 0x00:
+                //c.announce(MaplePacketCreator.showGuildInfo(mc));
+                break;
             case 0x02:
                 if (mc.getGuildId() > 0 || mc.getMapId() != 200000301) {
                     c.getPlayer().dropMessage(1, "You cannot create a new Guild while in one.");

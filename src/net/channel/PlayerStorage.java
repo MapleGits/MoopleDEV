@@ -25,16 +25,15 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import client.MapleCharacter;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PlayerStorage {
+public class PlayerStorage implements IPlayerStorage {
     private final Lock mutex = new ReentrantLock();
     private final Map<String, MapleCharacter> nameToChar = new LinkedHashMap<String, MapleCharacter>();
     private final Map<Integer, MapleCharacter> idToChar = new LinkedHashMap<Integer, MapleCharacter>();
-    private final Map<Integer, MapleCharacter> PendingCharacter = new HashMap<Integer, MapleCharacter>();
+    private int channel;
 
     public void registerPlayer(MapleCharacter chr) {
         mutex.lock();

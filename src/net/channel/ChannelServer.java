@@ -83,7 +83,7 @@ import server.maps.MapleMap;
 public class ChannelServer implements Runnable {
     private int port = 7575;
     private static WorldRegistry worldRegistry;
-    private static PlayerStorage players;
+    private PlayerStorage players = new PlayerStorage();
     private int channel;
     private String key;
     private ChannelWorldInterface cwi;
@@ -190,7 +190,6 @@ public class ChannelServer implements Runnable {
             acceptor.bind(new InetSocketAddress(port));
             ((SocketSessionConfig) acceptor.getSessionConfig()).setTcpNoDelay(true);
             SkillFactory.getSkill(9999999);
-            players = new PlayerStorage();
             System.out.println("Channel " + getChannel() + ": Listening on port " + port);
             wci.serverReady();
             eventSM.init();
@@ -249,7 +248,7 @@ public class ChannelServer implements Runnable {
         chr.broadcast(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
     }
 
-    public PlayerStorage getPlayerStorage() {
+    public IPlayerStorage getPlayerStorage() {
         return players;
     }
 
@@ -400,9 +399,12 @@ public class ChannelServer implements Runnable {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                players.disconnectAll();
+                for (ChannelServer channel : getAllInstances()) {
+                    for (MapleCharacter mc : channel.getPlayerStorage().getAllCharacters()) {
+                        mc.getClient().disconnect();
+                    }
+                }
             }
-                            
         });
     }
 

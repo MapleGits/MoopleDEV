@@ -110,7 +110,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     private void updateBuddies(int characterId, int channel, int[] buddies, boolean offline) {
-        PlayerStorage playerStorage = server.getPlayerStorage();
+        IPlayerStorage playerStorage = server.getPlayerStorage();
         for (int buddy : buddies) {
             MapleCharacter chr = playerStorage.getCharacterById(buddy);
             if (chr != null) {
@@ -229,7 +229,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void buddyChat(int[] recipientCharacterIds, int cidFrom, String nameFrom, String chattext) throws RemoteException {
-        PlayerStorage playerStorage = server.getPlayerStorage();
+        IPlayerStorage playerStorage = server.getPlayerStorage();
         for (int characterId : recipientCharacterIds) {
             MapleCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
@@ -243,7 +243,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     @Override
     public int[] multiBuddyFind(int charIdFrom, int[] characterIds) throws RemoteException {
         List<Integer> ret = new ArrayList<Integer>(characterIds.length);
-        PlayerStorage playerStorage = server.getPlayerStorage();
+        IPlayerStorage playerStorage = server.getPlayerStorage();
         for (int characterId : characterIds) {
             MapleCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
