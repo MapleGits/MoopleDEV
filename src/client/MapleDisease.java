@@ -33,7 +33,8 @@ public enum MapleDisease implements LongValueHolder {
     POISON(0x4000000000000L),
     SEAL(0x8000000000000L),
     DARKNESS(0x10000000000000L),
-    WEAKEN(0x4000000000000000L);
+    WEAKEN(0x4000000000000000L),
+    CURSE(0x8000000000000000L);
     private long i;
 
     private MapleDisease(long i) {

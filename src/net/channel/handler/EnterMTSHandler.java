@@ -37,25 +37,26 @@ import tools.DatabaseConnection;
 
 public final class EnterMTSHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (!c.getPlayer().isAlive()) {
+        MapleCharacter chr = c.getPlayer();
+        if (!chr.isAlive()) {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
-        if (c.getPlayer().getLevel() < 10) {
-            c.announce(MaplePacketCreator.blockedMessage(5));
+        if (chr.getLevel() < 10) {
+            c.announce(MaplePacketCreator.blockedMessage2(5));
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
         try {
-            c.getChannelServer().getWorldInterface().addBuffsToStorage(c.getPlayer().getId(), c.getPlayer().getAllBuffs());
+            c.getChannelServer().getWorldInterface().addBuffsToStorage(chr.getId(), chr.getAllBuffs());
         } catch (RemoteException e) {
             c.getChannelServer().reconnectWorld();
         }
-        c.getPlayer().getExpirationTask().cancel(false);
-        c.getPlayer().saveToDB(true);
-        c.getPlayer().getMap().removePlayer(c.getPlayer());
-       // c.announce(MaplePacketCreator.warpCS(c, true));
-        c.getPlayer().setInMTS(true);
+        chr.getExpirationTask().cancel(false);
+        chr.saveToDB(true);
+        chr.getMap().removePlayer(c.getPlayer());
+        c.announce(MaplePacketCreator.openCashShop(c, true));
+        chr.getCashShop().open(true);// xD
         c.announce(MaplePacketCreator.enableCSUse());
         c.announce(MaplePacketCreator.MTSWantedListingOver(0, 0));
         c.announce(MaplePacketCreator.showMTSCash(c.getPlayer()));
@@ -108,8 +109,8 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         } catch (SQLException e) {
         }
         c.announce(MaplePacketCreator.sendMTS(items, 1, 0, 0, pages));
-        c.announce(MaplePacketCreator.transferInventory(getTransfer(c.getPlayer().getId())));
-        c.announce(MaplePacketCreator.notYetSoldInv(getNotYetSold(c.getPlayer().getId())));
+        c.announce(MaplePacketCreator.transferInventory(getTransfer(chr.getId())));
+        c.announce(MaplePacketCreator.notYetSoldInv(getNotYetSold(chr.getId())));
     }
 
     private List<MTSItemInfo> getNotYetSold(int cid) {

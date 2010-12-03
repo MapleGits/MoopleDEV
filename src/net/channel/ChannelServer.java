@@ -83,7 +83,7 @@ import server.maps.MapleMap;
 public class ChannelServer implements Runnable {
     private int port = 7575;
     private static WorldRegistry worldRegistry;
-    private PlayerStorage players = new PlayerStorage();
+    private static PlayerStorage players;
     private int channel;
     private String key;
     private ChannelWorldInterface cwi;
@@ -190,6 +190,7 @@ public class ChannelServer implements Runnable {
             acceptor.bind(new InetSocketAddress(port));
             ((SocketSessionConfig) acceptor.getSessionConfig()).setTcpNoDelay(true);
             SkillFactory.getSkill(9999999);
+            players = new PlayerStorage();
             System.out.println("Channel " + getChannel() + ": Listening on port " + port);
             wci.serverReady();
             eventSM.init();
@@ -248,7 +249,7 @@ public class ChannelServer implements Runnable {
         chr.broadcast(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
     }
 
-    public IPlayerStorage getPlayerStorage() {
+    public PlayerStorage getPlayerStorage() {
         return players;
     }
 
@@ -399,21 +400,9 @@ public class ChannelServer implements Runnable {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                for (ChannelServer channel : getAllInstances()) {
-                    for (MapleCharacter mc : channel.getPlayerStorage().getAllCharacters()) {
-                        mc.saveToDB(true);
-                        if (mc.getHiredMerchant() != null) {
-                            if (mc.getHiredMerchant().isOpen()) {
-                                try {
-                                    mc.getHiredMerchant().saveItems();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                }
+                players.disconnectAll();
             }
+                            
         });
     }
 
@@ -459,13 +448,11 @@ public class ChannelServer implements Runnable {
         }
     }
 
-    public static MapleCharacter getCharacterFromAllServers(int id) {
-        for (ChannelServer cserv_ : ChannelServer.getAllInstances()) {
-            MapleCharacter ret = cserv_.getPlayerStorage().getCharacterById(id);
+    public final MapleCharacter getCharacterFromAllServers(int id) {
+        MapleCharacter ret = players.getCharacterById(id);
             if (ret != null) {
                 return ret;
-            }
-        }
+            }        
         return null;
     }
 
@@ -494,11 +481,4 @@ public class ChannelServer implements Runnable {
     public void removeHiredMerchant(int chrid) {
         hiredMerchants.remove(chrid);
     }
-//
-//    public void weddingMessage(String husband, String wife) {
-//        for (ChannelServer cserv : ChannelServer.getAllInstances()) {
-//            for (MapleCharacter mc : cserv.getPlayerStorage().getAllCharacters())
-//                mc.message(husband+"'s and " + wife + "'s marriage will start in "+ channel +" at the Cathedral.");
-//        }
-//    }
 }

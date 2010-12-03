@@ -63,7 +63,6 @@ import java.util.Map.Entry;
 import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
-import net.channel.ChannelServer;
 import net.channel.handler.PlayerInteractionHandler;
 import net.channel.handler.SummonDamageHandler.SummonAttackEntry;
 import net.world.MapleParty;
@@ -364,7 +363,6 @@ public class MaplePacketCreator {
                 mplew.write(0x40);
             }
         } else {
-            MapleCharacter chr = ChannelServer.getCharacterFromAllServers(30001);
             mplew.write(0);
             mplew.write(equip.getItemLevel()); //Item Level
             mplew.writeShort(0);
@@ -3254,7 +3252,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.PARTY_OPERATION.getValue());
         mplew.write(8);
         mplew.writeShort(0x8b);
-        mplew.writeShort(2);
+        mplew.writeShort(1);
         mplew.write(CHAR_INFO_MAGIC);
         mplew.write(CHAR_INFO_MAGIC);
         mplew.writeInt(0);
@@ -3343,8 +3341,8 @@ public class MaplePacketCreator {
                 lew.writeInt(partychar.getDoorPosition().x);
                 lew.writeInt(partychar.getDoorPosition().y);
             } else {
-                lew.writeInt(0);
-                lew.writeInt(0);
+                lew.writeInt(999999999);
+                lew.writeInt(999999999);
                 lew.writeInt(0);
                 lew.writeInt(0);
             }
@@ -3358,7 +3356,7 @@ public class MaplePacketCreator {
             case DISBAND:
             case EXPEL:
             case LEAVE:
-                mplew.write(0xC);
+                mplew.write(0x0C);
                 mplew.writeInt(40546);
                 mplew.writeInt(target.getId());
                 if (op == PartyOperation.DISBAND) {
@@ -3390,7 +3388,7 @@ public class MaplePacketCreator {
             case CHANGE_LEADER:
                 mplew.write(0x1B);
                 mplew.writeInt(target.getId());
-                mplew.write(1);
+                mplew.write(0);
                 break;
         }
         return mplew.getPacket();
@@ -5176,8 +5174,8 @@ public class MaplePacketCreator {
     public static MaplePacket showMTSCash(MapleCharacter p) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MTS_OPERATION2.getValue());
-        //mplew.writeInt(p.getCSPoints(4));
-        //mplew.writeInt(p.getCSPoints(2));
+        mplew.writeInt(p.getCashShop().getCash(4));
+        mplew.writeInt(p.getCashShop().getCash(2));
         return mplew.getPacket();
     }
 
@@ -5297,7 +5295,8 @@ public class MaplePacketCreator {
 
     public static MaplePacket enableCSUse() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.write(HexTool.getByteArrayFromHexString("12 00 00 00 00 00 00"));
+        mplew.write(0x12);
+        mplew.write0(6);
         return mplew.getPacket();
     }
 
@@ -6760,52 +6759,50 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket openCashShop(MapleClient c) {
+    public static MaplePacket openCashShop(MapleClient c, boolean mts) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_CASHSHOP.getValue());
+        mplew.writeShort(mts ? SendOpcode.OPEN_MTS.getValue() : SendOpcode.OPEN_CASHSHOP.getValue());
 
         addCharacterInfo(mplew, c.getPlayer());
         mplew.writeInt(0);
-        mplew.write(1);
+        
+        if (!mts) mplew.write(1);
+        
         mplew.writeMapleAsciiString(c.getAccountName());
+        if (mts) {
+            mplew.write(HexTool.getByteArrayFromHexString("88 13 00 00 07 00 00 00 F4 01 00 00 18 00 00 00 A8 00 00 00 70 AA A7 C5 4E C1 CA 01"));
+        } else {
+            mplew.write0(127);
 
-        for (int i = 0; i < 15; i++) {
-            mplew.writeLong(0);
-        }
+            for (int i = 1; i <= 8; i++) {
+                for (int j = 0; j < 2; j++) {
+                    mplew.writeInt(i);
+                    mplew.writeInt(j);
+                    mplew.writeInt(50200004);
 
-        mplew.writeInt(0);
-        mplew.writeShort(0);
-        mplew.write(0);
+                    mplew.writeInt(i);
+                    mplew.writeInt(j);
+                    mplew.writeInt(50200069);
 
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 0; j < 2; j++) {
-                mplew.writeInt(i);
-                mplew.writeInt(j);
-                mplew.writeInt(50200004);
+                    mplew.writeInt(i);
+                    mplew.writeInt(j);
+                    mplew.writeInt(50200117);
 
-                mplew.writeInt(i);
-                mplew.writeInt(j);
-                mplew.writeInt(50200069);
+                    mplew.writeInt(i);
+                    mplew.writeInt(j);
+                    mplew.writeInt(50100008);
 
-                mplew.writeInt(i);
-                mplew.writeInt(j);
-                mplew.writeInt(50200117);
-
-                mplew.writeInt(i);
-                mplew.writeInt(j);
-                mplew.writeInt(50100008);
-
-                mplew.writeInt(i);
-                mplew.writeInt(j);
-                mplew.writeInt(50000047);
+                    mplew.writeInt(i);
+                    mplew.writeInt(j);
+                    mplew.writeInt(50000047);
+                }
             }
-        }
 
         mplew.writeInt(0);
         mplew.writeShort(0);
         mplew.write(0);
         mplew.writeInt(75);
-
+        }
         return mplew.getPacket();
     }
 

@@ -594,6 +594,11 @@ public class MapleClient {
                 } else {
                     merchant.removeVisitor(player);
                 }
+                try {
+                    merchant.saveItems();
+                } catch (SQLException ex) {
+                    System.out.println("Error while saving Hired Merchant items.");
+                }
             }
             player.unequipAllPets();
             try {

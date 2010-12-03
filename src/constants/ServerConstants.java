@@ -42,6 +42,7 @@ public class ServerConstants {
     public static final boolean ENABLE_PIC = true;
     // Channel Configuration
     public static String SERVER_MESSAGE = "";
+    public static String RECOMMEND_MESSAGE = "";
     public static final String EVENTS = "automsg KerningPQ Boats Subway";
     // IP Configuration
     public static final String HOST = "localhost";

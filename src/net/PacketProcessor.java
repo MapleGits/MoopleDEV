@@ -169,7 +169,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.NOTE_ACTION, new NoteActionHandler());
             registerHandler(RecvOpcode.CLOSE_CHALKBOARD, new CloseChalkboardHandler());
             registerHandler(RecvOpcode.USE_MOUNT_FOOD, new UseMountFoodHandler());
-            registerHandler(RecvOpcode.MTS_OP, new MTSHandler());
+            registerHandler(RecvOpcode.MTS_OPERATION, new MTSHandler());
             registerHandler(RecvOpcode.RING_ACTION, new RingActionHandler());
             registerHandler(RecvOpcode.SPOUSE_CHAT, new SpouseChatHandler());
             registerHandler(RecvOpcode.PET_AUTO_POT, new PetAutoPotHandler());

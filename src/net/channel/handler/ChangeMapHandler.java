@@ -45,7 +45,6 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
             String[] socket = ip.split(":");
             chr.saveToDB(true);
             chr.getCashShop().open(false);
-            chr.setInMTS(false);
             ChannelServer.getInstance(c.getChannel()).removePlayer(chr);
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
             try {

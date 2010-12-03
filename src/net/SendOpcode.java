@@ -117,7 +117,7 @@ public enum SendOpcode {
     MAPLE_ADMIN(0x7B),
     SKILL_MACRO(0x7C),
     WARP_TO_MAP(0x7D),
-    MTS_OPEN(0x7E),
+    OPEN_MTS(0x7E),
     OPEN_CASHSHOP(0x7F),
     RESET_SCREEN(0x82),
     BLOCK_MESSAGE(0x83),

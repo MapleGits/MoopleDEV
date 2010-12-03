@@ -58,10 +58,10 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = null;
         try {
             player = MapleCharacter.loadCharFromDB(cid, c, true);
-            c.setPlayer(player);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        c.setPlayer(player);
         c.setAccID(player.getAccountID());
         int state = c.getLoginState();
         boolean allowLogin = true;

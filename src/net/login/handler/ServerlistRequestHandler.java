@@ -22,6 +22,7 @@
 package net.login.handler;
 
 import client.MapleClient;
+import constants.ServerConstants;
 import java.rmi.RemoteException;
 import net.AbstractMaplePacketHandler;
 import net.login.LoginServer;
@@ -32,7 +33,7 @@ public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
     private static final String[] names = {"Scania", "Bera", "Broa", "Windia", "Khaini", "Bellocan", "Mardia", "Kradia", "Yellonde", "Demethos", "Elnido", "Kastia", "Judis", "Arkenia", "Plana", "Galicia", "Kalluna", "Stius", "Croa", "Zenith", "Medere"};
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        for (int i = 0; i < Math.min(1, 15); i++) {//input world numbers here change 1 to number of worlds
+        for (int i = 0; i < Math.min(1, names.length); i++) {//input world numbers here change 1 to number of worlds
             try {
                 c.announce(MaplePacketCreator.getServerList(i, names[i], LoginServer.getInstance().getWorldInterface().getChannelLoad()));
             } catch (RemoteException e) {
@@ -40,6 +41,6 @@ public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
         }
         c.announce(MaplePacketCreator.getEndOfServerList());
         c.announce(MaplePacketCreator.enableRecommended(true));
-        c.announce(MaplePacketCreator.sendRecommended(1, "Text here"));
+        c.announce(MaplePacketCreator.sendRecommended(1, ServerConstants.RECOMMEND_MESSAGE));
     }
 }

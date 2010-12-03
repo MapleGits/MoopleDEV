@@ -45,7 +45,7 @@ import java.util.*;
 
 public final class MTSHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (!c.getPlayer().inMTS()) {
+        if (!c.getPlayer().getCashShop().isOpened()) {
             return;
         }
         if (slea.available() > 0) {
@@ -402,7 +402,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                                 pse.setInt(1, rs.getInt("seller"));
                                 ResultSet rse = pse.executeQuery();
                                 if (rse.next()) {
-                                    PreparedStatement psee = con.prepareStatement("UPDATE accounts SET cardNX = cardNX + ? WHERE id = ?");
+                                    PreparedStatement psee = con.prepareStatement("UPDATE accounts SET nxPrepaid = nxPrepaid + ? WHERE id = ?");
                                     psee.setInt(1, rs.getInt("price"));
                                     psee.setInt(2, rse.getInt("accountid"));
                                     psee.executeUpdate();
@@ -458,7 +458,7 @@ public final class MTSHandler extends AbstractMaplePacketHandler {
                                     pse.setInt(1, rs.getInt("seller"));
                                     ResultSet rse = pse.executeQuery();
                                     if (rse.next()) {
-                                        PreparedStatement psee = con.prepareStatement("UPDATE accounts SET cardNX = cardNX + ? WHERE id = ?");
+                                        PreparedStatement psee = con.prepareStatement("UPDATE accounts SET nxPrepaid = nxPrepaid + ? WHERE id = ?");
                                         psee.setInt(1, rs.getInt("price"));
                                         psee.setInt(2, rse.getInt("accountid"));
                                         psee.executeUpdate();

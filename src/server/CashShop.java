@@ -109,8 +109,8 @@ public class CashShop {
 
     public static class CashItemFactory {
 
-        private static Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
-        private static Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
+        private static final Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
+        private static final Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
 
         static {
             MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));

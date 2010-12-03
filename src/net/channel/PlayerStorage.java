@@ -25,19 +25,35 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import client.MapleCharacter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class PlayerStorage implements IPlayerStorage {
-    Map<String, MapleCharacter> nameToChar = new LinkedHashMap<String, MapleCharacter>();
-    Map<Integer, MapleCharacter> idToChar = new LinkedHashMap<Integer, MapleCharacter>();
+public class PlayerStorage {
+    private final Lock mutex = new ReentrantLock();
+    private final Map<String, MapleCharacter> nameToChar = new LinkedHashMap<String, MapleCharacter>();
+    private final Map<Integer, MapleCharacter> idToChar = new LinkedHashMap<Integer, MapleCharacter>();
+    private final Map<Integer, MapleCharacter> PendingCharacter = new HashMap<Integer, MapleCharacter>();
 
     public void registerPlayer(MapleCharacter chr) {
-        nameToChar.put(chr.getName().toLowerCase(), chr);
-        idToChar.put(chr.getId(), chr);
+        mutex.lock();
+        try {
+            nameToChar.put(chr.getName().toLowerCase(), chr);
+            idToChar.put(chr.getId(), chr);
+        } finally {
+	    mutex.unlock();
+	}
     }
 
     public void deregisterPlayer(MapleCharacter chr) {
-        nameToChar.remove(chr.getName().toLowerCase());
-        idToChar.remove(chr.getId());
+        mutex.lock();
+        try {
+            nameToChar.remove(chr.getName().toLowerCase());
+            idToChar.remove(chr.getId());
+        } finally {
+            mutex.unlock();
+        }
     }
 
     public MapleCharacter getCharacterByName(String name) {
@@ -50,5 +66,23 @@ public class PlayerStorage implements IPlayerStorage {
 
     public Collection<MapleCharacter> getAllCharacters() {
         return nameToChar.values();
+    }
+
+    public final void disconnectAll() {
+	mutex.lock();
+	try {
+	    final Iterator<MapleCharacter> itr = nameToChar.values().iterator();
+	    MapleCharacter chr;
+	    while (itr.hasNext()) {
+		chr = itr.next();
+
+		if (!chr.isGM()) {
+		    chr.getClient().disconnect();
+		    itr.remove();
+		}
+	    }
+	} finally {
+	    mutex.unlock();
+	}
     }
 }

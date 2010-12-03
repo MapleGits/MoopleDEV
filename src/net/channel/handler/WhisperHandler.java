@@ -64,8 +64,8 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
             if (victim != null && c.getPlayer().gmLevel() >= victim.gmLevel()) {
                 if (victim.getCashShop().isOpened()) {
                     c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 2));
-                } else if (victim.inMTS()) {
-                    c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 0));
+                /*} else if (victim.inMTS()) {
+                    c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 0));*/
                 } else {
                     c.announce(MaplePacketCreator.getFindReply(victim.getName(), victim.getMap().getId(), 1));
                 }

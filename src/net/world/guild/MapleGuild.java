@@ -153,7 +153,7 @@ public class MapleGuild implements java.io.Serializable {
                 StringBuilder builder = new StringBuilder();
                 builder.append("UPDATE guilds SET GP = ?, logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ?, ");
                 for (int i = 0; i < 5; i++) {
-                    builder.append("rank" + (i + 1) + "title = ?, ");
+                    builder.append("rank").append(i + 1).append("title = ?, ");
                 }
                 builder.append("capacity = ?, notice = ? WHERE guildid = ?");
                 PreparedStatement ps = con.prepareStatement(builder.toString());
@@ -298,7 +298,7 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public void setOnline(int cid, boolean online, int channel) {
+    public final void setOnline(int cid, boolean online, int channel) {
         boolean bBroadcast = true;
         for (MapleGuildCharacter mgc : members) {
             if (mgc.getId() == cid) {

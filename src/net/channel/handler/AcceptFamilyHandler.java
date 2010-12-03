@@ -24,7 +24,6 @@ package net.channel.handler;
 import client.MapleCharacter;
 import client.MapleClient;
 import net.AbstractMaplePacketHandler;
-import net.channel.ChannelServer;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
@@ -37,7 +36,7 @@ public final class AcceptFamilyHandler extends AbstractMaplePacketHandler {
         System.out.println(slea.toString());
         int inviterId = slea.readInt();
 //        String inviterName = slea.readMapleAsciiString();
-        MapleCharacter inviter = ChannelServer.getCharacterFromAllServers(inviterId);
+        MapleCharacter inviter = c.getChannelServer().getCharacterFromAllServers(inviterId);
         if (inviter != null) {
             inviter.getClient().announce(MaplePacketCreator.sendFamilyJoinResponse(true, c.getPlayer().getName()));
         }

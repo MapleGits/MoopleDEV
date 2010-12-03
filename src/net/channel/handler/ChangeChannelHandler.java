@@ -21,9 +21,9 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
-import client.MapleBuffStat;
 import client.MapleClient;
 import java.io.IOException;
 import net.AbstractMaplePacketHandler;
@@ -41,20 +41,21 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int channel = slea.readByte() + 1;
-        if (c.getPlayer().isBanned()) {
+        MapleCharacter chr = c.getPlayer();
+        if (chr.isBanned()) {
             c.disconnect();
             return;
         }
-        if (!c.getPlayer().isAlive() || FieldLimit.CHANGECHANNEL.check(c.getPlayer().getMap().getFieldLimit())) {
+        if (!chr.isAlive() || FieldLimit.CHANGECHANNEL.check(chr.getMap().getFieldLimit())) {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
         String[] socket = c.getChannelServer().getIP(channel).split(":");
-        if (c.getPlayer().getTrade() != null) {
+        if (chr.getTrade() != null) {
             MapleTrade.cancelTrade(c.getPlayer());
         }
 
-        HiredMerchant merchant = c.getPlayer().getHiredMerchant();
+        HiredMerchant merchant = chr.getHiredMerchant();
         if (merchant != null) {
             if (merchant.isOwner(c.getPlayer())) {
                 merchant.setOpen(true);
@@ -63,19 +64,19 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
             }
         }
         try {
-            c.getChannelServer().getWorldInterface().addBuffsToStorage(c.getPlayer().getId(), c.getPlayer().getAllBuffs());
+            c.getChannelServer().getWorldInterface().addBuffsToStorage(chr.getId(), chr.getAllBuffs());
         } catch (RemoteException e) {
             c.getChannelServer().reconnectWorld();
         }
-        if (c.getPlayer().getMessenger() != null) {
+        if (chr.getMessenger() != null) {
             MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(c.getPlayer());
             try {
-                c.getChannelServer().getWorldInterface().silentLeaveMessenger(c.getPlayer().getMessenger().getId(), messengerplayer);
+                c.getChannelServer().getWorldInterface().silentLeaveMessenger(chr.getMessenger().getId(), messengerplayer);
             } catch (RemoteException e) {
                 c.getChannelServer().reconnectWorld();
             }
         }
-        c.getPlayer().changeChannel();
+        chr.changeChannel();
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
         } catch (IOException e) {

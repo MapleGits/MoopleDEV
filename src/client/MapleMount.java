@@ -26,7 +26,7 @@ import server.TimerManager;
 import tools.MaplePacketCreator;
 
 /**
- * @author PurpleMadness
+ * @author PurpleMadness Patrick :O
  */
 public class MapleMount {
     private int itemid;

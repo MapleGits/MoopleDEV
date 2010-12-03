@@ -27,7 +27,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class CharlistRequestHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int server = slea.readShort();
+        slea.readByte();
+        byte server = slea.readByte();
         c.setWorld(server);
         c.setChannel(slea.readByte() + 1);
         c.sendCharList(server);

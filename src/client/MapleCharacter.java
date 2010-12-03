@@ -196,7 +196,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private transient int watk;
     private boolean hidden;
     private boolean canDoor = true;
-    private boolean inmts;
     private boolean whitechat = true;
     private boolean Berserk;
     private boolean hasMerchant;
@@ -264,10 +263,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private static String[] ariantroomleader = new String[3];
     private static int[] ariantroomslot = new int[3];
     private CashShop cashshop;
-    private long portaldelay = 0;
-    private int combocounter = 0;
-    private long lastattack = 0;
-    private int lastmobcount = 0;
+    private long portaldelay = 0, lastattack = 0;
+    private int combocounter = 0, lastmobcount = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
     private AutobanManager autoban;
@@ -2235,10 +2232,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         gainMeso(-getGuild().getIncreaseGuildCost(getGuild().getCapacity()), true, false, false);
     }
 
-    public boolean inMTS() {
-        return inmts;
-    }
-
     public boolean isActiveBuffedValue(int skillid) {
         LinkedList<MapleBuffStatValueHolder> allBuffs = new LinkedList<MapleBuffStatValueHolder>(effects.values());
         for (MapleBuffStatValueHolder mbsvh : allBuffs) {
@@ -3686,10 +3679,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         setMp(x);
         updateSingleStat(MapleStat.HP, hp);
         updateSingleStat(MapleStat.MP, mp);
-    }
-
-    public void setInMTS(boolean b) {
-        this.inmts = b;
     }
 
     public void setInt(int int_) {

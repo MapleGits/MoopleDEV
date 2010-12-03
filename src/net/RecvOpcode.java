@@ -170,7 +170,7 @@ public enum RecvOpcode {
     OPEN_ITEMUI(0xEB),
     CLOSE_ITEMUI(0xEC),
     USE_ITEMUI(0xED),
-    MTS_OP(0xFA),
+    MTS_OPERATION(0xFD),
     USE_MAPLELIFE(0xFE),
     USE_HAMMER(0x104);
     private int code = -2;
