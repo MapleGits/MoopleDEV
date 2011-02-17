@@ -21,15 +21,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.channel.handler;
 
+import client.IEquip;
 import client.IItem;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventory;
 import client.MapleInventoryType;
 import client.MapleRing;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.CashShop;
 import server.CashShop.CashItem;
@@ -186,35 +190,43 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             cs.addToInventory(item);
             mi.removeSlot(item.getPosition());
             c.announce(MaplePacketCreator.putIntoCashInventory(item, c.getAccID()));
-        } else if (action == 0x1C) { //crush ring (action 28)
+        } else if (action == 0x1D) { //crush ring (action 28)
             if (checkBirthday(c, slea.readInt())) {
                 int toCharge = slea.readInt();
                 int SN = slea.readInt();
                 String recipient = slea.readMapleAsciiString();
                 String text = slea.readMapleAsciiString();
                 CashItem ring = CashItemFactory.getItem(SN);
-                MapleCharacter partnerChar = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
-                if (partnerChar == null) {
-                    c.getPlayer().getClient().announce(MaplePacketCreator.serverNotice(1, "The partner you specified cannot be found.\r\nPlease make sure your partner is online and in the same channel."));
+                MapleCharacter partner = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
+                if (partner == null) {
+                    chr.getClient().announce(MaplePacketCreator.serverNotice(1, "The partner you specified cannot be found.\r\nPlease make sure your partner is online and in the same channel."));
                 } else {
-                    if (partnerChar.getGender() == c.getPlayer().getGender()) {
-                        c.getPlayer().dropMessage("You and your partner are the same gender, please buy a friendship ring.");
+                    if (partner.getGender() == chr.getGender()) {
+                        chr.dropMessage("You and your partner are the same gender, please buy a friendship ring.");
                         return;
                     }
-                    c.announce(MaplePacketCreator.showBoughtCashItem(ring.toItem(), c.getAccID()));
-                    cs.gainCash(toCharge, -ring.getPrice());
-                    MapleRing.createRing(ring.getItemId(), c.getPlayer(), partnerChar, text);
-                    c.getPlayer().dropMessage(1, "Successfully created a ring for both you and your partner!");
+                    IEquip item = (IEquip) ring.toItem();
+                    int ringid = MapleRing.createRing(ring.getItemId(), chr, partner);
+                    item.setRingId(ringid);
+                    cs.addToInventory(item);
+                    c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
+                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), ringid);
+                    cs.gainCash(toCharge, -ring.getPrice());                    
+                    try {
+                        chr.sendNote(partner.getName(), text);
+                    } catch (SQLException ex) {
+                    }
+                    partner.showNote();
                 }
             } else {
-                c.getPlayer().dropMessage("The birthday you entered was incorrect.");
+                chr.dropMessage("The birthday you entered was incorrect.");
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
         } else if (action == 0x20) { // everything is 1 meso...
             int itemId = CashItemFactory.getItem(slea.readInt()).getItemId();
-            if (c.getPlayer().getMeso() > 0) {
+            if (chr.getMeso() > 0) {
                 if (itemId == 4031180 || itemId == 4031192 || itemId == 4031191) {
-                    c.getPlayer().gainMeso(-1, false);
+                    chr.gainMeso(-1, false);
                     MapleInventoryManipulator.addById(c, itemId, (short) 1);
                     c.announce(MaplePacketCreator.showBoughtQuestItem(itemId));
                 }
@@ -232,15 +244,23 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 slea.readByte();
                 MapleCharacter partner = c.getChannelServer().getPlayerStorage().getCharacterByName(sentTo);
                 if (partner == null) {
-                    c.getPlayer().dropMessage("The partner you specified cannot be found.\r\nPlease make sure your partner is online and in the same channel.");
+                    chr.dropMessage("The partner you specified cannot be found.\r\nPlease make sure your partner is online and in the same channel.");
                 } else {
-                    c.announce(MaplePacketCreator.showBoughtCashItem(ring.toItem(), c.getAccID()));
+                    IEquip item = (IEquip) ring.toItem();
+                    int ringid = MapleRing.createRing(ring.getItemId(), chr, partner);
+                    item.setRingId(ringid);
+                    cs.addToInventory(item);
+                    c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
+                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), ringid);
                     cs.gainCash(payment, -ring.getPrice());
-                    MapleRing.createRing(ring.getItemId(), c.getPlayer(), partner, text);
-                    c.getPlayer().getClient().announce(MaplePacketCreator.serverNotice(1, "Successfully created a ring for both you and your partner!"));
+                    try {
+                        chr.sendNote(partner.getName(), text);
+                    } catch (SQLException ex) {
+                    }
+                    partner.showNote();
                 }
             } else {
-                c.getPlayer().dropMessage("The birthday you entered was incorrect.");
+                chr.dropMessage("The birthday you entered was incorrect.");
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
         } else {

@@ -45,7 +45,7 @@ public class RemoteStoreHandler extends AbstractMaplePacketHandler {
                 chr.setHiredMerchant(hm);
                 chr.announce(MaplePacketCreator.getHiredMerchant(chr, hm, false));
             } else {
-                chr.dropMessage(1, "Your store appears to be at Channel " + hm.getChannel());
+                c.announce(MaplePacketCreator.remoteChannelChange((byte) (hm.getChannel() - 1)));
             }
             return;
         } else {

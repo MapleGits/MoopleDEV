@@ -31,7 +31,6 @@ public interface IEquip extends IItem {
     byte getUpgradeSlots();
     byte getLevel();
     public byte getFlag();
-    public int getRingId();
     public short getStr();
     public short getDex();
     public short getInt();

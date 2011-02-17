@@ -41,7 +41,7 @@ public final class HiredMerchantRequest extends AbstractMaplePacketHandler {
         if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 23000, Arrays.asList(MapleMapObjectType.HIRED_MERCHANT)).isEmpty() && chr.getMapId() > 910000000 && chr.getMapId() < 910000023) {
             if (!chr.hasMerchant()) {
                 try {
-                    if (ItemFactory.MERCHANT.loadItems(chr.getId(), false).isEmpty()) {
+                    if (ItemFactory.MERCHANT.loadItems(chr.getId(), false).isEmpty() && chr.getMerchantMeso() == 0) {
                         c.announce(MaplePacketCreator.hiredMerchantBox());
                     } else {
                         chr.announce(MaplePacketCreator.retrieveFirstMessage());

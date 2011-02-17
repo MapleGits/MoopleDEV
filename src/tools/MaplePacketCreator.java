@@ -293,11 +293,13 @@ public class MaplePacketCreator {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         boolean isCash = ii.isCash(item.getItemId());
         boolean isPet = item.getPetId() > -1;
+        boolean isRing = false;
         IEquip equip = null;
         byte pos = item.getPosition();
         if (item.getType() == IItem.EQUIP)
             equip = (IEquip) item;
 
+        if (equip != null) isRing = equip.getRingId() > -1;
         if (!zeroPosition) {
             if (equip != null) {
                 if (pos < 0)
@@ -312,7 +314,7 @@ public class MaplePacketCreator {
         mplew.writeInt(item.getItemId());
         mplew.write(isCash ? 1 : 0);
         if (isCash) {
-            mplew.writeLong(isPet ? item.getPetId() : item.getCashId());
+            mplew.writeLong(isPet ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId());
         }
         addExpirationTime(mplew, item.getExpiration());
         if (isPet) {
@@ -337,7 +339,9 @@ public class MaplePacketCreator {
             }
             return;
         }
-
+        if (isRing) {
+            
+        }
         mplew.write(equip.getUpgradeSlots()); // upgrade slots
         mplew.write(equip.getLevel()); // level
         mplew.writeShort(equip.getStr()); // str
@@ -1593,7 +1597,7 @@ public class MaplePacketCreator {
 	mplew.writeInt(drop.getOwner()); // owner charid
         mplew.write(drop.getDropType()); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         mplew.writePos(dropto);
-        mplew.writeInt(drop.getOwner()); //?
+        mplew.writeInt(0); //?
 
         if (mod != 2) {
             mplew.writePos(dropfrom);
@@ -4851,6 +4855,15 @@ public class MaplePacketCreator {
         mplew.write(0x09);
         return mplew.getPacket();
     }
+
+    public static MaplePacket remoteChannelChange(byte ch) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SEND_TITLE_BOX.getValue()); // header.
+        mplew.write(0x10);
+        mplew.writeInt(0);//No idea yet
+        mplew.write(ch);
+        return mplew.getPacket();
+    }
     /*
      * Possible things for SEND_TITLE_BOX
      * 0x0E = 00 = Renaming Failed - Can't find the merchant, 01 = Renaming succesful
@@ -4858,7 +4871,7 @@ public class MaplePacketCreator {
      * 0x11 = You cannot sell any items when managing.. blabla
      * 0x12 = FKING POPUP LOL
      */
-    public static MaplePacket getHiredMerchant(MapleCharacter chr, HiredMerchant hm, boolean firstTime) {
+    public static MaplePacket getHiredMerchant(MapleCharacter chr, HiredMerchant hm, boolean firstTime) {//Thanks Dustin
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
@@ -4875,21 +4888,25 @@ public class MaplePacketCreator {
             }
         }
         mplew.write(-1);
-        mplew.writeShort(hm.isOwner(chr) ? hm.getMessages().size() : 0);
         if (hm.isOwner(chr)) {
-            for (int i = 0; i < hm.getMessages().size(); i++)
-                mplew.writeMapleAsciiString(hm.getMessages().get(i));
+            mplew.writeShort(hm.getMessages().size());
+            for (int i = 0; i < hm.getMessages().size(); i++) {
+                mplew.writeMapleAsciiString(hm.getMessages().get(i).getLeft());
+                mplew.write(hm.getMessages().get(i).getRight());
+            }
+        } else {
+            mplew.writeShort(0);
         }
         mplew.writeMapleAsciiString(hm.getOwner());
         if (hm.isOwner(chr)) {
             mplew.writeInt(hm.getTimeLeft());
             mplew.write(firstTime ? 1 : 0);
-	    mplew.writeInt(0);
-	    mplew.write(0);
+            mplew.write(0); //Sold items...
+	    mplew.writeInt(chr.getMerchantMeso());
         }
         mplew.writeMapleAsciiString(hm.getDescription());
-        mplew.write(0x10);
-        mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
+        mplew.write(0x10); //SLOTS, which is 16 for most stores...
+        mplew.writeInt(chr.getMeso());
         mplew.write(hm.getItems().size());
         if (hm.getItems().isEmpty()) {
             mplew.write(0);
@@ -4908,7 +4925,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.UPDATE_MERCHANT.getCode());
-        mplew.writeInt(hm.isOwner(chr) ? chr.getMerchantMeso() : 0);
+        mplew.writeInt(chr.getMeso());
         mplew.write(hm.getItems().size());
         for (MaplePlayerShopItem item : hm.getItems()) {
             mplew.writeShort(item.getBundles());
@@ -4919,7 +4936,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket hiredMerchantChat(String message, int slot) {
+    public static MaplePacket hiredMerchantChat(String message, byte slot) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(PlayerInteractionHandler.Action.CHAT.getCode());
@@ -5519,6 +5536,38 @@ public class MaplePacketCreator {
         mplew.writeMapleAsciiString(path);
         mplew.writeInt(1);
         return mplew.getPacket();
+    }
+
+    /**
+     * Sends a UI utility.
+     * 0x01 - Equipment Inventory.
+     * 0x02 - Stat Window.
+     * 0x03 - Skill Window.
+     * 0x05 - Keyboard Settings.
+     * 0x06 - Quest window.
+     * 0x09 - Monsterbook Window.
+     * 0x0A - Char Info
+     * 0x0B - Guild BBS
+     * 0x12 - Monster Carnival Window
+     * 0x16 - Party Search.
+     * 0x17 - Item Creation Window.
+     * 0x1A - My Ranking O.O
+     * 0x1B - Family Window
+     * 0x1C - Family Pedigree
+     * 0x1D - GM Story Board /funny shet
+     * 0x1E - Envelop saying you got mail from an admin. lmfao
+     * 0x1F - Medal Window
+     * 0x20 - Maple Event (???)
+     * 0x21 - Invalid Pointer Crash
+     *
+     * @param ui
+     * @return
+     */
+    public static MaplePacket openUI(byte ui) {
+    	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
+    	mplew.writeShort(SendOpcode.OPEN_UI.getValue());
+    	mplew.write(ui);
+    	return mplew.getPacket();
     }
 
     public static MaplePacket lockUI(boolean enable) {

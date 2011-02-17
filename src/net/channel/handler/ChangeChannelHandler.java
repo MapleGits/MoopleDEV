@@ -21,10 +21,12 @@
 */
 package net.channel.handler;
 
+import client.MapleBuffStat;
 import client.MapleCharacter;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
 import client.MapleClient;
+import client.MapleInventoryType;
 import java.io.IOException;
 import net.AbstractMaplePacketHandler;
 import net.world.MapleMessengerCharacter;
@@ -76,7 +78,23 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
                 c.getChannelServer().reconnectWorld();
             }
         }
-        chr.changeChannel();
+        chr.cancelMagicDoor();
+        chr.saveCooldowns();
+        chr.getExpirationTask().cancel(false);
+        if (chr.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
+            chr.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
+        }
+        if (chr.getBuffedValue(MapleBuffStat.PUPPET) != null) {
+            chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
+        }
+        if (chr.getBuffedValue(MapleBuffStat.COMBO) != null) {
+            chr.cancelEffectFromBuffStat(MapleBuffStat.COMBO);
+        }
+        chr.getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
+        chr.saveToDB(true);
+        chr.getMap().removePlayer(chr);
+        chr.getClient().getChannelServer().removePlayer(chr);
+        chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
         } catch (IOException e) {

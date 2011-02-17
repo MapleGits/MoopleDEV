@@ -272,12 +272,17 @@ public class CashShop {
     }
 
     public void gift(int recipient, String from, String message, int sn) {
+        gift(recipient, from, message, sn, -1);
+    }
+
+    public void gift(int recipient, String from, String message, int sn, int ringid) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?, ?)");
             ps.setInt(1, recipient);
             ps.setString(2, from);
             ps.setString(3, message);
             ps.setInt(4, sn);
+            ps.setInt(5, ringid);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException sqle) {
@@ -296,13 +301,17 @@ public class CashShop {
 
             while (rs.next()) {
                 CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
-                IItem item = cItem.toItem();
+                IItem item = cItem.toItem();              
                 item.setGiftFrom(rs.getString("from"));
+                item.setRingId(rs.getInt("ringid"));
+            
+                
                 gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
 
                 if (CashItemFactory.isPackage(cItem.getItemId())) {
                     for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
                         packageItem.setGiftFrom(rs.getString("from"));
+                        packageItem.setRingId(rs.getInt("ringid"));
                         addToInventory(packageItem);
                     }
                 } else {

@@ -2482,6 +2482,15 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     MaplePet pet = MaplePet.loadFromDb(itemz.getItemId(), itemz.getPosition(), itemz.getPetId());
                     if (pet.isSummoned())
                         ret.addPet(pet);
+
+                    continue;
+                }
+                if (item.getRight().equals(MapleInventoryType.EQUIP) || item.getRight().equals(MapleInventoryType.EQUIPPED)) {
+                    if (itemz.getRingId() > -1) {
+                        MapleRing ring = MapleRing.loadFromDb(itemz.getRingId());
+                        if (ring.getItemId() > 1112012) ret.addFriendshipRing(ring);
+                        else ret.addCrushRing(ring);
+                    }
                 }
             }
             if (channelserver) {
@@ -4394,26 +4403,5 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             pendantOfSpirit = null;
         }
         pendantExp = 0;
-    }
-
-    public void changeChannel() {
-        expiretask.cancel(false);
-        cancelMagicDoor();
-        saveCooldowns();
-
-        if (getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
-            cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
-        }
-        if (getBuffedValue(MapleBuffStat.PUPPET) != null) {
-            cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
-        }
-        if (getBuffedValue(MapleBuffStat.COMBO) != null) {
-            cancelEffectFromBuffStat(MapleBuffStat.COMBO);
-        }
-        getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
-        saveToDB(true);
-        getMap().removePlayer(this);
-        getClient().getChannelServer().removePlayer(this);
-        getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
     }
 }

@@ -30,7 +30,6 @@ public class Equip extends Item implements IEquip {
     private byte upgradeSlots;
     private byte level, flag, itemLevel;
     private short str, dex, _int, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, vicious;
-    private int ringid;
     private int itemExp;
     private boolean wear = false;
 
@@ -38,27 +37,18 @@ public class Equip extends Item implements IEquip {
         super(id, position, (short) 1);
         this.itemExp = 0;
         this.itemLevel = 1;
-        this.ringid = -1;
     }
 
-    public Equip(int id, byte position, int slots, int ringid) {
+    public Equip(int id, byte position, int slots) {
         super(id, position, (short) 1);
         this.upgradeSlots = (byte) slots;
-        this.itemExp = 0;
-        this.itemLevel = 1;
-        this.ringid = ringid;
-    }
-
-    public Equip(int id, byte position, int ringid) {
-        super(id, position, (short) 1);
-        this.ringid = ringid;
         this.itemExp = 0;
         this.itemLevel = 1;
     }
 
     @Override
     public IItem copy() {
-        Equip ret = new Equip(getItemId(), getPosition(), getUpgradeSlots(), ringid);
+        Equip ret = new Equip(getItemId(), getPosition(), getUpgradeSlots());
         ret.str = str;
         ret.dex = dex;
         ret._int = _int;
@@ -100,10 +90,6 @@ public class Equip extends Item implements IEquip {
 
     public byte getUpgradeSlots() {
         return upgradeSlots;
-    }
-
-    public int getRingId() {
-        return ringid;
     }
 
     public short getStr() {

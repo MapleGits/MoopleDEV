@@ -57,6 +57,7 @@ import server.events.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
+import server.maps.HiredMerchant;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -73,7 +74,7 @@ public class Commands {
         if (sub[0].equals("dispose")) {
             NPCScriptManager.getInstance().dispose(c);
             c.announce(MaplePacketCreator.enableActions());
-            chr.message("Done.");
+            chr.message("Done.");         
         } else {
             if (chr.gmLevel() == 0) {
                 chr.yellowMessage("Player Command " + heading + sub[0] + " does not excist");
@@ -108,7 +109,9 @@ public class Commands {
         } else if (sub[0].equals("cody")) {
             NPCScriptManager.getInstance().start(c, 9200000, null, null);
         } else if (sub[0].equals("dc")) {
-            cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
+            MapleCharacter chr = cserv.getPlayerStorage().getCharacterByName(sub[1]);
+            if (player.gmLevel() > chr.gmLevel())
+                cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
         } else if (sub[0].equals("exprate")) {
             ServerConstants.EXP_RATE = (byte) (Integer.parseInt(sub[1]) % 128);
             cserv.broadcastPacket(MaplePacketCreator.serverNotice(6, "Exp Rate has been changed to " + Integer.parseInt(sub[1]) + "x."));
@@ -238,11 +241,6 @@ public class Commands {
            if (c.getPlayer().getMap().hasEventNPC()) {
             if (sub[1].equals("treasure")) {
                 c.getChannelServer().setEvent(new MapleEvent(109010000, 50));
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
             } else if (sub[1].equals("ox")) {
                 c.getChannelServer().setEvent(new MapleEvent(109020001, 50));
             try {
@@ -278,6 +276,8 @@ public class Commands {
             } catch (Exception e) {
                 cserv.reconnectWorld();
             }
+
+
             } else {
                 player.message("Wrong Syntax: /scheduleevent treasure, ox, ola, fitness, snowball or coconut");
             }

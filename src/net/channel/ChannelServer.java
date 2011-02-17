@@ -203,11 +203,11 @@ public class ChannelServer implements Runnable {
         boolean error = true;
         while (error) {
             try {
+                for (HiredMerchant hm : getHiredMerchants().values()) {
+                    hm.saveItems(true);
+                }
                 for (MapleCharacter chr : players.getAllCharacters()) {
                     synchronized (chr) {
-                        if (chr.getHiredMerchant().isOpen()) {
-                            chr.getHiredMerchant().saveItems();
-                        }
                         chr.getClient().disconnect();
                     }
                     error = false;
@@ -401,7 +401,16 @@ public class ChannelServer implements Runnable {
             public void run() {
                 for (ChannelServer channel : getAllInstances()) {
                     for (MapleCharacter mc : channel.getPlayerStorage().getAllCharacters()) {
-                        mc.getClient().disconnect();
+                        mc.saveToDB(true);
+                        if (mc.getHiredMerchant() != null) {
+                            if (mc.getHiredMerchant().isOpen()) {
+                                try {
+                                    mc.getHiredMerchant().saveItems(true);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -450,11 +459,13 @@ public class ChannelServer implements Runnable {
         }
     }
 
-    public final MapleCharacter getCharacterFromAllServers(int id) {
-        MapleCharacter ret = players.getCharacterById(id);
+    public static MapleCharacter getCharacterFromAllServers(int id) {
+        for (ChannelServer cserv_ : ChannelServer.getAllInstances()) {
+            MapleCharacter ret = cserv_.getPlayerStorage().getCharacterById(id);
             if (ret != null) {
                 return ret;
-            }        
+            }
+        }
         return null;
     }
 

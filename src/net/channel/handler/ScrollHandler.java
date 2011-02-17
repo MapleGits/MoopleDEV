@@ -118,7 +118,7 @@ public final class ScrollHandler extends AbstractMaplePacketHandler {
     }
 
     private boolean isCleanSlate(int scrollId) {
-        return scrollId > 20489999 && scrollId < 2049004;
+        return scrollId > 2048999 && scrollId < 2049004;
     }
 
     public boolean canScroll(int scrollid, int itemid) {

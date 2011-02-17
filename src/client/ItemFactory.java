@@ -77,7 +77,7 @@ public enum ItemFactory {
 			MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
 
 			if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                            Equip equip = new Equip(rs.getInt("itemid"), (byte) rs.getInt("position"), rs.getInt("ringid"));
+                            Equip equip = new Equip(rs.getInt("itemid"), (byte) rs.getInt("position"));
                             equip.setOwner(rs.getString("owner"));
                             equip.setQuantity((short) rs.getInt("quantity"));
                             equip.setAcc((short) rs.getInt("acc"));
@@ -109,6 +109,7 @@ public enum ItemFactory {
                             item.setExpiration(rs.getLong("expiration"));
                             item.setGiftFrom(rs.getString("giftFrom"));
                             item.setFlag((byte) rs.getInt("flag"));
+                            item.setRingId(rs.getInt("ringid"));
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
                 }
@@ -130,8 +131,8 @@ public enum ItemFactory {
 		ps.setInt(2, id);
 		ps.executeUpdate();
 		ps.close();
-		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 		for (Pair<IItem, MapleInventoryType> pair : items) {
 			IItem item = pair.getLeft();
@@ -145,8 +146,9 @@ public enum ItemFactory {
 			ps.setInt(7, item.getQuantity());
 			ps.setString(8, item.getOwner());
 			ps.setInt(9, item.getPetId());
-			ps.setLong(10, item.getExpiration());
-                        ps.setString(11, item.getGiftFrom());
+                        ps.setInt(10, item.getRingId());
+			ps.setLong(11, item.getExpiration());
+                        ps.setString(12, item.getGiftFrom());
 			ps.executeUpdate();
 
 			if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
@@ -175,11 +177,10 @@ public enum ItemFactory {
 				pse.setInt(16, equip.getHands());
 				pse.setInt(17, equip.getSpeed());
 				pse.setInt(18, equip.getJump());
-                                pse.setInt(19, equip.getRingId());
-                                pse.setInt(20, 0);
-				pse.setInt(21, equip.getVicious());
-                                pse.setInt(22, equip.getFlag());
-                                pse.setInt(23, equip.getItemExp());
+                                pse.setInt(19, 0);
+				pse.setInt(20, equip.getVicious());
+                                pse.setInt(21, equip.getFlag());
+                                pse.setInt(22, equip.getItemExp());
 				pse.executeUpdate();
 			}
 		}

@@ -1891,17 +1891,20 @@ public class MapleMap {
     }
 
     public String getEventNPC() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Talk to ");
         if (mapid == 60000) {
-            return "Talk to Paul!";
+            sb.append("Paul!");
         } else if (mapid == 104000000) {
-            return "Talk to Jean!";
+            sb.append("Jean!");
         } else if (mapid == 200000000) {
-            return "Talk to Martin!";
+            sb.append("Martin!");
         } else if (mapid == 220000000) {
-            return "Talk to Tony!";
+            sb.append("Tony!");
         } else {
             return null;
         }
+        return sb.toString();
     }
 
     public boolean hasEventNPC() {

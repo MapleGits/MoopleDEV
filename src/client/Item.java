@@ -31,7 +31,7 @@ public class Item implements IItem {
     private int id, cashId, sn;
     private byte position;
     private short quantity;
-    private int petid = -1;
+    private int petid = -1, ringid = -1;
     private String owner = "";
     protected List<String> log;
     private byte flag;
@@ -170,5 +170,13 @@ public class Item implements IItem {
 
     public void setGiftFrom(String giftFrom) {
         this.giftFrom = giftFrom;
+    }
+
+    public int getRingId() {
+        return ringid;
+    }
+
+    public void setRingId(int id) {
+        this.ringid = id;
     }
 }

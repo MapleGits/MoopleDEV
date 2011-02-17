@@ -42,7 +42,7 @@ public final class MesoDropHandler extends AbstractMaplePacketHandler {
         int meso = slea.readInt();
         if (meso <= c.getPlayer().getMeso() && meso > 9 && meso < 50001) {
             c.getPlayer().gainMeso(-meso, false, true, false);
-            c.getPlayer().getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
+            c.getPlayer().getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 2);
         }
     }
 }

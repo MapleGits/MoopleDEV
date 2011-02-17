@@ -45,5 +45,6 @@ public interface IItem extends Comparable<IItem> {
     int getSN();
     String getGiftFrom();
     void setGiftFrom(String giftFrom);
-
+    int getRingId();
+    void setRingId(int id);
 }

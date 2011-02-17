@@ -30,6 +30,7 @@ import client.MapleInventoryType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
@@ -84,14 +85,16 @@ public class FredrickHandler extends AbstractMaplePacketHandler {
         }
     }
 
-    private static final boolean check(MapleCharacter chr, List<Pair<IItem, MapleInventoryType>> items) {
+    private static boolean check(MapleCharacter chr, List<Pair<IItem, MapleInventoryType>> items) {
         if (chr.getMeso() + chr.getMerchantMeso() < 0) {
             return false;
         }
+        List<MapleInventoryType> li = new LinkedList<MapleInventoryType>();
 	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 	for (Pair<IItem, MapleInventoryType> item : items) {
 	    final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getLeft().getItemId());
-	    if (invtype == MapleInventoryType.EQUIP) {
+	    if (!li.contains(invtype)) li.add(invtype);
+            if (invtype == MapleInventoryType.EQUIP) {
 		eq++;
 	    } else if (invtype == MapleInventoryType.USE) {
 		use++;
@@ -103,17 +106,24 @@ public class FredrickHandler extends AbstractMaplePacketHandler {
 		cash++;
 	    }
 	}
-	if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq
-		|| chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use
-		|| chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup
-		|| chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc
-		|| chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) {
-	    return false;
-	}
+        for (MapleInventoryType mit : li) {
+            if (mit == MapleInventoryType.EQUIP) {
+                if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq) return false;
+            } else if (mit == MapleInventoryType.USE) {
+		if (chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use) return false;
+            } else if (mit == MapleInventoryType.SETUP) {
+		if( chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup) return false;
+            } else if (mit == MapleInventoryType.ETC) {
+		if (chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc) return false;
+            } else if (mit == MapleInventoryType.CASH) {
+		if (chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) return false;
+            }
+        }
+
 	return true;
     }
 
-    private static final boolean deleteItems(MapleCharacter chr) {
+    private static boolean deleteItems(MapleCharacter chr) {
 	try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("DELETE FROM `inventoryitems` WHERE `type` = ? AND `characterid` = ?");

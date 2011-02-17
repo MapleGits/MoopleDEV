@@ -26,9 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import tools.DatabaseConnection;
-import server.MapleInventoryManipulator;
-import server.TimerManager;
-import tools.MaplePacketCreator;
 
 /**
  *
@@ -68,7 +65,7 @@ public class MapleRing implements Comparable<MapleRing> {
         }
     }
 
-    public static int createRing(int itemid, final MapleCharacter partner1, final MapleCharacter partner2, String message) {
+    public static int createRing(int itemid, final MapleCharacter partner1, final MapleCharacter partner2) {
         try {
             if (partner1 == null) {
                 return -2;
@@ -103,26 +100,9 @@ public class MapleRing implements Comparable<MapleRing> {
             ps.setInt(2, ringID[0]);
             ps.executeUpdate();
             ps.close();
-            MapleInventoryManipulator.addRing(partner1, itemid, ringID[0]);
-            MapleInventoryManipulator.addRing(partner2, itemid, ringID[1]);
-            TimerManager.getInstance().schedule(new Runnable() {
-                public void run() {
-                    partner1.getClient().getSession().write(MaplePacketCreator.getCharInfo(partner1));
-                    partner1.getMap().removePlayer(partner1);
-                    partner1.getMap().addPlayer(partner1);
-                    partner2.getClient().getSession().write(MaplePacketCreator.getCharInfo(partner2));
-                    partner2.getMap().removePlayer(partner2);
-                    partner2.getMap().addPlayer(partner2);
-                }
-            }, 1000);
-            partner1.dropMessage("Congratulations, you and " + partner2.getName() + " have successfully purchased a ring together!");
-            partner1.dropMessage("Please log off and log back in if the rings do not work.");
-            partner2.dropMessage("Congratulations, " + partner1.getName() + " has bought you a ring!");
-            partner2.dropMessage(partner1.getName() + "'s message to you: " + message);
-            partner2.dropMessage("Please log off and log back in if the rings do not work.");
-            return 1;
+            return ringID[0];
         } catch (SQLException ex) {
-            return 0;
+            return -1;
         }
     }
 
