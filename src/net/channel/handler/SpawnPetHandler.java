@@ -21,6 +21,7 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import java.awt.Point;
 import java.io.File;
 import java.sql.PreparedStatement;
@@ -43,15 +44,16 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
     private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Item.wz"));
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
         slea.readInt();
         byte slot = slea.readByte();
         slea.readByte();
         boolean lead = slea.readByte() == 1;
-        int petid = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getItemId();
+        int petid = chr.getInventory(MapleInventoryType.CASH).getItem(slot).getItemId();
         if (petid == 5000028 || petid == 5000047) //Handles Dragon AND Robos
         {
-            if (c.getPlayer().haveItem(petid + 1)) {
-                c.getPlayer().dropMessage(5, "You can't hatch your " + (petid == 5000028 ? "Dragon egg" : "Robo egg") + " if you already have a Baby " + (petid == 5000028 ? "Dragon." : "Robo."));
+            if (chr.haveItem(petid + 1)) {
+                chr.dropMessage(5, "You can't hatch your " + (petid == 5000028 ? "Dragon egg" : "Robo egg") + " if you already have a Baby " + (petid == 5000028 ? "Dragon." : "Robo."));
                 c.getSession().write(MaplePacketCreator.enableActions());
                 return;
             } else {
@@ -62,39 +64,40 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 }
                 try {
                     PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("DELETE FROM pets WHERE `petid` = ?");
-                    ps.setInt(1, c.getPlayer().getInventory(MapleInventoryType.CASH).findById(petid).getPetId());
+                    ps.setInt(1, chr.getInventory(MapleInventoryType.CASH).findById(petid).getPetId());
                     ps.executeUpdate();
                     ps.close();
                 } catch (SQLException ex) {
                 }
-                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId);
+                long expiration = chr.getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration();
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, petid, (short) 1, false, false);
+                MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId, expiration);
                 c.getSession().write(MaplePacketCreator.enableActions());
                 return;
             }
         }
-        MaplePet pet = MaplePet.loadFromDb(c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getItemId(), slot, c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot).getPetId());
-        if (c.getPlayer().getPetIndex(pet) != -1) {
-            c.getPlayer().unequipPet(pet, true);
+        MaplePet pet = MaplePet.loadFromDb(chr.getInventory(MapleInventoryType.CASH).getItem(slot).getItemId(), slot, chr.getInventory(MapleInventoryType.CASH).getItem(slot).getPetId());
+        if (chr.getPetIndex(pet) != -1) {
+            chr.unequipPet(pet, true);
         } else {
-            if (c.getPlayer().getSkillLevel(SkillFactory.getSkill(8)) == 0 && c.getPlayer().getPet(0) != null) {
-                c.getPlayer().unequipPet(c.getPlayer().getPet(0), false);
+            if (chr.getSkillLevel(SkillFactory.getSkill(8)) == 0 && chr.getPet(0) != null) {
+                chr.unequipPet(chr.getPet(0), false);
             }
             if (lead) {
-                c.getPlayer().shiftPetsRight();
+                chr.shiftPetsRight();
             }
-            Point pos = c.getPlayer().getPosition();
+            Point pos = chr.getPosition();
             pos.y -= 12;
             pet.setPos(pos);
-            pet.setFh(c.getPlayer().getMap().getFootholds().findBelow(pet.getPos()).getId());
+            pet.setFh(chr.getMap().getFootholds().findBelow(pet.getPos()).getId());
             pet.setStance(0);
             pet.setSummoned(true);
             pet.saveToDb();
-            c.getPlayer().addPet(pet);
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showPet(c.getPlayer(), pet, false, false), true);
+            chr.addPet(pet);
+            chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showPet(c.getPlayer(), pet, false, false), true);
             c.announce(MaplePacketCreator.petStatUpdate(c.getPlayer()));
             c.announce(MaplePacketCreator.enableActions());
-            c.getPlayer().startFullnessSchedule(PetDataFactory.getHunger(pet.getItemId()), pet, c.getPlayer().getPetIndex(pet));
+            chr.startFullnessSchedule(PetDataFactory.getHunger(pet.getItemId()), pet, chr.getPetIndex(pet));
         }
     }
 }

@@ -196,7 +196,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private transient int watk;
     private boolean hidden;
     private boolean canDoor = true;
-    private boolean whitechat = true;
     private boolean Berserk;
     private boolean hasMerchant;
     private int linkedLevel = 0;
@@ -271,6 +270,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
     private int pendantExp = 0; //Actually should just be equipExp
+    private int[] trockmaps = new int[5];
+    private int[] viptrockmaps = new int[10];
 
     private MapleCharacter() {
         setStance(0);
@@ -1611,10 +1612,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return getGender() == 0;
     }
 
-    public boolean getGMChat() {
-        return whitechat;
-    }
-
     public MapleGuild getGuild() {
         try {
             return client.getChannelServer().getWorldInterface().getGuild(getGuildId(), null);
@@ -2465,7 +2462,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.vanquisherStage = rs.getInt("vanquisherStage");
             ret.dojoPoints = rs.getInt("dojoPoints");
             ret.dojoStage = rs.getInt("lastDojoStage");
-            ret.whitechat = ret.gmLevel > 0;
             if (ret.guildid > 0) {
                 ret.mgc = new MapleGuildCharacter(ret);
             }
@@ -2528,6 +2524,30 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                         client.getChannelServer().reconnectWorld();
                     }
                 }
+            }
+            rs.close();
+            ps.close();
+            ps = con.prepareStatement("SELECT mapid,vip FROM trocklocations WHERE characterid = ? LIMIT 15");
+            ps.setInt(1, charid);
+            rs = ps.executeQuery();
+            byte v = 0;
+            byte r = 0;
+            while (rs.next()) {
+                if (rs.getInt("vip") == 1) {
+                    ret.viptrockmaps[v] = rs.getInt("mapid");
+                    v++;
+                } else {
+                    ret.trockmaps[r] = rs.getInt("mapid");
+                    r++;
+                }
+            }
+            while (v < 10) {
+                ret.viptrockmaps[v] = 999999999;
+                v++;
+            }
+            while (r < 5) {
+                ret.trockmaps[r] = 999999999;
+                r++;
             }
             rs.close();
             ps.close();
@@ -3346,6 +3366,25 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 }
             }
             ps.executeBatch();
+	    deleteWhereCharacterId(con, "DELETE FROM trocklocations WHERE characterid = ?");
+            ps = con.prepareStatement("INSERT INTO trocklocations(characterid, mapid, vip) VALUES (?, ?, 0)");
+	    for (int i = 0; i < getTrockSize(); i++) {
+		if (trockmaps[i] != 999999999) {
+		    ps.setInt(1, getId());
+		    ps.setInt(2, trockmaps[i]);
+		    ps.addBatch();
+		}
+	    }
+            ps.executeBatch();
+            ps = con.prepareStatement("INSERT INTO trocklocations(characterid, mapid, vip) VALUES (?, ?, 1)");
+	    for (int i = 0; i < getVipTrockSize(); i++) {
+		if (viptrockmaps[i] != 999999999) {
+		    ps.setInt(1, getId());
+		    ps.setInt(2, viptrockmaps[i]);
+		    ps.addBatch();
+		}
+	    }
+            ps.executeBatch();
             deleteWhereCharacterId(con, "DELETE FROM buddies WHERE characterid = ? AND pending = 0");
             ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`, `group`) VALUES (?, ?, 0, ?)");
             ps.setInt(1, id);
@@ -4066,10 +4105,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         controlled.remove(monster);
     }
 
-    public void toggleGMChat() {
-        whitechat = !whitechat;
-    }
-
     public void broadcast(MaplePacket packet) {
         client.announce(packet);
     }
@@ -4287,6 +4322,84 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return isbanned;
     }
 
+    public int[] getTrockMaps() {
+        return trockmaps;
+    }
+
+    public int[] getVipTrockMaps() {
+        return viptrockmaps;
+    }
+
+    public int getTrockSize() {
+	int ret = 0;
+	for (int i = 0; i < 5; i++) {
+	    if (trockmaps[i] != 999999999) {
+		ret++;
+	    }
+	}
+	return ret;
+    }
+
+    public void deleteFromTrocks(int map) {
+	for (int i = 0; i < 5; i++) {
+	    if (trockmaps[i] == map) {
+		trockmaps[i] = 999999999;
+		break;
+	    }
+	}
+    }
+
+    public void addTrockMap() {
+	if (getTrockSize() >= 5) {
+	    return;
+	}
+	trockmaps[getTrockSize()] = getMapId();
+    }
+
+    public boolean isTrockMap(int id) {
+	for (int i = 0; i < 5; i++) {
+	    if (trockmaps[i] == id) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    public int getVipTrockSize() {
+	int ret = 0;
+	for (int i = 0; i < 10; i++) {
+	    if (viptrockmaps[i] != 999999999) {
+		ret++;
+	    }
+	}
+	return ret;
+    }
+
+    public void deleteFromVipTrocks(int map) {
+	for (int i = 0; i < 10; i++) {
+	    if (viptrockmaps[i] == map) {
+		viptrockmaps[i] = 999999999;
+		break;
+	    }
+	}
+    }
+
+    public void addVipTrockMap() {
+	if (getVipTrockSize() >= 10) {
+	    return;
+	}
+
+	viptrockmaps[getVipTrockSize()] = getMapId();
+    }
+
+    public boolean isVipTrockMap(int id) {
+	for (int i = 0; i < 10; i++) {
+	    if (viptrockmaps[i] == id) {
+		return true;
+	    }
+	}
+	return false;
+    }
     //EVENTS
     private byte team = 0;
     private MapleFitness fitness;

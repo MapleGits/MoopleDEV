@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleClient;
@@ -30,20 +31,24 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         String s = slea.readMapleAsciiString();
+        MapleCharacter chr = c.getPlayer();
         char heading = s.charAt(0);
         if (heading == '/' || heading == '!' || heading == '@') {
             String[] sp = s.split(" ");
             sp[0] = sp[0].toLowerCase().substring(1);
             if (!Commands.executePlayerCommand(c, sp, heading)) {
-                if (c.getPlayer().isGM()) {
-                    c.getPlayer().addCommandToList(s);
+                if (chr.isGM()) {
+                    chr.addCommandToList(s);
                     if (!Commands.executeGMCommand(c, sp, heading)) {
                         Commands.executeAdminCommand(c, sp, heading);
                     }
                 }
             }
         } else {
-                c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getChatText(c.getPlayer().getId(), s, c.getPlayer().getGMChat(), slea.readByte()));
+            if (!chr.isHidden())
+                chr.getMap().broadcastMessage(MaplePacketCreator.getChatText(chr.getId(), s, chr.isGM(), slea.readByte()));
+            else
+                chr.getMap().broadcastGMMessage(MaplePacketCreator.getChatText(chr.getId(), s, chr.isGM(), slea.readByte()));
         }
     }
 }

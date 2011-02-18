@@ -319,10 +319,9 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 remove(c, itemId);
             } else if (itemType == 504) { // vip teleport rock
                 String error1 = "Either the player could not be found or you were trying to teleport to an illegal location.";
-                byte rocktype = slea.readByte();
+                boolean vip = slea.readByte() == 1;
                 remove(c, itemId);
-                c.announce(MaplePacketCreator.trockRefreshMapList(player.getId(), rocktype));
-                if (rocktype == 0) {
+                if (!vip) {
                     int mapId = slea.readInt();
                     if (c.getChannelServer().getMapFactory().getMap(mapId).getForcedReturnId() == 999999999) {
                         player.changeMap(c.getChannelServer().getMapFactory().getMap(mapId));
@@ -338,7 +337,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     if (victim != null) {
                         MapleMap target = victim.getMap();
                         if (c.getChannelServer().getMapFactory().getMap(c.getChannelServer().getWorldInterface().getLocation(name).map).getForcedReturnId() == 999999999 || victim.getMapId() < 100000000) {
-                            if (!victim.isGM()) {
+                            if (victim.gmLevel() <= player.gmLevel()) {
                                 if (itemId == 5041000 || victim.getMapId() / player.getMapId() == 1) { //viprock & same continent
                                     player.changeMap(target, target.findClosestSpawnpoint(victim.getPosition()));
                                     success = true;

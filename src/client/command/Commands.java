@@ -57,7 +57,6 @@ import server.events.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
-import server.maps.HiredMerchant;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -74,7 +73,7 @@ public class Commands {
         if (sub[0].equals("dispose")) {
             NPCScriptManager.getInstance().dispose(c);
             c.announce(MaplePacketCreator.enableActions());
-            chr.message("Done.");         
+            chr.message("Done.");
         } else {
             if (chr.gmLevel() == 0) {
                 chr.yellowMessage("Player Command " + heading + sub[0] + " does not excist");
@@ -101,13 +100,8 @@ public class Commands {
             } else {
                 player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
             }
-        } else if (sub[0].equals("chattype")) {
-            player.toggleGMChat();
-            player.message("You now chat in " + (player.getGMChat() ? "white." : "black."));
         } else if (sub[0].equals("cleardrops")) {
             player.getMap().clearDrops(player);
-        } else if (sub[0].equals("cody")) {
-            NPCScriptManager.getInstance().start(c, 9200000, null, null);
         } else if (sub[0].equals("dc")) {
             MapleCharacter chr = cserv.getPlayerStorage().getCharacterByName(sub[1]);
             if (player.gmLevel() > chr.gmLevel())
@@ -229,12 +223,12 @@ public class Commands {
                 cserv.reconnectWorld();
             }
         } else if (sub[0].equals("openportal")) {
-           c.getPlayer().getMap().getPortal(sub[1]).setPortalState(true);
+           player.getMap().getPortal(sub[1]).setPortalState(true);
         } else if (sub[0].equals("closeportal")) {
-           c.getPlayer().getMap().getPortal(sub[1]).setPortalState(false);
+           player.getMap().getPortal(sub[1]).setPortalState(false);
         } else if (sub[0].equals("startevent")) {
-            for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
-                 c.getPlayer().getMap().startEvent(chr);
+            for (MapleCharacter chr : player.getMap().getCharacters()) {
+                 player.getMap().startEvent(chr);
             }
             c.getChannelServer().setEvent(null);
         } else if (sub[0].equals("scheduleevent")) {
@@ -392,9 +386,6 @@ public class Commands {
             }
             player.message("Unbanned " + sub[1]);
         } else {
-            if (player.gmLevel() == 1) {
-                player.yellowMessage("GM Command " + heading + sub[0] + " does not exist");
-            }
             return false;
         }
         return true;

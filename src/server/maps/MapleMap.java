@@ -309,7 +309,7 @@ public class MapleMap {
 	    return;
 	}
 	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : 0); //chr.getParty() != null ? 1 : 
+	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0); //chr.getParty() != null ? 1 :
 	final int mobpos = mob.getPosition().x, chServerrate = ServerConstants.DROP_RATE;
 	IItem idrop;
 	byte d = 1;
