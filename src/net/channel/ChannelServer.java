@@ -245,7 +245,7 @@ public class ChannelServer implements Runnable {
 
     public void addPlayer(MapleCharacter chr) {
         players.registerPlayer(chr);
-        chr.broadcast(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
+        chr.announce(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
     }
 
     public IPlayerStorage getPlayerStorage() {
@@ -267,7 +267,7 @@ public class ChannelServer implements Runnable {
 
     public void broadcastPacket(MaplePacket data) {
         for (MapleCharacter chr : players.getAllCharacters()) {
-            chr.broadcast(data);
+            chr.announce(data);
         }
     }
 
@@ -420,14 +420,14 @@ public class ChannelServer implements Runnable {
     public void broadcastGMPacket(MaplePacket data) {
         for (MapleCharacter chr : players.getAllCharacters()) {
             if (chr.isGM()) {
-                chr.broadcast(data);
+                chr.announce(data);
             }
         }
     }
 
     public void yellowWorldMessage(String msg) {
         for (MapleCharacter mc : getPlayerStorage().getAllCharacters()) {
-            mc.broadcast(MaplePacketCreator.sendYellowTip(msg));
+            mc.announce(MaplePacketCreator.sendYellowTip(msg));
         }
     }
 

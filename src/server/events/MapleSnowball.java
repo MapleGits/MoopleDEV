@@ -57,8 +57,8 @@ public class MapleSnowball {
 
         for (MapleCharacter chr : characters) {
             if (chr != null) {
-                chr.broadcast(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
-                chr.broadcast(MaplePacketCreator.getClock(600));
+                chr.announce(MaplePacketCreator.rollSnowBall(false, 1, map.getSnowball(0), map.getSnowball(1)));
+                chr.announce(MaplePacketCreator.getClock(600));
             }
         }
         hittable = true;
@@ -68,13 +68,13 @@ public class MapleSnowball {
                 if (map.getSnowball(team).getPosition() > map.getSnowball(team == 0 ? 1 : 0).getPosition()) {
                     for (MapleCharacter chr : characters) {
                         if (chr != null)
-                            chr.broadcast(MaplePacketCreator.rollSnowBall(false, 3, map.getSnowball(0), map.getSnowball(0)));
+                            chr.announce(MaplePacketCreator.rollSnowBall(false, 3, map.getSnowball(0), map.getSnowball(0)));
                     }
                     winner = true;
                 } else if (map.getSnowball(team == 0 ? 1 : 0).getPosition() > map.getSnowball(team).getPosition()) {
                     for (MapleCharacter chr : characters) {
                         if (chr != null)
-                            chr.broadcast(MaplePacketCreator.rollSnowBall(false, 4, map.getSnowball(0), map.getSnowball(0)));
+                            chr.announce(MaplePacketCreator.rollSnowBall(false, 4, map.getSnowball(0), map.getSnowball(0)));
                     }
                     winner = true;
                 } //Else
@@ -144,7 +144,7 @@ public class MapleSnowball {
     public void message(int message) {
         for (MapleCharacter chr : characters) {
             if (chr != null)
-                chr.broadcast(MaplePacketCreator.snowballMessage(team, message));
+                chr.announce(MaplePacketCreator.snowballMessage(team, message));
         }
     }
 

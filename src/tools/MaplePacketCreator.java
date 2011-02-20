@@ -245,14 +245,14 @@ public class MaplePacketCreator {
         }
     }
 
-    private static void addCharEntry(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+    private static void addCharEntry(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean viewall) {
         addCharStats(mplew, chr);
         addCharLook(mplew, chr, false);
         if (chr.isGM()) {
             mplew.writeShort(0);
             return;
         }
-        mplew.write(0);
+        if (!viewall) mplew.write(0);
         mplew.write(1); // world rank enabled (next 4 ints are not sent if disabled) Short??
         mplew.writeInt(chr.getRank()); // world rank
         mplew.writeInt(chr.getRankMove()); // move (negative is downwards)
@@ -790,7 +790,7 @@ public class MaplePacketCreator {
         List<MapleCharacter> chars = c.loadCharacters(serverId);
         mplew.write((byte) chars.size());
         for (MapleCharacter chr : chars) {
-            addCharEntry(mplew, chr);
+            addCharEntry(mplew, chr, false);
         }
         if (ServerConstants.ENABLE_PIC)
             mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
@@ -2237,7 +2237,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.ADD_NEW_CHAR_ENTRY.getValue());
         mplew.write(0);
-        addCharEntry(mplew, chr);
+        addCharEntry(mplew, chr, false);
         return mplew.getPacket();
     }
 
@@ -4427,12 +4427,11 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket showAllCharacter(int chars, int unk) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(11);
         mplew.writeShort(SendOpcode.ALL_CHARLIST.getValue());
         mplew.write(1);
         mplew.writeInt(chars);
         mplew.writeInt(unk);
-        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -4443,9 +4442,8 @@ public class MaplePacketCreator {
         mplew.write(worldid);
         mplew.write(chars.size());
         for (MapleCharacter chr : chars) {
-            addCharEntry(mplew, chr);
+            addCharEntry(mplew, chr, true);
         }
-        mplew.writeShort(0);
         return mplew.getPacket();
     }
 

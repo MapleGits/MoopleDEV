@@ -111,7 +111,7 @@ public class MonsterCarnivalParty {
         final String effect = winner ? "quest/carnival/win" : "quest/carnival/lose";
 
         for (final MapleCharacter chr : members) {
-            chr.broadcast(MaplePacketCreator.showEffect(effect));
+            chr.announce(MaplePacketCreator.showEffect(effect));
         }
     }
 

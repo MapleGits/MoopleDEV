@@ -533,7 +533,7 @@ public class MapleMap {
         removeMapObject(monster);
         if (monster.getCP() > 0 && chr.getCarnival() != null) {
             chr.getCarnivalParty().addCP(chr, monster.getCP());
-            chr.broadcast(MaplePacketCreator.updateCP(chr.getCP(), chr.getObtainedCP()));
+            chr.announce(MaplePacketCreator.updateCP(chr.getCP(), chr.getObtainedCP()));
             broadcastMessage(MaplePacketCreator.updatePartyCP(chr.getCarnivalParty()));
             return;
         }
@@ -1181,7 +1181,7 @@ public class MapleMap {
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getOla().getTimeLeft() / 1000)));
 
         if (mapid == 109060000)
-            chr.broadcast(MaplePacketCreator.rollSnowBall(true, 0, null, null));
+            chr.announce(MaplePacketCreator.rollSnowBall(true, 0, null, null));
 
         MonsterCarnival carnival = chr.getCarnival();
         MonsterCarnivalParty cparty = chr.getCarnivalParty();

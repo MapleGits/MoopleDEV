@@ -2390,6 +2390,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (this.guildid > 0) {
             getGuild().broadcast(MaplePacketCreator.levelUpMessage(2, level, name), this.getId());
         }
+        if (MapleInventoryManipulator.checkSpace(client, 4310000, (short) 1, "")) MapleInventoryManipulator.addById(client, 4310000, (short) 1);
         guildUpdate();
         if (ServerConstants.GMS_LIKE) saveToDB(true);
     }

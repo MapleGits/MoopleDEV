@@ -54,7 +54,7 @@ public final class MonsterCarnivalHandler extends AbstractMaplePacketHandler{
                         chr.getMap().spawnCPQMonster(MapleLifeFactory.getMonster(getMonster(number)), new Point(1, 1), carnival.oppositeTeam(chr.getCarnivalParty()).getTeam());
                         chr.getCarnivalParty().summon();
                     } else
-                        chr.broadcast(MaplePacketCreator.CPQMessage((byte) 2));
+                        chr.announce(MaplePacketCreator.CPQMessage((byte) 2));
 
                 } else if (tab == 1) {
 
@@ -96,9 +96,9 @@ public final class MonsterCarnivalHandler extends AbstractMaplePacketHandler{
                 chr.getMap().broadcastMessage(MaplePacketCreator.CPQMessage((byte) 1));
             }
         } else {
-            chr.broadcast(MaplePacketCreator.CPQMessage((byte) 5));
+            chr.announce(MaplePacketCreator.CPQMessage((byte) 5));
         }
-        chr.broadcast(MaplePacketCreator.enableActions());
+        chr.announce(MaplePacketCreator.enableActions());
     }
 
     public int getMonster(int num) {
