@@ -29,11 +29,13 @@ public class MapleShopItem {
     private short buyable;
     private int itemId;
     private int price;
+    private int pitch;
 
-    public MapleShopItem(short buyable, int itemId, int price) {
+    public MapleShopItem(short buyable, int itemId, int price, int pitch) {
         this.buyable = buyable;
         this.itemId = itemId;
         this.price = price;
+        this.pitch = pitch;
     }
 
     public short getBuyable() {
@@ -46,5 +48,9 @@ public class MapleShopItem {
 
     public int getPrice() {
         return price;
+    }
+
+    public int getPitch() {
+        return pitch;
     }
 }

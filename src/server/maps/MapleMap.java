@@ -388,13 +388,14 @@ public class MapleMap {
     }
 
     public final void spawnMesoDrop(final int meso, final Point position, final MapleMapObject dropper, final MapleCharacter owner, final boolean playerDrop, final byte droptype) {
-	final MapleMapItem mdrop = new MapleMapItem(meso, position, dropper, owner, droptype, playerDrop);
+	final Point droppos = calcDropPos(position, position);
+        final MapleMapItem mdrop = new MapleMapItem(meso, droppos, dropper, owner, droptype, playerDrop);
 
 	spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 	    @Override
 	    public void sendPackets(MapleClient c) {
-		c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
+		c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
 	    }
 	}, null);
 

@@ -4105,10 +4105,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         controlled.remove(monster);
     }
 
-    public void broadcast(MaplePacket packet) {
-        client.announce(packet);
-    }
-
     public void unequipAllPets() {
         for (int i = 0; i < 3; i++) {
             if (pets[i] != null) {
@@ -4303,7 +4299,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void autoban(String reason, int greason) {
         Calendar cal = Calendar.getInstance();
-        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         Timestamp TS = new Timestamp(cal.getTimeInMillis());
         try {
             Connection con = DatabaseConnection.getConnection();

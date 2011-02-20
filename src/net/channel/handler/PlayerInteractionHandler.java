@@ -471,9 +471,6 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
         } else if (mode == Action.MERCHANT_ORGANIZE.getCode()) {
             HiredMerchant merchant = chr.getHiredMerchant();
             if (!merchant.isOwner(chr)) return;
-            for (int i = 0; i < merchant.getItems().size(); i++) {
-                if (!merchant.getItems().get(i).isExist()) merchant.removeFromSlot(i);
-            }
             int possible = Integer.MAX_VALUE - chr.getMerchantMeso();
             if (possible > 0) {
                 if (possible < chr.getMerchantMeso()) {
@@ -483,6 +480,9 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     chr.gainMeso(chr.getMerchantMeso(), false);
                     chr.setMerchantMeso(0);
                 }
+            }
+            for (int i = 0; i < merchant.getItems().size(); i++) {
+                if (!merchant.getItems().get(i).isExist()) merchant.removeFromSlot(i);
             }
             if (merchant.getItems().isEmpty()) {
                 c.announce(MaplePacketCreator.hiredMerchantOwnerLeave());
