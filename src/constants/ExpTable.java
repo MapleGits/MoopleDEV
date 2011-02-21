@@ -37,12 +37,4 @@ public final class ExpTable {
     public static int getMountExpNeededForLevel(int level) {
         return mount[level];
     }
-
-    public static int getReverseItemExpNeededForLevel(int num) {
-        return 5 * num + 65;
-    }
-
-    public static int getTimelessItemExpNeededForLevel(int i) {
-        return 10 * i + 70;
-    }
 }

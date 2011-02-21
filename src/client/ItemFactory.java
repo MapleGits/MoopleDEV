@@ -98,8 +98,9 @@ public enum ItemFactory {
                             equip.setWatk((short) rs.getInt("watk"));
                             equip.setWdef((short) rs.getInt("wdef"));
                             equip.setUpgradeSlots((byte) rs.getInt("upgradeslots"));
-                            equip.setLevel((byte) rs.getInt("level"));
+                            equip.setLevel((byte) rs.getByte("level"));
                             equip.setItemExp(rs.getInt("itemexp"));
+                            equip.setItemLevel(rs.getByte("itemlevel"));
                             equip.setExpiration(rs.getLong("expiration"));
                             equip.setGiftFrom(rs.getString("giftFrom"));
                             equip.setRingId(rs.getInt("ringid"));
@@ -132,7 +133,7 @@ public enum ItemFactory {
 		ps.executeUpdate();
 		ps.close();
 		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 		for (Pair<IItem, MapleInventoryType> pair : items) {
 			IItem item = pair.getLeft();
@@ -179,8 +180,9 @@ public enum ItemFactory {
 				pse.setInt(18, equip.getJump());
                                 pse.setInt(19, 0);
 				pse.setInt(20, equip.getVicious());
-                                pse.setInt(21, equip.getItemExp());
-                                pse.setInt(22, equip.getRingId());
+                                pse.setInt(21, equip.getItemLevel());
+                                pse.setInt(22, equip.getItemExp());
+                                pse.setInt(23, equip.getRingId());
 				pse.executeUpdate();
 			}
 		}

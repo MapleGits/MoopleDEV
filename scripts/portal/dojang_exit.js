@@ -27,7 +27,7 @@
 
 function enter(pi) {
     try {
-        pi.warp(pi.getPlayer().getSavedLocation("DOJO"));
+        pi.warp(pi.getPlayer().getSavedLocation("MIRROR"));
     } catch(err) {
         pi.warp(100000000);
     }

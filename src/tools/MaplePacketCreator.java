@@ -247,17 +247,16 @@ public class MaplePacketCreator {
     private static void addCharEntry(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean viewall) {
         addCharStats(mplew, chr);
         addCharLook(mplew, chr, false);
+        if (!viewall) mplew.write(0);
         if (chr.isGM()) {
-            mplew.writeShort(0);
+            mplew.write(0);
             return;
         }
-        if (!viewall) mplew.write(0);
         mplew.write(1); // world rank enabled (next 4 ints are not sent if disabled) Short??
         mplew.writeInt(chr.getRank()); // world rank
         mplew.writeInt(chr.getRankMove()); // move (negative is downwards)
         mplew.writeInt(chr.getJobRank()); // job rank
         mplew.writeInt(chr.getJobRankMove()); // move (negative is downwards)
-
     }
 
     private static void addQuestInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
@@ -5699,11 +5698,11 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket showEquipmentLevelUp() {
-        return showSpecialEffect(17);
+        return showSpecialEffect(15);
     }
 
     public static MaplePacket showItemLevelup() {
-        return showSpecialEffect(17);
+        return showSpecialEffect(15);
     }
 
     /**
@@ -5715,7 +5714,6 @@ public class MaplePacketCreator {
      * 14 = Monster book pickup
      * 15 = Equipment levelup
      * 16 = Maker Skill Success
-     * 17 = Equipment levelup
      * 19 = Exp card [500, 200, 50]
      * @param effect
      * @return 

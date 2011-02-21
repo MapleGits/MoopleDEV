@@ -4532,4 +4532,17 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         pendantExp = 0;
     }
+
+    public void increaseEquipExp(int mobexp) {
+        MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
+        for (IItem item : getInventory(MapleInventoryType.EQUIPPED).list()) {
+            Equip nEquip = (Equip) item;
+            if (mii.getName(nEquip.getItemId()).contains("Reverse") || mii.getName(nEquip.getItemId()).contains("Timeless")) {
+                if ((mii.getName(nEquip.getItemId()).contains("Reverse") && nEquip.getItemLevel() < 4) || mii.getName(nEquip.getItemId()).contains("Timeless") && nEquip.getItemLevel() < 9) {
+                    nEquip.gainItemExp(client, mobexp, mii.getName(nEquip.getItemId()).contains("Timeless"));
+                
+                }
+            }
+        }
+    }
 }

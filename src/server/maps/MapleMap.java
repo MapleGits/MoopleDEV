@@ -492,6 +492,7 @@ public class MapleMap {
 
     public void killMonster(final MapleMonster monster, final MapleCharacter chr, final boolean withDrops, final boolean secondTime, int animation) {
         MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
+        chr.increaseEquipExp(monster.getExp());
         if (monster.getId() == 8810018 && !secondTime) {
             TimerManager.getInstance().schedule(new Runnable() {
 
@@ -1232,7 +1233,11 @@ public class MapleMap {
             characters.remove(chr);
         }
         removeMapObject(Integer.valueOf(chr.getObjectId()));
-        broadcastMessage(MaplePacketCreator.removePlayerFromMap(chr.getId()));
+        if (!chr.isHidden())
+            broadcastMessage(MaplePacketCreator.removePlayerFromMap(chr.getId()));
+        else
+            broadcastGMMessage(MaplePacketCreator.removePlayerFromMap(chr.getId()));
+        
         for (MapleMonster monster : chr.getControlledMonsters()) {
             monster.setController(null);
             monster.setControllerHasAggro(false);

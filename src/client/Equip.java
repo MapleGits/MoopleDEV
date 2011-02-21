@@ -21,16 +21,17 @@
 */
 package client;
 
-import constants.ExpTable;
 import java.util.LinkedList;
+import java.util.List;
+import server.MapleItemInformationProvider;
 import tools.MaplePacketCreator;
-import tools.Randomizer;
+import tools.Pair;
 
 public class Equip extends Item implements IEquip {
     private byte upgradeSlots;
     private byte level, flag, itemLevel;
     private short str, dex, _int, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, vicious;
-    private int itemExp;
+    private float itemExp;
     private int ringid = -1;
     private boolean wear = false;
 
@@ -68,9 +69,9 @@ public class Equip extends Item implements IEquip {
         ret.flag = flag;
         ret.vicious = vicious;
         ret.upgradeSlots = upgradeSlots;
-        ret.level = level;
-        ret.itemExp = itemExp;
         ret.itemLevel = itemLevel;
+        ret.itemExp = itemExp;
+        ret.level = level;
         ret.log = new LinkedList<String>(log);
         ret.setOwner(getOwner());
         ret.setQuantity(getQuantity());
@@ -238,43 +239,54 @@ public class Equip extends Item implements IEquip {
         this.level = level;
     }
 
-    public void gainLevel(MapleClient c, boolean timeless) { //GEY METHOD IS GEY
-        if (level < 6) {
-            if (c.getPlayer().getJob().isA(MapleJob.MAGICIAN)) {
-                this.matk += Randomizer.nextInt(5);
-                this._int += Randomizer.nextInt(1) + 1;
-                this.luk += Randomizer.nextInt(1);
-            } else {
-                this.watk += Randomizer.nextInt(3);
-            }
+    public void gainLevel(MapleClient c) {
+        List<Pair<String, Integer>> stats = MapleItemInformationProvider.getInstance().getItemLevelupStats(getItemId(), itemLevel);
+        for (Pair<String, Integer> stat : stats) {
+            if (stat.getLeft().equals("incDEX")) 
+                dex += stat.getRight();
+            else if(stat.getLeft().equals("incSTR")) 
+                str += stat.getRight();   
+            else if(stat.getLeft().equals("incINT")) 
+                _int += stat.getRight();  
+            else if(stat.getLeft().equals("incLUK")) 
+                luk += stat.getRight();
+            else if(stat.getLeft().equals("incMHP")) 
+                hp += stat.getRight();
+            else if(stat.getLeft().equals("incMMP")) 
+                mp += stat.getRight();
+             else if(stat.getLeft().equals("incPAD"))
+                watk += stat.getRight();
+             else if(stat.getLeft().equals("incPDD"))
+                wdef += stat.getRight();
         }
-        this.level++;
+        this.itemLevel++;
+        c.announce(MaplePacketCreator.showEquipmentLevelUp());
+        c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showForeignEffect(c.getPlayer().getId(), 15));
+        c.getPlayer().forceUpdateItem(MapleInventoryType.EQUIPPED, this);
     }
 
     public int getItemExp() {
-        return itemExp;
+        return (int) itemExp;
     }
 
     public void gainItemExp(MapleClient c, int gain, boolean timeless) {
-        itemExp += gain;
-        int expNeeded = 0;
-        if (timeless) {
-            expNeeded = ExpTable.getTimelessItemExpNeededForLevel(itemLevel + 1);
-        } else {
-            expNeeded = ExpTable.getReverseItemExpNeededForLevel(itemLevel + 1);
-        }
-        if (itemExp >= expNeeded) {
-            gainLevel(c, timeless);
-            c.getSession().write(MaplePacketCreator.showItemLevelup());
-        }
+        int expneeded = timeless ? (10 * itemLevel + 70) : (5 * itemLevel + 65);
+        float modifier = 364 / expneeded;
+        float exp = (expneeded / (1000000 * modifier * modifier)) * gain;
+        itemExp += exp;
+        if (itemExp >= 364) {
+            itemExp = (itemExp - 364);
+            gainLevel(c);
+        } else
+            c.getPlayer().forceUpdateItem(MapleInventoryType.EQUIPPED, this);
     }
 
-    public void setItemExp(int itemExp) {
-        this.itemExp = itemExp;
+    public void setItemExp(int exp) {
+        this.itemExp = exp;
     }
 
-    public int getItemLevel() {
-        return itemLevel;
+    public void setItemLevel(byte level) {
+        this.itemLevel = level;
     }
 
     @Override
@@ -307,5 +319,9 @@ public class Equip extends Item implements IEquip {
 
     public void wear(boolean yes) {
         wear = yes;
+    }
+
+    public byte getItemLevel() {
+        return itemLevel;
     }
 }

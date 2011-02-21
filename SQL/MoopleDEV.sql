@@ -17575,6 +17575,7 @@ CREATE TABLE `inventoryequipment` (
   `jump` int(11) NOT NULL DEFAULT '0',
   `locked` int(11) NOT NULL DEFAULT '0',
   `vicious` int(11) unsigned NOT NULL DEFAULT '0',
+  `itemlevel` int(11) unsigned NOT NULL DEFAULT '1',
   `itemexp` int(11) unsigned NOT NULL DEFAULT '0',
   `ringid` int(11) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`inventoryequipmentid`),
