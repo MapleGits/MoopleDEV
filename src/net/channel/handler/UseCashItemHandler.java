@@ -290,7 +290,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 String sendTo = slea.readMapleAsciiString();
                 String msg = slea.readMapleAsciiString();
                 try {
-                    player.sendNote(sendTo, msg);
+                    player.sendNote(sendTo, msg, (byte) 0);
                 } catch (SQLException e) {
                 }
                 remove(c, itemId);

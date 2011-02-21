@@ -160,6 +160,7 @@ public class CashShop {
     private ItemFactory factory;
     private List<IItem> inventory = new ArrayList<IItem>();
     private List<Integer> wishList = new ArrayList<Integer>();
+    private int notes = 0;
 
     public CashShop(int accountId, int characterId, int jobType) throws SQLException {
         this.accountId = accountId;
@@ -297,6 +298,7 @@ public class CashShop {
         }
     }
 
+
     public List<Pair<IItem, String>> loadGifts() {
         List<Pair<IItem, String>> gifts = new ArrayList<Pair<IItem, String>>();
         Connection con = DatabaseConnection.getConnection();
@@ -307,6 +309,7 @@ public class CashShop {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
+                notes++;
                 CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
                 IItem item = cItem.toItem();
                 IEquip equip = null;
@@ -339,6 +342,14 @@ public class CashShop {
         }
 
         return gifts;
+    }
+
+    public int getAvailableNotes() {
+        return notes;
+    }
+
+    public void decreaseNotes() {
+        notes--;
     }
 
     public void save() throws SQLException {

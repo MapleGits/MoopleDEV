@@ -32,6 +32,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.CashShop;
 import server.CashShop.CashItem;
@@ -94,6 +96,10 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             c.announce(MaplePacketCreator.showGiftSucceed(recipient.get("name"), cItem));
             cs.gainCash(4, -cItem.getPrice());
             c.announce(MaplePacketCreator.showCash(chr));
+            try {
+                chr.sendNote(recipient.get("name"), chr.getName() + " has sent you a gift! Go check out the Cash Shop.", (byte) 0); //fame or not
+            } catch (SQLException ex) {
+            }
         } else if (action == 0x05) { // Modify wish list
             cs.clearWishList();
             for (byte i = 0; i < 10; i++) {
@@ -211,7 +217,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
                     cs.gainCash(toCharge, -ring.getPrice());                    
                     try {
-                        chr.sendNote(partner.getName(), text);
+                        chr.sendNote(partner.getName(), text, (byte) 1);
                     } catch (SQLException ex) {
                     }
                     partner.showNote();
@@ -252,7 +258,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
                     cs.gainCash(payment, -ring.getPrice());
                     try {
-                        chr.sendNote(partner.getName(), text);
+                        chr.sendNote(partner.getName(), text, (byte) 1);
                     } catch (SQLException ex) {
                     }
                     partner.showNote();

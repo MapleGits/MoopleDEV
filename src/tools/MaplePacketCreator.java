@@ -22,7 +22,6 @@ package tools;
 
 import java.awt.Point;
 import java.net.InetAddress;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -1520,7 +1519,6 @@ public class MaplePacketCreator {
      * @return The meso gain packet.
      */
     public static MaplePacket getShowMesoGain(int gain, boolean inChat) {
-        //27 00 00 01 00 AA 00 00 00 00 00
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         if (!inChat) {
@@ -5150,27 +5148,38 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static void sendUnkwnNote(String to, String msg, String from) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)");
-        ps.setString(1, to);
-        ps.setString(2, from);
-        ps.setString(3, msg);
-        ps.setLong(4, System.currentTimeMillis());
-        ps.executeUpdate();
-        ps.close();
+
+    public static MaplePacket noteSendMsg() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
+        mplew.writeShort(SendOpcode.NOTE_ACTION.getValue());
+        mplew.write(4);
+        return mplew.getPacket();
+    }
+
+    /*
+     *  0 = Player online, use whisper
+     *  1 = Check player's name
+     *  2 = Receiver inbox full
+     */
+    public static MaplePacket noteError(byte error) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(4);
+        mplew.writeShort(SendOpcode.NOTE_ACTION.getValue());
+        mplew.write(5);
+        mplew.write(error);
+        return mplew.getPacket();
     }
 
     public static MaplePacket showNotes(ResultSet notes, int count) throws SQLException {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_NOTES.getValue());
-        mplew.write(2);
+        mplew.writeShort(SendOpcode.NOTE_ACTION.getValue());
+        mplew.write(3);
         mplew.write(count);
         for (int i = 0; i < count; i++) {
             mplew.writeInt(notes.getInt("id"));
-            mplew.writeMapleAsciiString(notes.getString("from"));
+            mplew.writeMapleAsciiString(notes.getString("from") + " ");//Stupid nexon forgot space lol
             mplew.writeMapleAsciiString(notes.getString("message"));
             mplew.writeLong(getKoreanTimestamp(notes.getLong("timestamp")));
-            mplew.write(0);
+            mplew.write(notes.getByte("fame"));//FAME :D
             notes.next();
         }
         return mplew.getPacket();
@@ -6760,7 +6769,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x5D);
+        mplew.write(0x5E); //0x5D, Couldn't be sent
         mplew.writeMapleAsciiString(to);
         mplew.writeInt(item.getItemId());
         mplew.writeShort(item.getCount());

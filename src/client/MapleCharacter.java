@@ -3512,12 +3512,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
     }
 
-    public void sendNote(String to, String msg) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+    public void sendNote(String to, String msg, byte fame) throws SQLException {
+        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`, `fame`) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, to);
         ps.setString(2, this.getName());
         ps.setString(3, msg);
         ps.setLong(4, System.currentTimeMillis());
+        ps.setByte(5, fame);
         ps.executeUpdate();
         ps.close();
     }
@@ -3996,12 +3997,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void showNote() {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM notes WHERE `to`=?", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM notes WHERE `to`=? AND `deleted` = 0", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ps.setString(1, this.getName());
             ResultSet rs = ps.executeQuery();
             rs.last();
+            int count = rs.getRow();
             rs.first();
-            client.announce(MaplePacketCreator.showNotes(rs, rs.getRow()));
+            client.announce(MaplePacketCreator.showNotes(rs, count));
             rs.close();
             ps.close();
         } catch (SQLException e) {
