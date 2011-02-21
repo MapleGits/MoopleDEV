@@ -31,6 +31,7 @@ public class Equip extends Item implements IEquip {
     private byte level, flag, itemLevel;
     private short str, dex, _int, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, vicious;
     private int itemExp;
+    private int ringid = -1;
     private boolean wear = false;
 
     public Equip(int id, byte position) {
@@ -290,6 +291,14 @@ public class Equip extends Item implements IEquip {
 
     public void setVicious(int i) {
         this.vicious = (short) i;
+    }
+
+    public int getRingId() {
+        return ringid;
+    }
+
+    public void setRingId(int id) {
+        this.ringid = id;
     }
 
     public boolean isWearing() {

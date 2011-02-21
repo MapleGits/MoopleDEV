@@ -49,6 +49,8 @@ public interface IEquip extends IItem {
     public short getVicious();
     public int getItemExp();
     public int getItemLevel();
+    public int getRingId();
+    public void setRingId(int id);
     public boolean isWearing();
     public void wear(boolean yes);
 }

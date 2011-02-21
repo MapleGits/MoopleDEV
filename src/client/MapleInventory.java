@@ -225,8 +225,14 @@ public class MapleInventory implements Iterable<IItem> {
     }
 
     public IItem findByCashId(int cashId) {
+        boolean isRing = false;
+        IEquip equip = null;
 	for (IItem item : inventory.values()) {
-            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId)
+            if (item.getType() == IItem.EQUIP) {
+                equip = (IEquip) item;
+                isRing = equip.getRingId() > -1;
+            }
+            if ((item.getPetId() > -1 ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId()) == cashId)
                  return item;
             }
 

@@ -8,7 +8,7 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation version 3 as published by
 the Free Software Foundation. You may not use, modify or distribute
-this program under any other version of the GNU Affero General Public
+this program unader any cother version of the GNU Affero General Public
 License.
 
 This program is distributed in the hope that it will be useful,
@@ -334,6 +334,20 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void addCrushRing(MapleRing r) {
         crushRings.add(r);
+    }
+
+    public MapleRing getRingById(int id) {
+        for (MapleRing ring : getCrushRings()) {
+            if (ring.getRingId() == id)
+                return ring;
+        }
+        for (MapleRing ring : getFriendshipRings()) {
+            if (ring.getRingId() == id)
+                return ring;
+        }
+        if (getMarriageRing().getRingId() == id) return getMarriageRing();
+        
+        return null;
     }
 
     public int addDojoPointsByMap() {
@@ -2483,8 +2497,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     continue;
                 }
                 if (item.getRight().equals(MapleInventoryType.EQUIP) || item.getRight().equals(MapleInventoryType.EQUIPPED)) {
-                    if (itemz.getRingId() > -1) {
-                        MapleRing ring = MapleRing.loadFromDb(itemz.getRingId());
+                    IEquip equip = (IEquip) item.getLeft();
+                    if (equip.getRingId() > -1) {
+                        MapleRing ring = MapleRing.loadFromDb(equip.getRingId());
+                        if (item.getRight().equals(MapleInventoryType.EQUIPPED)) ring.equip();
                         if (ring.getItemId() > 1112012) ret.addFriendshipRing(ring);
                         else ret.addCrushRing(ring);
                     }
@@ -3497,7 +3513,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void sendNote(String to, String msg) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)");
+        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, to);
         ps.setString(2, this.getName());
         ps.setString(3, msg);
@@ -3505,7 +3521,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         ps.executeUpdate();
         ps.close();
     }
-
+    
     public void setAllianceRank(int rank) {
         allianceRank = rank;
         if (mgc != null) {

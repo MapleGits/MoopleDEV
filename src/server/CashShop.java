@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server;
 
+import client.IEquip;
 import client.IItem;
 import client.Item;
 import client.ItemFactory;
@@ -242,8 +243,14 @@ public class CashShop {
     }
 
     public IItem findByCashId(int cashId) {
+        boolean isRing = false;
+        IEquip equip = null;
         for (IItem item : inventory) {
-            if ((item.getPetId() > -1 ? item.getPetId() : item.getCashId()) == cashId) {
+            if (item.getType() == IItem.EQUIP) {
+                equip = (IEquip) item;
+                isRing = equip.getRingId() > -1;
+            }
+            if ((item.getPetId() > -1 ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId()) == cashId) {
                 return item;
             }
         }
@@ -301,21 +308,23 @@ public class CashShop {
 
             while (rs.next()) {
                 CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
-                IItem item = cItem.toItem();              
+                IItem item = cItem.toItem();
+                IEquip equip = null;
                 item.setGiftFrom(rs.getString("from"));
-                item.setRingId(rs.getInt("ringid"));
-            
-                
-                gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
+                if (item.getType() == MapleInventoryType.EQUIP.getType()) {
+                    equip = (IEquip) item;
+                    equip.setRingId(rs.getInt("ringid"));
+                    gifts.add(new Pair<IItem, String>(equip, rs.getString("message")));
+                } else
+                    gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
 
-                if (CashItemFactory.isPackage(cItem.getItemId())) {
+                if (CashItemFactory.isPackage(cItem.getItemId())) { //Packages never contains a ring
                     for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
                         packageItem.setGiftFrom(rs.getString("from"));
-                        packageItem.setRingId(rs.getInt("ringid"));
                         addToInventory(packageItem);
                     }
                 } else {
-                    addToInventory(item);
+                    addToInventory(equip == null ? item : equip);
                 }
             }
 

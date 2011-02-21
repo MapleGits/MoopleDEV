@@ -102,6 +102,7 @@ public enum ItemFactory {
                             equip.setItemExp(rs.getInt("itemexp"));
                             equip.setExpiration(rs.getLong("expiration"));
                             equip.setGiftFrom(rs.getString("giftFrom"));
+                            equip.setRingId(rs.getInt("ringid"));
 				items.add(new Pair<IItem, MapleInventoryType>(equip, mit));
 			} else {
                             Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getInt("petid"));
@@ -109,7 +110,6 @@ public enum ItemFactory {
                             item.setExpiration(rs.getLong("expiration"));
                             item.setGiftFrom(rs.getString("giftFrom"));
                             item.setFlag((byte) rs.getInt("flag"));
-                            item.setRingId(rs.getInt("ringid"));
 				items.add(new Pair<IItem, MapleInventoryType>(item, mit));
 			}
                 }
@@ -146,7 +146,7 @@ public enum ItemFactory {
 			ps.setInt(7, item.getQuantity());
 			ps.setString(8, item.getOwner());
 			ps.setInt(9, item.getPetId());
-                        ps.setInt(10, item.getRingId());
+                        ps.setInt(10, item.getFlag());
 			ps.setLong(11, item.getExpiration());
                         ps.setString(12, item.getGiftFrom());
 			ps.executeUpdate();
@@ -179,8 +179,8 @@ public enum ItemFactory {
 				pse.setInt(18, equip.getJump());
                                 pse.setInt(19, 0);
 				pse.setInt(20, equip.getVicious());
-                                pse.setInt(21, equip.getFlag());
-                                pse.setInt(22, equip.getItemExp());
+                                pse.setInt(21, equip.getItemExp());
+                                pse.setInt(22, equip.getRingId());
 				pse.executeUpdate();
 			}
 		}

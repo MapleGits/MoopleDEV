@@ -330,6 +330,9 @@ public class MapleInventoryManipulator {
         if (MapleItemInformationProvider.getInstance().isUntradeableOnEquip(source.getItemId())) {
             source.setFlag((byte) ItemConstants.UNTRADEABLE);
         }
+        if (source.getRingId() > -1) {
+            c.getPlayer().getRingById(source.getRingId()).equip();
+        }
         if (dst == -6) { // unequip the overall
             IItem top = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -5);
             if (top != null && isOverall(top.getItemId())) {
@@ -414,6 +417,9 @@ public class MapleInventoryManipulator {
         }
         if (source.getItemId() == 1122017) {
             c.getPlayer().unequipPendantOfSpirit();
+        }
+        if (source.getRingId() > -1) {
+            c.getPlayer().getRingById(source.getRingId()).unequip();
         }
         c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).removeSlot(src);
         if (target != null) {

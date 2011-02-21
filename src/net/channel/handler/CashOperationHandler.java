@@ -32,8 +32,6 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.CashShop;
 import server.CashShop.CashItem;
@@ -210,7 +208,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     item.setRingId(ringid);
                     cs.addToInventory(item);
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
-                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), ringid);
+                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
                     cs.gainCash(toCharge, -ring.getPrice());                    
                     try {
                         chr.sendNote(partner.getName(), text);
@@ -251,7 +249,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     item.setRingId(ringid);
                     cs.addToInventory(item);
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
-                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), ringid);
+                    cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
                     cs.gainCash(payment, -ring.getPrice());
                     try {
                         chr.sendNote(partner.getName(), text);

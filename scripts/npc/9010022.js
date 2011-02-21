@@ -1,35 +1,19 @@
-/*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+importPackage(Packages.client); 
+importPackage(Packages.server.maps); 
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+var status; 
+var sel; 
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-var status = -1;
-var text = "";
 function start() { 
+    status = -1; 
     action(1, 0, 0); 
 } 
 
 function action(mode, type, selection) { 
-    if (mode == -1) 
+    if (mode == -1) { 
         cm.dispose(); 
-    else { 
-        if (status == 0 && mode == 0) { 
+    } else { 
+        if (mode == 0) { 
             cm.dispose(); 
             return; 
         } 
@@ -37,14 +21,60 @@ function action(mode, type, selection) {
             status++; 
         else 
             status--; 
-        if (status == 0){ 
-            cm.sendDimensionalMirror("#1# Mu Lung Training Center"); 
-        } 
-        if(status == 1){ 
-            if (selection == 1) {
-                cm.warp(925020000); 
-	        cm.dispose();
-	    }
+            if (status == 0) { 
+            if (cm.getLevel() < 20) { 
+                cm.sendDimensionalMirror("#-1# There is no place for you to transport to from here."); 
+                cm.dispose(); 
+            } else { 
+                var selStr = ""; 
+                if (cm.getLevel() >= 20 && cm.getLevel() <= 30) { 
+                    selStr += "#0# Ariant Coliseum"; 
+                } 
+
+                if (cm.getLevel() >= 25) { 
+                    selStr += "#1# Mu Lung Dojo"; 
+                } 
+
+                if (cm.getLevel() >= 30 && cm.getLevel() <= 50) { 
+                    selStr += "#2# Monster Carnival 1"; 
+                } 
+
+                if (cm.getLevel() >= 51 && cm.getLevel() <= 70) { 
+                    selStr += "#3# Monster Carnival 2"; 
+                } 
+
+                if (cm.getLevel() >= 40) { 
+                    selStr += "#5# Nett's Pyramid"; 
+                } 
+
+                if (cm.getLevel() >= 25 && cm.getLevel() <= 30) { 
+                    selStr += "#6# Construction Site"; 
+                } 
+                cm.sendDimensionalMirror(selStr); 
+            } 
+        } else if (status == 1) { 
+            cm.getPlayer().saveLocation("MIRROR"); 
+            switch (selection) { 
+                case 0: 
+                    cm.warp(980010000, 3); 
+                    break; 
+                case 1: 
+                    cm.warp(925020000); 
+                    break; 
+                case 2: 
+                    cm.warp(980000000, 3); 
+                    break; 
+                case 3: 
+                    cm.warp(980030000, 3); 
+                    break; 
+                case 5: 
+                    cm.warp(926010000); 
+                    break; 
+                case 6: 
+                    cm.warp(910320000); 
+                    break; 
+            } 
+            cm.dispose(); 
         } 
     } 
 }  

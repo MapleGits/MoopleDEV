@@ -27,15 +27,19 @@ import java.sql.SQLException;
 import tools.DatabaseConnection;
 import tools.data.input.SeekableLittleEndianAccessor;
 import net.AbstractMaplePacketHandler;
+import tools.MaplePacketCreator;
 
 public final class NoteActionHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int action = slea.readByte();
-        if (action == 0) { //Yay for abuse
+        if (action == 0) {
             String charname = slea.readMapleAsciiString();
             String message = slea.readMapleAsciiString();
             try {
-                c.getPlayer().sendNote(charname, message);
+                if (c.getPlayer().getCashShop().isOpened())
+                    c.announce(MaplePacketCreator.showCashInventory(c));
+                
+                    c.getPlayer().sendNote(charname, message);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

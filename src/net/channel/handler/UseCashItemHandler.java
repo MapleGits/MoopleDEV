@@ -416,7 +416,11 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.enableActions());
                     return;
                 }
-                item.setFlag((byte) ItemConstants.KARMA);
+                if (type.equals(MapleInventoryType.USE))
+                    item.setFlag((byte) ItemConstants.SPIKES);
+                else
+                    item.setFlag((byte) ItemConstants.KARMA);
+                
                 c.getPlayer().forceUpdateItem(type, item);
                 remove(c, itemId);
                 c.announce(MaplePacketCreator.enableActions());

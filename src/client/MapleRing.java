@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import tools.DatabaseConnection;
 
 /**
@@ -37,6 +38,7 @@ public class MapleRing implements Comparable<MapleRing> {
     private int partnerId;
     private int itemId;
     private String partnerName;
+    private boolean equipped = false;
 
     public MapleRing(int id, int id2, int partnerId, int itemid, String partnername) {
         this.ringId = id;
@@ -74,7 +76,7 @@ public class MapleRing implements Comparable<MapleRing> {
             }
             int[] ringID = new int[2];
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, itemid);
             ps.setInt(2, partner2.getId());
             ps.setString(3, partner2.getName());
@@ -84,7 +86,7 @@ public class MapleRing implements Comparable<MapleRing> {
             ringID[0] = rs.getInt(1); // ID.
             rs.close();
             ps.close();
-            ps = con.prepareStatement("INSERT INTO rings (itemid, partnerRingId, partnerChrId, partnername) VALUES (?, ?, ?, ?)");
+            ps = con.prepareStatement("INSERT INTO rings (itemid, partnerRingId, partnerChrId, partnername) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, itemid);
             ps.setInt(2, ringID[0]);
             ps.setInt(3, partner1.getId());
@@ -102,6 +104,7 @@ public class MapleRing implements Comparable<MapleRing> {
             ps.close();
             return ringID[0];
         } catch (SQLException ex) {
+            ex.printStackTrace();
             return -1;
         }
     }
@@ -124,6 +127,18 @@ public class MapleRing implements Comparable<MapleRing> {
 
     public String getPartnerName() {
         return partnerName;
+    }
+
+    public boolean equipped() {
+        return equipped;
+    }
+
+    public void equip() {
+        this.equipped = true;
+    }
+
+    public void unequip() {
+        this.equipped = false;
     }
 
     @Override

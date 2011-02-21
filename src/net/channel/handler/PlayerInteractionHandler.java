@@ -390,7 +390,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
             byte targetSlot = slea.readByte();
             if (chr.getTrade() != null) {
                 if ((quantity <= item.getQuantity() && quantity >= 0) || ItemConstants.isRechargable(item.getItemId())) {
-                    if (ii.isDropRestricted(item.getItemId()) && item.getFlag() != ItemConstants.KARMA) { // ensure that undroppable items do not make it to the trade window
+                    if (ii.isDropRestricted(item.getItemId()) && item.getFlag() != ItemConstants.KARMA && (item.getType() == IItem.ITEM && (item.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES)) { // ensure that undroppable items do not make it to the trade window
                         c.announce(MaplePacketCreator.enableActions());
                         return;
                     }

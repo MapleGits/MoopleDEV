@@ -21,6 +21,7 @@
 */
 package client.command;
 
+import client.Equip;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -35,6 +36,7 @@ import client.MapleClient;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MaplePet;
+import client.MapleRing;
 import client.MapleStat;
 import client.SkillFactory;
 import constants.ItemConstants;

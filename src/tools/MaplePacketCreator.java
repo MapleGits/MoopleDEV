@@ -305,10 +305,10 @@ public class MaplePacketCreator {
         boolean isRing = false;
         IEquip equip = null;
         byte pos = item.getPosition();
-        if (item.getType() == IItem.EQUIP)
+        if (item.getType() == IItem.EQUIP) {
             equip = (IEquip) item;
-
-        if (equip != null) isRing = equip.getRingId() > -1;
+            isRing = equip.getRingId() > -1;
+        }
         if (!zeroPosition) {
             if (equip != null) {
                 if (pos < 0)
@@ -318,12 +318,11 @@ public class MaplePacketCreator {
                     mplew.write(pos);
 	        }
         }
-
         mplew.write(item.getType());
         mplew.writeInt(item.getItemId());
         mplew.write(isCash ? 1 : 0);
         if (isCash) {
-            mplew.writeLong(isPet ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId());
+            mplew.writeLong(isPet ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId()); 
         }
         addExpirationTime(mplew, item.getExpiration());
         if (isPet) {
@@ -334,7 +333,8 @@ public class MaplePacketCreator {
             mplew.write(pet.getFullness());
             addExpirationTime(mplew, item.getExpiration());
             mplew.writeInt(0);
-            mplew.write(new byte[]{(byte) 0x50, (byte) 0x46, 0, 0, 0, 0}); //wonder what this is
+            mplew.write(new byte[]{(byte) 0x50, (byte) 0x46}); //wonder what this is
+            mplew.writeInt(0);
             return;
         }
         if (equip == null) {
@@ -367,7 +367,7 @@ public class MaplePacketCreator {
         mplew.writeShort(equip.getJump()); // jump
         mplew.writeMapleAsciiString(equip.getOwner()); // owner name
         mplew.writeShort(equip.getFlag()); //Item Flags
-
+        
         if (isCash) {
             for (int i = 0; i < 10; i++) {
                 mplew.write(0x40);
@@ -379,7 +379,7 @@ public class MaplePacketCreator {
             mplew.writeShort(equip.getItemExp()); //Works pretty weird :s
             mplew.writeInt(equip.getVicious()); //WTF NEXON ARE YOU SERIOUS?
             mplew.write(new byte[8]);
-        }        
+        }
         mplew.write(new byte[]{0, (byte) 0x40, (byte) 0xE0, (byte) 0xFD, (byte) 0x3B, (byte) 0x37, (byte) 0x4F, 1});
         mplew.writeInt(-1);
 
@@ -1765,17 +1765,28 @@ public class MaplePacketCreator {
             rings = chr.getCrushRings();
         else
             rings = chr.getFriendshipRings();
-        mplew.write(rings.size() > 0 ? 1 : 0);
+        boolean yes = false;
         for (MapleRing ring : rings) {
-            mplew.writeInt(ring.getRingId());
-            mplew.writeInt(0);
-            mplew.writeInt(ring.getPartnerRingId());
-            mplew.writeInt(0);
-            mplew.writeInt(ring.getItemId());
+            if (ring.equipped()) {
+                if (yes == false) {
+                    yes = true;
+                    mplew.write(1);
+                }
+                mplew.writeInt(ring.getRingId());
+                mplew.writeInt(0);
+                mplew.writeInt(ring.getPartnerRingId());
+                mplew.writeInt(0);
+                mplew.writeInt(ring.getItemId());
+            }
         }
+        if (yes == false) mplew.write(0);
     }
 
     private static void addMarriageRingLook(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        if (chr.getMarriageRing() != null && !chr.getMarriageRing().equipped()) {
+            mplew.write(0);
+            return;
+        }
         mplew.write(chr.getMarriageRing() != null ? 1 : 0);
         if (chr.getMarriageRing() != null) {
             mplew.writeInt(chr.getId());
@@ -6648,7 +6659,13 @@ public class MaplePacketCreator {
 
     public static void addCashItemInformation(MaplePacketLittleEndianWriter mplew, IItem item, int accountId, String giftMessage) {
         boolean isGift = giftMessage != null;
-        mplew.writeLong(item.getPetId() > -1  ? item.getPetId() : item.getCashId());
+        boolean isRing = false;
+        IEquip equip = null;
+        if (item.getType() == IItem.EQUIP) {
+            equip = (IEquip) item;
+            isRing = equip.getRingId() > -1;
+        }
+        mplew.writeLong(item.getPetId() > -1  ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId());
         if (!isGift) {
             mplew.writeInt(accountId);
             mplew.writeInt(0);
