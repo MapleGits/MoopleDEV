@@ -29,6 +29,7 @@ importPackage(Packages.tools);
 function enter(pi) {
     if (pi.getPlayer().getMap().getMonsterById(9300216) != null) {
         pi.getClient().getSession().write(MaplePacketCreator.dojoWarpUp());
+	pi.getPlayer().getMap().setReactorState();
         var stage = (pi.getPlayer().getMapId() / 100) % 100;
         if ((stage - (stage / 6) | 0) == pi.getPlayer().getVanquisherStage() && !pi.getPlayer().getDojoParty()) // we can also try 5 * stage / 6 | 0 + 1
             pi.getPlayer().setVanquisherKills(pi.getPlayer().getVanquisherKills() + 1);

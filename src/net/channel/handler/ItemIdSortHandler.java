@@ -41,11 +41,12 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ItemIdSortHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readInt(); // timestamp
-        byte mode = slea.readByte();
-        if (mode < 0 || mode > 5) {
+        byte inv = slea.readByte();
+        if (inv < 0 || inv > 5) {
+            c.disconnect();
             return;
         }
-        MapleInventory Inv = c.getPlayer().getInventory(MapleInventoryType.getByType(mode));
+        MapleInventory Inv = c.getPlayer().getInventory(MapleInventoryType.getByType(inv));
         ArrayList<Item> itemarray = new ArrayList<Item>();
         for (Iterator<IItem> it = Inv.iterator(); it.hasNext();) {
             Item item = (Item) it.next();
@@ -53,11 +54,11 @@ public final class ItemIdSortHandler extends AbstractMaplePacketHandler {
         }
         Collections.sort(itemarray);
         for (IItem item : itemarray) {
-            MapleInventoryManipulator.removeById(c, MapleInventoryType.getByType(mode), item.getItemId(), item.getQuantity(), false, false);
+            MapleInventoryManipulator.removeById(c, MapleInventoryType.getByType(inv), item.getItemId(), item.getQuantity(), false, false);
         }
         for (Item i : itemarray) {
             MapleInventoryManipulator.addFromDrop(c, i, false);
         }
-        c.announce(MaplePacketCreator.finishedSort2(mode));
+        c.announce(MaplePacketCreator.finishedSort2(inv));
     }
 }

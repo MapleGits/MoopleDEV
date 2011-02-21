@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import client.MapleClient;
 import constants.ServerConstants;
 import net.AbstractMaplePacketHandler;
-import net.channel.ChannelServer;
 import net.login.LoginServer;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;

@@ -32,9 +32,9 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ItemSortHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readInt(); // timestamp
-        byte mode = slea.readByte();
+        byte inv = slea.readByte();
         boolean sorted = false;
-        MapleInventoryType pInvType = MapleInventoryType.getByType(mode);
+        MapleInventoryType pInvType = MapleInventoryType.getByType(inv);
         MapleInventory pInv = c.getPlayer().getInventory(pInvType);
         while (!sorted) {
             byte freeSlot = pInv.getNextFreeSlot();
@@ -53,7 +53,7 @@ public final class ItemSortHandler extends AbstractMaplePacketHandler {
                 }
             }
         }
-        c.announce(MaplePacketCreator.finishedSort(mode));
+        c.announce(MaplePacketCreator.finishedSort(inv));
         c.announce(MaplePacketCreator.enableActions());
     }
 }

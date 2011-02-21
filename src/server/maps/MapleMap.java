@@ -181,8 +181,10 @@ public class MapleMap {
         synchronized (this.mapobjects) {
             for (MapleMapObject o : mapobjects.values()) {
                 if (o.getType() == MapleMapObjectType.REACTOR) {
-                    ((MapleReactor) o).setState((byte) 1);
-                    broadcastMessage(MaplePacketCreator.triggerReactor((MapleReactor) o, 1));
+                    if (((MapleReactor) o).getState() < 1) {
+                        ((MapleReactor) o).setState((byte) 1);
+                        broadcastMessage(MaplePacketCreator.triggerReactor((MapleReactor) o, 1));
+                    }
                 }
             }
         }

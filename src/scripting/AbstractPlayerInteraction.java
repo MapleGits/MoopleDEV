@@ -380,7 +380,7 @@ public class AbstractPlayerInteraction {
 
     public void saveSquadMembers() {
         try {
-            String query = "UPDATE zaksquads SET leaderid = ?, status = ?, members = ? WHERE channel = ?";
+            String query = "INSERT INTO zaksquads SET leaderid = ?, status = ?, members = ?, channel = ?";
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(query);
             ps.setInt(1, getPlayer().getId());
             ps.setInt(2, 0);

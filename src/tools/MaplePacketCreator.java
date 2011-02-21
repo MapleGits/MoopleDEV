@@ -348,9 +348,6 @@ public class MaplePacketCreator {
             }
             return;
         }
-        if (isRing) {
-            
-        }
         mplew.write(equip.getUpgradeSlots()); // upgrade slots
         mplew.write(equip.getLevel()); // level
         mplew.writeShort(equip.getStr()); // str
@@ -381,9 +378,8 @@ public class MaplePacketCreator {
             mplew.writeShort(0);
             mplew.writeShort(equip.getItemExp()); //Works pretty weird :s
             mplew.writeInt(equip.getVicious()); //WTF NEXON ARE YOU SERIOUS?
-                mplew.write(new byte[8]);
-        }
-
+            mplew.write(new byte[8]);
+        }        
         mplew.write(new byte[]{0, (byte) 0x40, (byte) 0xE0, (byte) 0xFD, (byte) 0x3B, (byte) 0x37, (byte) 0x4F, 1});
         mplew.writeInt(-1);
 
@@ -2926,6 +2922,18 @@ public class MaplePacketCreator {
         mplew.write(speaker);
         mplew.writeMapleAsciiString(talk);
         mplew.write(HexTool.getByteArrayFromHexString(endBytes));
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket getDimensionalMirror(String talk) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.NPC_TALK.getValue());
+        mplew.write(4); // ?
+        mplew.writeInt(9010022);
+        mplew.write(0x0E);
+        mplew.write(0);
+        mplew.writeInt(0);
+        mplew.writeMapleAsciiString(talk);
         return mplew.getPacket();
     }
 
@@ -6480,19 +6488,19 @@ public class MaplePacketCreator {
         }
     }
 
-    public static MaplePacket finishedSort(int type) {
+    public static MaplePacket finishedSort(int inv) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(4);
         mplew.writeShort(SendOpcode.FINISH_SORT.getValue());
         mplew.write(0);
-        mplew.write(type);
+        mplew.write(inv);
         return mplew.getPacket();
     }
 
-    public static MaplePacket finishedSort2(int type) {
+    public static MaplePacket finishedSort2(int inv) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(4);
         mplew.writeShort(SendOpcode.FINISH_SORT2.getValue());
         mplew.write(0);
-        mplew.write(type);
+        mplew.write(inv);
         return mplew.getPacket();
     }
 

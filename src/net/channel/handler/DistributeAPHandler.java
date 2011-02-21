@@ -150,6 +150,6 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
         MaxMP = Math.min(30000, MaxMP);
         player.setHpMpApUsed(player.getHpMpApUsed() + 1);
         player.setMaxMp(MaxMP);
-        player.updateSingleStat(MapleStat.MAXHP, MaxMP);
+        player.updateSingleStat(MapleStat.MAXMP, MaxMP);
     }
 }
