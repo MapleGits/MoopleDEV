@@ -4098,28 +4098,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }, duration);
     }
 
-    public void startMapTimeLimitTask(final MapleMap from, final MapleMap to) {
-        if (to.getTimeLimit() > 0 && from != null) {
-            final MapleCharacter chr = this;
-            mapTimeLimitTask = TimerManager.getInstance().register(new Runnable() {
-
-                @Override
-                public void run() {
-                    MaplePortal pfrom = null;
-                    int id = from.getId();
-                    if (id == 100020000 || id == 105040304 || id == 105050100 || id == 221023400) {
-                        pfrom = from.getPortal("MD00");
-                    } else {
-                        pfrom = from.getPortal(0);
-                    }
-                    if (pfrom != null) {
-                        chr.changeMap(from, pfrom);
-                    }
-                }
-            }, from.getTimeLimit() * 1000, from.getTimeLimit() * 1000);
-        }
-    }
-
     public void stopControllingMonster(MapleMonster monster) {
         controlled.remove(monster);
     }
@@ -4538,7 +4516,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         for (IItem item : getInventory(MapleInventoryType.EQUIPPED).list()) {
             Equip nEquip = (Equip) item;
             if (mii.getName(nEquip.getItemId()).contains("Reverse") || mii.getName(nEquip.getItemId()).contains("Timeless")) {
-                if ((mii.getName(nEquip.getItemId()).contains("Reverse") && nEquip.getItemLevel() < 4) || mii.getName(nEquip.getItemId()).contains("Timeless") && nEquip.getItemLevel() < 9) {
+                if ((mii.getName(nEquip.getItemId()).contains("Reverse") && nEquip.getItemLevel() < 4) || mii.getName(nEquip.getItemId()).contains("Timeless") && nEquip.getItemLevel() < 6) {
                     nEquip.gainItemExp(client, mobexp, mii.getName(nEquip.getItemId()).contains("Timeless"));
                 
                 }

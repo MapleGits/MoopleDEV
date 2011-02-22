@@ -436,10 +436,10 @@ public class MaplePacketCreator {
         for (Entry<ISkill, MapleCharacter.SkillEntry> skill : skills.entrySet()) {
             mplew.writeInt(skill.getKey().getId());
             mplew.writeInt(skill.getValue().skillevel);
+            addExpirationTime(mplew, skill.getValue().expiration);
             if (skill.getKey().isFourthJob()) {
                 mplew.writeInt(skill.getValue().masterlevel);
             }
-            addExpirationTime(mplew, skill.getValue().expiration);
         }
         mplew.writeShort(chr.getAllCooldowns().size());
         for (PlayerCoolDownValueHolder cooling : chr.getAllCooldowns()) {
@@ -1696,7 +1696,7 @@ public class MaplePacketCreator {
         mplew.write0(9);
         mplew.writeInt(CHAR_MAGIC_SPAWN);
         mplew.writeShort(0);
-        mplew.writeInt(0); // actually not 0
+        mplew.writeInt(0); // actually not 0, why is it 0 then?
         mplew.write0(10);
         mplew.writeInt(CHAR_MAGIC_SPAWN);
         mplew.write0(13);
@@ -4872,6 +4872,37 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
+    public static MaplePacket owlOfMinerva(MapleClient c, int itemid, List<HiredMerchant> hms, List<MaplePlayerShopItem> items) { //Thanks moongra, you save me some time :)
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.OWL_OF_MINERVA.getValue()); // header.
+        mplew.write(6);
+        mplew.writeInt(0);
+        mplew.writeInt(itemid);
+        mplew.writeInt(hms.size());
+        for (HiredMerchant hm  : hms) {
+            for (MaplePlayerShopItem item : items) {
+                mplew.writeMapleAsciiString(hm.getOwner());
+                mplew.writeInt(hm.getMapId());
+                mplew.writeMapleAsciiString(hm.getDescription());
+                mplew.writeInt(item.getItem().getQuantity());
+                mplew.writeInt(item.getBundles());
+                mplew.writeInt(item.getPrice());
+                mplew.writeInt(hm.getOwnerId());
+                mplew.write(hm.getFreeSlot() == -1 ? 1 : 0);
+                MapleCharacter chr = c.getChannelServer().getPlayerStorage().getCharacterById(hm.getOwnerId());
+                if ((chr != null) && (c.getChannel() == hm.getChannel()))
+                    mplew.write(1);
+                else
+                    mplew.write(2);
+                
+                if (item.getItem().getItemId() / 1000000 == 1) {
+                    addItemInfo(mplew, item.getItem(), true);
+                }
+            }
+        }
+        return mplew.getPacket();
+    }
+
     public static MaplePacket retrieveFirstMessage() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SEND_TITLE_BOX.getValue()); // header.
@@ -5412,7 +5443,7 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
         mplew.writeLong(0);
         mplew.writeShort(0);
-        mplew.write(0);//some 80 and 0 bs
+        mplew.write(0);//some 80 and 0 bs DIRECTION
         mplew.write(0x80);//let's just do 80, then 0
         mplew.writeInt(0);
         mplew.writeShort(1);

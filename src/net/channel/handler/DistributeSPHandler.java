@@ -26,6 +26,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleStat;
 import client.SkillFactory;
+import constants.skills.Aran;
 import net.AbstractMaplePacketHandler;
 import tools.data.input.SeekableLittleEndianAccessor;
 
@@ -52,6 +53,17 @@ public final class DistributeSPHandler extends AbstractMaplePacketHandler {
             }
             player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
             player.changeSkillLevel(skill, curLevel + 1, player.getMasterLevel(skill), player.getSkillExpiration(skill));
+            if (skillid == Aran.FULL_SWING) {
+                ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_FULL_DOUBLE);
+                ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_FULL_TRIPLE);
+                player.changeSkillLevel(hidden1, curLevel + 1, player.getMasterLevel(hidden1), player.getSkillExpiration(hidden1));
+                player.changeSkillLevel(hidden2, curLevel + 1, player.getMasterLevel(hidden2), player.getSkillExpiration(hidden2));
+            } else if (skillid == Aran.OVER_SWING) {
+                ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_OVER_DOUBLE);
+                ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_OVER_TRIPLE);
+                player.changeSkillLevel(hidden1, curLevel + 1, player.getMasterLevel(hidden1), player.getSkillExpiration(hidden1));
+                player.changeSkillLevel(hidden2, curLevel + 1, player.getMasterLevel(hidden2), player.getSkillExpiration(hidden2));
+            }
         }
     }
 }

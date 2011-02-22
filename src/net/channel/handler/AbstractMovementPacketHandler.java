@@ -78,7 +78,7 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                 case 7: // assaulter
                 case 8: // assassinate
                 case 9: // rush
-                case 14: // Before Jump Down - fixes item/mobs dissappears
+                case 14: { // Before Jump Down - fixes item/mobs dissappears
                     lea.skip(9);
                     break;
                 /*case 14: {
@@ -92,6 +92,7 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     res.add(tm);
                     break;
                 } */
+                }
                 case 10: // Change Equip
                     res.add(new ChangeEquip(lea.readByte()));
                     break;

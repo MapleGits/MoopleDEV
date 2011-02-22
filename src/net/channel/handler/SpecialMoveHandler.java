@@ -48,7 +48,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
 
-        slea.readInt();
+        slea.readInt(); //timestamp
         int skillid = slea.readInt();
         Point pos = null;
         int __skillLevel = slea.readByte();

@@ -1044,31 +1044,55 @@ public class MapleItemInformationProvider {
         return true;
     }
 
-    public List<Pair<String, Integer>> getItemLevelupStats(int itemId, int level) {
+    public List<Pair<String, Integer>> getItemLevelupStats(int itemId, int level, boolean timeless) {
         List<Pair<String, Integer>> list = new LinkedList<Pair<String, Integer>>();
         MapleData data = getItemData(itemId);
-        MapleData data1 = data.getChildByPath("info").getChildByPath("level").getChildByPath("info");
+        MapleData data1 = data.getChildByPath("info").getChildByPath("level");
+        /*if ((timeless && level == 5) || (!timeless && level == 3)) {
+            MapleData skilldata = data1.getChildByPath("case").getChildByPath("1").getChildByPath(timeless ? "6" : "4");
+            if (skilldata != null) {
+                List<MapleData> skills = skilldata.getChildByPath("Skill").getChildren();
+                    for (int i = 0; i < skilldata.getChildByPath("Skill").getChildren().size(); i++) {
+                        System.out.println(MapleDataTool.getInt(skills.get(i).getChildByPath("id")));
+                        if (Math.random() < 0.1) list.add(new Pair<String, Integer>("Skill" + 0, MapleDataTool.getInt(skills.get(i).getChildByPath("id"))));
+                    }
+            }
+        }*/
         if (data1 != null) {
-            MapleData data2 = data1.getChildByPath(Integer.toString(level));
+            MapleData data2 = data1.getChildByPath("info").getChildByPath(Integer.toString(level));
             if (data2 != null) {
                     for (MapleData da : data2.getChildren()) {
-                         if (da.getName().startsWith("incDEXMin")) {
-                             list.add(new Pair<String, Integer>("incDEX", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incDEXMax")))));
-                         } else if (da.getName().startsWith("incSTRMin")) {
-                             list.add(new Pair<String, Integer>("incSTR", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incSTRMax")))));
-                         } else if (da.getName().startsWith("incINTMin")) {
-                             list.add(new Pair<String, Integer>("incINT", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incINTMax")))));
-                         } else if (da.getName().startsWith("incLUKMin")) {
-                             list.add(new Pair<String, Integer>("incLUK", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incLUKMax")))));
-                         } else if (da.getName().startsWith("incMHPMin")) {
-                             list.add(new Pair<String, Integer>("incMHP", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMHPMax")))));
-                         } else if (da.getName().startsWith("incMMPMin")) {
-                             list.add(new Pair<String, Integer>("incMMP", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMMPMax")))));
-                         } else if (da.getName().startsWith("incPADMin")) {
-                             list.add(new Pair<String, Integer>("incPAD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incPADMax")))));
-                         } else if (da.getName().startsWith("incPDDMin")) { //Is this used? xd
-                             list.add(new Pair<String, Integer>("incPDD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incPDDMax")))));
-                         }
+                        if (Math.random() < 0.9) {
+                            if (da.getName().startsWith("incDEXMin")) {
+                                list.add(new Pair<String, Integer>("incDEX", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incDEXMax")))));
+                            } else if (da.getName().startsWith("incSTRMin")) {
+                                list.add(new Pair<String, Integer>("incSTR", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incSTRMax")))));
+                            } else if (da.getName().startsWith("incINTMin")) {
+                                list.add(new Pair<String, Integer>("incINT", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incINTMax")))));
+                            } else if (da.getName().startsWith("incLUKMin")) {
+                                list.add(new Pair<String, Integer>("incLUK", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incLUKMax")))));
+                            } else if (da.getName().startsWith("incMHPMin")) {
+                                list.add(new Pair<String, Integer>("incMHP", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMHPMax")))));
+                            } else if (da.getName().startsWith("incMMPMin")) {
+                                list.add(new Pair<String, Integer>("incMMP", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMMPMax")))));
+                            } else if (da.getName().startsWith("incPADMin")) {
+                                list.add(new Pair<String, Integer>("incPAD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incPADMax")))));
+                            } else if (da.getName().startsWith("incMADMin")) {
+                                list.add(new Pair<String, Integer>("incMAD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMADMax")))));
+                            } else if (da.getName().startsWith("incPDDMin")) {
+                                list.add(new Pair<String, Integer>("incPDD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incPDDMax")))));
+                            } else if (da.getName().startsWith("incMDDMin")) {
+                                list.add(new Pair<String, Integer>("incMDD", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incMDDMax")))));
+                            } else if (da.getName().startsWith("incACCMin")) {
+                                list.add(new Pair<String, Integer>("incACC", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incACCMax")))));
+                            } else if (da.getName().startsWith("incEVAMin")) {
+                                list.add(new Pair<String, Integer>("incEVA", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incEVAMax")))));
+                            } else if (da.getName().startsWith("incSpeedMin")) {
+                                list.add(new Pair<String, Integer>("incSpeed", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incSpeedMax")))));
+                            } else if (da.getName().startsWith("incJumpMin")) {
+                                list.add(new Pair<String, Integer>("incJump", Randomizer.rand(MapleDataTool.getInt(da), MapleDataTool.getInt(data2.getChildByPath("incJumpMax")))));
+                            }
+                        }
                     }
                 }
             }

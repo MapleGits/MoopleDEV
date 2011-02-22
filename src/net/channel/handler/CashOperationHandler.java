@@ -32,8 +32,6 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import server.CashShop;
 import server.CashShop.CashItem;
@@ -100,6 +98,8 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 chr.sendNote(recipient.get("name"), chr.getName() + " has sent you a gift! Go check out the Cash Shop.", (byte) 0); //fame or not
             } catch (SQLException ex) {
             }
+            MapleCharacter receiver = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient.get("name"));
+            if (receiver != null) receiver.showNote();
         } else if (action == 0x05) { // Modify wish list
             cs.clearWishList();
             for (byte i = 0; i < 10; i++) {
@@ -215,7 +215,8 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     cs.addToInventory(item);
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
-                    cs.gainCash(toCharge, -ring.getPrice());                    
+                    cs.gainCash(toCharge, -ring.getPrice());
+                    chr.addCrushRing(MapleRing.loadFromDb(ringid));
                     try {
                         chr.sendNote(partner.getName(), text, (byte) 1);
                     } catch (SQLException ex) {
@@ -236,7 +237,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
-        } else if (action == 0x23) {
+        } else if (action == 0x23) { //Friendship :3
             if (checkBirthday(c, slea.readInt())) {
                 int payment = slea.readByte();
                 slea.skip(3); //0s
@@ -257,6 +258,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
                     cs.gainCash(payment, -ring.getPrice());
+                    chr.addFriendshipRing(MapleRing.loadFromDb(ringid));
                     try {
                         chr.sendNote(partner.getName(), text, (byte) 1);
                     } catch (SQLException ex) {

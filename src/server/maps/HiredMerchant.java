@@ -329,6 +329,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public List<Pair<String, Byte>> getMessages() {
         return messages;
     }
+
+    public int getMapId() {
+        return map.getId();
+    }
     
     @Override
     public void sendDestroyData(MapleClient client) {

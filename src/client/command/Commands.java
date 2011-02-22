@@ -361,9 +361,6 @@ public class Commands {
             for (MapleCharacter chr : player.getMap().getCharacters()) {
                  chr.changeMap(109060000, chr.getTeam());
             }
-        } else if (sub[0].equals("team")) {
-            MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
-            victim.setTeam(Integer.parseInt(sub[2]));
         } else if (sub[0].equals("setall")) {
             final int x = Short.parseShort(sub[1]);
             player.setStr(x);
@@ -396,9 +393,7 @@ public class Commands {
     public static void executeAdminCommand(MapleClient c, String[] sub, char heading) {
         MapleCharacter player = c.getPlayer();
         if (sub[0].equals("horntail")) {
-            for (int i = 8810002; i < 8810010; i++) {
-                player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(i), player.getPosition());
-            }
+            player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8810026), player.getPosition());
         } else if (sub[0].equals("packet")) {
             player.getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
         } else if (sub[0].equals("npc")) {

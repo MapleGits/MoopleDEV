@@ -98,7 +98,7 @@ public class MapleMap {
     private MapleMapEffect mapEffect = null;
     private boolean everlast = false;
     private int forcedReturnMap = 999999999;
-    private int timeLimit;
+    private long timeLimit;
     private int decHP = 0;
     private int protectItem = 0;
     private boolean town;
@@ -111,6 +111,7 @@ public class MapleMap {
     private int timeMobId;
     private String timeMobMessage = "";
     private int fieldLimit = 0;
+    private ScheduledFuture<?> mapMonitor = null;
     // HPQ
     private int riceCakeNum = 0; // bad place to put this
     private boolean allowHPQSummon = false; // bad place to put this
@@ -202,7 +203,7 @@ public class MapleMap {
         this.forcedReturnMap = map;
     }
 
-    public int getTimeLimit() {
+    public long getTimeLimit() {
         return timeLimit;
     }
 
@@ -446,40 +447,15 @@ public class MapleMap {
             }
         }
         if (monster.isAlive()) {
-            boolean killMonster = false;
             synchronized (monster) {
-                if (!monster.isAlive()) {
+                if (!monster.isAlive()) {//lol?
                     return false;
                 }
                 if (damage > 0) {
-                    int monsterhp = monster.getHp();
                     monster.damage(chr, damage, true);
-                    if (!monster.isAlive()) { // monster just died
-                        killMonster(monster, chr, true);
-                        if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {
-                            for (MapleMapObject object : chr.getMap().getMapObjects()) {
-                                MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
-                                if (mons != null) {
-                                    if (mons.getId() == 8810018 || mons.getId() == 8810026) {
-                                        damageMonster(chr, mons, monsterhp);
-                                    }
-                                }
-                            }
-                        }
-                    } else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {//Horntail
-                        for (MapleMapObject object : chr.getMap().getMapObjects()) {
-                            MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
-                            if (mons != null) {
-                                if (mons.getId() == 8810018 || mons.getId() == 8810026) {
-                                    damageMonster(chr, mons, damage);
-                                }
-                            }
-                        }
-                    }
+                    if (!monster.isAlive())  // monster just died
+                        killMonster(monster, chr, true);                    
                 }
-            }
-            if (killMonster) {
-                killMonster(monster, chr, true);
             }
             return true;
         }
@@ -493,17 +469,6 @@ public class MapleMap {
     public void killMonster(final MapleMonster monster, final MapleCharacter chr, final boolean withDrops, final boolean secondTime, int animation) {
         MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
         chr.increaseEquipExp(monster.getExp());
-        if (monster.getId() == 8810018 && !secondTime) {
-            TimerManager.getInstance().schedule(new Runnable() {
-
-                @Override
-                public void run() {
-                    killMonster(monster, chr, withDrops, true, 1);
-                    killAllMonsters();
-                }
-            }, 3000);
-            return;
-        }
         int buff = monster.getBuffToGive();
         if (buff > -1) {
             for (MapleMapObject mmo : this.getAllPlayer()) {
@@ -596,17 +561,6 @@ public class MapleMap {
 
     public List<MapleMapObject> getAllPlayer() {
         return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.PLAYER));
-    }
-
-    public void addMapTimer(int time, final int mapid) {
-        broadcastMessage(MaplePacketCreator.getClock(time));
-        TimerManager.getInstance().schedule(new Runnable() {
-
-                @Override
-                public void run() {
-                    warpEveryone(mapid);
-                }
-            }, time);
     }
 
     public void destroyReactor(int oid) {
@@ -840,7 +794,7 @@ public class MapleMap {
 
                 public void sendPackets(MapleClient c) {
                     c.announce(MaplePacketCreator.spawnMonster(monster, true));
-                    if (monster.getId() == 9300166) { // || monster.getId() == 8810026
+                    if (monster.getId() == 9300166) {  
                         TimerManager.getInstance().schedule(new Runnable() {
 
                             @Override
@@ -1169,10 +1123,6 @@ public class MapleMap {
         }
         if (chr.getEnergyBar() >= 10000) {
             broadcastMessage(chr, (MaplePacketCreator.giveForeignEnergyCharge(chr.getId(), 10000)));
-        }
-        if (getTimeLimit() > 0 && getForcedReturnMap() != null) {
-            chr.getClient().announce(MaplePacketCreator.getClock(getTimeLimit()));
-            chr.startMapTimeLimitTask(this, this.getForcedReturnMap());
         }
         if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));
@@ -1789,6 +1739,28 @@ public class MapleMap {
         for (MapleMapObject i : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM))) {
             removeMapObject(i);
         }
+    }
+
+    public void addMapTimer(int time, final int mapid) {
+        timeLimit = System.currentTimeMillis() + (time * 1000);
+        broadcastMessage(MaplePacketCreator.getClock(time));
+        mapMonitor = TimerManager.getInstance().register(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (timeLimit != 0 && timeLimit < System.currentTimeMillis()) {
+                        warpEveryone(mapid);
+                        timeLimit = 0;
+                    }
+                    if (getCharacters().isEmpty()) {
+                        resetReactors();
+                        killAllMonsters();
+                        clearDrops();
+                        mapMonitor.cancel(false);
+                        mapMonitor = null;
+                    }
+                }
+            }, 1000);
     }
 
     public void setFieldLimit(int fieldLimit) {

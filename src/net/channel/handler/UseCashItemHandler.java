@@ -36,6 +36,7 @@ import client.MaplePet;
 import client.MapleStat;
 import client.SkillFactory;
 import constants.ItemConstants;
+import constants.skills.Aran;
 import java.sql.SQLException;
 import net.AbstractMaplePacketHandler;
 import scripting.npc.NPCScriptManager;
@@ -81,6 +82,17 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     if ((curLevel < skillSPTo.getMaxLevel()) && curLevelSPFrom > 0) {
                         player.changeSkillLevel(skillSPFrom, curLevelSPFrom - 1, player.getMasterLevel(skillSPFrom), -1);
                         player.changeSkillLevel(skillSPTo, curLevel + 1, player.getMasterLevel(skillSPTo), -1);
+                        if (SPFrom == Aran.FULL_SWING) {
+                            ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_FULL_DOUBLE);
+                            ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_FULL_TRIPLE);
+                            player.changeSkillLevel(hidden1, curLevelSPFrom - 1, player.getMasterLevel(hidden1), -1);
+                            player.changeSkillLevel(hidden2, curLevelSPFrom - 1, player.getMasterLevel(hidden2), -1);
+                        } else if (SPFrom == Aran.OVER_SWING) {
+                            ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_OVER_DOUBLE);
+                            ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_OVER_TRIPLE);
+                            player.changeSkillLevel(hidden1, curLevelSPFrom - 1, player.getMasterLevel(hidden1), -1);
+                            player.changeSkillLevel(hidden2, curLevelSPFrom - 1, player.getMasterLevel(hidden2), -1);                
+                        }
                     }
                 } else {
                     List<Pair<MapleStat, Integer>> statupdate = new ArrayList<Pair<MapleStat, Integer>>(2);
