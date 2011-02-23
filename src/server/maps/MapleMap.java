@@ -454,8 +454,18 @@ public class MapleMap {
                 if (damage > 0) {
                     monster.damage(chr, damage, true);
                     if (!monster.isAlive())  // monster just died
-                        killMonster(monster, chr, true);                    
-                }
+                        killMonster(monster, chr, true);
+
+                } else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {
+                        for (MapleMapObject object : chr.getMap().getMapObjects()) {
+                             MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
+                             if (mons != null) {
+                                 if (mons.getId() == 8810018) {
+                                     damageMonster(chr, mons, damage);
+                                 }
+                             }
+                         }
+                 }
             }
             return true;
         }
@@ -468,6 +478,17 @@ public class MapleMap {
 
     public void killMonster(final MapleMonster monster, final MapleCharacter chr, final boolean withDrops, final boolean secondTime, int animation) {
         MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
+        if (monster.getId() == 8810018 && !secondTime) {
+            TimerManager.getInstance().schedule(new Runnable() {
+                @Override
+                public void run() {
+                    killMonster(monster, chr, withDrops, true, 1);
+                    killAllMonsters();
+                }
+            }, 3000);
+            return;
+        }
+
         chr.increaseEquipExp(monster.getExp());
         int buff = monster.getBuffToGive();
         if (buff > -1) {
@@ -794,16 +815,6 @@ public class MapleMap {
 
                 public void sendPackets(MapleClient c) {
                     c.announce(MaplePacketCreator.spawnMonster(monster, true));
-                    if (monster.getId() == 9300166) {  
-                        TimerManager.getInstance().schedule(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false, false, 4);
-                            }
-                        }, 2000 + Randomizer.nextInt(500));
-                    } else if (monster.getStats().removeAfter())
-                        killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
                 }
             }, null);
             updateMonsterController(monster);
@@ -818,6 +829,8 @@ public class MapleMap {
             }
         }
         spawnedMonstersOnMap.incrementAndGet();
+        if (monster.getStats().removeAfter())
+            killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
         if (mapid == 910110000 && !this.allowHPQSummon) { // HPQ make monsters invisible
             this.broadcastMessage(MaplePacketCreator.makeMonsterInvisible(monster));
         }

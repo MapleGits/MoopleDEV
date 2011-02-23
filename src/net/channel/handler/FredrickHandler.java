@@ -89,35 +89,8 @@ public class FredrickHandler extends AbstractMaplePacketHandler {
         if (chr.getMeso() + chr.getMerchantMeso() < 0) {
             return false;
         }
-        List<MapleInventoryType> li = new LinkedList<MapleInventoryType>();
-	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 	for (Pair<IItem, MapleInventoryType> item : items) {
-	    final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getLeft().getItemId());
-	    if (!li.contains(invtype)) li.add(invtype);
-            if (invtype == MapleInventoryType.EQUIP) {
-		eq++;
-	    } else if (invtype == MapleInventoryType.USE) {
-		use++;
-	    } else if (invtype == MapleInventoryType.SETUP) {
-		setup++;
-	    } else if (invtype == MapleInventoryType.ETC) {
-		etc++;
-	    } else if (invtype == MapleInventoryType.CASH) {
-		cash++;
-	    }
-	}
-        for (MapleInventoryType mit : li) {
-            if (mit == MapleInventoryType.EQUIP) {
-                if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq) return false;
-            } else if (mit == MapleInventoryType.USE) {
-		if (chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use) return false;
-            } else if (mit == MapleInventoryType.SETUP) {
-		if( chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup) return false;
-            } else if (mit == MapleInventoryType.ETC) {
-		if (chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc) return false;
-            } else if (mit == MapleInventoryType.CASH) {
-		if (chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) return false;
-            }
+            if (!MapleInventoryManipulator.checkSpace(chr.getClient(), item.getLeft().getItemId(), item.getLeft().getQuantity(), item.getLeft().getOwner())) return false;
         }
 
 	return true;

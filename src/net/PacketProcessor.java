@@ -195,7 +195,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.ALLIANCE_OPERATION, new AllianceOperationHandler());
             registerHandler(RecvOpcode.USE_SOLOMON_ITEM, new UseSolomonHandler());
             registerHandler(RecvOpcode.USE_GACHA_EXP, new UseGachaExpHandler());
-            registerHandler(RecvOpcode.USE_FISHING_ITEM, new FishingHandler());
+            registerHandler(RecvOpcode.USE_ITEM_REWARD, new ItemRewardHandler());
             registerHandler(RecvOpcode.USE_REMOTE, new RemoteGachaponHandler());
             registerHandler(RecvOpcode.ACCEPT_FAMILY, new AcceptFamilyHandler());
             registerHandler(RecvOpcode.DUEY_ACTION, new DueyHandler());

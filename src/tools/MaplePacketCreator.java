@@ -1967,7 +1967,18 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket confirmShopTransaction(byte code) {
+    /* 00 = /
+     * 01 = You don't have enough in stock
+     * 02 = You do not have enough mesos
+     * 03 = Please check if your inventory is full or not
+     * 05 = You don't have enough in stock
+     * 06 = Due to an error, the trade did not happen
+     * 07 = Due to an error, the trade did not happen
+     * 08 = /
+     * 0D = You need more items
+     * 0E = CRASH; LENGTH NEEDS TO BE LONGER :O
+     */
+    public static MaplePacket shopTransaction(byte code) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
         mplew.writeShort(SendOpcode.CONFIRM_SHOP_TRANSACTION.getValue());
         mplew.write(code);
@@ -7001,6 +7012,13 @@ public class MaplePacketCreator {
         mplew.write(0); //Something
         mplew.write(chr.getTeam()); //Team
         mplew.writeMapleAsciiString(chr.getName()); //Player name
+        return mplew.getPacket();
+    }
+
+    public static MaplePacket showInventoryFull() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(8);
+        mplew.writeShort(SendOpcode.SOMETHING_WITH_INVENTORY.getValue());
+        mplew.write0(6);
         return mplew.getPacket();
     }
 }

@@ -34,12 +34,12 @@ public final class NPCShopHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte bmode = slea.readByte();
         if (bmode == 0) { // mode 0 = buy :)
-            slea.readShort();//?
+            short slot = slea.readShort();// slot
             int itemId = slea.readInt();
             short quantity = slea.readShort();
-            c.getPlayer().getShop().buy(c, itemId, quantity);
+            c.getPlayer().getShop().buy(c, slot, itemId, quantity);
         } else if (bmode == 1) { // sell ;)
-            byte slot = (byte) slea.readShort();
+            short slot = slea.readShort();
             int itemId = slea.readInt();
             short quantity = slea.readShort();
             c.getPlayer().getShop().sell(c, MapleItemInformationProvider.getInstance().getInventoryType(itemId), slot, quantity);

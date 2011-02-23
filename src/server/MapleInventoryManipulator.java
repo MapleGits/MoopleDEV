@@ -55,6 +55,10 @@ public class MapleInventoryManipulator {
         return addById(c, itemId, quantity, null, -1, -1);
     }
 
+    public static boolean addById(MapleClient c, int itemId, short quantity, long expiration) {
+        return addById(c, itemId, quantity, null, -1, (byte) 0, expiration);
+    }
+
     public static boolean addById(MapleClient c, int itemId, short quantity, String owner, int petid) {
         return addById(c, itemId, quantity, owner, petid, -1);
     }

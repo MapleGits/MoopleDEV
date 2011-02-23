@@ -30,7 +30,6 @@ import client.MapleInventoryType;
 public final class ItemConstants {
     public final static int LOCK = 0x01;
     public final static int SPIKES = 0x02;
-    public final static int LOCK_SPIKES = 0x03;
     public final static int COLD = 0x04;
     public final static int UNTRADEABLE = 0x08;
     public final static int KARMA = 0x10;

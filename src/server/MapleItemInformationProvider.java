@@ -45,7 +45,7 @@ import constants.ItemConstants;
 import java.util.Collection;
 import java.util.LinkedList;
 import tools.Randomizer;
-import net.channel.handler.FishingHandler.MapleFish;
+import net.channel.handler.ItemRewardHandler.RewardItem;
 import provider.MapleData;
 import provider.MapleDataDirectoryEntry;
 import provider.MapleDataFileEntry;
@@ -92,7 +92,7 @@ public class MapleItemInformationProvider {
     protected Map<Integer, Integer> triggerItemCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> expCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> levelCache = new HashMap<Integer, Integer>();
-    protected Map<Integer, List<MapleFish>> fishingCache = new HashMap<Integer, List<MapleFish>>();
+    protected Map<Integer, List<RewardItem>> rewardCache = new HashMap<Integer, List<RewardItem>>();
     protected List<Pair<Integer, String>> itemNameCache = new ArrayList<Pair<Integer, String>>();
     protected Map<Integer, Boolean> consumeOnPickupCache = new HashMap<Integer, Boolean>();
     protected Map<Integer, Boolean> isQuestItemCache = new HashMap<Integer, Boolean>();
@@ -886,15 +886,15 @@ public class MapleItemInformationProvider {
         }
     }
 
-    public List<MapleFish> getFishReward(int itemId) {
-        if (fishingCache.containsKey(itemId)) {
-            return fishingCache.get(itemId);
+    public List<RewardItem> getItemReward(int itemId) {
+        if (rewardCache.containsKey(itemId)) {
+            return rewardCache.get(itemId);
         } else {
-            List<MapleFish> rewards = new ArrayList<MapleFish>();
+            List<RewardItem> rewards = new ArrayList<RewardItem>();
             for (MapleData child : getItemData(itemId).getChildByPath("reward").getChildren()) {
-                rewards.add(new MapleFish(MapleDataTool.getInt("item", child, 0), MapleDataTool.getInt("prob", child, 0), MapleDataTool.getInt("count", child, 0), MapleDataTool.getString("Effect", child, "")));
+                rewards.add(new RewardItem(MapleDataTool.getInt("item", child, 0), MapleDataTool.getInt("prob", child, 0), (short) MapleDataTool.getInt("count", child, 0), MapleDataTool.getInt("period", child, -1), MapleDataTool.getString("Effect", child, "")));
             }
-            fishingCache.put(itemId, rewards);
+            rewardCache.put(itemId, rewards);
             return rewards;
         }
     }
