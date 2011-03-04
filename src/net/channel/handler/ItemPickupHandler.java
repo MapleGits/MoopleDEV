@@ -24,12 +24,13 @@ package net.channel.handler;
 import client.MapleCharacter;
 import net.world.MaplePartyCharacter;
 import client.MapleClient;
-import client.MaplePet;
 import client.autoban.AutobanFactory;
 import java.awt.Point;
 import net.AbstractMaplePacketHandler;
+import scripting.item.ItemScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
+import server.MapleItemInformationProvider.scriptedItem;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import tools.MaplePacketCreator;
@@ -113,21 +114,20 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                         }
                         chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
                         chr.getMap().removeMapObject(ob);
+                    } else if (mapitem.getItem().getItemId() / 10000 == 243) {
+                        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+                        scriptedItem info = ii.getScriptedItemInfo(mapitem.getItem().getItemId());
+                        if (info.runOnPickup()) {
+                            ItemScriptManager ism = ItemScriptManager.getInstance();
+                            String scriptName = info.getScript();
+                            if (ism.scriptExists(scriptName))
+                                ism.getItemScript(c, scriptName);
+                        }
                     } else if (useItem(c, mapitem.getItem().getItemId())) {
                         if (mapitem.getItem().getItemId() / 10000 == 238) {
                             chr.getMonsterBook().addCard(c, mapitem.getItem().getItemId());
                         }
                         mapitem.setPickedUp(true);
-                        chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
-                        chr.getMap().removeMapObject(ob);
-                    } else if (mapitem.getItem().getItemId() >= 5000000 && mapitem.getItem().getItemId() <= 5000100) {
-                        if (mapitem.getItem().getPetId() == -1) {
-                            int petid = MaplePet.createPet(mapitem.getItem().getItemId());
-                            MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, petid, mapitem.getItem().getExpiration());
-                        } else {
-                            MapleInventoryManipulator.addById(c, mapitem.getItem().getItemId(), mapitem.getItem().getQuantity(), null, mapitem.getItem().getPetId(), mapitem.getItem().getExpiration());
-                        }
-
                         chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
                         chr.getMap().removeMapObject(ob);
                     } else if (MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true)) {

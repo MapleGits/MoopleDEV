@@ -21,6 +21,7 @@
 */
 package net.world;
 
+import client.MapleFamily;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 import net.MaplePacket;
@@ -42,6 +44,7 @@ import net.world.guild.MapleGuild;
 import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldChannelInterface;
 import net.world.remote.WorldLocation;
+import server.quest.MapleQuest;
 
 /**
  *
@@ -604,6 +607,16 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     @Override
     public boolean increaseAllianceCapacity(int aId, int inc) throws RemoteException {
         return WorldRegistryImpl.getInstance().increaseAllianceCapacity(aId, inc);
+    }
+
+    @Override
+    public void addFamily(int id, MapleFamily f) throws RemoteException {
+        WorldRegistryImpl.getInstance().addFamily(id, f);
+    }
+
+    @Override
+    public MapleFamily getFamily(int id) throws RemoteException {
+        return WorldRegistryImpl.getInstance().getFamily(id);
     }
 
     public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException {

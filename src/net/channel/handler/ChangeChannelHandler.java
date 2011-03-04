@@ -30,6 +30,7 @@ import client.MapleInventoryType;
 import java.io.IOException;
 import net.AbstractMaplePacketHandler;
 import net.world.MapleMessengerCharacter;
+import net.world.PlayerStorage;
 import server.MapleTrade;
 import server.maps.FieldLimit;
 import server.maps.HiredMerchant;
@@ -91,9 +92,10 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
             chr.cancelEffectFromBuffStat(MapleBuffStat.COMBO);
         }
         chr.getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
-        chr.saveToDB(true);
         chr.getMap().removePlayer(chr);
         chr.getClient().getChannelServer().removePlayer(chr);
+        chr.saveToDB(true);
+        PlayerStorage.getInstance().addPlayer(chr);
         chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));

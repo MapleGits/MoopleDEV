@@ -25,8 +25,6 @@ import java.awt.Point;
 import java.io.Serializable;
 import client.MapleJob;
 import client.MapleCharacter;
-import net.MaplePacket;
-import tools.MaplePacketCreator;
 
 public class MaplePartyCharacter implements Serializable {
     private static final long serialVersionUID = -6460122214407438511L;

@@ -52,19 +52,19 @@ public class QuestActionManager extends NPCConversationManager {
         QuestScriptManager.getInstance().dispose(this, getClient());
     }
 
-    public void forceStartQuest() {
-        forceStartQuest(quest);
+    public boolean forceStartQuest() {
+        return forceStartQuest(quest);
     }
 
-    public void forceStartQuest(int id) {
-        MapleQuest.getInstance(id).forceStart(getPlayer(), getNpc());
+    public boolean forceStartQuest(int id) {
+        return MapleQuest.getInstance(id).forceStart(getPlayer(), getNpc());
     }
 
-    public void forceCompleteQuest() {
-        forceCompleteQuest(quest);
+    public boolean forceCompleteQuest() {
+        return forceCompleteQuest(quest);
     }
 
-    public void forceCompleteQuest(int id) {
-        MapleQuest.getInstance(id).forceComplete(getPlayer(), getNpc());
+    public boolean forceCompleteQuest(int id) {
+        return MapleQuest.getInstance(id).forceComplete(getPlayer(), getNpc());
     }
 }

@@ -22,9 +22,11 @@
 package scripting.map;
 
 import client.MapleClient;
+import client.MapleQuestStatus;
 import client.SkillFactory;
 import scripting.AbstractPlayerInteraction;
 import server.TimerManager;
+import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 
 public class MapScriptMethods extends AbstractPlayerInteraction {
@@ -159,6 +161,34 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
 	c.announce(MaplePacketCreator.lockUI(false));
     }
 
+    public void explorerQuest(short questid, String questName) {
+        MapleQuest quest = MapleQuest.getInstance(questid);
+        if (!isQuestStarted(questid)) {
+            if (!quest.forceStart(getPlayer(), 9000066)) return;
+        }
+        MapleQuestStatus q = getPlayer().getQuest(quest);
+        if (!q.addMedalMap(getPlayer().getMapId())) return;
+        String status = Integer.toString(q.getMedalProgress());
+        getPlayer().announce(MaplePacketCreator.questProgress(quest.getInfoNumber(), status));
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/" + quest.getInfoEx() + " regions explored."));
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage("Trying for the " + questName + " title."));
+        getPlayer().announce(MaplePacketCreator.showMedalProgress("You made progress on the " + questName + " title. " + status + "/" + quest.getInfoEx()));
+        if (q.getMedalProgress() == quest.getInfoEx()) getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+    }
 
+    public void touchTheSky() { //29004
+        MapleQuest quest = MapleQuest.getInstance(29004);
+        if (!isQuestStarted(29004)) {
+            if (!quest.forceStart(getPlayer(), 9000066)) return;
+        }
+        MapleQuestStatus q = getPlayer().getQuest(quest);
+        if (!q.addMedalMap(getPlayer().getMapId())) return;
+        String status = Integer.toString(q.getMedalProgress());
+        getPlayer().announce(MaplePacketCreator.questProgress(quest.getInfoNumber(), status));
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/5 Regions Completed"));
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage("The One Who's Touched the Sky title in progress."));
+        getPlayer().announce(MaplePacketCreator.showMedalProgress("The One Who's Touched the Sky title in progress. " + status + "/5 Completed"));
+        if (q.getMedalProgress() == quest.getInfoEx()) getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+    }
 }
 

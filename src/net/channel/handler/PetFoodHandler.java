@@ -91,5 +91,6 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), slot, 1, false), true);
         }
         MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, false);
+        c.announce(MaplePacketCreator.enableActions());
     }
 }

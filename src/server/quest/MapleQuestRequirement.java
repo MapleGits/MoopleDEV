@@ -26,6 +26,7 @@ import client.IItem;
 import client.MapleCharacter;
 import client.MapleInventoryType;
 import client.MapleJob;
+import client.MaplePet;
 import client.MapleQuestStatus;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,8 +74,12 @@ public class MapleQuestRequirement {
                     for (IItem item : c.getInventory(iType).listById(itemId)) {
                         quantity += item.getQuantity();
                     }
-                    if (quantity < MapleDataTool.getInt(itemEntry.getChildByPath("count")) || MapleDataTool.getInt(itemEntry.getChildByPath("count")) <= 0 && quantity > 0) {
-                        return false;
+                    if (itemEntry.getChildByPath("count") != null) {
+                        if (quantity < MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) || MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) <= 0 && quantity > 0) {
+                            return false;
+                        }
+                    } else {
+                        if (quantity != 0) return false;
                     }
                 }
                 return true;
@@ -101,12 +106,14 @@ public class MapleQuestRequirement {
             case MIN_LEVEL:
                 return c.getLevel() >= MapleDataTool.getInt(getData());
             case MIN_PET_TAMENESS:
+                MaplePet pet = c.getPet(0);
+                if (pet == null) return false;
                 return c.getPet(0).getCloseness() >= MapleDataTool.getInt(getData());
             case MOB:
                 for (MapleData mobEntry : getData().getChildren()) {
                     int mobId = MapleDataTool.getInt(mobEntry.getChildByPath("id"));
                     int killReq = MapleDataTool.getInt(mobEntry.getChildByPath("count"));
-                    if (c.getQuest(quest).getMobKills(mobId) < killReq) {
+                    if (Integer.parseInt(c.getQuest(quest).getProgress(mobId)) < killReq) {
                         return false;
                     }
                 }
@@ -115,6 +122,10 @@ public class MapleQuestRequirement {
                 return c.getMonsterBook().getTotalCards() >= MapleDataTool.getInt(getData());
             case NPC:
                 return npcid == null || npcid == MapleDataTool.getInt(getData());
+            case INFO_EX:
+                 return c.getQuest(quest).getMedalProgress() >= quest.getInfoEx();
+            case COMPLETED_QUEST:
+                return c.getCompletedQuests().size() >= MapleDataTool.getInt(getData());
             default:
                 return true;
         }

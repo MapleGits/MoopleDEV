@@ -1,0 +1,9 @@
+- Guild Alliances
+- Horntail
+- Family System
+- Stability shet
+- Fix freeze/stun etc
+- Fix double summon.
+- GMS-Like Job Advancements
+- Remove RMI because it's useless
+- Fix the party bug?

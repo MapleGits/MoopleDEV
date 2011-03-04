@@ -47,6 +47,7 @@ import net.login.LoginServer;
 import net.world.MapleMessengerCharacter;
 import net.world.MaplePartyCharacter;
 import net.world.PartyOperation;
+import net.world.PlayerStorage;
 import net.world.guild.MapleGuildCharacter;
 import net.world.remote.WorldChannelInterface;
 import scripting.npc.NPCConversationManager;
@@ -61,6 +62,7 @@ import tools.MaplePacketCreator;
 import tools.HexTool;
 import org.apache.mina.core.session.IoSession;
 import server.MapleMiniGame;
+import server.quest.MapleQuest;
 
 public class MapleClient {
     public static final int LOGIN_NOTLOGGEDIN = 0;
@@ -618,8 +620,22 @@ public class MapleClient {
             if (!player.isAlive()) {
                 player.setHp(50, true);
             }
+
+            
             player.setMessenger(null);
             player.getExpirationTask().cancel(true);
+            for (ScheduledFuture<?> sf : player.getTimers())
+                sf.cancel(true);
+
+            player.getTimers().clear();
+            for (MapleQuestStatus status : player.getStartedQuests()) {
+                MapleQuest quest = status.getQuest();
+                if (quest.getTimeLimit() > 0) {
+                    MapleQuestStatus newStatus = new MapleQuestStatus(quest, MapleQuestStatus.Status.NOT_STARTED);
+                    newStatus.setForfeited(player.getQuest(quest).getForfeited() + 1);
+                    player.updateQuest(newStatus);
+                }
+            }
             player.saveToDB(true);
             player.getMap().removePlayer(player);
             try {
@@ -654,6 +670,7 @@ public class MapleClient {
                 if (getChannelServer() != null) {
                     getChannelServer().removePlayer(player);
                 }
+                PlayerStorage.getInstance().removePlayer(player.getId());
                 player = null;
                 session.close(true);
             }

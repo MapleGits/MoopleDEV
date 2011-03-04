@@ -25,7 +25,6 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleJob;
 import client.MapleStat;
-import client.SkillFactory;
 import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -91,26 +90,16 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
         if (player.getHpMpApUsed() > 9999 || MaxHP >= 30000) {
             return MaxHP;
         }
-        if (job.isA(MapleJob.BEGINNER)) {
-            MaxHP += 8;
-        } else if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1)) {
-            if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(10000000) : SkillFactory.getSkill(1000001)) > 0) {
-                MaxHP += 20;
-            } else {
-                MaxHP += 8;
-            }
+        if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1) || job.isA(MapleJob.ARAN1)) {
+            MaxHP += 20;
         } else if (job.isA(MapleJob.MAGICIAN) || job.isA(MapleJob.BLAZEWIZARD1)) {
             MaxHP += 6;
-        } else if (job.isA(MapleJob.BOWMAN) || job.isA(MapleJob.WINDARCHER1)) {
-            MaxHP += 8;
-        } else if (job.isA(MapleJob.THIEF) || job.isA(MapleJob.NIGHTWALKER1)) {
-            MaxHP += 8;
+        } else if (job.isA(MapleJob.BOWMAN) || job.isA(MapleJob.WINDARCHER1) || job.isA(MapleJob.THIEF) || job.isA(MapleJob.NIGHTWALKER1)) {
+            MaxHP += 16;
         } else if (job.isA(MapleJob.PIRATE) || job.isA(MapleJob.THUNDERBREAKER1)) {
-            if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(15100000) : SkillFactory.getSkill(5100000)) > 0) {
-                MaxHP += 18;
-            } else {
-                MaxHP += 8;
-            }
+            MaxHP += 18;
+        } else {
+            MaxHP += 8;
         }
         return MaxHP;
     }
@@ -118,23 +107,20 @@ public final class DistributeAPHandler extends AbstractMaplePacketHandler {
     static int addMP(MapleClient c) {
         MapleCharacter player = c.getPlayer();
         int MaxMP = player.getMaxMp();
+        MapleJob job = player.getJob();
         if (player.getHpMpApUsed() > 9999 || player.getMaxMp() >= 30000) {
             return MaxMP;
         }
-        if (player.getJob().isA(MapleJob.BEGINNER) || player.isCygnus()) {
-            MaxMP += 6;
-        } else if (player.getJob().isA(MapleJob.WARRIOR) || player.getJob().isA(MapleJob.DAWNWARRIOR1)) {
+        if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1) || job.isA(MapleJob.ARAN1)) {
             MaxMP += 2;
-        } else if (player.getJob().isA(MapleJob.MAGICIAN) || player.getJob().isA(MapleJob.BLAZEWIZARD1)) {
-            if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(12000000) : SkillFactory.getSkill(2000001)) > 0) {
-                MaxMP += 18;
-            } else {
-                MaxMP += 14;
-            }
-        } else if (player.getJob().isA(MapleJob.BOWMAN) || player.getJob().isA(MapleJob.THIEF)) {
+        } else if (job.isA(MapleJob.MAGICIAN) || job.isA(MapleJob.BLAZEWIZARD1)) {
+            MaxMP += 18;
+        } else if (job.isA(MapleJob.BOWMAN) || job.isA(MapleJob.WINDARCHER1) || job.isA(MapleJob.THIEF) || job.isA(MapleJob.NIGHTWALKER1)) {
             MaxMP += 10;
-        } else if (player.getJob().isA(MapleJob.PIRATE)) {
+        } else if (job.isA(MapleJob.PIRATE) || job.isA(MapleJob.THUNDERBREAKER1)) {
             MaxMP += 14;
+        } else {
+            MaxMP += 6;
         }
         return MaxMP;
     }

@@ -22,12 +22,11 @@
 /* Dances with Balrog
 	Warrior Job Advancement
 	Victoria Road : Warriors' Sanctuary (102000003)
-
-	Custom Quest 100003, 100005
 */
 
 var status = 0;
-var job;
+var jobName;
+var jobId;
 
 function start() {
     status = -1;
@@ -47,75 +46,87 @@ function action(mode, type, selection) {
             status++;
         else
             status--;
-        if (status == 0) {
-            if (cm.getJobId()==0) {
-                if (cm.getLevel() >= 10)
+			
+		if (cm.getJobId()==0) {
+			if (status == 0) {
+				if (cm.getLevel() >= 10)
                     cm.sendNext("So you decided to become a #rWarrior#k?");
                 else {
                     cm.sendOk("Train a bit more and I can show you the way of the #rWarrior#k.")
                     cm.dispose();
                 }
-            } else {
-                if (cm.getLevel() >= 30 && cm.getJobId()==100) {
-                    if (cm.isQuestStarted(100003)) {
-                        cm.completeQuest(100005);
-                        if (cm.isQuestCompleted(100005)) {
-                            status = 20;
-                            cm.sendNext("I see you have done well. I will allow you to take the next step on your long road.");
-                        } else {
-                            cm.sendOk("Go and see the #rJob Instructor#k.")
-                            cm.dispose();
-                        }
-                    } else {
-                        status = 10;
-                        cm.sendNext("The progress you have made is astonishing.");
-                    }
-                } else if (cm.isQuestStarted(100100)) {
-                    cm.completeQuest(100101);
-                    if (cm.isQuestCompleted(100101)) {
-                        cm.sendOk("Alright, now take this to #bTylus#k.");
-                    } else {
-                        cm.sendOk("Hey, " + cm.getPlayer().getName() + "! I need a #bBlack Charm#k. Go and find the Door of Dimension.");
-                        cm.startQuest(100101);
-                    }
-                    cm.dispose();
-                } else {
-                    cm.sendOk("You have chosen wisely.");
-                    cm.dispose();
-                }
-            }
-        } else if (status == 1) {
+			} else if (status == 1) {
             cm.sendNextPrev("It is an important and final choice. You will not be able to turn back.");
-        } else if (status == 2) {
+			} else if (status == 2) {
             cm.sendYesNo("Do you want to become a #rWarrior#k?");
-        } else if (status == 3) {
-            if (cm.getJobId()==0)
-                cm.changeJobById(100);
-            cm.gainItem(1402001, 1);
-            cm.sendOk("So be it! Now go, and go with pride.");
-            cm.resetStats();
-            cm.dispose();
-        } else if (status == 11) {
-            cm.sendNextPrev("You may be ready to take the next step as a #rFighter#k, #rPage#k or #rSpearman#k.")
-        } else if (status == 12) {
-            cm.sendSimple("What do you want to become?#b\r\n#L0#Fighter#l\r\n#L1#Page#l\r\n#L2#Spearman#l#k");
-        } else if (status == 13) {
-            var jobName;
-            if (selection == 0) {
-                jobName = "Fighter";
-                job = 110;
-            } else if (selection == 1) {
-                jobName = "Page";
-                job = 120;
-            } else {
-                jobName = "Spearman";
-                job = 130;
-            }
-            cm.sendYesNo("Do you want to become a #r" + jobName + "#k?");
-        } else if (status == 14) {
-            cm.changeJobById(job);
-            cm.sendOk("So be it! Now go, and go with pride.");
-            cm.dispose();
-        }
-    }
+			} else if (status == 3) {
+				if (cm.getJobId()==0)
+					cm.changeJobById(100);
+				cm.gainItem(1402001, 1);
+				cm.sendOk("So be it! Now go, and go with pride.");
+				cm.resetStats();
+				cm.dispose();
+			}
+		} else if (cm.getJobId()==100) {	
+			if (cm.getPlayer().getLevel() >= 30) {
+			if (cm.haveItem(4031012)) {
+				if (status == 0) 
+					cm.sendNext("OHH...you came back safe! I knew you'd breeze through...I'll admit you are a strong, formidable Warrior...alright, I'll make you an even stronger Warrior than you already are right now... Before THAT! you need to choose one of the three paths that you'll be given.. it isn't going to be easy, so if you have any questions, feel free to ask.");
+				else if (status == 1) 
+					cm.sendSimple("Alright, when you have made your decision, clock on [I'll choose my occupation!] at the very bottom.\r\n#b#L0#Please explain the role of the Fighter.#l\r\n#L1#Please explain the role of the Page.#l\r\n#L2#Please explain the role of the Spearman.#l\r\n#L3#I'll choose my occupation!#l");
+				else if (status == 2) {
+					if (selection == 0) 
+						cm.sendNext("");
+				    else if (selection == 1) 
+						cm.sendNext("");
+					else if (selection == 2) 
+						cm.sendNext("");
+					else if (selection == 3) 
+						cm.sendSimple("Hmmm, have you made up your mind? Choose the 2nd job advancement of your liking\r\r#b#L0#Fighter#l\r\n#L1#Page#l\r\r#L2#Spearman#l");				
+				} else if (status == 3) {
+					if (selection == 0) {
+						jobName = "Fighter";
+						jobId = 110;
+					} else if (selection == 1) {
+						jobName = "Page";
+						jobId = 120;					
+					} else if (selection == 2) {
+						jobName = "Spearman";
+						jobId = 130;
+					}	
+					cm.sendYesNo("So you want to make the 2nd job advancement as the #b" + jobName + "#k? Once you make the decision, you won't be able to make a job advancement with any other job. Are you sure about this?");
+				} else if (status == 4) {
+					if (jobId == 110) 
+						cm.sendNext("Alright! You have now become the #bFighter#k! A fighter strives to become the strongest of the strong, and never stops fighting. Don't ever lose that will to fight, and push forward 24/7. I'll help you become even stronger than you already are.");
+					else if (jobId == 130) 
+						cm.sendNext("Alright! You have now become the #bSpearman#k! The Spearman use the power of darkness to take out the enemies, always in shadows...please believe in yourself and your awesome power as you go on in your journey...I'll help you become much stronger than you are right now.");
+					cm.gainItem(4031012, -1);
+					cm.changeJobById(jobId);
+				} else if (status == 5) {
+					cm.sendNextPrev("I have just given you a book that gives you the list of skills you can acquire as the " + jobName + ". In that book, you'll find a bunch of skills the " + jobName + " can learn. Your use and etc inventories have also been expanded with additional row of slots now available. Your max MP has also increased...go check and see for it yourself.");				
+				} else if (status == 6) {
+					cm.sendNextPrev("I have also given you a little bit of #bSP#k. Open the #bSkill Menu#k located at the bottom left corner. You'll be able to boost up the newly acquired 2nd level skills. A word of warning, though: You can't boost them up all at once. Some of the skills are only available after you have learned other skills. Make sure to remember that.");
+				} else if (status == 7) {
+					if (jobId == 130) 
+						cm.sendNextPrev(jobName + "s needs to be strong. But remember that you can't abuse that power and use it on a weakling. Please use your enormous power the right way, because...for you to use that the right way, that is much harder than just getting stronger. Find me after you have advanced much further. I'll be waiting for you.");
+				}				
+			} else if (!cm.haveItem(4031008)) {		
+				if (status == 0) {
+					cm.sendYesNo("Whoa, you have definitely grown up! You don't look small and weak anymore...rather, now I can feel your presence as the Warrior! Impressive..so, what do you think? Do you want to get even stronger than you are right now? Pass a simple test and I'll do just that! Wanna do it?")
+				} else if (status == 1) {
+					cm.sendNext("Good thinking. You look strong, don't get me wrong, but there's still a need to test your strength and see if your are for real. The test isn't too difficult, so you'll do just fine... Here, take this letter first. Make sure you don't lose it.");
+				} else if (status == 2) {
+					if (cm.canHold(4031008)) {
+						cm.gainItem(4031008);
+						cm.sendNextPrev("Please get this letter to #bWarrior Job Instructor #kwho may be around #bWest Rocky Mountain IV #kthat's near Perion. He's the one being the instructor now in place of me, as I am busy here. Get him the letter and he'll give you the test in place of me. For more details, hear it straight from him. Best of luck to you.");
+					} else {
+						cm.dispose();
+					}
+				} else if (status == 3) {	
+					cm.dispose();
+				}		
+			}
+			}
+		}
+	}
 }

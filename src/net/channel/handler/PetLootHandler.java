@@ -32,6 +32,9 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleInventoryType;
 import net.world.MaplePartyCharacter;
+import scripting.item.ItemScriptManager;
+import server.MapleItemInformationProvider;
+import server.MapleItemInformationProvider.scriptedItem;
 
 /**
  * @author TheRamon
@@ -91,6 +94,15 @@ public final class PetLootHandler extends AbstractMaplePacketHandler {
                         mapitem.setPickedUp(false);
                         c.announce(MaplePacketCreator.enableActions());
                         return;
+                    }
+                } else if (mapitem.getItem().getItemId() / 10000 == 243) {
+                    MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+                    scriptedItem info = ii.getScriptedItemInfo(mapitem.getItem().getItemId());
+                    if (info.runOnPickup()) {
+                        ItemScriptManager ism = ItemScriptManager.getInstance();
+                        String scriptName = info.getScript();
+                        if (ism.scriptExists(scriptName))
+                            ism.getItemScript(c, scriptName);
                     }
                 } else if (ItemPickupHandler.useItem(c, mapitem.getItem().getItemId())) {
                     if (mapitem.getItem().getItemId() / 10000 == 238) {

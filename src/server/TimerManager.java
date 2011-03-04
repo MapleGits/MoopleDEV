@@ -66,7 +66,7 @@ public class TimerManager implements TimerManagerMBean {
     }
 
     public void stop() {
-        ses.shutdown();
+        ses.shutdownNow();
     }
 
     public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {

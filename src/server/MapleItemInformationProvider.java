@@ -87,7 +87,7 @@ public class MapleItemInformationProvider {
     protected Map<Integer, Integer> getMesoCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> monsterBookID = new HashMap<Integer, Integer>();
     protected Map<Integer, Boolean> onEquipUntradableCache = new HashMap<Integer, Boolean>();
-    protected Map<Integer, Integer> scriptedItemCache = new HashMap<Integer, Integer>();
+    protected Map<Integer, scriptedItem> scriptedItemCache = new HashMap<Integer, scriptedItem>();
     protected Map<Integer, Boolean> karmaCache = new HashMap<Integer, Boolean>();
     protected Map<Integer, Integer> triggerItemCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> expCache = new HashMap<Integer, Integer>();
@@ -437,7 +437,7 @@ public class MapleItemInformationProvider {
     }
 
     private boolean isCleanSlate(int scrollId) {
-        return scrollId > 2948999 && scrollId < 2049004;
+        return scrollId > 2048999 && scrollId < 2049004;
     }
 
     public IItem scrollEquipWithId(IItem equip, int scrollId, boolean usingWhiteScroll, boolean isGM) {
@@ -838,12 +838,17 @@ public class MapleItemInformationProvider {
         return untradableOnEquip;
     }
 
-    public int getScriptedItemNpc(int itemId) {
+    public scriptedItem getScriptedItemInfo(int itemId) {
         if (scriptedItemCache.containsKey(itemId)) {
             return scriptedItemCache.get(itemId);
         }
-        int npcId = MapleDataTool.getInt("spec/npc", getItemData(itemId), 0);
-        scriptedItemCache.put(itemId, npcId);
+        if ((itemId / 10000) != 243) {
+            return null;
+        }
+        scriptedItem script = new scriptedItem(MapleDataTool.getInt("spec/npc", getItemData(itemId), 0),
+                                               MapleDataTool.getString("spec/script", getItemData(itemId), ""),
+                                               MapleDataTool.getInt("spec/runOnPickup", getItemData(itemId), 0) == 1);
+        scriptedItemCache.put(itemId, script);
         return scriptedItemCache.get(itemId);
     }
 
@@ -1098,6 +1103,30 @@ public class MapleItemInformationProvider {
             }
         
         return list;
+    }
+
+    public class scriptedItem {
+        private boolean runOnPickup;
+        private int npc;
+        private String script;
+
+        public scriptedItem(int npc, String script, boolean rop) {
+            this.npc = npc;
+            this.script = script;
+            this.runOnPickup = rop;
+        }
+
+        public int getNpc() {
+            return npc;
+        }
+
+        public String getScript() {
+            return script;
+        }
+
+        public boolean runOnPickup() {
+            return runOnPickup;
+        }
     }
     
 }

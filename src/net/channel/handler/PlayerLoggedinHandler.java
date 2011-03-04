@@ -29,8 +29,8 @@ import client.BuddylistEntry;
 import client.CharacterNameAndId;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleFamily;
 import client.MapleInventoryType;
-import client.MapleQuestStatus;
 import client.SkillFactory;
 import constants.skills.SuperGM;
 import java.sql.SQLException;
@@ -42,6 +42,7 @@ import net.world.CharacterIdChannelPair;
 import net.world.MaplePartyCharacter;
 import net.world.PartyOperation;
 import net.world.PlayerBuffValueHolder;
+import net.world.PlayerStorage;
 import net.world.guild.MapleAlliance;
 import net.world.guild.MapleGuild;
 import net.world.remote.WorldChannelInterface;
@@ -55,11 +56,15 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
     }
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int cid = slea.readInt();
-        MapleCharacter player = null;
-        try {
-            player = MapleCharacter.loadCharFromDB(cid, c, true);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        MapleCharacter player = PlayerStorage.getInstance().removePlayer(cid);
+        if (player == null) {
+            try {
+                player = MapleCharacter.loadCharFromDB(cid, c, true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            player.channelChanged(c);
         }
         c.setPlayer(player);
         c.setAccID(player.getAccountID());
@@ -156,7 +161,16 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         }
         c.announce(MaplePacketCreator.loadFamily(player));
         if (player.getFamilyId() > 0) {
-            c.announce(MaplePacketCreator.getFamilyInfo(player));
+            try {
+                MapleFamily f = cserv.getWorldInterface().getFamily(player.getFamilyId());
+                if (f == null) {
+                    f = new MapleFamily(player.getId());
+                    cserv.getWorldInterface().addFamily(player.getFamilyId(), f);
+                }
+                player.setFamily(f);
+                c.announce(MaplePacketCreator.getFamilyInfo(f.getMember(player.getId())));
+            } catch (RemoteException ex) {
+            }
         }
         if (player.getGuildId() > 0) {
             try {
@@ -198,11 +212,6 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             player.updatePartyMemberHP();
         } catch (RemoteException e) {
             cserv.reconnectWorld();
-        }
-        for (MapleQuestStatus status : player.getStartedQuests()) {
-            if (status.hasMobKills()) {
-                c.announce(MaplePacketCreator.updateQuestMobKills(status));
-            }
         }
         CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {

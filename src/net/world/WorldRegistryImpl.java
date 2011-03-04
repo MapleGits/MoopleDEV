@@ -21,6 +21,7 @@
 */
 package net.world;
 
+import client.MapleFamily;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -65,6 +66,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     private Map<Integer, MapleGuild> guilds = new LinkedHashMap<Integer, MapleGuild>();
     private PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private Map<Integer, MapleAlliance> alliances = new LinkedHashMap<Integer, MapleAlliance>();
+    private Map<Integer, MapleFamily> families = new LinkedHashMap<Integer, MapleFamily>();
 
     private WorldRegistryImpl() throws RemoteException {
         super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
@@ -189,6 +191,23 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
             }
         }
         return -1;
+    }
+
+    public void addFamily(int id, MapleFamily f) {
+        synchronized (families) {
+            if (!families.containsKey(id)) {
+                families.put(id, f);
+            }
+        }
+    }
+
+    public MapleFamily getFamily(int id) {
+        synchronized (families) {
+            if (families.containsKey(id)) {
+                return families.get(id);
+            }
+            return null;
+        }
     }
 
     public WorldChannelInterface registerChannelServer(String authKey, ChannelWorldInterface cb) throws RemoteException {

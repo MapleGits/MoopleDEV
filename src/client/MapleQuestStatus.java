@@ -23,6 +23,8 @@ package client;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import server.quest.MapleQuest;
 import tools.StringUtil;
@@ -58,7 +60,8 @@ public class MapleQuestStatus {
     }
     private MapleQuest quest;
     private Status status;
-    private Map<Integer, Integer> killedMobs = new LinkedHashMap<Integer, Integer>();
+    private Map<Integer, String> progress = new LinkedHashMap<Integer, String>();
+    private List<Integer> medalProgress = new LinkedList<Integer>();
     private int npc;
     private long completionTime;
     private int forfeited = 0;
@@ -103,46 +106,49 @@ public class MapleQuestStatus {
 
     private void registerMobs() {
         for (int i : quest.getRelevantMobs()) {
-            killedMobs.put(i, 0);
+            progress.put(i, "000");
         }
     }
 
-    public boolean mobKilled(int id) {
-        if (killedMobs.get(id) != null) {
-            killedMobs.put(id, killedMobs.get(id) + 1);
+    public boolean addMedalMap(int mapid) {
+        if (medalProgress.contains(mapid)) return false;
+        medalProgress.add(mapid);
+        return true;
+    }
+
+    public int getMedalProgress() {
+        return medalProgress.size();
+    }
+
+    public List<Integer> getMedalMaps() {
+        return medalProgress;
+    }
+
+    public boolean progress(int id) {
+        if (progress.get(id) != null) {
+            int current = Integer.parseInt(progress.get(id));
+            String str = StringUtil.getLeftPaddedStr(Integer.toString(current + 1), '0', 3);
+            progress.put(id, str);
             return true;
         }
         return false;
     }
 
-    public void setMobKills(int id, int count) {
-        killedMobs.put(id, count);
+    public void setProgress(int id, String pr) {
+        progress.put(id, pr);
     }
 
-    public boolean hasMobKills() {
-        return killedMobs.size() > 0;
+    public boolean madeProgress() {
+        return progress.size() > 0;
     }
 
-    public int getMobKills(int id) {
-        if (killedMobs.get(id) == null) {
-            return 0;
-        }
-        return killedMobs.get(id);
+    public String getProgress(int id) {
+        if (progress.get(id) == null) return "";
+        return progress.get(id);
     }
 
-    public Map<Integer, Integer> getMobKills() {
-        return Collections.unmodifiableMap(killedMobs);
-    }
-
-    public int getMobNum(int id) {
-        int i = 0;
-        for (int kMob : killedMobs.values()) {
-            i++;
-            if (kMob == id) {
-                return i;
-            }
-        }
-        return i;
+    public Map<Integer, String> getProgress() {
+        return Collections.unmodifiableMap(progress);
     }
 
     public long getCompletionTime() {
@@ -166,12 +172,9 @@ public class MapleQuestStatus {
     }
 
     public String getQuestData() {
-        if (killedMobs.isEmpty()) {
-            return "";
-        }
         StringBuilder str = new StringBuilder();
-        for (Integer mob : killedMobs.values()) {
-            str.append(StringUtil.getLeftPaddedStr(mob.toString(), '\30', 3));
+        for (String ps : progress.values()) {
+            str.append(ps);
         }
         return str.toString();
     }

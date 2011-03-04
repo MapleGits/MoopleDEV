@@ -23,8 +23,7 @@ package client;
 
 public class MapleFamilyEntry {
     private int familyId;
-    private MapleCharacter chr;
-    private int rank, reputation, totalReputation, todaysRep, totalJuniors, juniors;
+    private int rank, reputation, totalReputation, todaysRep, totalJuniors, juniors, chrid;
     private String familyName;
 
     public int getId() {
@@ -43,12 +42,12 @@ public class MapleFamilyEntry {
         this.rank = rank;
     }
 
-    public MapleCharacter getPlayer() {
-        return chr;
+    public int getChrId() {
+        return chrid;
     }
 
-    public void setPlayer(MapleCharacter chr) {
-        this.chr = chr;
+    public void setChrId(int chrid) {
+        this.chrid = chrid;
     }
 
     public int getReputation() {
@@ -86,10 +85,6 @@ public class MapleFamilyEntry {
 
     public void setJuniors(int juniors) {
         this.juniors = juniors;
-    }
-
-    public int getFamilyId() {
-        return familyId;
     }
 
     public void setFamilyName(String familyName) {

@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MapleMessenger implements Serializable {
+public final class MapleMessenger implements Serializable {
     private static final long serialVersionUID = -873853186614934799L;
     private List<MapleMessengerCharacter> members = new LinkedList<MapleMessengerCharacter>();
     private int id;

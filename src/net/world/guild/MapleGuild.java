@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import client.MapleCharacter;
 import client.MapleClient;
+import java.util.LinkedList;
 import tools.DatabaseConnection;
 import net.MaplePacket;
 import net.channel.ChannelServer;
@@ -123,7 +124,7 @@ public class MapleGuild implements java.io.Serializable {
         if (notifications.keySet().size() != chs.size()) {
             notifications.clear();
             for (Integer ch : chs) {
-                notifications.put(ch, new java.util.LinkedList<Integer>());
+                notifications.put(ch, new LinkedList<Integer>());
             }
         } else {
             for (List<Integer> l : notifications.values()) {
@@ -135,7 +136,7 @@ public class MapleGuild implements java.io.Serializable {
                 if (!mgc.isOnline()) {
                     continue;
                 }
-                List<Integer> ch = notifications.get(mgc.getChannel());
+                List<Integer> ch = notifications.get(mgc.getChannel() - 1);
                 if (ch == null) {
                     System.out.println("Unable to connect to channel " + mgc.getChannel());
                 } else {

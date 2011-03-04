@@ -57,7 +57,7 @@ public final class FamilyUseHandler extends AbstractMaplePacketHandler {
                 c.announce(useRep(drate == 100 ? 2 : (erate == 100 ? 3 : 4), type, erate, drate, ((type > 5 || type == 4) ? 2 : 1) * 15 * 60 * 1000));
             }
         }
-        c.getPlayer().getFamily().gainReputation(repCost[type]);
+        c.getPlayer().getFamily().getMember(c.getPlayer().getId()).gainReputation(repCost[type]);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class FamilyUseHandler extends AbstractMaplePacketHandler {
      */
     private static MaplePacket useRep(int mode, int type, int erate, int drate, int time) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(0x60);
+        mplew.writeShort(0x60);//noty
         mplew.write(mode);
         mplew.writeInt(type);
         if (mode < 4) {

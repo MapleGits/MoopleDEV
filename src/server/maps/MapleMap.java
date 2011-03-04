@@ -45,12 +45,16 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
 import client.MaplePet;
+import client.MapleQuestStatus;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import tools.Randomizer;
 import constants.ServerConstants;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import net.MaplePacket;
 import net.channel.ChannelServer;
 import net.world.MaplePartyCharacter;
@@ -74,6 +78,7 @@ import server.life.MapleLifeFactory;
 import server.life.MapleMonsterInformationProvider;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
+import server.quest.MapleQuest;
 
 public class MapleMap {
 
@@ -312,8 +317,8 @@ public class MapleMap {
 	    return;
 	}
 	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0); //chr.getParty() != null ? 1 :
-	final int mobpos = mob.getPosition().x, chServerrate = ServerConstants.DROP_RATE;
+	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
+        final int mobpos = mob.getPosition().x, chServerrate = ServerConstants.DROP_RATE;
 	IItem idrop;
 	byte d = 1;
 	Point pos = new Point(0, mob.getPosition().y);
@@ -322,7 +327,6 @@ public class MapleMap {
 	final List<MonsterDropEntry> dropEntry = new ArrayList<MonsterDropEntry>(mi.retrieveDrop(mob.getId()));
 
 	Collections.shuffle(dropEntry);
-
 	for (final MonsterDropEntry de : dropEntry) {
 	    if (Randomizer.nextInt(999999) < de.chance * chServerrate) {
 		if (droptype == 3) {
@@ -375,7 +379,7 @@ public class MapleMap {
     }
 
     private void spawnDrop(final IItem idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
-	final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
+        final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
 	spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 	    @Override
@@ -453,9 +457,9 @@ public class MapleMap {
                 }
                 if (damage > 0) {
                     monster.damage(chr, damage, true);
-                    if (!monster.isAlive())  // monster just died
+                    if (!monster.isAlive()) {  // monster just died
                         killMonster(monster, chr, true);
-
+                    }
                 } else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {
                         for (MapleMapObject object : chr.getMap().getMapObjects()) {
                              MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
@@ -478,6 +482,13 @@ public class MapleMap {
 
     public void killMonster(final MapleMonster monster, final MapleCharacter chr, final boolean withDrops, final boolean secondTime, int animation) {
         MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
+        if (chr == null) {
+            spawnedMonstersOnMap.decrementAndGet();
+            monster.setHp(0);
+            broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
+            removeMapObject(monster);
+            return;
+        }
         if (monster.getId() == 8810018 && !secondTime) {
             TimerManager.getInstance().schedule(new Runnable() {
                 @Override
@@ -488,7 +499,13 @@ public class MapleMap {
             }, 3000);
             return;
         }
-
+        if (chr.getQuest(MapleQuest.getInstance(29400)).getStatus().equals(MapleQuestStatus.Status.STARTED)) {
+            if (chr.getLevel() >= 120 && monster.getStats().getLevel() >= 120) {
+                //FIX MEDAL SHET
+            } else if (monster.getStats().getLevel() >= chr.getLevel()) {
+                
+            }
+        }
         chr.increaseEquipExp(monster.getExp());
         int buff = monster.getBuffToGive();
         if (buff > -1) {
@@ -688,6 +705,7 @@ public class MapleMap {
     }
 
     public boolean containsNPC(int npcid) {
+        if (npcid == 9000066) return true;
         synchronized (mapobjects) {
             for (MapleMapObject obj : mapobjects.values()) {
                 if (obj.getType() == MapleMapObjectType.NPC) {
@@ -830,7 +848,7 @@ public class MapleMap {
         }
         spawnedMonstersOnMap.incrementAndGet();
         if (monster.getStats().removeAfter())
-            killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
+            killMonster(monster, null, false);
         if (mapid == 910110000 && !this.allowHPQSummon) { // HPQ make monsters invisible
             this.broadcastMessage(MaplePacketCreator.makeMonsterInvisible(monster));
         }

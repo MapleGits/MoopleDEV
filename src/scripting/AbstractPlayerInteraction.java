@@ -117,7 +117,7 @@ public class AbstractPlayerInteraction {
     }
 
     public void updateQuest(int questid, String status) {
-            c.announce(MaplePacketCreator.updateQuest(questid, status));
+            c.announce(MaplePacketCreator.updateQuest((short) questid, status));
     }
     
     public MapleQuestStatus.Status getQuestStatus(int id) {
@@ -395,5 +395,13 @@ public class AbstractPlayerInteraction {
 
     public MobSkill getMobSkill(int skill, int level) {
         return MobSkillFactory.getMobSkill(skill, level);
+    }
+
+    public void earnTitle(String msg) {
+        c.announce(MaplePacketCreator.earnTitleMessage(msg));
+    }
+
+    public void questMessage(String msg) {
+        c.announce(MaplePacketCreator.showMedalProgress(msg));
     }
 }

@@ -21,11 +21,13 @@
 */
 package net.world.remote;
 
+import client.MapleFamily;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 import net.MaplePacket;
 import net.channel.ChannelWorldInterface;
 import net.world.CharacterIdChannelPair;
@@ -38,6 +40,7 @@ import net.world.PlayerBuffValueHolder;
 import net.world.guild.MapleAlliance;
 import net.world.guild.MapleGuild;
 import net.world.guild.MapleGuildCharacter;
+import server.quest.MapleQuest;
 
 /**
  *
@@ -95,5 +98,7 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
     public boolean addGuildtoAlliance(int aId, int guildId) throws RemoteException;
     public boolean setGuildAllianceId(int gId, int aId) throws RemoteException;
     public boolean increaseAllianceCapacity(int aId, int inc) throws RemoteException;
+    public void addFamily(int id, MapleFamily f) throws RemoteException;
+    public MapleFamily getFamily(int id) throws RemoteException;
     public List<PlayerBuffValueHolder> getBuffsFromStorage(int cid) throws RemoteException;
 }

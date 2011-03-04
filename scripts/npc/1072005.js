@@ -19,23 +19,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Magician Job Instructor - Magician's Tree Dungeon (108000200)
--- By ---------------------------------------------------------------------------------------------
-	Unknown
--- Version Info -----------------------------------------------------------------------------------
-	1.1 - Statement fix [Information]
-	1.0 - First Version by Unknown
----------------------------------------------------------------------------------------------------
-**/
 
 function start() {
     if (cm.haveItem(4031013,30)) {
-        cm.removeAll(4031013);
-        cm.completeQuest(100007);
-        cm.startQuest(100008);
-        cm.sendOk("You're a true hero! Take this and Grendel the Really Old will acknowledge you.");
+        cm.sendNext("Ohhhhh.. you collected all 30 Dark Marbles!! It should have been difficult.. just incredible! Alright. You've passed the test and for that, I'll reward you #bThe Proof of a Hero#k. Take that and go back to Ellinia.");
     } else {
         cm.sendOk("You will have to collect me #b30 #t4031013##k. Good luck.")
         cm.dispose();
@@ -43,7 +30,11 @@ function start() {
 }
 
 function action(mode, type, selection) {
-    if (mode == 1)
+    if (mode == 1) {
         cm.warp(101020000, 0);
-    cm.dispose();
+		cm.removeAll(4031013);
+		cm.gainItem(4031009, -1);
+		cm.gainItem(4031012);
+	}
+	cm.dispose();
 }

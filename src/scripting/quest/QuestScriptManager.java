@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.script.Invocable;
 import client.MapleClient;
 import client.MapleQuestStatus;
+import java.lang.reflect.UndeclaredThrowableException;
 import scripting.AbstractScriptManager;
 import server.quest.MapleQuest;
 
@@ -42,7 +43,7 @@ public class QuestScriptManager extends AbstractScriptManager {
         return instance;
     }
 
-    public void start(MapleClient c, int questid, int npc) {
+    public void start(MapleClient c, short questid, int npc) {
         MapleQuest quest = MapleQuest.getInstance(questid);
         if (!c.getPlayer().getQuest(quest).getStatus().equals(MapleQuestStatus.Status.NOT_STARTED) || !c.getPlayer().getMap().containsNPC(npc)) {
             dispose(c);
@@ -63,8 +64,9 @@ public class QuestScriptManager extends AbstractScriptManager {
             QuestScript qs = iv.getInterface(QuestScript.class);
             scripts.put(c, qs);
             qs.start((byte) 1, (byte) 0, 0); // start it off as something
-        } catch (Exception e) {
-            System.out.println("Error executing Quest script. (" + quest + ") " + e);
+        } catch (UndeclaredThrowableException ute) {
+            ute.printStackTrace();
+            System.out.println("Error executing Quest script. (" + quest + ") UndeclaredThrowableException.");
             dispose(c);
         }
     }
@@ -81,7 +83,7 @@ public class QuestScriptManager extends AbstractScriptManager {
         }
     }
 
-    public void end(MapleClient c, int questid, int npc) {
+    public void end(MapleClient c, short questid, int npc) {
         MapleQuest quest = MapleQuest.getInstance(questid);
         if (!c.getPlayer().getQuest(quest).getStatus().equals(MapleQuestStatus.Status.STARTED) || !c.getPlayer().getMap().containsNPC(npc)) {
             dispose(c);

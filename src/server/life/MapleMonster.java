@@ -831,8 +831,8 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
         @Override
         public void killedMob(MapleMap map, int baseExp, boolean mostDamage) {
-            MapleCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
-            if (chr != null && chr.getMap() == map) {
+            MapleCharacter chr = map.getCharacterById(chrid);
+            if (chr != null) {
                 giveExpToCharacter(chr, baseExp, mostDamage, 1);
             }
         }

@@ -23,7 +23,6 @@ package net.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleQuestStatus;
 import net.AbstractMaplePacketHandler;
 import scripting.quest.QuestScriptManager;
 import server.quest.MapleQuest;
@@ -37,7 +36,6 @@ public final class QuestActionHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte action = slea.readByte();
         short questid = slea.readShort();
-        //System.out.println("Quest Run: " + slea);
         MapleCharacter player = c.getPlayer();
         MapleQuest quest = MapleQuest.getInstance(questid);
         if (action == 1) { //Start Quest

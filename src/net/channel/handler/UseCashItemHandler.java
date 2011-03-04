@@ -46,7 +46,6 @@ import server.maps.MapleMap;
 import server.maps.MapleTVEffect;
 import tools.MaplePacketCreator;
 import tools.Pair;
-import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class UseCashItemHandler extends AbstractMaplePacketHandler {
@@ -95,6 +94,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                         }
                     }
                 } else {
+                    //4F 00 02 00 90 0E 4D 00 00 20 00 00 00 08 00 00 DB DB 08 00
                     List<Pair<MapleStat, Integer>> statupdate = new ArrayList<Pair<MapleStat, Integer>>(2);
                     int APTo = slea.readInt();
                     int APFrom = slea.readInt();
@@ -134,18 +134,34 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                             }
                             int mp = player.getMp();
                             int level = player.getLevel();
+                            MapleJob job = player.getJob();
                             boolean canWash = true;
-                            if (player.getJob().isA(MapleJob.SPEARMAN) && mp < 4 * level + 156) {
+                            if (job.isA(MapleJob.SPEARMAN) && mp < 4 * level + 156) {
                                 canWash = false;
-                            } else if (player.getJob().isA(MapleJob.FIGHTER) && mp < 4 * level + 56) {
+                            } else if (job.isA(MapleJob.FIGHTER) && mp < 4 * level + 56) {
                                 canWash = false;
-                            } else if (player.getJob().isA(MapleJob.THIEF) && player.getJob().getId() % 100 > 0 && mp < level * 14 - 4) {
+                            } else if (job.isA(MapleJob.THIEF) && job.getId() % 100 > 0 && mp < level * 14 - 4) {
                                 canWash = false;
                             } else if (mp < level * 14 + 148) {
                                 canWash = false;
                             }
                             if (canWash) {
-                                player.setMp(player.getMp() - Randomizer.nextInt(4) - 10);
+                                int minmp = 0;
+                                if (job.isA(MapleJob.WARRIOR) || job.isA(MapleJob.DAWNWARRIOR1) || job.isA(MapleJob.ARAN1))
+                                    minmp += 4;
+                                else if (job.isA(MapleJob.MAGICIAN) || job.isA(MapleJob.BLAZEWIZARD1))
+                                    minmp += 36;
+                                else if (job.isA(MapleJob.BOWMAN) || job.isA(MapleJob.WINDARCHER1) || job.isA(MapleJob.THIEF) || job.isA(MapleJob.NIGHTWALKER1))
+                                    minmp += 12;
+                                else if (job.isA(MapleJob.PIRATE) || job.isA(MapleJob.THUNDERBREAKER1))
+                                    minmp += 16;
+                                else
+                                    minmp += 8;
+                                
+                                player.setMp(player.getMp() - minmp);
+                            } else {
+                                c.announce(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true));
+                                return;
                             }
                             break;
                         default:

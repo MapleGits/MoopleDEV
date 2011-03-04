@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import net.MaplePacket;
 
 public class MapleParty implements Serializable {
     private static final long serialVersionUID = -4928127017438074653L;

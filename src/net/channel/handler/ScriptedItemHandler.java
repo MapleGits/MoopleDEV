@@ -25,7 +25,9 @@ import scripting.npc.NPCScriptManager;
 import client.MapleClient;
 import client.IItem;
 import net.AbstractMaplePacketHandler;
+import scripting.item.ItemScriptManager;
 import server.MapleItemInformationProvider;
+import server.MapleItemInformationProvider.scriptedItem;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
@@ -38,11 +40,14 @@ public final class ScriptedItemHandler extends AbstractMaplePacketHandler {
         slea.readInt(); // trash stamp (thx rmzero)
         byte itemSlot = (byte) slea.readShort(); // item sl0t (thx rmzero)
         int itemId = slea.readInt(); // itemId
-        int npcId = ii.getScriptedItemNpc(itemId);
+        scriptedItem info = ii.getScriptedItemInfo(itemId);
+        if (info == null) return;
+        ItemScriptManager ism = ItemScriptManager.getInstance();
         IItem item = c.getPlayer().getInventory(ii.getInventoryType(itemId)).getItem(itemSlot);
-        if (item == null || item.getItemId() != itemId || item.getQuantity() < 1 || npcId == 0) {
+        if (item == null || item.getItemId() != itemId || item.getQuantity() < 1 || !ism.scriptExists(info.getScript())) {
             return;
         }
-        NPCScriptManager.getInstance().start(c, npcId, null, null);
+        ism.getItemScript(c, info.getScript());
+        //NPCScriptManager.getInstance().start(c, info.getNpc(), null, null);        
     }
 }
