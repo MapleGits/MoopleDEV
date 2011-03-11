@@ -21,7 +21,6 @@
 */
 package net.channel.handler;
 
-import scripting.npc.NPCScriptManager;
 import client.MapleClient;
 import client.IItem;
 import net.AbstractMaplePacketHandler;

@@ -34,15 +34,19 @@ import client.MaplePet;
 import client.MapleQuestStatus;
 import client.SkillFactory;
 import constants.ItemConstants;
+import java.awt.Point;
 import java.rmi.RemoteException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import net.world.MapleParty;
 import net.world.MaplePartyCharacter;
 import net.world.guild.MapleGuild;
+import scripting.event.EventManager;
 import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
+import server.life.MapleLifeFactory;
+import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.life.MobSkillFactory;
 import server.maps.MapleMap;
@@ -97,6 +101,10 @@ public class AbstractPlayerInteraction {
 
     public MapleMap getMap(int map) {
         return getWarpMap(map);
+    }
+
+    public EventManager getEventManager(String event) {
+        return getClient().getChannelServer().getEventSM().getEventManager(event);
     }
 
     public boolean haveItem(int itemid) {
@@ -226,7 +234,7 @@ public class AbstractPlayerInteraction {
     }
 
     public boolean isLeader() {
-        return getParty().getLeader().equals(new MaplePartyCharacter(c.getPlayer()));
+        return getParty().getLeader().equals(getPlayer().getMPC());
     }
 
     public void givePartyItems(int id, short quantity, List<MapleCharacter> party) {
@@ -304,7 +312,7 @@ public class AbstractPlayerInteraction {
 
     public void useItem(int id) {
         MapleItemInformationProvider.getInstance().getItemEffect(id).applyTo(c.getPlayer());
-        c.announce(MaplePacketCreator.getStatusMsg(id));
+        c.announce(MaplePacketCreator.getItemMessage(id));//Useful shet :3
     }
 
     public void giveTutorialSkills() {
@@ -328,6 +336,12 @@ public class AbstractPlayerInteraction {
         IItem tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
 	MapleInventoryManipulator.removeFromSlot(c.getPlayer().getClient(), MapleInventoryType.EQUIPPED, (byte) -11, tempItem.getQuantity(), false, true);
        }
+
+    public void spawnMonster(int id, int x, int y) {
+        MapleMonster monster = MapleLifeFactory.getMonster(id);
+        monster.setPosition(new Point(x,y));
+        getPlayer().getMap().spawnMonster(monster);
+    }
 
     public void spawnGuide() {
         c.announce(MaplePacketCreator.spawnGuide(true));
@@ -403,5 +417,15 @@ public class AbstractPlayerInteraction {
 
     public void questMessage(String msg) {
         c.announce(MaplePacketCreator.showMedalProgress(msg));
+    }
+
+    public void lockUI() {
+        c.announce(MaplePacketCreator.disableUI(true));
+	c.announce(MaplePacketCreator.lockUI(true));
+    }
+
+    public void unlockUI() {
+        c.announce(MaplePacketCreator.disableUI(false));
+	c.announce(MaplePacketCreator.lockUI(false));
     }
 }

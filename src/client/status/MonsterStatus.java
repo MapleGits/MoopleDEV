@@ -25,6 +25,7 @@ import java.io.Serializable;
 import net.IntValueHolder;
 
 public enum MonsterStatus implements IntValueHolder, Serializable {
+    NEUTRALISE(0x02),
     WATK(0x1),
     WDEF(0x2),
     MATK(0x4),
@@ -37,7 +38,6 @@ public enum MonsterStatus implements IntValueHolder, Serializable {
     POISON(0x200),
     SEAL(0x400),
     SHOWDOWN(0x800),
-    NEUTRALISE(0x02),
     WEAPON_ATTACK_UP(0x1000),
     WEAPON_DEFENSE_UP(0x2000),
     MAGIC_ATTACK_UP(0x4000),

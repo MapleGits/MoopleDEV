@@ -100,10 +100,10 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     }
 
     public void startExplorerExperience() {
-        lockUI();
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
+                unlockUI();
                 c.getPlayer().changeMap(1020000);
             }
         }, (c.getPlayer().getMapId() == 1020200 || c.getPlayer().getMapId() == 1020500) ? 4000 : 3000);
@@ -145,20 +145,11 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
             public void run() {
+                unlockUI();
                 c.getPlayer().changeMap(104000000);
             }
         }, 5000);
                 c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/goLith/Scene" + c.getPlayer().getGender()));
-    }
-
-    public void lockUI() {
-        c.announce(MaplePacketCreator.disableUI(true));
-	c.announce(MaplePacketCreator.lockUI(true));
-    }
-
-    public void unlockUI() {
-        c.announce(MaplePacketCreator.disableUI(false));
-	c.announce(MaplePacketCreator.lockUI(false));
     }
 
     public void explorerQuest(short questid, String questName) {

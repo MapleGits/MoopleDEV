@@ -473,12 +473,12 @@ public class MapleInventoryManipulator {
             if (weddingRing) {
                 c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos);
             } else if (c.getPlayer().getMap().getEverlast()) {
-                if (ii.isDropRestricted(target.getItemId())) {
+                if (ii.isDropRestricted(target.getItemId()) || MapleItemInformationProvider.getInstance().isCash(target.getItemId())) {
                     c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos);
                 } else {
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, false);
                 }
-            } else if (ii.isDropRestricted(target.getItemId())) {
+            } else if (ii.isDropRestricted(target.getItemId()) || MapleItemInformationProvider.getInstance().isCash(target.getItemId())) {
                 c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos);
             } else {
                 c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, true);

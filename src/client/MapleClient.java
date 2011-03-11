@@ -641,7 +641,7 @@ public class MapleClient {
             try {
                 WorldChannelInterface wci = getChannelServer().getWorldInterface();
                 if (player.getParty() != null) {
-                    MaplePartyCharacter chrp = new MaplePartyCharacter(player);
+                    MaplePartyCharacter chrp = player.getMPC();
                     chrp.setOnline(false);
                     wci.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                 }

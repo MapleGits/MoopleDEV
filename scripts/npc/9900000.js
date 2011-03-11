@@ -70,7 +70,7 @@ function action(mode, type, selection) {
                 colors.push(cm.getPlayer().getFace() + (i*100));
             cm.sendStyle("Pick one?", colors);
         } else if (selection == 7) {
-            cm.getPlayer().changeJobById(910);
+            cm.changeJobById(910);
             cm.dispose();
         }
     } else if (status == 2){

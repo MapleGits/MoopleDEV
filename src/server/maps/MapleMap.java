@@ -46,15 +46,11 @@ import client.MapleClient;
 import client.MapleInventoryType;
 import client.MaplePet;
 import client.MapleQuestStatus;
-import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import tools.Randomizer;
 import constants.ServerConstants;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import net.MaplePacket;
 import net.channel.ChannelServer;
 import net.world.MaplePartyCharacter;
@@ -79,6 +75,7 @@ import server.life.MapleMonsterInformationProvider;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
 import server.quest.MapleQuest;
+import tools.Pair;
 
 public class MapleMap {
 
@@ -113,12 +110,11 @@ public class MapleMap {
     private String onFirstUserEnter;
     private String onUserEnter;
     private int fieldType;
-    private int timeMobId;
-    private String timeMobMessage = "";
     private int fieldLimit = 0;
     private ScheduledFuture<?> mapMonitor = null;
+    private Pair<Integer, String> timeMob = null;
     // HPQ
-    private int riceCakeNum = 0; // bad place to put this
+    private int riceCakeNum = 0; // bad place to put this (why is it in here then)
     private boolean allowHPQSummon = false; // bad place to put this
     // events
     private boolean eventstarted = false;
@@ -214,6 +210,10 @@ public class MapleMap {
 
     public void setTimeLimit(int timeLimit) {
         this.timeLimit = timeLimit;
+    }
+
+    public int getTimeLeft() {
+        return (int) ((timeLimit - System.currentTimeMillis()) / 1000);
     }
 
     public int getCurrentPartyId() {
@@ -347,7 +347,7 @@ public class MapleMap {
 		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
 			idrop = ii.randomizeStats((Equip) ii.getEquipById(de.itemId));
 		    } else {
-			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1), (byte) 0);
+			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1));
 		    }
 		    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
 		}
@@ -369,7 +369,7 @@ public class MapleMap {
 		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
 			idrop = ii.randomizeStats((Equip) ii.getEquipById(de.itemId));
 		    } else {
-			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1), (byte) 0);
+			idrop = new Item(de.itemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1));
 		    }
 		    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
 		    d++;
@@ -384,9 +384,9 @@ public class MapleMap {
 
 	    @Override
 	    public void sendPackets(MapleClient c) {
-		if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId()))) {
-		    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
-		}
+                if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId()))) {
+                    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
+                }
 	    }
 	}, null);
 
@@ -847,8 +847,15 @@ public class MapleMap {
             }
         }
         spawnedMonstersOnMap.incrementAndGet();
-        if (monster.getStats().removeAfter())
-            killMonster(monster, null, false);
+        if (monster.getStats().removeAfter() > 0) {
+            TimerManager.getInstance().schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
+                }
+            }, monster.getStats().removeAfter() * 1000);
+        }
         if (mapid == 910110000 && !this.allowHPQSummon) { // HPQ make monsters invisible
             this.broadcastMessage(MaplePacketCreator.makeMonsterInvisible(monster));
         }
@@ -927,7 +934,7 @@ public class MapleMap {
 
                 public void sendPackets(MapleClient c) {
                     c.announce(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
-                    if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new MaplePartyCharacter(c.getPlayer())))) {
+                    if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(c.getPlayer().getMPC()))) {
                         c.announce(MaplePacketCreator.partyPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
                     }
                     c.announce(MaplePacketCreator.spawnPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
@@ -959,7 +966,7 @@ public class MapleMap {
 
             public void sendPackets(MapleClient c) {
                 if (summon != null) {
-                    c.announce(MaplePacketCreator.spawnSpecialMapObject(summon, summon.getOwner().getSkillLevel(SkillFactory.getSkill(summon.getSkill())), true));
+                    c.announce(MaplePacketCreator.spawnSummon(summon, true));
                 }
             }
         }, null);
@@ -1124,7 +1131,7 @@ public class MapleMap {
             if (hasForcedEquip()) {
                 chr.getClient().announce(MaplePacketCreator.showForcedEquip(-1));
             }
-            if (coconutEquip()) {
+            if (specialEquip()) {
                 chr.getClient().announce(MaplePacketCreator.coconutScore(0, 0));
                 chr.getClient().announce(MaplePacketCreator.showForcedEquip(chr.getTeam()));
             }
@@ -1742,22 +1749,6 @@ public class MapleMap {
         this.fieldType = fieldType;
     }
 
-    public void setTimeMobId(int id) {
-        this.timeMobId = id;
-    }
-
-    public void setTimeMobMessage(String message) {
-        this.timeMobMessage = message;
-    }
-
-    public int getTimeMobId() {
-        return timeMobId;
-    }
-
-    public String getTimeMobMessage() {
-        return timeMobMessage;
-    }
-
     public void clearDrops(MapleCharacter player) {
         List<MapleMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
         for (MapleMapObject i : items) {
@@ -1772,7 +1763,7 @@ public class MapleMap {
         }
     }
 
-    public void addMapTimer(int time, final int mapid) {
+    public void addMapTimer(int time) {
         timeLimit = System.currentTimeMillis() + (time * 1000);
         broadcastMessage(MaplePacketCreator.getClock(time));
         mapMonitor = TimerManager.getInstance().register(new Runnable() {
@@ -1780,14 +1771,15 @@ public class MapleMap {
                 @Override
                 public void run() {
                     if (timeLimit != 0 && timeLimit < System.currentTimeMillis()) {
-                        warpEveryone(mapid);
-                        timeLimit = 0;
+                        warpEveryone(getForcedReturnId());
                     }
                     if (getCharacters().isEmpty()) {
                         resetReactors();
                         killAllMonsters();
                         clearDrops();
-                        mapMonitor.cancel(false);
+                        timeLimit = 0;
+                        if (mapid >= 922240100 && mapid <= 922240119) toggleHiddenNPC(9001108);
+                        mapMonitor.cancel(true);
                         mapMonitor = null;
                     }
                 }
@@ -1844,8 +1836,8 @@ public class MapleMap {
 	}
     }
 
-    private boolean coconutEquip() {
-        return fieldType == 4;
+    private boolean specialEquip() {//Maybe I shouldn't use fieldType :\
+        return fieldType == 4 || fieldType == 19;
     }
 
     public void setCoconut(MapleCoconut nut) {
@@ -1930,4 +1922,24 @@ public class MapleMap {
         return this.mapid >= 109010000 && this.mapid < 109050000 || this.mapid > 109050001 && this.mapid <= 109090000;
     }
 
+    public void timeMob(int id, String msg) {
+        timeMob = new Pair<Integer, String>(id, msg);
+    }
+
+    public Pair<Integer, String> getTimeMob() {
+        return timeMob;
+    }
+
+    public void toggleHiddenNPC(int id) {
+        for (MapleMapObject obj : mapobjects.values()) {
+             if (obj.getType() == MapleMapObjectType.NPC) {
+                 MapleNPC npc = (MapleNPC) obj;
+                 if (npc.getId() == id) {
+                     npc.setHide(!npc.isHidden());
+                     if (!npc.isHidden()) //Should only be hidden upon changing maps
+                         broadcastMessage(MaplePacketCreator.spawnNPC(npc));
+                 }
+             }
+        }
+    }
 }

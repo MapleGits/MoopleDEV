@@ -42,21 +42,19 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject {
         this.owner = owner;
         this.skill = skill;
         this.skillLevel = owner.getSkillLevel(SkillFactory.getSkill(skill));
-        if (skillLevel == 0) {
-            throw new RuntimeException();
-        }
+        if (skillLevel == 0) throw new RuntimeException();
+        
         this.movementType = movementType;
         setPosition(pos);
     }
 
     public void sendSpawnData(MapleClient client) {
-        if (this != null) {
-            client.getSession().write(MaplePacketCreator.spawnSpecialMapObject(this, skillLevel, false));
-        }
+        if (this != null) client.getSession().write(MaplePacketCreator.spawnSummon(this, false));
+
     }
 
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.removeSpecialMapObject(this, true));
+        client.getSession().write(MaplePacketCreator.removeSummon(this, true));
     }
 
     public MapleCharacter getOwner() {
@@ -65,6 +63,10 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject {
 
     public int getSkill() {
         return skill;
+    }
+
+    public int getLevel() {
+        return skillLevel;
     }
 
     public int getHP() {
@@ -90,5 +92,15 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject {
     @Override
     public MapleMapObjectType getType() {
         return MapleMapObjectType.SUMMON;
+    }
+
+    public final boolean isPuppet() {
+	switch (skill) {
+	    case 3111002:
+	    case 3211002:
+	    case 13111004:
+		return true;
+	}
+	return false;
     }
 }

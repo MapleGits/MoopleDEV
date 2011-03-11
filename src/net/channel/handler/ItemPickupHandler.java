@@ -97,12 +97,12 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                             }
                             int partynum = 0;
                             for (MaplePartyCharacter partymem : chr.getParty().getMembers()) {
-                                if (partymem.isOnline() && partymem.getMapid() == chr.getMap().getId() && partymem.getChannel() == c.getChannel()) {
+                                if (partymem.isOnline() && partymem.getMapId() == chr.getMap().getId() && partymem.getChannel() == c.getChannel()) {
                                     partynum++;
                                 }
                             }
                             for (MaplePartyCharacter partymem : chr.getParty().getMembers()) {
-                                if (partymem.isOnline() && partymem.getMapid() == chr.getMap().getId()) {
+                                if (partymem.isOnline() && partymem.getMapId() == chr.getMap().getId()) {
                                     MapleCharacter somecharacter = c.getChannelServer().getPlayerStorage().getCharacterById(partymem.getId());
                                     if (somecharacter != null) {
                                         somecharacter.gainMeso(mesosamm / partynum, true, true, false);
@@ -122,7 +122,12 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                             String scriptName = info.getScript();
                             if (ism.scriptExists(scriptName))
                                 ism.getItemScript(c, scriptName);
+                            
+                        } else {
+                            MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true);
                         }
+                        chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
+                        chr.getMap().removeMapObject(ob);
                     } else if (useItem(c, mapitem.getItem().getItemId())) {
                         if (mapitem.getItem().getItemId() / 10000 == 238) {
                             chr.getMonsterBook().addCard(c, mapitem.getItem().getItemId());

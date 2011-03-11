@@ -57,7 +57,6 @@ import constants.skills.Marksman;
 import constants.skills.NightLord;
 import constants.skills.NightWalker;
 import constants.skills.Noblesse;
-import constants.skills.Outlaw;
 import constants.skills.Page;
 import constants.skills.Paladin;
 import constants.skills.Pirate;
@@ -254,11 +253,9 @@ public class SkillFactory {
                 case Hunter.BOW_BOOSTER:
                 case Hunter.SOUL_ARROW:
                 case Ranger.PUPPET:
-                case Ranger.SILVER_HAWK:
                 case Bowmaster.CONCENTRATE:
                 case Bowmaster.HEROS_WILL:
                 case Bowmaster.MAPLE_WARRIOR:
-                case Bowmaster.PHOENIX:
                 case Bowmaster.SHARP_EYES:
                 case Crossbowman.CROSSBOW_BOOSTER:
                 case Crossbowman.SOUL_ARROW:
@@ -286,10 +283,7 @@ public class SkillFactory {
                 case Pirate.DASH:
                 case Marauder.TRANSFORMATION:
                 case Buccaneer.SUPER_TRANSFORMATION:
-                case Outlaw.GAVIOTA:
-                case Outlaw.OCTOPUS:
                 case Corsair.BATTLE_SHIP:
-                case Corsair.WRATH_OF_THE_OCTOPI:
                 case GM.HIDE:
                 case SuperGM.HASTE:
                 case SuperGM.HOLY_SYMBOL:

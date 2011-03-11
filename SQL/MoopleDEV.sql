@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50144
 File Encoding         : 65001
 
-Date: 2011-03-04 14:55:30
+Date: 2011-03-11 17:58:22
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -11560,11 +11560,14 @@ CREATE TABLE `drop_data_global` (
   `comments` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `mobid` (`continent`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of drop_data_global
 -- ----------------------------
+INSERT INTO `drop_data_global` VALUES ('1', '-1', '0', '2430010', '1', '1', '0', '299999', 'Used for the artifact hunt event. 30% lol');
+INSERT INTO `drop_data_global` VALUES ('2', '-1', '0', '2270008', '1', '1', '0', '149999', 'Used for Gaga Fishing event. 15%');
+INSERT INTO `drop_data_global` VALUES ('3', '-1', '0', '4001303', '1', '1', '-10311', '0', 'Quest will auto start xD 1% chance');
 
 -- ----------------------------
 -- Table structure for `dueyitems`
@@ -11626,13 +11629,10 @@ CREATE TABLE `dueypackages` (
 -- ----------------------------
 DROP TABLE IF EXISTS `eventstats`;
 CREATE TABLE `eventstats` (
-  `eventstatid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `event` varchar(30) NOT NULL,
-  `instance` varchar(30) NOT NULL,
-  `characterid` int(11) NOT NULL,
-  `channel` int(11) NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`eventstatid`)
+  `characterid` int(11) unsigned NOT NULL,
+  `rescuegaga` int(11) NOT NULL DEFAULT '0' COMMENT '0',
+  `artifacthunt` int(11) NOT NULL,
+  PRIMARY KEY (`characterid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -11711,6 +11711,10 @@ CREATE TABLE `gmlog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
+-- Records of gmlog
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for `guilds`
 -- ----------------------------
 DROP TABLE IF EXISTS `guilds`;
@@ -11738,6 +11742,7 @@ CREATE TABLE `guilds` (
 -- ----------------------------
 -- Records of guilds
 -- ----------------------------
+INSERT INTO `guilds` VALUES ('1', '30016', '0', '0', '0', 'Banaan', 'Master', 'Jr. Master', 'Member', 'Member', 'Member', '10', '0', '0', 'LOOOOL', '0', '0');
 
 -- ----------------------------
 -- Table structure for `hiredmerchant`
@@ -14895,6 +14900,11 @@ CREATE TABLE `monsterbook` (
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
+INSERT INTO `monsterbook` VALUES ('30009', '2380000', '1');
+INSERT INTO `monsterbook` VALUES ('30012', '2383015', '1');
+INSERT INTO `monsterbook` VALUES ('30012', '2383023', '1');
+INSERT INTO `monsterbook` VALUES ('30012', '2380004', '1');
+INSERT INTO `monsterbook` VALUES ('30012', '2380000', '1');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
@@ -15674,7 +15684,7 @@ DROP TABLE IF EXISTS `savedlocations`;
 CREATE TABLE `savedlocations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `characterid` int(11) NOT NULL,
-  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','DOJO','INTRO','ARIANT','MIRROR','EVENT') NOT NULL,
+  `locationtype` enum('FREE_MARKET','WORLDTOUR','FLORINA','INTRO','MIRROR','EVENT') NOT NULL,
   `map` int(11) NOT NULL,
   `portal` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -19314,147 +19324,14 @@ CREATE TABLE `trocklocations` (
   `characterid` int(11) NOT NULL,
   `mapid` int(11) NOT NULL,
   `vip` int(2) NOT NULL,
-  PRIMARY KEY (`trockid`)
+  PRIMARY KEY (`trockid`),
+  KEY `characterid` (`characterid`) USING BTREE,
+  CONSTRAINT `trocklocations_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of trocklocations
 -- ----------------------------
-INSERT INTO `trocklocations` VALUES ('91', '30001', '0', '0');
-INSERT INTO `trocklocations` VALUES ('92', '30001', '0', '0');
-INSERT INTO `trocklocations` VALUES ('93', '30001', '0', '0');
-INSERT INTO `trocklocations` VALUES ('94', '30001', '0', '0');
-INSERT INTO `trocklocations` VALUES ('95', '30001', '0', '0');
-INSERT INTO `trocklocations` VALUES ('96', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('97', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('98', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('99', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('100', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('101', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('102', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('103', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('104', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('105', '30001', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2191', '30002', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2192', '30002', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2193', '30002', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2194', '30002', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2195', '30002', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2196', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2197', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2198', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2199', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2200', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2201', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2202', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2203', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2204', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2205', '30002', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2311', '30004', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2312', '30004', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2313', '30004', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2314', '30004', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2315', '30004', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2316', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2317', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2318', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2319', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2320', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2321', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2322', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2323', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2324', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2325', '30004', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2611', '30006', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2612', '30006', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2613', '30006', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2614', '30006', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2615', '30006', '0', '0');
-INSERT INTO `trocklocations` VALUES ('2616', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2617', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2618', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2619', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2620', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2621', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2622', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2623', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2624', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('2625', '30006', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4081', '30003', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4082', '30003', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4083', '30003', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4084', '30003', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4085', '30003', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4086', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4087', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4088', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4089', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4090', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4091', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4092', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4093', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4094', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4095', '30003', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4291', '30000', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4292', '30000', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4293', '30000', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4294', '30000', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4295', '30000', '0', '0');
-INSERT INTO `trocklocations` VALUES ('4296', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4297', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4298', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4299', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4300', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4301', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4302', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4303', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4304', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('4305', '30000', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9526', '30007', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9527', '30007', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9528', '30007', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9529', '30007', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9530', '30007', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9531', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9532', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9533', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9534', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9535', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9536', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9537', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9538', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9539', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9540', '30007', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9541', '30005', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9542', '30005', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9543', '30005', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9544', '30005', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9545', '30005', '0', '0');
-INSERT INTO `trocklocations` VALUES ('9546', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9547', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9548', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9549', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9550', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9551', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9552', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9553', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9554', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('9555', '30005', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10741', '30008', '0', '0');
-INSERT INTO `trocklocations` VALUES ('10742', '30008', '0', '0');
-INSERT INTO `trocklocations` VALUES ('10743', '30008', '0', '0');
-INSERT INTO `trocklocations` VALUES ('10744', '30008', '0', '0');
-INSERT INTO `trocklocations` VALUES ('10745', '30008', '0', '0');
-INSERT INTO `trocklocations` VALUES ('10746', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10747', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10748', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10749', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10750', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10751', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10752', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10753', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10754', '30008', '0', '1');
-INSERT INTO `trocklocations` VALUES ('10755', '30008', '0', '1');
 
 -- ----------------------------
 -- Table structure for `wishlists`

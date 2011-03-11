@@ -72,6 +72,10 @@ public class MaplePartyCharacter implements Serializable {
         return channel;
     }
 
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+
     public boolean isOnline() {
         return online;
     }
@@ -80,8 +84,12 @@ public class MaplePartyCharacter implements Serializable {
         this.online = online;
     }
 
-    public int getMapid() {
+    public int getMapId() {
         return mapid;
+    }
+
+    public void setMapId(int mapid) {
+        this.mapid = mapid;
     }
 
     public String getName() {

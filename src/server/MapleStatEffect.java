@@ -138,7 +138,7 @@ public class MapleStatEffect implements Serializable {
     private int moneyCon;
     private int cooldown;
     private int morphId = 0;
-    private boolean isGhost;
+    private int ghost;
     private int fatigue;
 
     public static MapleStatEffect loadSkillEffectFromData(MapleData source, int skillid, boolean overtime) {
@@ -169,7 +169,7 @@ public class MapleStatEffect implements Serializable {
         ret.mobCount = MapleDataTool.getInt("mobCount", source, 1);
         ret.cooldown = MapleDataTool.getInt("cooltime", source, 0);
         ret.morphId = MapleDataTool.getInt("morph", source, 0);
-        ret.isGhost = MapleDataTool.getInt("ghost", source, 0) != 0;
+        ret.ghost = MapleDataTool.getInt("ghost", source, 0);
         ret.fatigue = MapleDataTool.getInt("incFatigue", source, 0);
         ret.sourceid = sourceid;
         ret.skill = skill;
@@ -566,8 +566,8 @@ public class MapleStatEffect implements Serializable {
         if (ret.isMorph()) {
             statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, Integer.valueOf(ret.getMorph())));
         }
-        if (ret.isGhost && !skill) {
-            statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.GHOST_MORPH, Integer.valueOf(1)));
+        if (ret.ghost > 0 && !skill) {
+            statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.GHOST_MORPH, Integer.valueOf(ret.ghost)));
         }
         ret.monsterStatus = monsterStatus;
         statups.trimToSize();
@@ -651,9 +651,8 @@ public class MapleStatEffect implements Serializable {
         }
         int newMp = applyto.getMp() + mpchange;
         if (mpchange != 0) {
-            if (mpchange < 0 && -mpchange > applyto.getMp()) {
-                return false;
-            }
+            if (mpchange < 0 && -mpchange > applyto.getMp()) return false;
+            
             applyto.setMp(newMp);
             hpmpupdate.add(new Pair<MapleStat, Integer>(MapleStat.MP, Integer.valueOf(applyto.getMp())));
         }
@@ -671,9 +670,8 @@ public class MapleStatEffect implements Serializable {
                     }
                 }
                 applyto.changeMap(target);
-            } else {
-                return false;
-            }
+            } else return false;
+            
         }
         if (isShadowClaw()) {
             int projectile = 0;
@@ -687,25 +685,23 @@ public class MapleStatEffect implements Serializable {
                     }
                 }
             }
-            if (projectile == 0) {
-                return false;
-            } else {
-                MapleInventoryManipulator.removeById(applyto.getClient(), MapleInventoryType.USE, projectile, 200, false, true);
-            }
-        }
-        if (overTime || isCygnusFA()) {
-            applyBuffEffect(applyfrom, applyto, primary);
-        }
-        if (primary && (overTime || isHeal())) {
-            applyBuff(applyfrom);
-        }
-        if (primary && isMonsterBuff()) {
-            applyMonsterBuff(applyfrom);
-        }
-        if (this.getFatigue() != 0) {
-            applyto.getMount().setTiredness(applyto.getMount().getTiredness() + this.getFatigue());
+            if (projectile == 0) return false;
+            else MapleInventoryManipulator.removeById(applyto.getClient(), MapleInventoryType.USE, projectile, 200, false, true);
+            
         }
         SummonMovementType summonMovementType = getSummonMovementType();
+        if (overTime || isCygnusFA() || summonMovementType != null)
+            applyBuffEffect(applyfrom, applyto, primary);
+        
+        if (primary && (overTime || isHeal())) 
+            applyBuff(applyfrom);
+        
+        if (primary && isMonsterBuff()) 
+            applyMonsterBuff(applyfrom);
+        
+        if (this.getFatigue() != 0) 
+            applyto.getMount().setTiredness(applyto.getMount().getTiredness() + this.getFatigue());
+        
         if (summonMovementType != null && pos != null) {
             final MapleSummon tosummon = new MapleSummon(applyfrom, sourceid, pos, summonMovementType);
             applyfrom.getMap().spawnSummon(tosummon);
@@ -888,7 +884,7 @@ public class MapleStatEffect implements Serializable {
         if (localstatups.size() > 0) {
             MaplePacket buff = null;
             MaplePacket mbuff = null;
-            if (sourceid != SuperGM.HIDE) buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
+            if (sourceid != SuperGM.HIDE && getSummonMovementType() == null) buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
             if (isDash()) {
                 buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
@@ -899,8 +895,7 @@ public class MapleStatEffect implements Serializable {
                 List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat, false);
             } else if (isCombo()) {
-                List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO, 1));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), statups, false);
             } else if (isMonsterRiding()) {
                 buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
                 mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
@@ -933,7 +928,7 @@ public class MapleStatEffect implements Serializable {
             applyto.registerEffect(this, starttime, schedule);
 
             if (buff != null)
-            applyto.getClient().getSession().write(buff);
+                applyto.getClient().getSession().write(buff);
             if (mbuff != null)
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);
         }         

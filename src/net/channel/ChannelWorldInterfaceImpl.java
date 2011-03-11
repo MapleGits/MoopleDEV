@@ -134,13 +134,17 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     @Override
     public void updateParty(MapleParty party, PartyOperation operation, MaplePartyCharacter target) throws RemoteException {
         for (MaplePartyCharacter partychar : party.getMembers()) {
+            System.out.println("Channel: " + server.getChannel());
+            System.out.println("Channel of character: " + partychar.getChannel());
             if (partychar.getChannel() == server.getChannel()) {
                 MapleCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     if (operation == PartyOperation.DISBAND) {
                         chr.setParty(null);
+                        chr.setMPC(null);
                     } else {
                         chr.setParty(party);
+                        chr.setMPC(partychar);
                     }
                     chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannel(), party, operation, target));
                 }
@@ -154,6 +158,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
                     if (chr != null) {
                         chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannel(), party, operation, target));
                         chr.setParty(null);
+                        chr.setMPC(null);
                     }
                 }
         }

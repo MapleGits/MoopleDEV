@@ -65,7 +65,7 @@ public class PartySearchStartHandler extends AbstractMaplePacketHandler {
                             party = wci.getParty(partyid);
                             if (party != null) {
                                 if (party.getMembers().size() < 6) {
-                                    MaplePartyCharacter partyplayer = new MaplePartyCharacter(tchar);
+                                    MaplePartyCharacter partyplayer = tchar.getMPC();
                                     wci.updateParty(party.getId(), PartyOperation.JOIN, partyplayer);
                                     c.getPlayer().receivePartyMemberHP();
                                     c.getPlayer().updatePartyMemberHP();

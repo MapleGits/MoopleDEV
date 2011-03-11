@@ -26,10 +26,6 @@
  */
 
 function enter(pi) {
-    try {
-        pi.warp(pi.getPlayer().getSavedLocation("ARIANT"));
-    } catch(err) {
-        pi.warp(100000000);
-    }
+    pi.warp(pi.getPlayer().getSavedLocation("MIRROR"));
     return true;
 }

@@ -40,13 +40,15 @@ public final class PartyOperationHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = c.getPlayer();
         WorldChannelInterface wci = ChannelServer.getInstance(c.getChannel()).getWorldInterface();
         MapleParty party = player.getParty();
-        MaplePartyCharacter partyplayer = new MaplePartyCharacter(player);
+        MaplePartyCharacter partyplayer = player.getMPC();
         switch (operation) {
             case 1: { // create
                 if (player.getParty() == null) {
                     try {
+                        partyplayer = new MaplePartyCharacter(player);
                         party = wci.createParty(partyplayer);
                         player.setParty(party);
+                        player.setMPC(partyplayer);
                     } catch (Exception e) {
                         c.getChannelServer().reconnectWorld();
                     }
@@ -57,7 +59,8 @@ public final class PartyOperationHandler extends AbstractMaplePacketHandler {
                 break;
             }
             case 2: {
-                if (party != null) {
+                if (party != null && partyplayer != null) {
+                    System.out.println("going to disband");
                     try {
                         if (partyplayer.equals(party.getLeader())) {
                             wci.updateParty(party.getId(), PartyOperation.DISBAND, partyplayer);
@@ -84,6 +87,7 @@ public final class PartyOperationHandler extends AbstractMaplePacketHandler {
                         party = wci.getParty(partyid);
                         if (party != null) {
                             if (party.getMembers().size() < 6) {
+                                partyplayer = new MaplePartyCharacter(player);
                                 wci.updateParty(party.getId(), PartyOperation.JOIN, partyplayer);
                                 player.receivePartyMemberHP();
                                 player.updatePartyMemberHP();

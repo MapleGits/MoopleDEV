@@ -206,10 +206,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().getLevel();
     }
 
-    public EventManager getEventManager(String event) {
-        return getClient().getChannelServer().getEventSM().getEventManager(event);
-    }
-
     public void showEffect(String effect) {
         getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(effect, 3));
     }
@@ -325,7 +321,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             gainItem(5220000, (short) -1);
         }
         sendNext("You have obtained a #b#t" + itemid + "##k.");
-        getClient().getChannelServer().broadcastPacket(MaplePacketCreator.gachaponMessage(getPlayer().getInventory(MapleInventoryType.getByType((byte) (itemid / 1000000))).findById(itemid), c.getPlayer().getMapName(gacMap[(getNpc() != 9100117 && getNpc() != 9100109) ? (getNpc() - 9100100) : getNpc() == 9100109 ? 8 : 9]), getPlayer()));
+        getClient().getChannelServer().broadcastPacket(MaplePacketCreator.gachaponMessage(getPlayer().getInventory(MapleInventoryType.getByType((byte) (itemid / 1000000))).findById(itemid), c.getChannelServer().getMapFactory().getMap(gacMap[(getNpc() != 9100117 && getNpc() != 9100109) ? (getNpc() - 9100100) : getNpc() == 9100109 ? 8 : 9]).getMapName(), getPlayer()));
     }
 
     public void disbandAlliance(MapleClient c, int allianceId) {

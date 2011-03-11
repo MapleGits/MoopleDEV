@@ -101,10 +101,10 @@ public class MapleShop {
                         MapleInventoryManipulator.addById(c, itemId, quantity);
                         c.getPlayer().gainMeso(-item.getPrice(), false);
                     }
+                    c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
                 } else 
                     c.getSession().write(MaplePacketCreator.shopTransaction((byte) 3));
                 
-                c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
             } else
                 c.getSession().write(MaplePacketCreator.shopTransaction((byte) 2));
 
@@ -120,10 +120,10 @@ public class MapleShop {
                             MapleInventoryManipulator.addById(c, itemId, quantity);
                             MapleInventoryManipulator.removeById(c, MapleInventoryType.ETC, 4310000, item.getPitch() * quantity, false, false);
                         }
+                        c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
                     } else
                         c.getSession().write(MaplePacketCreator.shopTransaction((byte) 3));
                 }
-                c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
 
             } else if (c.getPlayer().getInventory(MapleInventoryType.CASH).countById(token) != 0) {
                 int amount = c.getPlayer().getInventory(MapleInventoryType.CASH).countById(token);

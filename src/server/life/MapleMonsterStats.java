@@ -34,8 +34,8 @@ import tools.Pair;
  * @author Frz
  */
 public class MapleMonsterStats {
-    private int exp, hp, mp, level, PADamage, dropPeriod, cp, buffToGive;
-    private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack, removeAfter;
+    private int exp, hp, mp, level, PADamage, dropPeriod, cp, buffToGive, removeAfter;
+    private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack;
     private String name;
     private Map<String, Integer> animationTimes = new HashMap<String, Integer>();
     private Map<Element, ElementalEffectiveness> resistance = new HashMap<Element, ElementalEffectiveness>();
@@ -77,11 +77,11 @@ public class MapleMonsterStats {
         this.level = level;
     }
 
-    public boolean removeAfter() {
+    public int removeAfter() {
         return removeAfter;
     }
 
-    public void setRemoveAfter(boolean removeAfter) {
+    public void setRemoveAfter(int removeAfter) {
         this.removeAfter = removeAfter;
     }
 

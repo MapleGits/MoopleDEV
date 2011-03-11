@@ -59,6 +59,7 @@ public class Item implements IItem {
         Item ret = new Item(id, position, quantity, petid);
         ret.flag = flag;
         ret.owner = owner;
+        ret.expiration = expiration;
         ret.log = new LinkedList<String>(log);
         return ret;
     }

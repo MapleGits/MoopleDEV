@@ -38,6 +38,7 @@ import client.MapleJob;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
+import java.awt.Point;
 import tools.Randomizer;
 import net.MaplePacket;
 import net.channel.ChannelServer;
@@ -303,8 +304,25 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 reviveMap.broadcastMessage(MaplePacketCreator.playSound("Dojang/clear"));
                 reviveMap.broadcastMessage(MaplePacketCreator.showEffect("dojang/end/clear"));
             }
-            if (toSpawn.contains(reviveMap.getTimeMobId())) {
-                reviveMap.broadcastMessage(MaplePacketCreator.serverNotice(6, reviveMap.getTimeMobMessage()));
+            Pair<Integer, String> timeMob = reviveMap.getTimeMob();
+            if (timeMob != null) {
+                if (toSpawn.contains(timeMob.getLeft()))
+                    reviveMap.broadcastMessage(MaplePacketCreator.serverNotice(6, timeMob.getRight()));
+
+                if (timeMob.getLeft() == 9300338 && (reviveMap.getId() >= 922240100 && reviveMap.getId() <= 922240119)) {
+                    if (!reviveMap.containsNPC(9001108)) {
+                        MapleNPC npc = MapleLifeFactory.getNPC(9001108);
+                        npc.setPosition(new Point(172, 9));
+                        npc.setCy(9);
+                        npc.setRx0(172 + 50);
+                        npc.setRx1(172 - 50);
+                        npc.setFh(27);
+                        reviveMap.addMapObject(npc);
+                        reviveMap.broadcastMessage(MaplePacketCreator.spawnNPC(npc));
+                    } else {
+                        reviveMap.toggleHiddenNPC(9001108);
+                    }
+                }
             }
             for (Integer mid : toSpawn) {
                 final MapleMonster mob = MapleLifeFactory.getMonster(mid);
@@ -399,7 +417,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     private boolean isHT() {
-        return getId() == 8810018 || getId() == 8810026;
+        return getId() == 8810018;
     }
 
     @Override
@@ -479,15 +497,13 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             if (effectiveness == ElementalEffectiveness.IMMUNE || effectiveness == ElementalEffectiveness.STRONG) {
                 return false;
             }
-        } else if (status.getSkill().getId() == 4120005 || status.getSkill().getId() == 4220005 || status.getSkill().getId() == 14110004) // venom
-        {
+        } else if (status.getSkill().getId() == 4120005 || status.getSkill().getId() == 4220005 || status.getSkill().getId() == 14110004) {// venom
             if (stats.getEffectiveness(Element.POISON) == ElementalEffectiveness.WEAK) {
                 return false;
             }
         }
-        if (poison && getHp() <= 1) {
-            return false;
-        }
+        if (poison && getHp() <= 1) return false;
+        
 	final Map<MonsterStatus, Integer> statis = status.getStati();
 	if (stats.isBoss()) {
 	    if (!(statis.containsKey(MonsterStatus.SPEED)
@@ -555,16 +571,15 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
                 status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
                 status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
-            } else {
+            } else 
                 return false;
-            }
+           
         } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) { //Shadow Web
             status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
         } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
-            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF)
-            if (ambushDamage < 1) {
-                ambushDamage = 1;
-            }
+            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF) noty
+            if (ambushDamage < 1) ambushDamage = 1;
+            
             status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(ambushDamage));
             status.setDamageSchedule(timerManager.register(new DamageTask(ambushDamage, from, status, cancelTask, 2), 1000, 1000));
         }

@@ -86,7 +86,7 @@ public class MapleDoor extends AbstractMapleMapObject {
             if (obj instanceof MapleDoor) {
                 MapleDoor door = (MapleDoor) obj;
                 if (door.getOwner().getParty() != null &&
-                        owner.getParty().containsMembers(new MaplePartyCharacter(door.getOwner()))) {
+                        owner.getParty().containsMembers(door.getOwner().getMPC())) {
                     freePortals.remove(door.getTownPortal());
                 }
             }
@@ -97,7 +97,7 @@ public class MapleDoor extends AbstractMapleMapObject {
     public void sendSpawnData(MapleClient client) {
         if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() && owner.getParty() == null) {
             client.getSession().write(MaplePacketCreator.spawnDoor(owner.getId(), town.getId() == client.getPlayer().getMapId() ? townPortal.getPosition() : targetPosition, true));
-            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new MaplePartyCharacter(client.getPlayer())))) {
+            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(client.getPlayer().getMPC()))) {
                 client.getSession().write(MaplePacketCreator.partyPortal(town.getId(), target.getId(), targetPosition));
             }
             client.getSession().write(MaplePacketCreator.spawnPortal(town.getId(), target.getId(), targetPosition));
@@ -105,8 +105,8 @@ public class MapleDoor extends AbstractMapleMapObject {
     }
 
     public void sendDestroyData(MapleClient client) {
-        if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() || owner.getParty() != null && owner.getParty().containsMembers(new MaplePartyCharacter(client.getPlayer()))) {
-            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new MaplePartyCharacter(client.getPlayer())))) {
+        if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() || owner.getParty() != null && owner.getParty().containsMembers(client.getPlayer().getMPC())) {
+            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(client.getPlayer().getMPC()))) {
                 client.getSession().write(MaplePacketCreator.partyPortal(999999999, 999999999, new Point(-1, -1)));
             }
             client.getSession().write(MaplePacketCreator.removeDoor(owner.getId(), false));
@@ -115,7 +115,7 @@ public class MapleDoor extends AbstractMapleMapObject {
     }
 
     public void warp(MapleCharacter chr, boolean toTown) {
-        if (chr == owner || owner.getParty() != null && owner.getParty().containsMembers(new MaplePartyCharacter(chr))) {
+        if (chr == owner || owner.getParty() != null && owner.getParty().containsMembers(chr.getMPC())) {
             if (!toTown) {
                 chr.changeMap(target, targetPosition);
             } else {

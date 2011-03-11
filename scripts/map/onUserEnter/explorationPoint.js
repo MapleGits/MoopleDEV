@@ -42,8 +42,7 @@ function start(ms) {
 	} else if (ms.getPlayer().getMapId() >= 240000000 && ms.getPlayer().getMapId() <= 240050000) {
 		ms.explorerQuest(29011, "Minar Forest Explorer");//Minar Forest Explorer
 	} 
-	if (ms.getPlayer().getMapId() == 104000000) {
-		ms.unlockUI();   	       
+	if (ms.getPlayer().getMapId() == 104000000) {	       
 		ms.mapEffect("maplemap/enter/104000000");
 	}
 }

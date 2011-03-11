@@ -71,6 +71,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         int state = c.getLoginState();
         boolean allowLogin = true;
         ChannelServer cserv = c.getChannelServer();
+        MapleCharacter chr = c.getPlayer();
         synchronized (this) {
             try {
                 WorldChannelInterface worldInterface = cserv.getWorldInterface();
@@ -98,7 +99,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         try {
             List<PlayerBuffValueHolder> buffs = cserv.getWorldInterface().getBuffsFromStorage(cid);
             if (buffs != null) {
-                c.getPlayer().silentGiveBuffs(buffs);
+                chr.silentGiveBuffs(buffs);
             }
         } catch (RemoteException e) {
             cserv.reconnectWorld();
@@ -106,7 +107,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         Connection con = DatabaseConnection.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM cooldowns WHERE charid = ?");
-            ps.setInt(1, c.getPlayer().getId());
+            ps.setInt(1, chr.getId());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 final int skillid = rs.getInt("SkillID");
@@ -114,21 +115,21 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                 if (length + startTime < System.currentTimeMillis()) {
                     continue;
                 }
-                c.getPlayer().giveCoolDowns(skillid, startTime, length);
+                chr.giveCoolDowns(skillid, startTime, length);
             }
             rs.close();
             ps.close();
             ps = con.prepareStatement("DELETE FROM cooldowns WHERE charid = ?");
-            ps.setInt(1, c.getPlayer().getId());
+            ps.setInt(1, chr.getId());
             ps.executeUpdate();
             ps.close();
             ps = con.prepareStatement("SELECT Mesos FROM dueypackages WHERE RecieverId = ? and Checked = 1");
-            ps.setInt(1, c.getPlayer().getId());
+            ps.setInt(1, chr.getId());
             rs = ps.executeQuery();
             if (rs.next()) {
                 try {
                     PreparedStatement pss = DatabaseConnection.getConnection().prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?");
-                    pss.setInt(1, c.getPlayer().getId());
+                    pss.setInt(1, chr.getId());
                     pss.executeUpdate();
                     pss.close();
                 } catch (SQLException e) {
@@ -145,7 +146,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             SkillFactory.getSkill(SuperGM.HIDE).getEffect(SkillFactory.getSkill(SuperGM.HIDE).getMaxLevel()).applyTo(player);
         }
         player.sendKeymap();
-        c.getPlayer().sendMacros();
+        chr.sendMacros();
         player.getMap().addPlayer(player);
         try {
             int buddyIds[] = player.getBuddylist().getBuddyIds();
@@ -205,9 +206,13 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             }
         }
         try {
-            c.getPlayer().showNote();
+            chr.showNote();
             if (player.getParty() != null) {
-                cserv.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, new MaplePartyCharacter(player));
+                MaplePartyCharacter pchar = player.getMPC();
+                pchar.setChannel(c.getChannel());
+                pchar.setMapId(chr.getMapId());
+                pchar.setOnline(true);
+                cserv.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, pchar);
             }
             player.updatePartyMemberHP();
         } catch (RemoteException e) {
@@ -216,7 +221,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), -1, false));
-            c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
+            c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), chr.getId(), pendingBuddyRequest.getName()));
         }
         if (player.getInventory(MapleInventoryType.EQUIPPED).findById(1122017) != null) {
             player.equipPendantOfSpirit();

@@ -93,7 +93,7 @@ public class Commands {
                 SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
             }
         } else if (sub[0].equals("spawn")) {
-            if (sub.length < 2) {
+            if (sub.length > 2) {
                 for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
                     player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
                 }
@@ -157,8 +157,6 @@ public class Commands {
                 }
                 c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), toDrop, c.getPlayer().getPosition(), true, true);
             }
-        } else if (sub[0].equals("equipexp")) {
-            player.increaseEquipExp(Integer.parseInt(sub[1]));
         } else if (sub[0].equals("job")) {
             player.changeJob(MapleJob.getById(Integer.parseInt(sub[1])));
             player.equipChanged();

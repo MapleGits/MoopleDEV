@@ -31,11 +31,10 @@ public class ServerConstants {
     public static final byte BOSS_DROP_RATE = 2;
     public static final byte QUEST_EXP_RATE = 4;
     public static final byte QUEST_MESO_RATE = 3;
-    public static final boolean GMS_LIKE = true;
     // Login Configuration
     public static final byte FLAG = 3;
     public static final int CHANNEL_NUMBER = 2;
-    public static final int CHANNEL_LOAD = 50;
+    public static final int CHANNEL_LOAD = 150;
     public static final String EVENT_MESSAGE = "";
     public static final long RANKING_INTERVAL = 3600000;
     public static final boolean ENABLE_PIN = true;
@@ -43,7 +42,7 @@ public class ServerConstants {
     // Channel Configuration
     public static String SERVER_MESSAGE = "";
     public static String RECOMMEND_MESSAGE = "";
-    public static final String EVENTS = "automsg KerningPQ Boats Subway";
+    public static final String EVENTS = "automsg KerningPQ Boats Subway AirPlane elevator";
     // IP Configuration
     public static final String HOST = "localhost";
 }

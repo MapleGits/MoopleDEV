@@ -71,7 +71,7 @@ function action(mode, type, selection) {
             } else {
                 var em = cm.getEventManager("KerningPQ");
                 if (em == null) {
-                    cm.sendOk("This PQ is not currently available.");
+                    cm.sendOk("This PQ is currently unavailable.");
                 } else if (em.getProperty("KPQOpen").equals("true")) {
                     // Begin the PQ.
                     em.startInstance(cm.getParty(), cm.getPlayer().getMap());

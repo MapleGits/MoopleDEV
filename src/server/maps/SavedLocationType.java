@@ -22,7 +22,7 @@
 package server.maps;
 
 public enum SavedLocationType {
-    FREE_MARKET, EVENT, WORLDTOUR, FLORINA, INTRO, DOJO, ARIANT, SUNDAY_MARKET, MIRROR;
+    FREE_MARKET, EVENT, WORLDTOUR, FLORINA, INTRO, SUNDAY_MARKET, MIRROR;
 
     public static SavedLocationType fromString(String Str) {
         return valueOf(Str);

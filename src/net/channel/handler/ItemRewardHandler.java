@@ -21,14 +21,19 @@
 */
 package net.channel.handler;
 
+import client.IItem;
 import client.MapleClient;
 import client.MapleInventoryType;
-import java.util.Collections;
+import constants.ItemConstants;
+import java.rmi.RemoteException;
 import java.util.List;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
+import server.MapleItemInformationProvider.RewardItem;
 import tools.MaplePacketCreator;
+import tools.Pair;
+import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
@@ -39,58 +44,35 @@ public final class ItemRewardHandler extends AbstractMaplePacketHandler {
         byte slot = (byte) slea.readShort();
         int itemId = slea.readInt(); // will load from xml I don't care.
         if (c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot).getItemId() != itemId || c.getPlayer().getInventory(MapleInventoryType.USE).countById(itemId) < 1) return;
-
-        double rand = Math.random() * 1000;
-        List<RewardItem> rewards = MapleItemInformationProvider.getInstance().getItemReward(itemId);
-        Collections.shuffle(rewards);
-        for (RewardItem reward : rewards) {
-            if (!MapleInventoryManipulator.checkSpace(c, reward.getItemId(), reward.getCount(), "")) {
+        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+        Pair<Integer, List<RewardItem>> rewards = ii.getItemReward(itemId);
+        for (RewardItem reward : rewards.getRight()) {
+            if (!MapleInventoryManipulator.checkSpace(c, reward.itemid, reward.quantity, "")) {
                 c.announce(MaplePacketCreator.showInventoryFull());
                 break;
             }
-            if (rand <= 10 && reward.getProb() != 1) continue; //Lol else you would never get it
-            if ((rand <= 10 && reward.getProb() == 1) || rand <= reward.getProb()) { //Golden Pig egg shet
-                if (!reward.getEffect().equals("")) c.announce(MaplePacketCreator.showEffect(reward.getEffect()));
-                MapleInventoryManipulator.addById(c, reward.getItemId(), reward.getCount(), reward.getPeriod() == -1 ? -1 : (long) (System.currentTimeMillis() + (reward.getPeriod() * 1000)));
-                MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, false, true);
-                if (reward.getProb() == 1) c.getChannelServer().broadcastPacket(MaplePacketCreator.sendYellowTip(c.getPlayer().getName() + " has obtained a " + MapleItemInformationProvider.getInstance().getName(reward.getItemId()) + " from the Golden Pig's Egg."));
-                break;
+            if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) {
+		if (ItemConstants.getInventoryType(reward.itemid) == MapleInventoryType.EQUIP) {
+                    final IItem item = ii.getEquipById(reward.itemid);
+                    if (reward.period != -1) {
+			item.setExpiration(System.currentTimeMillis() + (reward.period * 60 * 60 * 10));
+                    }
+                    MapleInventoryManipulator.addFromDrop(c, item, false);
+                } else {
+                    MapleInventoryManipulator.addById(c, reward.itemid, reward.quantity);
+		}
+                if (reward.worldmsg != null) {
+                    String msg = reward.worldmsg;
+                    msg.replaceAll("/name", c.getPlayer().getName());
+                    msg.replaceAll("/item", ii.getName(reward.itemid));
+                    try {
+                        c.getChannelServer().getWorldInterface().broadcastMessage(null, msg.getBytes());
+                    } catch (RemoteException ex) {
+                        c.getChannelServer().reconnectWorld();
+                    }
+                }
             }
         }
         c.announce(MaplePacketCreator.enableActions());
-    }
-
-    public static final class RewardItem {
-        private int itemId, prob, period;
-        private short count;
-        private String effect;
-
-        public RewardItem(int itemId, int prob, short count, int period, String effect) {
-            this.itemId = itemId;
-            this.prob = prob;
-            this.count = count;
-            this.period = period;
-            this.effect = effect;
-        }
-
-        public int getItemId() {
-            return itemId;
-        }
-
-        public int getProb() {
-            return prob;
-        }
-
-        public short getCount() {
-            return count;
-        }
-
-        public int getPeriod() {
-            return period;
-        }
-
-        public String getEffect() {
-            return effect;
-        }
     }
 }

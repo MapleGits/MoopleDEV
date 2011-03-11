@@ -33,6 +33,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import client.MapleClient;
+import java.lang.reflect.UndeclaredThrowableException;
 import server.MaplePortal;
 
 public class PortalScriptManager {
@@ -67,6 +68,8 @@ public class PortalScriptManager {
             System.out.println("THROW " + e);
         } catch (IOException e) {
             System.out.println("THROW " + e);
+        } catch (UndeclaredThrowableException ute) {
+            ute.printStackTrace();
         } finally {
             if (fr != null) {
                 try {

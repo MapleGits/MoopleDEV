@@ -67,7 +67,7 @@ public final class UseItemHandler extends AbstractMaplePacketHandler {
         }
     }
 
-    private final void remove(MapleClient c, byte slot) {
+    private void remove(MapleClient c, byte slot) {
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
         c.announce(MaplePacketCreator.enableActions());
     }

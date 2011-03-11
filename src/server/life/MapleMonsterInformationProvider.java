@@ -39,52 +39,52 @@ public class MapleMonsterInformationProvider {
     private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<MonsterGlobalDropEntry>();
 
     protected MapleMonsterInformationProvider() {
-    retrieveGlobal();
+        retrieveGlobal();
     }
 
     public static MapleMonsterInformationProvider getInstance() {
-    return instance;
+        return instance;
     }
 
     public final List<MonsterGlobalDropEntry> getGlobalDrop() {
-    return globaldrops;
+        return globaldrops;
     }
 
     private void retrieveGlobal() {
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-    try {
-        final Connection con = DatabaseConnection.getConnection();
-        ps = con.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
-        rs = ps.executeQuery();
-
-        while (rs.next()) {
-        globaldrops.add(
-            new MonsterGlobalDropEntry(
-            rs.getInt("itemid"),
-            rs.getInt("chance"),
-            rs.getInt("continent"),
-            rs.getByte("dropType"),
-            rs.getInt("minimum_quantity"),
-            rs.getInt("maximum_quantity"),
-            rs.getShort("questid")));
-        }
-        rs.close();
-        ps.close();
-    } catch (SQLException e) {
-        System.err.println("Error retrieving drop" + e);
-    } finally {
         try {
-        if (ps != null) {
-            ps.close();
-        }
-        if (rs != null) {
+            final Connection con = DatabaseConnection.getConnection();
+            ps = con.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+            globaldrops.add(
+                new MonsterGlobalDropEntry(
+                rs.getInt("itemid"),
+                rs.getInt("chance"),
+                rs.getInt("continent"),
+                rs.getByte("dropType"),
+                rs.getInt("minimum_quantity"),
+                rs.getInt("maximum_quantity"),
+                rs.getShort("questid")));
+            }
             rs.close();
+            ps.close();
+        } catch (SQLException e) {
+            System.err.println("Error retrieving drop" + e);
+        } finally {
+            try {
+            if (ps != null) {
+                ps.close();
+            }
+            if (rs != null) {
+                rs.close();
+            }
+            } catch (SQLException ignore) {
+            }
         }
-        } catch (SQLException ignore) {
-        }
-    }
     }
 
     public final List<MonsterDropEntry> retrieveDrop(final int monsterId) {

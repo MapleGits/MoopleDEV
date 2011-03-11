@@ -31,6 +31,6 @@ function start() {
 
 function action(i, am, pro) {
     if (i > 0 && cm.getPlayer().gmLevel() > 0)
-        cm.getPlayer().levelUp();
+        cm.getPlayer().levelUp(true);
     cm.dispose();
 }

@@ -14,12 +14,14 @@ import java.util.Map;
  * @author kevintjuh93
  */
 public class AutobanManager {
-    MapleCharacter chr;
-    Map<AutobanFactory, Integer> points = new HashMap<AutobanFactory, Integer>();
-    Map<AutobanFactory, Long> lastTime = new HashMap<AutobanFactory, Long>();
+    private MapleCharacter chr;
+    private Map<AutobanFactory, Integer> points = new HashMap<AutobanFactory, Integer>();
+    private Map<AutobanFactory, Long> lastTime = new HashMap<AutobanFactory, Long>();
     private int misses = 0;
     private int lastmisses = 0;
     private int samemisscount = 0;
+    private long spam[] = new long[20];
+    private int timestamp[] = new int[20];
 
 
     public AutobanManager(MapleCharacter chr) {
@@ -27,25 +29,23 @@ public class AutobanManager {
     }
 
     public void addPoint(AutobanFactory fac, String reason) {
-        int tpoints = points.get(fac);
         if (lastTime.containsKey(fac)) {
             if (lastTime.get(fac) < (System.currentTimeMillis() - fac.getExpire())) {
-                points.remove(fac);
-                points.put(fac, tpoints / 2); //So the points are not completely gone.
+                points.put(fac, points.get(fac) / 2); //So the points are not completely gone.
             }
         }
         if (fac.getExpire() != -1)
             lastTime.put(fac, System.currentTimeMillis());
         
         if (points.containsKey(fac)) {
-            points.remove(fac);
-            points.put(fac, tpoints + 1);
+            points.put(fac, points.get(fac) + 1);
         } else
             points.put(fac, 1);
 
-        if (points.get(fac) >= fac.getMaximum())
+        if (points.get(fac) >= fac.getMaximum()) {
             chr.autoban("Autobanned for " + fac.name() + " ;" + reason, 1);
             chr.sendPolice("You have been blocked by #bMooplePolice for the HACK reason#k.");
+        }
     }
 
     public void addMiss() {
@@ -62,5 +62,20 @@ public class AutobanManager {
 
         this.lastmisses = misses;
         this.misses = 0;
+    }
+    
+    //Don't use the same type for more than 1 thing
+    public void spam(int type) {
+        this.spam[type] = System.currentTimeMillis();
+    }
+
+    public long getLastSpam(int type) {
+        return spam[type];
+    }
+
+    //Don't use the same type for more than 1 thing
+    public void setTimestamp(int type, int time) {
+        if (this.timestamp[type] == time) chr.getClient().disconnect();
+        this.timestamp[type] = time;
     }
 }

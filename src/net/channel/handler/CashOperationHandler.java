@@ -72,7 +72,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             }
             cs.gainCash(useNX, -cItem.getPrice());
             c.announce(MaplePacketCreator.showCash(chr));
-        } else if (action == 0x04) {
+        } else if (action == 0x04) {//TODO check for gender
             int birthday = slea.readInt();
             CashItem cItem = CashItemFactory.getItem(slea.readInt());
             Map<String, String> recipient = MapleCharacter.getCharacterFromDatabase(slea.readMapleAsciiString());
@@ -81,13 +81,13 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 return;
             }
             if (!checkBirthday(c, birthday)) {
-                c.announce(MaplePacketCreator.showCashShopMessage(0xC4));
+                c.announce(MaplePacketCreator.showCashShopMessage((byte) 0xC4));
                 return;
             } else if (recipient == null) {
-                c.announce(MaplePacketCreator.showCashShopMessage(0xA9));
+                c.announce(MaplePacketCreator.showCashShopMessage((byte) 0xA9));
                 return;
             } else if (recipient.get("accountid").equals(String.valueOf(c.getAccID()))) {
-                c.announce(MaplePacketCreator.showCashShopMessage(0xA8));
+                c.announce(MaplePacketCreator.showCashShopMessage((byte) 0xA8));
                 return;
             }
             cs.gift(Integer.parseInt(recipient.get("id")), chr.getName(), message, cItem.getSN());

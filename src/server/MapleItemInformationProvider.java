@@ -45,7 +45,6 @@ import constants.ItemConstants;
 import java.util.Collection;
 import java.util.LinkedList;
 import tools.Randomizer;
-import net.channel.handler.ItemRewardHandler.RewardItem;
 import provider.MapleData;
 import provider.MapleDataDirectoryEntry;
 import provider.MapleDataFileEntry;
@@ -92,7 +91,7 @@ public class MapleItemInformationProvider {
     protected Map<Integer, Integer> triggerItemCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> expCache = new HashMap<Integer, Integer>();
     protected Map<Integer, Integer> levelCache = new HashMap<Integer, Integer>();
-    protected Map<Integer, List<RewardItem>> rewardCache = new HashMap<Integer, List<RewardItem>>();
+    protected Map<Integer, Pair<Integer, List<RewardItem>>> rewardCache = new HashMap<Integer, Pair<Integer, List<RewardItem>>>();
     protected List<Pair<Integer, String>> itemNameCache = new ArrayList<Pair<Integer, String>>();
     protected Map<Integer, Boolean> consumeOnPickupCache = new HashMap<Integer, Boolean>();
     protected Map<Integer, Boolean> isQuestItemCache = new HashMap<Integer, Boolean>();
@@ -253,6 +252,12 @@ public class MapleItemInformationProvider {
         } else {
             return theData.getChildByPath(cat + "/" + itemId);
         }
+    }
+
+    public boolean noCancelMouse(int itemId) {
+        MapleData item = getItemData(itemId);
+        if (item == null) return false;
+        return MapleDataTool.getIntConvert("info/noCancelMouse", item, 0) == 1;
     }
 
     private MapleData getItemData(int itemId) {
@@ -717,9 +722,8 @@ public class MapleItemInformationProvider {
         }
         MapleData data = getItemData(itemId);
         boolean bRestricted = MapleDataTool.getIntConvert("info/tradeBlock", data, 0) == 1;
-        if (!bRestricted) {
-            bRestricted = MapleDataTool.getIntConvert("info/quest", data, 0) == 1;
-        }
+        if (!bRestricted)
+            bRestricted = MapleDataTool.getIntConvert("info/quest", data, 0) == 1;        
         dropRestrictionCache.put(itemId, bRestricted);
         return bRestricted;
     }
@@ -891,17 +895,28 @@ public class MapleItemInformationProvider {
         }
     }
 
-    public List<RewardItem> getItemReward(int itemId) {
+    public Pair<Integer, List<RewardItem>> getItemReward(int itemId) {//Thanks Celino, used some stuffs :)
         if (rewardCache.containsKey(itemId)) {
             return rewardCache.get(itemId);
-        } else {
-            List<RewardItem> rewards = new ArrayList<RewardItem>();
-            for (MapleData child : getItemData(itemId).getChildByPath("reward").getChildren()) {
-                rewards.add(new RewardItem(MapleDataTool.getInt("item", child, 0), MapleDataTool.getInt("prob", child, 0), (short) MapleDataTool.getInt("count", child, 0), MapleDataTool.getInt("period", child, -1), MapleDataTool.getString("Effect", child, "")));
-            }
-            rewardCache.put(itemId, rewards);
-            return rewards;
         }
+        int totalprob = 0;
+        List<RewardItem> rewards = new ArrayList();
+        for (MapleData child : getItemData(itemId).getChildByPath("reward").getChildren()) {
+            RewardItem reward = new RewardItem();
+            reward.itemid = MapleDataTool.getInt("item", child, 0);
+	    reward.prob = (byte) MapleDataTool.getInt("prob", child, 0);
+	    reward.quantity = (short) MapleDataTool.getInt("count", child, 0);
+	    reward.effect = MapleDataTool.getString("Effect", child, "");
+	    reward.worldmsg = MapleDataTool.getString("worldMsg", child, null);
+	    reward.period = MapleDataTool.getInt("period", child, -1);
+
+            totalprob += reward.prob;
+
+            rewards.add(reward);
+        }
+        Pair<Integer, List<RewardItem>> hmm = new Pair(totalprob, rewards);
+        rewardCache.put(itemId, hmm);
+        return hmm;
     }
 
     public boolean isConsumeOnPickup(int itemId) {
@@ -1128,5 +1143,10 @@ public class MapleItemInformationProvider {
             return runOnPickup;
         }
     }
-    
+
+    public static final class RewardItem {
+        public int itemid, period;
+        public short prob, quantity;
+        public String effect, worldmsg;
+    }
 }

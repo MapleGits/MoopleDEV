@@ -74,13 +74,16 @@ public class MapleMapFactory {
                 map = new MapleMap(mapid, channel, MapleDataTool.getInt("info/returnMap", mapData), monsterRate);
                 map.setOnFirstUserEnter(MapleDataTool.getString(mapData.getChildByPath("info/onFirstUserEnter"), String.valueOf(mapid)));
                 map.setOnUserEnter(MapleDataTool.getString(mapData.getChildByPath("info/onUserEnter"), String.valueOf(mapid)));
-                map.setTimeMobId(MapleDataTool.getInt(mapData.getChildByPath("info/timeMob/id"), -1));
-                map.setTimeMobMessage(MapleDataTool.getString(mapData.getChildByPath("info/timeMob/message"), ""));
                 map.setFieldLimit(MapleDataTool.getInt(mapData.getChildByPath("info/fieldLimit"), 0));
                 PortalFactory portalFactory = new PortalFactory();
                 for (MapleData portal : mapData.getChildByPath("portal")) {
                     map.addPortal(portalFactory.makePortal(MapleDataTool.getInt(portal.getChildByPath("pt")), portal));
                 }
+                MapleData timeMob = mapData.getChildByPath("info/timeMob");
+                if (timeMob != null)
+                    map.timeMob(MapleDataTool.getInt(timeMob.getChildByPath("id")), 
+                                MapleDataTool.getString(timeMob.getChildByPath("message")));
+
                 List<MapleFoothold> allFootholds = new LinkedList<MapleFoothold>();
                 Point lBound = new Point();
                 Point uBound = new Point();
@@ -138,6 +141,7 @@ public class MapleMapFactory {
                 for (MapleData life : mapData.getChildByPath("life")) {
                     String id = MapleDataTool.getString(life.getChildByPath("id"));
                     String type = MapleDataTool.getString(life.getChildByPath("type"));
+                    if (id.equals("9001105")) id = "9001108";//soz
                     AbstractLoadedMapleLife myLife = loadLife(life, id, type);
                     if (myLife instanceof MapleMonster) {
                         MapleMonster monster = (MapleMonster) myLife;
@@ -169,6 +173,7 @@ public class MapleMapFactory {
                     map.setMapName("");
                     map.setStreetName("");
                 }
+
                 map.setClock(mapData.getChildByPath("clock") != null);
                 map.setEverlast(mapData.getChildByPath("everlast") != null);
                 map.setTown(mapData.getChildByPath("town") != null);

@@ -63,6 +63,10 @@ public class EventInstanceManager {
         mapFactory.setChannel(em.getChannelServer().getChannel());
     }
 
+    public EventManager getEm() {
+        return em;
+    }
+    
     public void registerPlayer(MapleCharacter chr) {
         try {
             chars.add(chr);

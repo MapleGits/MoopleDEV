@@ -136,12 +136,9 @@ public class MapleGuild implements java.io.Serializable {
                 if (!mgc.isOnline()) {
                     continue;
                 }
-                List<Integer> ch = notifications.get(mgc.getChannel() - 1);
-                if (ch == null) {
-                    System.out.println("Unable to connect to channel " + mgc.getChannel());
-                } else {
-                    ch.add(mgc.getId());
-                }
+                List<Integer> ch = notifications.get(mgc.getChannel());
+                if (ch != null) ch.add(mgc.getId());
+                //Unable to connect to Channel... error was here
             }
         }
         bDirty = false;

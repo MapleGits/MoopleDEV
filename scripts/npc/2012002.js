@@ -33,6 +33,10 @@ function start() {
 }
 
 function action(mode, type, selection) {
+if (mode == 0 && status == 1) {
+	cm.sendOk("Good choice");
+	cm.dispose();
+}
     if (mode > 0)
         status++;
     else

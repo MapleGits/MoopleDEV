@@ -20,16 +20,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*	
- * @author:  Moogra
+ * @author:  kevintjuh93/moogra
  * @portal:  dojang_exit
  * @purpose: warps user out
  */
 
 function enter(pi) {
-    try {
-        pi.warp(pi.getPlayer().getSavedLocation("MIRROR"));
-    } catch(err) {
-        pi.warp(100000000);
-    }
+    pi.warp(pi.getPlayer().getSavedLocation("MIRROR"));
     return true;
 }

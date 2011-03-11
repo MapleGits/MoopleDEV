@@ -29,14 +29,13 @@ function start() {
     if (em.getProperty("entry") == "true")
         cm.sendYesNo("It looks like there are plenty of room for this ride. Please have your ticket ready so I can let you in. The ride will be long, but you'll get to your destination just fine. What do you think? Do you wants to get on this ride?");
     else {
-        if (em.getProperty("entry") == "false" && em.getProperty("docked") == "true")
+        //if (em.getProperty("entry") == "false" && em.getProperty("docked") == "true")
             cm.sendOk("We are just cleaning the boat from the last voyage.\r\nBoarding starts 5 minutes before departure.\r\nTry again shortly.");
         cm.dispose();
     }
 }
 
 function action(mode, type, selection){
-    cm.gainItem(4031047, -1);
     cm.warp(200000112);
     cm.dispose();
 }

@@ -46,6 +46,7 @@ public class EventManager {
     private Map<String, EventInstanceManager> instances = new HashMap<String, EventInstanceManager>();
     private Properties props = new Properties();
     private String name;
+    private ScheduledFuture<?> schedule = null;
 
     public EventManager(ChannelServer cserv, Invocable iv, String name) {
         this.iv = iv;
@@ -68,7 +69,7 @@ public class EventManager {
     }
 
     public void schedule(final String methodName, final EventInstanceManager eim, long delay) {
-        TimerManager.getInstance().schedule(new Runnable() {
+        schedule = TimerManager.getInstance().schedule(new Runnable() {
             public void run() {
                 try {
                     iv.invokeFunction(methodName, eim);
@@ -79,6 +80,10 @@ public class EventManager {
                 }
             }
         }, delay);
+    }
+
+    public void cancelSchedule() {
+        schedule.cancel(true);
     }
 
     public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, long timestamp) {

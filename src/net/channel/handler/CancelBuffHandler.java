@@ -32,6 +32,7 @@ import constants.skills.Marksman;
 import constants.skills.WindArcher;
 import net.AbstractMaplePacketHandler;
 import net.MaplePacketHandler;
+import server.MapleItemInformationProvider;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.MaplePacketCreator;
 

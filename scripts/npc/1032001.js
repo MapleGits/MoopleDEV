@@ -38,7 +38,7 @@ function action(mode, type, selection) {
         cm.dispose();
     } else {
         if (mode == 0 && status == 2) {
-            cm.sendOk("Make up your mind and visit me again.");
+            cm.sendNext("You need to think about it a little more? Sure, take your time. This is not something you should take lightly. Let me know when you have made your decision.");
             cm.dispose();
             return;
         }
@@ -49,23 +49,11 @@ function action(mode, type, selection) {
 			
 		if (cm.getJobId()==0) {
 			if (status == 0) {
-				if (cm.getLevel() >= 8)
-                    cm.sendNext("So you decided to become a #rMagician#k?");
-                else {
-                    cm.sendOk("Train a bit more and I can show you the way of the #rMagician#k.")
-                    cm.dispose();
-                }
+				cm.sendNext("Do you want to be a Magician? You need to meet some requirements in order to do so. You need to be at least at #bLevel 8#k. Let's see if you have what it takes to become a Magician.");                
 			} else if (status == 1) {
-            cm.sendNextPrev("It is an important and final choice. You will not be able to turn back.");
+				
 			} else if (status == 2) {
-            cm.sendYesNo("Do you want to become a #rMagician#k?");
 			} else if (status == 3) {
-				if (cm.getJobId()==0)
-					cm.changeJobById(200);
-				cm.gainItem(1372005, 1);
-				cm.sendOk("So be it! Now go, and go with pride.");
-				cm.resetStats();
-				cm.dispose();
 			}
 		} else if (cm.getJobId()==200) {	
 			if (cm.getPlayer().getLevel() >= 30) {

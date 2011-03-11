@@ -39,7 +39,7 @@ import tools.Pair;
  */
 public class MobSkillFactory {
     private static Map<Pair<Integer, Integer>, MobSkill> mobSkills = new HashMap<Pair<Integer, Integer>, MobSkill>();
-    private static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Skill.wz"));
+    private final static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Skill.wz"));
     private static MapleData skillRoot = dataSource.getData("MobSkill.img");
 
     public static MobSkill getMobSkill(int skillId, int level) {

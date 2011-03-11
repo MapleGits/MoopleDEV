@@ -29,6 +29,7 @@ import client.MapleInventory;
 import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleSkinColor;
+import client.SkillFactory;
 import net.AbstractMaplePacketHandler;
 import server.MapleItemInformationProvider;
 import tools.MaplePacketCreator;
@@ -57,21 +58,31 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         int weapon = slea.readInt();
         newchar.setGender(slea.readByte());
         newchar.setName(name);
-
-        if (job == 0) { // Knights of Cygnus
-	    newchar.setJob(MapleJob.NOBLESSE);
-	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
-	} else if (job == 1) { // Adventurer
-	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
-	} else if (job == 2) { // Aran
-	    newchar.setJob(MapleJob.LEGEND);
-	    newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
-	} else {
-	    System.out.println("[CHAR CREATION] A new job ID has been found: " + job); //I should ban for packet editing!
-            return;
-	}
+        if (!newchar.isGM()) {
+            if (job == 0) { // Knights of Cygnus
+                newchar.setJob(MapleJob.NOBLESSE);
+                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
+            } else if (job == 1) { // Adventurer
+                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
+            } else if (job == 2) { // Aran
+                newchar.setJob(MapleJob.LEGEND);
+                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
+            } else {
+                c.disconnect(); //Muhaha
+                System.out.println("[CHAR CREATION] A new job ID has been found: " + job); //I should ban for packet editing!
+                return;
+            }
+        }
         //CHECK FOR EQUIPS
         MapleInventory equip = newchar.getInventory(MapleInventoryType.EQUIPPED);
+        if (newchar.isGM()) {
+            IItem eq_hat = MapleItemInformationProvider.getInstance().getEquipById(1002140);
+            eq_hat.setPosition((byte) -1);
+            equip.addFromDB(eq_hat);
+            top = 1042003;
+            bottom = 1062007;
+            weapon = 1322013;
+        }
         IItem eq_top = MapleItemInformationProvider.getInstance().getEquipById(top);
         eq_top.setPosition((byte) -5);
         equip.addFromDB(eq_top);

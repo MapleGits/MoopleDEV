@@ -28,6 +28,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class CancelItemEffectHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        c.getPlayer().cancelEffect(MapleItemInformationProvider.getInstance().getItemEffect(-slea.readInt()), false, -1);
+        int itemId = -slea.readInt();
+        if (MapleItemInformationProvider.getInstance().noCancelMouse(itemId)) return;
+        c.getPlayer().cancelEffect(itemId);
     }
 }
