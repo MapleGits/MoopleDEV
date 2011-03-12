@@ -51,7 +51,7 @@ public final class ItemRewardHandler extends AbstractMaplePacketHandler {
                 c.announce(MaplePacketCreator.showInventoryFull());
                 break;
             }
-            if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) {
+            if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) {//Is it even possible to get an item with prob 1?
 		if (ItemConstants.getInventoryType(reward.itemid) == MapleInventoryType.EQUIP) {
                     final IItem item = ii.getEquipById(reward.itemid);
                     if (reward.period != -1) {
@@ -61,6 +61,7 @@ public final class ItemRewardHandler extends AbstractMaplePacketHandler {
                 } else {
                     MapleInventoryManipulator.addById(c, reward.itemid, reward.quantity);
 		}
+                MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, false, false);
                 if (reward.worldmsg != null) {
                     String msg = reward.worldmsg;
                     msg.replaceAll("/name", c.getPlayer().getName());
@@ -71,6 +72,7 @@ public final class ItemRewardHandler extends AbstractMaplePacketHandler {
                         c.getChannelServer().reconnectWorld();
                     }
                 }
+                break;
             }
         }
         c.announce(MaplePacketCreator.enableActions());

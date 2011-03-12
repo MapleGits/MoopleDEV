@@ -134,8 +134,6 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     @Override
     public void updateParty(MapleParty party, PartyOperation operation, MaplePartyCharacter target) throws RemoteException {
         for (MaplePartyCharacter partychar : party.getMembers()) {
-            System.out.println("Channel: " + server.getChannel());
-            System.out.println("Channel of character: " + partychar.getChannel());
             if (partychar.getChannel() == server.getChannel()) {
                 MapleCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {

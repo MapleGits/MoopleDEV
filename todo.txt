@@ -15,8 +15,3 @@
 - in MTS you can't buy any item
 - Ereve first quest is not coded properly or atleast I can't accept it.
 - After I was awaken in rien and talked to lilin I logged of because the first quest was'nt done, but when I tried to re-log my whole account got bugged.
-
-
-- Fixed
-  - Guilds (Confirm needed)
-  - Party (Confirm needed)
