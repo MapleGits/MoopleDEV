@@ -45,4 +45,5 @@ public interface IItem extends Comparable<IItem> {
     int getSN();
     String getGiftFrom();
     void setGiftFrom(String giftFrom);
+    MaplePet getPet();
 }

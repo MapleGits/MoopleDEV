@@ -49,7 +49,9 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
         byte slot = slea.readByte();
         slea.readByte();
         boolean lead = slea.readByte() == 1;
-        int petid = chr.getInventory(MapleInventoryType.CASH).getItem(slot).getItemId();
+        MaplePet pet = chr.getInventory(MapleInventoryType.CASH).getItem(slot).getPet();
+        if (pet == null) return;
+        int petid = pet.getItemId();
         if (petid == 5000028 || petid == 5000047) //Handles Dragon AND Robos
         {
             if (chr.haveItem(petid + 1)) {
@@ -64,7 +66,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 }
                 try {
                     PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("DELETE FROM pets WHERE `petid` = ?");
-                    ps.setInt(1, chr.getInventory(MapleInventoryType.CASH).findById(petid).getPetId());
+                    ps.setInt(1, pet.getUniqueId());
                     ps.executeUpdate();
                     ps.close();
                 } catch (SQLException ex) {
@@ -76,7 +78,6 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 return;
             }
         }
-        MaplePet pet = MaplePet.loadFromDb(chr.getInventory(MapleInventoryType.CASH).getItem(slot).getItemId(), slot, chr.getInventory(MapleInventoryType.CASH).getItem(slot).getPetId());
         if (chr.getPetIndex(pet) != -1) {
             chr.unequipPet(pet, true);
         } else {

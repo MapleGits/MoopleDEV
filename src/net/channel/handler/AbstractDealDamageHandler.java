@@ -21,18 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.channel.handler;
 
+import client.Equip;
+import client.IItem;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import client.ISkill;
+import client.Item;
 import client.MapleBuffStat;
 import client.MapleCharacter;
+import client.MapleInventoryType;
 import client.MapleStat;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import constants.skills.Aran;
+import constants.ItemConstants;
 import constants.skills.Assassin;
 import constants.skills.Bandit;
 import constants.skills.Bishop;
@@ -46,7 +50,6 @@ import constants.skills.Gunslinger;
 import constants.skills.ILArchMage;
 import constants.skills.Marauder;
 import constants.skills.Marksman;
-import constants.skills.NightLord;
 import constants.skills.NightWalker;
 import constants.skills.Outlaw;
 import constants.skills.Paladin;
@@ -64,7 +67,7 @@ import constants.skills.Fighter;
 import constants.skills.Hunter;
 import constants.skills.Page;
 import constants.skills.Spearman;
-import server.MapleInventoryManipulator;
+import server.MapleItemInformationProvider;
 import server.MapleStatEffect;
 import server.TimerManager;
 import server.life.Element;
@@ -135,7 +138,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 if (attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Page.FINAL_ATTACK_BW || attack.skill == Page.FINAL_ATTACK_SWORD || attack.skill == Fighter.FINAL_ATTACK_SWORD
                          || attack.skill == Fighter.FINAL_ATTACK_AXE || attack.skill == Spearman.FINAL_ATTACK_SPEAR || attack.skill == Spearman.FINAL_ATTACK_POLEARM || attack.skill == WindArcher.FINAL_ATTACK
                           || attack.skill == DawnWarrior.FINAL_ATTACK || attack.skill == Hunter.FINAL_ATTACK || attack.skill == Crossbowman.FINAL_ATTACK) {
-                          mobCount = 15;
+                          mobCount = 15;//:(
                 }
             if (attack.numAttacked > mobCount) {
                     AutobanFactory.MOB_COUNT.autoban(player, "Skill: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
@@ -147,9 +150,9 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
         }
 
         //WTF IS THIS F3,1
-        if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST && attack.skill != NightLord.NINJA_AMBUSH && attack.skill != Shadower.NINJA_AMBUSH) {
+        /*if (attackCount != attack.numDamage && attack.skill != ChiefBandit.MESO_EXPLOSION && attack.skill != NightWalker.VAMPIRE && attack.skill != WindArcher.WIND_SHOT && attack.skill != Aran.COMBO_SMASH && attack.skill != Aran.COMBO_PENRIL && attack.skill != Aran.COMBO_TEMPEST && attack.skill != NightLord.NINJA_AMBUSH && attack.skill != Shadower.NINJA_AMBUSH) {
             return;
-        }
+        }*/
         int totDamage = 0;
         final MapleMap map = player.getMap();
 
@@ -212,11 +215,18 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     player.addHP(Math.min(monster.getMaxHp(), Math.min((int) ((double) totDamage * (double) SkillFactory.getSkill(attack.skill).getEffect(player.getSkillLevel(SkillFactory.getSkill(attack.skill))).getX() / 100.0), player.getMaxHp() / 2)));
                 } else if (attack.skill == Bandit.STEAL) {
                     ISkill steal = SkillFactory.getSkill(Bandit.STEAL);
-                    if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) {
+                    if (Math.random() < 0.3 && steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) { //Else it drops too many cool stuff :(
                         List<MonsterDropEntry> toSteals = MapleMonsterInformationProvider.getInstance().retrieveDrop(monster.getId());
                         Collections.shuffle(toSteals);
-                        int toSteal = toSteals.get(rand(0, toSteals.size())).itemId;
-                        MapleInventoryManipulator.addById(player.getClient(), toSteal, (short) 1);
+                        int toSteal = toSteals.get(rand(0, (toSteals.size() - 1))).itemId;
+                        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+                        IItem item = null;
+                        if (ItemConstants.getInventoryType(toSteal).equals(MapleInventoryType.EQUIP)) {
+                            item = ii.randomizeStats((Equip) ii.getEquipById(toSteal));
+                        } else {
+                            item = new Item(toSteal, (byte) 0, (short) 1, -1);
+                        }
+                        player.getMap().spawnItemDrop(monster, player, item, monster.getPosition(), false, false);
                         monster.addStolen(toSteal);
                     }
                 } else if (attack.skill == FPArchMage.FIRE_DEMON) {
@@ -225,6 +235,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                     monster.setTempEffectiveness(Element.FIRE, ElementalEffectiveness.WEAK, SkillFactory.getSkill(ILArchMage.ICE_DEMON).getEffect(player.getSkillLevel(SkillFactory.getSkill(ILArchMage.ICE_DEMON))).getDuration() * 1000);
                 } else if (attack.skill == Outlaw.HOMING_BEACON || attack.skill == Corsair.BULLSEYE) {
                     player.setMarkedMonster(monster.getObjectId());
+                    player.announce(MaplePacketCreator.giveBuff(1, attack.skill, Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.HOMING_BEACON, monster.getObjectId()))));
                 }
                 if (player.getBuffedValue(MapleBuffStat.HAMSTRING) != null) {
                     ISkill hamstring = SkillFactory.getSkill(Bowmaster.HAMSTRING);

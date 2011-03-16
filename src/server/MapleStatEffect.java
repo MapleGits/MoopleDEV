@@ -396,13 +396,6 @@ public class MapleStatEffect implements Serializable {
                 case ThunderBreaker.SPARK:
                     statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SPARK, Integer.valueOf(x)));
                     break;
-                // GM
-                case GM.HIDE:
-                case SuperGM.HIDE:
-                    ret.duration = 7200000;
-                    ret.overTime = true;
-                    statups.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, Integer.valueOf(x)));
-                    break;
                 // MULTIPLE
                 case Aran.POLEARM_BOOSTER:
                 case Fighter.AXE_BOOSTER:
@@ -528,7 +521,7 @@ public class MapleStatEffect implements Serializable {
                     break;
                 case ILMage.SEAL:
                 case FPMage.SEAL:
-                    monsterStatus.put(MonsterStatus.SEAL, 1);
+                    monsterStatus.put(MonsterStatus.SEAL, Integer.valueOf(1));
                     break;
                 case Hermit.SHADOW_WEB: // shadow web
                 case NightWalker.SHADOW_WEB:
@@ -613,6 +606,10 @@ public class MapleStatEffect implements Serializable {
     }
 
     private boolean applyTo(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary, Point pos) {
+        if (skill && (sourceid == GM.HIDE || sourceid == SuperGM.HIDE)) {
+            applyto.toggleHide(false);
+            return true;
+        }
         int hpchange = calcHPChange(applyfrom, primary);
         int mpchange = calcMPChange(applyfrom, primary);
         if (primary) {
@@ -812,7 +809,7 @@ public class MapleStatEffect implements Serializable {
 
     public final void applyComboBuff(final MapleCharacter applyto, int combo) {
 	final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ARAN_COMBO, combo));
-	applyto.getClient().getSession().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat, false));
+	applyto.getClient().getSession().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat));
 
 	final long starttime = System.currentTimeMillis();
 //	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
@@ -822,10 +819,6 @@ public class MapleStatEffect implements Serializable {
 
     private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary) {
         if (!isMonsterRiding()) applyto.cancelEffect(this, true, -1);
-        if (applyfrom.isHidden() && sourceid == SuperGM.HIDE) {
-            applyfrom.cancelEffect(this, false, -1);
-            return;
-        }
 
         List<Pair<MapleBuffStat, Integer>> localstatups = statups;
         int localDuration = duration;
@@ -884,7 +877,7 @@ public class MapleStatEffect implements Serializable {
         if (localstatups.size() > 0) {
             MaplePacket buff = null;
             MaplePacket mbuff = null;
-            if (sourceid != SuperGM.HIDE && getSummonMovementType() == null) buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups, false);
+            if (getSummonMovementType() == null) buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups);
             if (isDash()) {
                 buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
@@ -893,28 +886,24 @@ public class MapleStatEffect implements Serializable {
                 mbuff = MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, localDuration);
             } else if (isDs()) {
                 List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.DARKSIGHT, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat, false);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat);
             } else if (isCombo()) {
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), statups, false);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), statups);
             } else if (isMonsterRiding()) {
-                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups, true);
+                buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups);
                 mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
                 localDuration = duration;
             } else if (isShadowPartner()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SHADOWPARTNER, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
             } else if (isSoulArrow()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SOULARROW, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, false);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
             } else if (isEnrage()) {
                 applyto.handleOrbconsume();
             } else if (isMorph()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat, true);
-            } else if (isCygnusFA()) {
-                buff = MaplePacketCreator.giveFinalAttack(sourceid, seconds);
-            } else if (isHomingBeacon()) {
-                buff = MaplePacketCreator.useHomingBeacon(applyto, sourceid, statups);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
             } else if (isTimeLeap()) {
                 for (PlayerCoolDownValueHolder i : applyto.getAllCooldowns()) {
                     if (i.skillId != Buccaneer.TIME_LEAP) {
@@ -1081,10 +1070,6 @@ public class MapleStatEffect implements Serializable {
         return sourceid == Buccaneer.TIME_LEAP;
     }
 
-    public boolean isHide() {
-        return skill && (sourceid == GM.HIDE || sourceid == SuperGM.HIDE);
-    }
-
     public boolean isDragonBlood() {
         return skill && sourceid == DragonKnight.DRAGON_BLOOD;
     }
@@ -1115,10 +1100,6 @@ public class MapleStatEffect implements Serializable {
 
     private boolean isChakra() {
         return skill && sourceid == ChiefBandit.CHAKRA;
-    }
-
-    private boolean isHomingBeacon() {
-        return skill && (sourceid == Outlaw.HOMING_BEACON || sourceid == Corsair.BULLSEYE);
     }
 
     public boolean isMonsterRiding() {

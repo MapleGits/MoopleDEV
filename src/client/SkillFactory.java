@@ -175,7 +175,6 @@ public class SkillFactory {
                 case NightWalker.SHADOW_WEB:
                 case NightWalker.POISON_BOMB:
                 case NightWalker.VAMPIRE:
-                case Priest.MYSTIC_DOOR:
                     isBuff = false;
                     break;
                 case Beginner.RECOVERY:
@@ -244,6 +243,7 @@ public class SkillFactory {
                 case Priest.DISPEL:
                 case Priest.DOOM:
                 case Priest.HOLY_SYMBOL:
+                case Priest.MYSTIC_DOOR:
                 case Bishop.HEROS_WILL:
                 case Bishop.HOLY_SHIELD:
                 case Bishop.INFINITY:

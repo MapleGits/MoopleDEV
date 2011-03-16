@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting.npc;
 
 import client.Equip;
+import client.IItem;
 import client.ISkill;
 import client.ItemFactory;
 import java.sql.PreparedStatement;
@@ -50,7 +51,6 @@ import net.world.remote.WorldChannelInterface;
 import provider.MapleData;
 import provider.MapleDataProviderFactory;
 import scripting.AbstractPlayerInteraction;
-import scripting.event.EventManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleSquad;
@@ -262,10 +262,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             }
             pet.gainCloseness(closeness);
             while (pet.getCloseness() > ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                pet.setLevel(pet.getLevel() + 1);
-                getClient().announce(MaplePacketCreator.showOwnPetLevelUp(getPlayer().getPetIndex(pet)));
+                pet.setLevel((byte) (pet.getLevel() + 1));
+                byte index = getPlayer().getPetIndex(pet);
+                getClient().announce(MaplePacketCreator.showOwnPetLevelUp(index));
+                getPlayer().getMap().broadcastMessage(getPlayer(), MaplePacketCreator.showPetLevelUp(getPlayer(), index));
             }
-            getPlayer().getClient().announce(MaplePacketCreator.updatePet(pet));
+            IItem petz = getPlayer().getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+            getPlayer().getClient().announce(MaplePacketCreator.updateSlot(petz));
         }
     }
 
@@ -303,7 +306,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             try {
                 ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
                 if ((skill.getId() / 10000 % 10 == 2 || (getClient().getPlayer().isCygnus() && skill.getId() / 10000 % 10 == 1) || (getClient().getPlayer().isAran() && skill.getId() / 10000 % 10 == 2)) && getPlayer().getSkillLevel(skill) < 1) {
-                    getPlayer().changeSkillLevel(skill, 0, skill.getMaxLevel(), -1);
+                    getPlayer().changeSkillLevel(skill, (byte) 0, skill.getMaxLevel(), -1);
                 }
             } catch (NumberFormatException nfe) {
                 break;

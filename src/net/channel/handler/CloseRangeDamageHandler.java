@@ -34,6 +34,7 @@ import constants.skills.DawnWarrior;
 import constants.skills.DragonKnight;
 import constants.skills.Hero;
 import constants.skills.NightWalker;
+import constants.skills.Rogue;
 import constants.skills.WindArcher;
 import java.util.Collections;
 import java.util.List;
@@ -80,12 +81,12 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
                             neworbcount++;
                         }
                     }
+                    int duration = combo.getEffect(player.getSkillLevel(oid)).getDuration();
                     List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO, neworbcount));
-                    player.setBuffedValue(MapleBuffStat.COMBO, neworbcount);
-                    int duration = ceffect.getDuration();
-                    duration += (int) ((player.getBuffedStarttime(MapleBuffStat.COMBO) - System.currentTimeMillis()));
-                    c.announce(MaplePacketCreator.giveBuff(oid, duration, stat, false, false, player.getMount()));
-                    player.getMap().broadcastMessage(player, MaplePacketCreator.giveForeignBuff(player.getId(), stat, false), false);
+                    player.setBuffedValue(MapleBuffStat.COMBO, neworbcount);                 
+                    duration -= (int) (System.currentTimeMillis() - player.getBuffedStarttime(MapleBuffStat.COMBO));
+                    c.announce(MaplePacketCreator.giveBuff(oid, duration, stat));
+                    player.getMap().broadcastMessage(player, MaplePacketCreator.giveForeignBuff(player.getId(), stat), false);
                 }
             } else if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(15100004) : SkillFactory.getSkill(5110001)) > 0 && (player.getJob().isA(MapleJob.MARAUDER) || player.getJob().isA(MapleJob.THUNDERBREAKER2))) {
                 for (int i = 0; i < attack.numAttacked; i++) {
@@ -133,7 +134,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
                 }
             }
         }
-        if ((player.getSkillLevel(SkillFactory.getSkill(NightWalker.VANISH)) > 0 || player.getSkillLevel(SkillFactory.getSkill(WindArcher.WIND_WALK)) > 0) && player.getBuffedValue(MapleBuffStat.DARKSIGHT) != null && attack.numAttacked > 0 && player.getBuffSource(MapleBuffStat.DARKSIGHT) != 9101004) {
+        if ((player.getSkillLevel(SkillFactory.getSkill(NightWalker.VANISH)) > 0 || player.getSkillLevel(SkillFactory.getSkill(WindArcher.WIND_WALK)) > 0 || player.getSkillLevel(SkillFactory.getSkill(Rogue.DARK_SIGHT)) > 0) && player.getBuffedValue(MapleBuffStat.DARKSIGHT) != null) {// && player.getBuffSource(MapleBuffStat.DARKSIGHT) != 9101004
             player.cancelEffectFromBuffStat(MapleBuffStat.DARKSIGHT);
             player.cancelBuffStats(MapleBuffStat.DARKSIGHT);
         }

@@ -32,10 +32,7 @@ public final class CharInfoRequestHandler extends AbstractMaplePacketHandler {
         slea.readInt();
         int cid = slea.readInt();
         MapleCharacter player = (MapleCharacter) c.getPlayer().getMap().getMapObject(cid);
-        if (player.gmLevel() <= c.getPlayer().gmLevel()) {
-            c.announce(MaplePacketCreator.charInfo(player, cid == c.getPlayer().getId()));
-        } else {
-            c.announce(MaplePacketCreator.enableActions());
-        }
+        if (!player.isHidden())
+            c.announce(MaplePacketCreator.charInfo(player));
     }
 }

@@ -331,7 +331,7 @@ public class MaplePacketCreator {
         }
         addExpirationTime(mplew, item.getExpiration());
         if (isPet) {
-            MaplePet pet = MaplePet.loadFromDb(item.getItemId(), item.getPosition(), item.getPetId());
+            MaplePet pet = item.getPet();
             mplew.writeAsciiString(StringUtil.getRightPaddedStr(pet.getName(), '\0', 13));
             mplew.write(pet.getLevel());
             mplew.writeShort(pet.getCloseness());
@@ -1036,7 +1036,7 @@ public class MaplePacketCreator {
         mplew.writeInt(summon.getObjectId());
         mplew.writeInt(summon.getSkill());
         mplew.write(0x0A); //v83
-        mplew.write(summon.getLevel());
+        mplew.write(summon.getSkillLevel());
         mplew.writePos(summon.getPosition());
         mplew.write0(3); 
         mplew.write(summon.getMovementType().getValue()); // 0 = don't move, 1 = follow (4th mage summons?), 2/4 = only tele follow, 3 = bird follow
@@ -1603,7 +1603,7 @@ public class MaplePacketCreator {
 	mplew.writeInt(drop.getOwner()); // owner charid/paryid :)
         mplew.write(drop.getDropType()); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         mplew.writePos(dropto);
-        mplew.writeInt(0); //?
+        mplew.writeInt(drop.getDropType() == 0 ? drop.getOwner() : 0); //test
 
         if (mod != 2) {
             mplew.writePos(dropfrom);
@@ -1671,9 +1671,13 @@ public class MaplePacketCreator {
         if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
             buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.MORPH).intValue());
         }
+        if (chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE) != null) {
+            buffmask |= MapleBuffStat.ENERGY_CHARGE.getValue();
+            buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE).intValue());
+        }//FIX THIS^
         mplew.writeInt((int) ((buffmask >> 32) & 0xffffffffL));
         if (buffvalue != null) {
-            if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
+            if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) { //TEST
                 mplew.writeShort(buffvalue);
             } else {
                 mplew.write(buffvalue.byteValue());
@@ -1874,17 +1878,17 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket summonAttack(int cid, int summonSkillId, byte direction, int newStance, List<SummonAttackEntry> allDamage) {
+    public static MaplePacket summonAttack(int cid, int summonSkillId, byte direction, List<SummonAttackEntry> allDamage) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SUMMON_ATTACK.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(summonSkillId);
         mplew.write(direction);
-        mplew.write(newStance);
+        mplew.write(4);
         mplew.write(allDamage.size());
         for (SummonAttackEntry attackEntry : allDamage) {
             mplew.writeInt(attackEntry.getMonsterOid()); // oid
-            mplew.write(6); // who knows
+            mplew.write(7); // who knows
             mplew.writeInt(attackEntry.getDamage()); // damage
         }
         return mplew.getPacket();
@@ -2011,11 +2015,7 @@ public class MaplePacketCreator {
     public static MaplePacket updateInventorySlot(MapleInventoryType type, IItem item, boolean fromDrop) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        if (fromDrop) {
-            mplew.write(1);
-        } else {
-            mplew.write(0);
-        }
+        mplew.write(fromDrop ? 1 : 0);
         mplew.writeShort(0x101); // update
         mplew.write(type.equals(MapleInventoryType.EQUIPPED) ? 1 : type.getType()); // iv type
         mplew.writeShort(item.getPosition()); // slot id
@@ -2297,7 +2297,7 @@ public class MaplePacketCreator {
      * @param isSelf
      * @return
      */
-    public static MaplePacket charInfo(MapleCharacter chr, boolean isSelf) {
+    public static MaplePacket charInfo(MapleCharacter chr) {
         //3D 00 0A 43 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CHAR_INFO.getValue());
@@ -2305,7 +2305,7 @@ public class MaplePacketCreator {
         mplew.write(chr.getLevel());
         mplew.writeShort(chr.getJob().getId());
         mplew.writeShort(chr.getFame());
-        mplew.write(chr.getMarried() > 0 ? 1 : 0);
+        mplew.write(chr.getMarriageRing() != null ? 1 : 0);
         String guildName = "";
         String allianceName = "";
         MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
@@ -2322,7 +2322,7 @@ public class MaplePacketCreator {
         }
         mplew.writeMapleAsciiString(guildName);
         mplew.writeMapleAsciiString(allianceName);
-        mplew.write(isSelf ? 1 : 0);
+        mplew.write(0);
         MaplePet[] pets = chr.getPets();
         IItem inv = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -114);
         for (int i = 0; i < 3; i++) {
@@ -2387,86 +2387,25 @@ public class MaplePacketCreator {
      * @param statups
      * @return
      */
-    public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups, boolean mount) {
+    public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        long mask = getLongMask(statups);
-        boolean isFirst = false;
+        boolean special = false;
+        writeLongMask(mplew, statups);
         for (Pair<MapleBuffStat, Integer> statup : statups) {
-            if (statup.getLeft().isFirst()) {
-                isFirst = true;
-                break;
-            }
-        }
-        if (isFirst) {
-            mplew.writeLong(mask);
-            mplew.writeLong(0);
-        } else if (!mount) {
-            mplew.writeLong(0);
-            mplew.writeLong(mask);
-        } else {
-            mplew.writeInt(0);
-            mplew.writeLong(mask);
-            mplew.writeInt(0);
-        }
-        for (Pair<MapleBuffStat, Integer> statup : statups) {
+            if (statup.getLeft().equals(MapleBuffStat.BATTLESHIP)
+                    || statup.getLeft().equals(MapleBuffStat.MONSTER_RIDING) 
+                    || statup.getLeft().equals(MapleBuffStat.HOMING_BEACON)) special = true;
             mplew.writeShort(statup.getRight().shortValue());
             mplew.writeInt(buffid);
             mplew.writeInt(bufflength);
         }
-        if (mount) {
-            mplew.writeInt(0);
-        } else {
-            mplew.writeShort(0);
-        }
-        mplew.write(0); // combo 600, too
-        mplew.write(0); // new in v0.56
+        mplew.writeInt(0);
         mplew.write(0);
-        if (mount) {
-            mplew.write(0);
-        }
-        return mplew.getPacket();
-    }
-
-    /**
-     * 
-     * @param buffid
-     * @param bufflength
-     * @param statups
-     * @param morph
-     * @param ismount
-     * @param mount
-     * @return
-     */
-    public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups, boolean morph, boolean ismount, MapleMount mount) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        long mask = getLongMask(statups);
-        if (ismount) {
-            mplew.writeInt(0);
-        } else {
-            mplew.writeLong(0);
-        }
-        mplew.writeLong(mask);
-        if (!ismount) {
-            for (Pair<MapleBuffStat, Integer> statup : statups) {
-                mplew.writeShort(statup.getRight().shortValue());
-                mplew.writeInt(buffid);
-                mplew.writeInt(bufflength);
-            }
-            mplew.writeShort(0); // ??? wk charges have 600 here o.o
-            mplew.write(0); // combo 600, too
-            mplew.write(0); // new in v0.add56
-            mplew.write(0);
-        } else {
-            mplew.writeInt(0);
-            mplew.writeShort(0);
-            mplew.writeInt(mount.getItemId());
-            mplew.writeInt(mount.getSkillId());
-            mplew.writeInt(0); //Server Tick value.
-            mplew.writeShort(0);
-            mplew.write(0);
-            mplew.write(1); //Times you have been buffed
+        mplew.writeInt(statups.get(0).getRight()); //Homing beacon ...
+        
+        if (special) {
+            mplew.write0(3);
         }
         return mplew.getPacket();
     }
@@ -2478,7 +2417,7 @@ public class MaplePacketCreator {
      * @param mount
      * @return
      */
-    public static MaplePacket showMonsterRiding(int cid, MapleMount mount) {
+    public static MaplePacket showMonsterRiding(int cid, MapleMount mount) { //Gtfo with this, this is just giveForeignBuff
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
@@ -2492,6 +2431,17 @@ public class MaplePacketCreator {
         mplew.write(0); //Times you have been buffed
         return mplew.getPacket();
     }
+    /*        mplew.writeInt(cid);
+        writeLongMask(mplew, statups);
+        for (Pair<MapleBuffStat, Integer> statup : statups) {
+            if (morph) {
+                mplew.writeInt(statup.getRight().intValue());
+            } else {
+                mplew.writeShort(statup.getRight().shortValue());
+            }
+        }
+        mplew.writeShort(0);
+        mplew.write(0);*/
 
     /**
      *
@@ -2647,21 +2597,15 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveForeignBuff(int cid, List<Pair<MapleBuffStat, Integer>> statups, boolean morph) {
+    public static MaplePacket giveForeignBuff(int cid, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
-        long mask = getLongMask(statups);
-        mplew.writeLong(0);
-        mplew.writeLong(mask);
+        writeLongMask(mplew, statups);
         for (Pair<MapleBuffStat, Integer> statup : statups) {
-            if (morph) {
-                mplew.writeInt(statup.getRight().intValue());
-            } else {
-                mplew.writeShort(statup.getRight().shortValue());
-            }
+             mplew.writeShort(statup.getRight().shortValue());
         }
-        mplew.writeShort(0);
+        mplew.writeInt(0);
         mplew.write(0);
         return mplew.getPacket();
     }
@@ -4167,31 +4111,6 @@ public class MaplePacketCreator {
         mplew.writeInt(pet.getFh());
     }
 
-    public static MaplePacket updatePet(MaplePet pet) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        mplew.write(new byte[]{0, 2, 3, 5});
-        mplew.write(pet.getPosition());
-        mplew.writeShort(0);
-        mplew.write(5);
-        mplew.write(pet.getPosition());
-        mplew.write(0);
-        mplew.write(3);
-        mplew.writeInt(pet.getItemId());
-        mplew.write(1);
-        mplew.writeInt(pet.getUniqueId());
-        mplew.writeInt(0);
-        mplew.write(new byte[]{0, (byte) 0x40, (byte) 0x6F, (byte) 0xE5, (byte) 0x0F, (byte) 0xE7, (byte) 0x17, 2});
-        mplew.writeAsciiString(StringUtil.getRightPaddedStr(pet.getName(), '\0', 13));
-        mplew.write(pet.getLevel());
-        mplew.writeShort(pet.getCloseness());
-        mplew.write(pet.getFullness());
-        addExpirationTime(mplew, pet.getExpiration());
-        mplew.writeInt(0);
-        mplew.write(new byte[]{(byte) 0x50, (byte) 0x46, 0, 0, 0, 0});
-        return mplew.getPacket();
-    }
-
     public static MaplePacket showPet(MapleCharacter chr, MaplePet pet, boolean remove, boolean hunger) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SPAWN_PET.getValue());
@@ -4206,7 +4125,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket movePet(int cid, int pid, int slot, List<LifeMovementFragment> moves) {
+    public static MaplePacket movePet(int cid, int pid, byte slot, List<LifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MOVE_PET.getValue());
         mplew.writeInt(cid);
@@ -4216,7 +4135,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket petChat(int cid, int index, int act, String text) {
+    public static MaplePacket petChat(int cid, byte index, int act, String text) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PET_CHAT.getValue());
         mplew.writeInt(cid);
@@ -4228,12 +4147,13 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket commandResponse(int cid, int index, int animation, boolean success) {
+    public static MaplePacket commandResponse(int cid, byte index, int animation, boolean success) {
+        //AE 00 01 00 00 00 00 01 00 00
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PET_COMMAND.getValue());
         mplew.writeInt(cid);
         mplew.write(index);
-        mplew.write((animation == 1 && success) ? 1 : 0);
+        mplew.write((animation == 1 || !success) ? 1 : 0);
         mplew.write(animation);
         if (animation == 1) {
             mplew.write(0);
@@ -4243,7 +4163,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket showOwnPetLevelUp(int index) {
+    public static MaplePacket showOwnPetLevelUp(byte index) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         mplew.write(4);
@@ -4252,7 +4172,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket showPetLevelUp(MapleCharacter chr, int index) {
+    public static MaplePacket showPetLevelUp(MapleCharacter chr, byte index) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
         mplew.writeInt(chr.getId());
@@ -5509,39 +5429,6 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket giveEnergyCharge(int barammount) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        long mask = 0;
-        mask |= MapleBuffStat.ENERGY_CHARGE.getValue();
-        mplew.writeLong(mask);
-        mplew.writeLong(0);
-        mplew.writeShort(0);
-        mplew.writeShort(barammount); // 0 = no bar, 10000 = full bar
-        mplew.writeLong(0);
-        mplew.writeInt(0);
-        mplew.writeShort(0);
-        mplew.write(0);
-        mplew.writeInt(50);
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket giveForeignEnergyCharge(int cid, int barammount) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_FOREIGN_BUFF.getValue());
-        mplew.writeInt(cid);
-        mplew.writeInt(0);
-        mplew.writeLong(MapleBuffStat.ENERGY_CHARGE.getValue()); //energy charge buffstat
-        mplew.writeShort(0);
-        mplew.writeInt(0);
-        mplew.writeShort(barammount); // 0=no bar, 10000=full bar
-        mplew.writeShort(0);
-        mplew.writeLong(0);
-        mplew.write(0);
-        mplew.writeInt(50);
-        return mplew.getPacket();
-    }
-
     public static MaplePacket addCard(boolean full, int cardid, int level) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(11);
         mplew.writeShort(SendOpcode.MONSTERBOOK_ADD.getValue());
@@ -5926,17 +5813,18 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateEquipSlot(IItem item) {
+    public static MaplePacket updateSlot(IItem item) {//Just the same as merge... dst and src is the same...
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        mplew.write(0);
-        mplew.write(new byte[]{2, 3, 1});
+        byte type = ItemConstants.getInventoryType(item.getItemId()).getType();
+        mplew.write(new byte[]{0, 2, 3});
+        mplew.write(type);
         mplew.writeShort(item.getPosition());
         mplew.write(0);
-        mplew.write(item.getType());
+        mplew.write(type);
         mplew.writeShort(item.getPosition());
         addItemInfo(mplew, item, true);
-        mplew.writeMapleAsciiString(""); //Write short lolwut?
+        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -6246,26 +6134,6 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    //this is wrong
-    public static MaplePacket useHomingBeacon(MapleCharacter player, int skillid, List<Pair<MapleBuffStat, Integer>> statups) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        for (int i = 0; i < statups.size(); i++) {
-            mplew.write(0);
-        }
-        mplew.writeInt(0);
-        for (Pair<MapleBuffStat, Integer> statup : statups) {
-            mplew.writeShort(statup.getRight());
-        }
-        mplew.writeShort(0);
-        mplew.writeInt(skillid);//skillid
-        mplew.writeInt(0); // Time
-        mplew.write(0);
-        mplew.writeInt(player.getMarkedMonster());
-        mplew.writeShort(0);
-        return mplew.getPacket();
-    }
-
     public static MaplePacket sendDojoAnimation(byte firstByte, String animation) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.BOSS_ENV.getValue());
@@ -6431,21 +6299,6 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.DOJO_WARP_UP.getValue());
         mplew.write(0);
         mplew.write(6);
-        return mplew.getPacket();
-    }
-
-    public static MaplePacket updateItemInSlot(IItem item) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        mplew.write(0); // could be from drop
-        mplew.write(2); // always 2
-        mplew.write(3); // quantity > 0 (?)
-        mplew.write(item.getType()); // inventory type
-        mplew.writeShort(item.getPosition()); // item slot
-        mplew.write(0);
-        mplew.write(1);
-        mplew.writeShort(item.getPosition()); // wtf repeat
-        addItemInfo(mplew, item, true);
         return mplew.getPacket();
     }
 

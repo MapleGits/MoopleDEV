@@ -21,8 +21,11 @@
 */
 package net.channel.handler;
 
+import client.IItem;
+import client.MapleCharacter;
 import constants.ExpTable;
 import client.MapleClient;
+import client.MapleInventoryType;
 import client.MaplePet;
 import client.PetCommand;
 import client.PetDataFactory;
@@ -33,13 +36,14 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class PetCommandHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
         int petId = slea.readInt();
-        int petIndex = c.getPlayer().getPetIndex(petId);
+        byte petIndex = chr.getPetIndex(petId);
         MaplePet pet = null;
         if (petIndex == -1) {
             return;
         } else {
-            pet = c.getPlayer().getPet(petIndex);
+            pet = chr.getPet(petIndex);
         }
         slea.readInt();
         slea.readByte();
@@ -58,13 +62,14 @@ public final class PetCommandHandler extends AbstractMaplePacketHandler {
                 }
                 pet.setCloseness(newCloseness);
                 if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                    pet.setLevel(pet.getLevel() + 1);
-                    c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
-                    c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
+                    pet.setLevel((byte) (pet.getLevel() + 1));
+                    c.announce(MaplePacketCreator.showOwnPetLevelUp(chr.getPetIndex(pet)));
+                    chr.getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), chr.getPetIndex(pet)));
                 }
-                c.announce(MaplePacketCreator.updatePet(pet));
+                IItem petz = chr.getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+                c.announce(MaplePacketCreator.updateSlot(petz));
             }
         }
-        c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), petIndex, command, success), true);
+        chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(chr.getId(), petIndex, command, success), true);
     }
 }

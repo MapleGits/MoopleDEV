@@ -53,7 +53,6 @@ import tools.Randomizer;
 import constants.ServerConstants;
 import net.MaplePacket;
 import net.channel.ChannelServer;
-import net.world.MaplePartyCharacter;
 import scripting.map.MapScriptManager;
 import server.MapleItemInformationProvider;
 import server.MaplePortal;
@@ -1116,7 +1115,6 @@ public class MapleMap {
                     break;
                 }
             }
-            sendObjectPlacement(chr.getClient());
 
             if (chr.isHidden()) {
                 broadcastGMMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
@@ -1124,7 +1122,7 @@ public class MapleMap {
             } else
                 broadcastMessage(chr, MaplePacketCreator.spawnPlayerMapobject(chr), false);
 
-
+            sendObjectPlacement(chr.getClient());
             if (isStartingEventMap() && !eventStarted()) {
                 chr.getMap().getPortal("join00").setPortalStatus(false);
             }
@@ -1158,9 +1156,6 @@ public class MapleMap {
                     chr.getClient().announce(MaplePacketCreator.aranGodlyStats());
                 }
             }, 1500);
-        }
-        if (chr.getEnergyBar() >= 10000) {
-            broadcastMessage(chr, (MaplePacketCreator.giveForeignEnergyCharge(chr.getId(), 10000)));
         }
         if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));

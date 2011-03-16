@@ -172,7 +172,7 @@ public class MapleQuestAction {
             case SKILL:
                 for (MapleData sEntry : data) {
                     int skillid = MapleDataTool.getInt(sEntry.getChildByPath("id"));
-                    int skillLevel = MapleDataTool.getInt(sEntry.getChildByPath("skillLevel"));
+                    byte skillLevel = (byte) MapleDataTool.getInt(sEntry.getChildByPath("skillLevel"));
                     int masterLevel = MapleDataTool.getInt(sEntry.getChildByPath("masterLevel"));
                     ISkill skillObject = SkillFactory.getSkill(skillid);
                     boolean shouldLearn = false;
@@ -187,7 +187,7 @@ public class MapleQuestAction {
                     if (skillObject.isBeginnerSkill()) {
                         shouldLearn = true;
                     }
-                    skillLevel = Math.max(skillLevel, c.getSkillLevel(skillObject));
+                    skillLevel = (byte) Math.max(skillLevel, c.getSkillLevel(skillObject));
                     masterLevel = Math.max(masterLevel, c.getMasterLevel(skillObject));
                     if (shouldLearn) {
                         c.changeSkillLevel(skillObject, skillLevel, masterLevel, -1);

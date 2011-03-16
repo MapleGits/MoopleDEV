@@ -41,7 +41,7 @@ public class MaplePet extends Item {
     private String name;
     private int uniqueid;
     private int closeness = 0;
-    private int level = 1;
+    private byte level = 1;
     private int fullness = 100;
     private int Fh;
     private Point pos;
@@ -62,7 +62,7 @@ public class MaplePet extends Item {
             rs.next();
             ret.setName(rs.getString("name"));
             ret.setCloseness(Math.min(rs.getInt("closeness"), 30000));
-            ret.setLevel(Math.min(rs.getInt("level"), 30));
+            ret.setLevel((byte) Math.min(rs.getByte("level"), 30));
             ret.setFullness(Math.min(rs.getInt("fullness"), 100));
             ret.setSummoned(rs.getInt("summoned") == 1);
             rs.close();
@@ -106,11 +106,11 @@ public class MaplePet extends Item {
         }
     }
 
-    public static int createPet(int itemid, int level, int closeness, int fullness) {
+    public static int createPet(int itemid, byte level, int closeness, int fullness) {
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness, summoned) VALUES (?, ?, ?, ?, 0)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, MapleItemInformationProvider.getInstance().getName(itemid));
-            ps.setInt(2, level);
+            ps.setByte(2, level);
             ps.setInt(3, closeness);
             ps.setInt(4, fullness);
             ps.executeUpdate();
@@ -155,11 +155,11 @@ public class MaplePet extends Item {
         this.closeness += x;
     }
 
-    public int getLevel() {
+    public byte getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(byte level) {
         this.level = level;
     }
 

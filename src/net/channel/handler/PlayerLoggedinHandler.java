@@ -32,7 +32,6 @@ import client.MapleClient;
 import client.MapleFamily;
 import client.MapleInventoryType;
 import client.SkillFactory;
-import constants.skills.SuperGM;
 import java.sql.SQLException;
 import java.util.List;
 import tools.DatabaseConnection;
@@ -142,9 +141,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             e.printStackTrace();
         }
         c.announce(MaplePacketCreator.getCharInfo(player));
-        if (player.isGM()) {
-            SkillFactory.getSkill(SuperGM.HIDE).getEffect(SkillFactory.getSkill(SuperGM.HIDE).getMaxLevel()).applyTo(player);
-        }
+        if (!player.isHidden()) player.toggleHide(true);
         player.sendKeymap();
         chr.sendMacros();
         player.getMap().addPlayer(player);
@@ -230,7 +227,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         c.announce(MaplePacketCreator.updateGender(player));
         player.checkMessenger();
         c.announce(MaplePacketCreator.enableReport());
-        player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), player.getLinkedLevel() / 10, 20, -1);
+        player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), (byte) (player.getLinkedLevel() / 10), 20, -1);
         player.checkBerserk();
         player.expirationTask();
         player.setRates();

@@ -684,7 +684,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (effect.getSourceId() == Spearman.HYPER_BODY || effect.getSourceId() == GM.HYPER_BODY || effect.getSourceId() == SuperGM.HYPER_BODY) {
             List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(4);
             statup.add(new Pair<MapleStat, Integer>(MapleStat.HP, Math.min(hp, maxhp)));
-            statup.add(new Pair<MapleStat, Integer>(MapleStat.MP, Math.min(mp, maxhp)));
+            statup.add(new Pair<MapleStat, Integer>(MapleStat.MP, Math.min(mp, maxmp)));
             statup.add(new Pair<MapleStat, Integer>(MapleStat.MAXHP, maxhp));
             statup.add(new Pair<MapleStat, Integer>(MapleStat.MAXMP, maxmp));
             client.announce(MaplePacketCreator.updatePlayerStats(statup));
@@ -697,17 +697,27 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         if (!overwrite) {
             cancelPlayerBuffs(buffstats);
-            if (effect.isHide() && (MapleCharacter) getMap().getMapObject(getObjectId()) != null) {
-                this.hidden = false;
-                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 0));
-                getMap().broadcastNONGMMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
-                updatePartyMemberHP();
-            }
         }
     }
 
     public void cancelEffectFromBuffStat(MapleBuffStat stat) {
         cancelEffect(effects.get(stat).effect, false, -1);
+    }
+
+    public void toggleHide(boolean login) {
+        if (isGM()) {
+            if (isHidden()) {
+                this.hidden = false;
+                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 0));
+                getMap().broadcastNONGMMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
+                updatePartyMemberHP();
+            } else {
+                this.hidden = true;
+                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
+                if (!login) getMap().broadcastNONGMMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
+            }
+            announce(MaplePacketCreator.enableActions());
+        }
     }
 
     private void cancelFullnessSchedule(int petSlot) {
@@ -921,7 +931,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         this.currentPage = page;
     }
 
-    public void changeSkillLevel(ISkill skill, int newLevel, int newMasterlevel, long expiration) {
+    public void changeSkillLevel(ISkill skill, byte newLevel, int newMasterlevel, long expiration) {
         if (newLevel > -1) {
             skills.put(skill, new SkillEntry(newLevel, newMasterlevel, expiration));
             this.client.announce(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel, expiration));
@@ -1281,7 +1291,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ISkill key = i.next();
             SkillEntry skill = getSkills().get(key);
             if (skill.expiration != -1 && skill.expiration < currenttime) {
-                changeSkillLevel(key, -1, 0, -1);
+                changeSkillLevel(key, (byte) -1, 0, -1);
             }
         }
 
@@ -1960,8 +1970,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return pets[index];
     }
 
-    public int getPetIndex(int petId) {
-        for (int i = 0; i < 3; i++) {
+    public byte getPetIndex(int petId) {
+        for (byte i = 0; i < 3; i++) {
             if (pets[i] != null) {
                 if (pets[i].getUniqueId() == petId) {
                     return i;
@@ -1971,8 +1981,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return -1;
     }
 
-    public int getPetIndex(MaplePet pet) {
-        for (int i = 0; i < 3; i++) {
+    public byte getPetIndex(MaplePet pet) {
+        for (byte i = 0; i < 3; i++) {
             if (pets[i] != null) {
                 if (pets[i].getUniqueId() == pet.getUniqueId()) {
                     return i;
@@ -2055,7 +2065,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return ret.skillevel;
     }
 
-    public int getSkillLevel(ISkill skill) {
+    public byte getSkillLevel(ISkill skill) {
         if (skills.get(skill) == null) {
             return 0;
         }
@@ -2208,12 +2218,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             if (energybar > 10000) {
                 energybar = 10000;
             }
-            client.announce(MaplePacketCreator.giveEnergyCharge(energybar));
+            List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ENERGY_CHARGE, energybar));
+            setBuffedValue(MapleBuffStat.ENERGY_CHARGE, energybar);
+            client.announce(MaplePacketCreator.giveBuff(energybar, 0, stat));
             client.announce(MaplePacketCreator.showOwnBuffEffect(energycharge.getId(), 2));
             getMap().broadcastMessage(this, MaplePacketCreator.showBuffeffect(id, energycharge.getId(), 2));
-            if (energybar == 10000) {
-                getMap().broadcastMessage(this, MaplePacketCreator.giveForeignEnergyCharge(id, energybar));
-            }
+            getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(energybar, stat));
         }
         if (energybar >= 10000 && energybar < 11000) {
             energybar = 15000;
@@ -2222,9 +2232,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
                 @Override
                 public void run() {
-                    client.announce(MaplePacketCreator.giveEnergyCharge(0));
-                    getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignEnergyCharge(id, energybar));
                     energybar = 0;
+                    List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.ENERGY_CHARGE, energybar));
+                    setBuffedValue(MapleBuffStat.ENERGY_CHARGE, energybar);
+                    getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(id, stat));
                 }
             }, ceffect.getDuration());
         }
@@ -2235,8 +2246,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         ISkill combo = SkillFactory.getSkill(skillid);
         List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.COMBO, 1));
         setBuffedValue(MapleBuffStat.COMBO, 1);
-        client.announce(MaplePacketCreator.giveBuff(skillid, combo.getEffect(getSkillLevel(combo)).getDuration() + (int) ((getBuffedStarttime(MapleBuffStat.COMBO) - System.currentTimeMillis())), stat, false, false, getMount()));
-        getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), stat, false), false);
+        client.announce(MaplePacketCreator.giveBuff(skillid, combo.getEffect(getSkillLevel(combo)).getDuration() + (int) ((getBuffedStarttime(MapleBuffStat.COMBO) - System.currentTimeMillis())), stat));
+        getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), stat), false);
     }
 
     public boolean hasEntered(String script) {
@@ -2539,7 +2550,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ret.getInventory(item.getRight()).addFromDB(item.getLeft());
                 IItem itemz = item.getLeft();
                 if (itemz.getPetId() > -1) {
-                    MaplePet pet = MaplePet.loadFromDb(itemz.getItemId(), itemz.getPosition(), itemz.getPetId());
+                    MaplePet pet = itemz.getPet();
                     if (pet.isSummoned())
                         ret.addPet(pet);
 
@@ -2684,7 +2695,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ps.setInt(1, charid);
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    ret.skills.put(SkillFactory.getSkill(rs.getInt("skillid")), new SkillEntry(rs.getInt("skilllevel"), rs.getInt("masterlevel"), rs.getLong("expiration")));
+                    ret.skills.put(SkillFactory.getSkill(rs.getInt("skillid")), new SkillEntry(rs.getByte("skilllevel"), rs.getInt("masterlevel"), rs.getLong("expiration")));
                 }
                 rs.close();
                 ps.close();
@@ -3036,11 +3047,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void registerEffect(MapleStatEffect effect, long starttime, ScheduledFuture<?> schedule) {
-        if (effect.isHide() && gmLevel > 0) {
-            this.hidden = true;
-            announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
-            getMap().broadcastNONGMMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
-        } else if (effect.isDragonBlood()) {
+        if (effect.isDragonBlood()) {
             prepareDragonBlood(effect);
         } else if (effect.isBerserk()) {
             checkBerserk();
@@ -4107,10 +4114,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public static class SkillEntry {
 
-        public int skillevel, masterlevel;
+        public int masterlevel;
+        public byte skillevel;
         public long expiration;
 
-        public SkillEntry(int skillevel, int masterlevel, long expiration) {
+        public SkillEntry(byte skillevel, int masterlevel, long expiration) {
             this.skillevel = skillevel;
             this.masterlevel = masterlevel;
             this.expiration = expiration;
@@ -4138,7 +4146,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     unequipPet(pet, true);
                 } else {
                     pet.setFullness(newFullness);
-                    client.announce(MaplePacketCreator.updatePet(pet));
+                    pet.saveToDb();
+                    IItem petz = getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+                    client.announce(MaplePacketCreator.updateSlot(petz));
                 }
             }
         }, 180000, 18000);

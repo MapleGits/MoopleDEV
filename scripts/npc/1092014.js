@@ -81,6 +81,8 @@ function action(mode, type, selection) {
                     cm.dispose();
                 } else {
                     cm.gainMeso(-costBeginner[selectedMap]);
+                    cm.warp(maps[selectedMap], 0);
+                    cm.dispose();
                 }
             } else {
                 if (cm.getMeso() < cost[selection]) {

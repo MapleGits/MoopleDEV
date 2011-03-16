@@ -21,10 +21,13 @@
 */
 package net.channel.handler;
 
+import client.IItem;
+import client.MapleCharacter;
 import constants.ExpTable;
 import client.MapleClient;
 import client.MapleInventoryType;
 import client.MaplePet;
+import client.autoban.AutobanManager;
 import tools.Randomizer;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
@@ -33,14 +36,22 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class PetFoodHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (c.getPlayer().getNoPets() == 0) {
+        MapleCharacter chr = c.getPlayer();
+        AutobanManager abm = chr.getAutobanManager();
+        if (abm.getLastSpam(2) + 500 > System.currentTimeMillis()) {
+            c.announce(MaplePacketCreator.enableActions());
+            return;
+        }
+        abm.spam(2);
+        abm.setTimestamp(1, slea.readInt());
+        if (chr.getNoPets() == 0) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
         int previousFullness = 100;
-        int slot = 0;
-        MaplePet[] pets = c.getPlayer().getPets();
-        for (int i = 0; i < 3; i++) {
+        byte slot = 0;
+        MaplePet[] pets = chr.getPets();
+        for (byte i = 0; i < 3; i++) {
             if (pets[i] != null) {
                 if (pets[i].getFullness() < previousFullness) {
                     slot = i;
@@ -48,19 +59,18 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
                 }
             }
         }
-        MaplePet pet = c.getPlayer().getPet(slot);
-        slea.readInt();
-        slea.readShort();
+        MaplePet pet = chr.getPet(slot);
+        byte pos = (byte) slea.readShort();
         int itemId = slea.readInt();
+        IItem use = chr.getInventory(MapleInventoryType.USE).getItem(pos);
+        if (use == null || (itemId / 10000) != 212 || use.getItemId() != itemId) return;
         boolean gainCloseness = false;
         if (Randomizer.nextInt(101) > 50) {
             gainCloseness = true;
         }
         if (pet.getFullness() < 100) {
             int newFullness = pet.getFullness() + 30;
-            if (newFullness > 100) {
-                newFullness = 100;
-            }
+            if (newFullness > 100) newFullness = 100;
             pet.setFullness(newFullness);
             if (gainCloseness && pet.getCloseness() < 30000) {
                 int newCloseness = pet.getCloseness() + 1;
@@ -69,13 +79,12 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
                 }
                 pet.setCloseness(newCloseness);
                 if (newCloseness >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                    pet.setLevel(pet.getLevel() + 1);
-                    c.announce(MaplePacketCreator.showOwnPetLevelUp(c.getPlayer().getPetIndex(pet)));
-                    c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), c.getPlayer().getPetIndex(pet)));
+                    pet.setLevel((byte) (pet.getLevel() + 1));
+                    c.announce(MaplePacketCreator.showOwnPetLevelUp(chr.getPetIndex(pet)));
+                    chr.getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), chr.getPetIndex(pet)));
                 }
             }
-            c.announce(MaplePacketCreator.updatePet(pet));
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), slot, 1, true), true);
+            chr.getMap().broadcastMessage(MaplePacketCreator.commandResponse(chr.getId(), slot, 1, true));
         } else {
             if (gainCloseness) {
                 int newCloseness = pet.getCloseness() - 1;
@@ -83,14 +92,15 @@ public final class PetFoodHandler extends AbstractMaplePacketHandler {
                     newCloseness = 0;
                 }
                 pet.setCloseness(newCloseness);
-                if (newCloseness < ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                    pet.setLevel(pet.getLevel() - 1);
+                if (pet.getLevel() > 1 && newCloseness < ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
+                    pet.setLevel((byte) (pet.getLevel() - 1));
                 }
-            }
-            c.announce(MaplePacketCreator.updatePet(pet));
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(c.getPlayer().getId(), slot, 1, false), true);
+            }        
+            chr.getMap().broadcastMessage(MaplePacketCreator.commandResponse(chr.getId(), slot, 0, false));
         }
-        MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, false);
+        MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, pos, (short) 1, false);
+        IItem petz = chr.getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+        c.announce(MaplePacketCreator.updateSlot(petz));
         c.announce(MaplePacketCreator.enableActions());
     }
 }

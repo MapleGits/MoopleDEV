@@ -118,7 +118,7 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                     bouncedamage = Math.min(bouncedamage, attacker.getMaxHp() / 10);
                     player.getMap().damageMonster(player, attacker, bouncedamage);
                     damage -= bouncedamage;
-                    player.getMap().broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), true, true);
+                    player.getMap().broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), false, true);
                     player.checkMonsterAggro(attacker);
                 }
             }

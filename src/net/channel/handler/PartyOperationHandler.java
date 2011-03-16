@@ -60,7 +60,6 @@ public final class PartyOperationHandler extends AbstractMaplePacketHandler {
             }
             case 2: {
                 if (party != null && partyplayer != null) {
-                    System.out.println("going to disband");
                     try {
                         if (partyplayer.equals(party.getLeader())) {
                             wci.updateParty(party.getId(), PartyOperation.DISBAND, partyplayer);

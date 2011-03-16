@@ -23,6 +23,7 @@ package net.channel.handler;
 
 import client.IItem;
 import client.Item;
+import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventory;
 import client.MapleInventoryType;
@@ -40,13 +41,14 @@ import tools.data.input.SeekableLittleEndianAccessor;
  */
 public final class ItemIdSortHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.readInt(); // timestamp
+        MapleCharacter chr = c.getPlayer();
+        chr.getAutobanManager().setTimestamp(4, slea.readInt());
         byte inv = slea.readByte();
         if (inv < 0 || inv > 5) {
             c.disconnect();
             return;
         }
-        MapleInventory Inv = c.getPlayer().getInventory(MapleInventoryType.getByType(inv));
+        MapleInventory Inv = chr.getInventory(MapleInventoryType.getByType(inv));
         ArrayList<Item> itemarray = new ArrayList<Item>();
         for (Iterator<IItem> it = Inv.iterator(); it.hasNext();) {
             Item item = (Item) it.next();

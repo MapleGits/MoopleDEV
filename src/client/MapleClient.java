@@ -602,7 +602,6 @@ public class MapleClient {
                     System.out.println("Error while saving Hired Merchant items.");
                 }
             }
-            player.unequipAllPets();
             try {
                 WorldChannelInterface wci = getChannelServer().getWorldInterface();
                 if (player.getMessenger() != null) {

@@ -21,6 +21,7 @@
 */
 package net.channel.handler;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import net.AbstractMaplePacketHandler;
 import client.MapleInventoryType;
@@ -31,11 +32,12 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ItemSortHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.readInt(); // timestamp
+        MapleCharacter chr = c.getPlayer();
+        chr.getAutobanManager().setTimestamp(2, slea.readInt());
         byte inv = slea.readByte();
         boolean sorted = false;
         MapleInventoryType pInvType = MapleInventoryType.getByType(inv);
-        MapleInventory pInv = c.getPlayer().getInventory(pInvType);
+        MapleInventory pInv = chr.getInventory(pInvType);
         while (!sorted) {
             byte freeSlot = pInv.getNextFreeSlot();
             if (freeSlot != -1) {

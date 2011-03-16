@@ -24,6 +24,7 @@ package net.channel.handler;
 import java.awt.Point;
 import java.util.concurrent.ScheduledFuture;
 import client.ISkill;
+import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
 import client.MapleStat;
@@ -47,28 +48,28 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-
-        slea.readInt(); //timestamp
+        MapleCharacter chr = c.getPlayer();
+        chr.getAutobanManager().setTimestamp(4, slea.readInt());
         int skillid = slea.readInt();
         Point pos = null;
         int __skillLevel = slea.readByte();
         ISkill skill = SkillFactory.getSkill(skillid);
-        int skillLevel = c.getPlayer().getSkillLevel(skill);
+        int skillLevel = chr.getSkillLevel(skill);
         if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011) {
             skillLevel = 1;
-            c.getPlayer().setDojoEnergy(0);
+            chr.setDojoEnergy(0);
             c.announce(MaplePacketCreator.getEnergy(0));
         }
         if (skillLevel == 0 || skillLevel != __skillLevel) return;
         
         MapleStatEffect effect = skill.getEffect(skillLevel);
         if (effect.getCooldown() > 0) {
-            if (c.getPlayer().skillisCooling(skillid)) {
+            if (chr.skillisCooling(skillid)) {
                 return;
             } else if (skillid != Corsair.BATTLE_SHIP) {
                 c.announce(MaplePacketCreator.skillCooldown(skillid, effect.getCooldown()));
                 ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(c.getPlayer(), skillid), effect.getCooldown() * 1000);
-                c.getPlayer().addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000, timer);
+                chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000, timer);
             }
         }
         if (skillid == Hero.MONSTER_MAGNET || skillid == Paladin.MONSTER_MAGNET || skillid == DarkKnight.MONSTER_MAGNET) { // Monster Magnet
@@ -78,18 +79,18 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
             for (int i = 0; i < num; i++) {
                 mobId = slea.readInt();
                 success = slea.readByte();
-                c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showMagnet(mobId, success), false);
-                MapleMonster monster = c.getPlayer().getMap().getMonsterByOid(mobId);
+                chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showMagnet(mobId, success), false);
+                MapleMonster monster = chr.getMap().getMonsterByOid(mobId);
                 if (monster != null) {
                     monster.switchController(c.getPlayer(), monster.isControllerHasAggro());
                 }
             }
             byte direction = slea.readByte();
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(c.getPlayer().getId(), skillid, c.getPlayer().getSkillLevel(skillid), direction), false);
+            chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(chr.getId(), skillid, chr.getSkillLevel(skillid), direction), false);
             c.announce(MaplePacketCreator.enableActions());
             return;
         } else if (skillid == Buccaneer.TIME_LEAP) { // Timeleap
-            MapleParty p = c.getPlayer().getParty();
+            MapleParty p = chr.getParty();
             if (p != null) {
                 for (MaplePartyCharacter mpc : p.getMembers()) {
                     for (ChannelServer cserv : ChannelServer.getAllInstances()) {
@@ -99,27 +100,27 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
                     }
                 }
             }
-            c.getPlayer().removeAllCooldownsExcept(Buccaneer.TIME_LEAP);
+            chr.removeAllCooldownsExcept(Buccaneer.TIME_LEAP);
         } else if (skillid == Brawler.MP_RECOVERY) {// MP Recovery
             ISkill s = SkillFactory.getSkill(skillid);
-            MapleStatEffect ef = s.getEffect(c.getPlayer().getSkillLevel(s));
-            int lose = c.getPlayer().getMaxHp() / ef.getX();
-            c.getPlayer().setHp(c.getPlayer().getHp() - lose);
-            c.getPlayer().updateSingleStat(MapleStat.HP, c.getPlayer().getHp());
+            MapleStatEffect ef = s.getEffect(chr.getSkillLevel(s));
+            int lose = chr.getMaxHp() / ef.getX();
+            chr.setHp(chr.getHp() - lose);
+            chr.updateSingleStat(MapleStat.HP, chr.getHp());
             int gain = lose * (ef.getY() / 100);
-            c.getPlayer().setMp(c.getPlayer().getMp() + gain);
-            c.getPlayer().updateSingleStat(MapleStat.MP, c.getPlayer().getMp());
+            chr.setMp(chr.getMp() + gain);
+            chr.updateSingleStat(MapleStat.MP, chr.getMp());
         } else if (skillid % 10000000 == 1004) {
             slea.readShort();
         }
         if (slea.available() == 5) {
             pos = new Point(slea.readShort(), slea.readShort());
         }
-        if (c.getPlayer().isAlive()) {
-            if (skill.getId() != Priest.MYSTIC_DOOR || c.getPlayer().canDoor()) {
+        if (chr.isAlive()) {
+            if (skill.getId() != Priest.MYSTIC_DOOR || chr.canDoor()) {
                 skill.getEffect(skillLevel).applyTo(c.getPlayer(), pos);
             } else {
-                c.getPlayer().message("Please wait 5 seconds before casting Mystic Door again");
+                chr.message("Please wait 5 seconds before casting Mystic Door again");
                 c.announce(MaplePacketCreator.enableActions());
             }
         } else {

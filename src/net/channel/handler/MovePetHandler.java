@@ -34,11 +34,11 @@ public final class MovePetHandler extends AbstractMovementPacketHandler {
         slea.readLong();
 //        Point startPos = StreamUtil.readShortPoint(slea);
         List<LifeMovementFragment> res = parseMovement(slea);
-        if (res.size() == 0) {
+        if (res.isEmpty()) {
             return;
         }
         MapleCharacter player = c.getPlayer();
-        int slot = player.getPetIndex(petId);
+        byte slot = player.getPetIndex(petId);
         if (slot == -1) {
             return;
         }

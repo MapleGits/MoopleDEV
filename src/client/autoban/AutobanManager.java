@@ -22,6 +22,7 @@ public class AutobanManager {
     private int samemisscount = 0;
     private long spam[] = new long[20];
     private int timestamp[] = new int[20];
+    private byte timestampcounter[] = new byte[20];
 
 
     public AutobanManager(MapleCharacter chr) {
@@ -73,9 +74,29 @@ public class AutobanManager {
         return spam[type];
     }
 
-    //Don't use the same type for more than 1 thing
+    /**
+     * Timestamp checker
+     *
+     *  <code>type</code>:<br>
+     * 0: HealOverTime<br>
+     * 1: Pet Food<br>
+     * 2: ItemSort<br>
+     * 3: ItemIdSort<br>
+     * 4: SpecialMove<br>
+     * 5: UseCatchItem<br>
+     *
+     * @param type type
+     * @return Timestamp checker
+     */
     public void setTimestamp(int type, int time) {
-        if (this.timestamp[type] == time) chr.getClient().disconnect();
+        if (this.timestamp[type] == time) {  
+            this.timestampcounter[type]++;
+            if (this.timestampcounter[type] >= 3) {
+                chr.getClient().disconnect();
+                //System.out.println("Same timestamp for type: " + type + "; Character: " + chr);
+            }
+            return;
+        }
         this.timestamp[type] = time;
     }
 }

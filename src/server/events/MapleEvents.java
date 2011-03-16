@@ -88,11 +88,11 @@ public class MapleEvents {
             }
             long expiration = (System.currentTimeMillis() + (long) (3600 * 24 * 20 * 1000));//20 days
             if (completed < 20) {
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid), 1, 1, expiration); 
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 1), 1, 1, expiration);
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 2), 1, 1, expiration);
+                chr.changeSkillLevel(SkillFactory.getSkill(skillid), (byte) 1, 1, expiration);
+                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 1), (byte) 1, 1, expiration);
+                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 2), (byte) 1, 1, expiration);
             } else {
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid), 2, 2, chr.getSkillExpiration(skillid));
+                chr.changeSkillLevel(SkillFactory.getSkill(skillid), (byte) 2, 2, chr.getSkillExpiration(skillid));
             }
         }
     }

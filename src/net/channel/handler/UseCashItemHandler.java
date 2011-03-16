@@ -76,25 +76,24 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     int SPFrom = slea.readInt();
                     ISkill skillSPTo = SkillFactory.getSkill(SPTo);
                     ISkill skillSPFrom = SkillFactory.getSkill(SPFrom);
-                    int curLevel = player.getSkillLevel(skillSPTo);
-                    int curLevelSPFrom = player.getSkillLevel(skillSPFrom);
+                    byte curLevel = player.getSkillLevel(skillSPTo);
+                    byte curLevelSPFrom = player.getSkillLevel(skillSPFrom);
                     if ((curLevel < skillSPTo.getMaxLevel()) && curLevelSPFrom > 0) {
-                        player.changeSkillLevel(skillSPFrom, curLevelSPFrom - 1, player.getMasterLevel(skillSPFrom), -1);
-                        player.changeSkillLevel(skillSPTo, curLevel + 1, player.getMasterLevel(skillSPTo), -1);
+                        player.changeSkillLevel(skillSPFrom, (byte) (curLevelSPFrom - 1), player.getMasterLevel(skillSPFrom), -1);
+                        player.changeSkillLevel(skillSPTo, (byte) (curLevel + 1), player.getMasterLevel(skillSPTo), -1);
                         if (SPFrom == Aran.FULL_SWING) {
                             ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_FULL_DOUBLE);
                             ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_FULL_TRIPLE);
-                            player.changeSkillLevel(hidden1, curLevelSPFrom - 1, player.getMasterLevel(hidden1), -1);
-                            player.changeSkillLevel(hidden2, curLevelSPFrom - 1, player.getMasterLevel(hidden2), -1);
+                            player.changeSkillLevel(hidden1, (byte) (curLevelSPFrom - 1), player.getMasterLevel(hidden1), -1);
+                            player.changeSkillLevel(hidden2, (byte) (curLevelSPFrom - 1), player.getMasterLevel(hidden2), -1);
                         } else if (SPFrom == Aran.OVER_SWING) {
                             ISkill hidden1 = SkillFactory.getSkill(Aran.HIDDEN_OVER_DOUBLE);
                             ISkill hidden2 = SkillFactory.getSkill(Aran.HIDDEN_OVER_TRIPLE);
-                            player.changeSkillLevel(hidden1, curLevelSPFrom - 1, player.getMasterLevel(hidden1), -1);
-                            player.changeSkillLevel(hidden2, curLevelSPFrom - 1, player.getMasterLevel(hidden2), -1);                
+                            player.changeSkillLevel(hidden1, (byte) (curLevelSPFrom - 1), player.getMasterLevel(hidden1), -1);
+                            player.changeSkillLevel(hidden2, (byte) (curLevelSPFrom - 1), player.getMasterLevel(hidden2), -1);
                         }
                     }
                 } else {
-                    //4F 00 02 00 90 0E 4D 00 00 20 00 00 00 08 00 00 DB DB 08 00
                     List<Pair<MapleStat, Integer>> statupdate = new ArrayList<Pair<MapleStat, Integer>>(2);
                     int APTo = slea.readInt();
                     int APFrom = slea.readInt();
@@ -206,7 +205,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     if (period > 0)
                         item.setExpiration(System.currentTimeMillis() + (period * 60 * 60 * 24 * 1000)); 
 
-                    c.announce(MaplePacketCreator.updateItemInSlot(item));
+                    c.announce(MaplePacketCreator.updateSlot(item));
 
                     remove(c, itemId);
                 } else if (itemId == 5060002) { // Incubator
@@ -224,7 +223,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     return;
                 }
                 slea.readInt(); // time stamp
-                c.announce(MaplePacketCreator.updateEquipSlot(eq));
+                c.announce(MaplePacketCreator.updateSlot(eq));
                 remove(c, itemId);
             } else if (itemType == 507) {
                 boolean whisper;
@@ -339,11 +338,13 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.enableActions());
                     return;
                 }
+                IItem item = player.getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
                 String newName = slea.readMapleAsciiString();
                 pet.setName(newName);
-                c.announce(MaplePacketCreator.updatePet(pet));
-                c.announce(MaplePacketCreator.enableActions());
+                pet.saveToDb();
+                c.announce(MaplePacketCreator.updateSlot(item));
                 player.getMap().broadcastMessage(player, MaplePacketCreator.changePetName(player, newName, 1), true);
+                c.announce(MaplePacketCreator.enableActions());
                 remove(c, itemId);
             } else if (itemType == 504) { // vip teleport rock
                 String error1 = "Either the player could not be found or you were trying to teleport to an illegal location.";
@@ -391,23 +392,23 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                 remove(c, itemId);
                 c.announce(MaplePacketCreator.enableActions());
             } else if (itemType == 524) {
-                for (int i = 0; i < 3; i++) {
+                for (byte i = 0; i < 3; i++) {
                     MaplePet pet = player.getPet(i);
                     if (pet != null) {
                         if (pet.canConsume(itemId)) {
                             pet.setFullness(100);
-                            if (pet.getCloseness() + 100 > 30000) {
-                                pet.setCloseness(30000);
-                            } else {
-                                pet.gainCloseness(100);
-                            }
+                            if (pet.getCloseness() + 100 > 30000) pet.setCloseness(30000);
+                            else pet.gainCloseness(100);
+                            
                             while (pet.getCloseness() >= ExpTable.getClosenessNeededForLevel(pet.getLevel())) {
-                                pet.setLevel(pet.getLevel() + 1);
-                                c.announce(MaplePacketCreator.showOwnPetLevelUp(player.getPetIndex(pet)));
-                                player.getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), player.getPetIndex(pet)));
+                                pet.setLevel((byte) (pet.getLevel() + 1));
+                                byte index = player.getPetIndex(pet);
+                                c.announce(MaplePacketCreator.showOwnPetLevelUp(index));
+                                player.getMap().broadcastMessage(MaplePacketCreator.showPetLevelUp(c.getPlayer(), index));
                             }
-                            c.announce(MaplePacketCreator.updatePet(pet));
-                            player.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(player.getId(), 0, 1, true), true);
+                            IItem item = player.getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+                            c.announce(MaplePacketCreator.updateSlot(item));
+                            player.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.commandResponse(player.getId(), i, 1, true), true);                           
                             remove(c, itemId);
                             break;
                         }
@@ -415,6 +416,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                         break;
                     }
                 }
+                c.announce(MaplePacketCreator.enableActions());
             } else if (itemType == 530) {
                 ii.getItemEffect(itemId).applyTo(player);
                 remove(c, itemId);

@@ -51,7 +51,7 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
             }
         }
         if (loginok == 3 && !isBanned) {
-            c.announce(MaplePacketCreator.getPermBan(c.getGReason()));
+            c.announce(MaplePacketCreator.getTempBan(Integer.MAX_VALUE, c.getGReason()));//Or Long.MAX_VALUE?
             return;
         }
         if (loginok == 0 && isBanned) {
