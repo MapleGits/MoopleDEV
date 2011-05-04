@@ -88,7 +88,7 @@ public enum SendOpcode {
     MONSTERBOOK_ADD(0x53),
     MONSTER_BOOK_CHANGE_COVER(0x55),
     MINIMAP_SHIT(0x56), //Resets minimap or something xD
-    ENERGY(0x5C),
+    ENERGY(0x5A),
     SHOW_PEDIGREE(0x5E),
     OPEN_FAMILY(0x5F),
     FAMILY_MESSAGE(0x60),
@@ -129,7 +129,7 @@ public enum SendOpcode {
     BOSS_ENV(0x8A),
     BLOCK_PORTAL_SHOP(0x8B), 
     MAP_EFFECT(0x8E),
-    HPQ_MOON(0x8F),
+    HPQ_MOON(0x8F),//Thanks for the info RMZero.
     GM_PACKET(0x90),
     OX_QUIZ(0x91),
     GMEVENT_INSTRUCTIONS(0x92),
@@ -138,6 +138,8 @@ public enum SendOpcode {
     POPUP(0x98),
     STOP_CLOCK(0x9A),
     ARIANT_SCOREBOARD(0x9B),
+    PYRAMID_GAUGE(0x9D),
+    PYRAMID_SCORE(0x9E),
     SPAWN_PLAYER(0xA0),
     REMOVE_PLAYER_FROM_MAP(0xA1),
     CHATTEXT(0xA2),
@@ -195,10 +197,12 @@ public enum SendOpcode {
     MOVE_MONSTER_RESPONSE(0xF0),
     APPLY_MONSTER_STATUS(0xF2),
     CANCEL_MONSTER_STATUS(0xF3),
+    RESET_MONSTER_ANIMATION(0xF4),//LOL? o.o
+    //Something with mob, but can't figure out
     DAMAGE_MONSTER(0xF6),
     ARIANT_THING(0xF9),
     SHOW_MONSTER_HP(0xFA),
-    SHOW_DRAGGED(0xFB),
+    SHOW_DRAGGED(0xFB),//CATCH
     CATCH_MONSTER(0xFC),
     SHOW_MAGNET(0xFD),
     SPAWN_NPC(0x101),
@@ -232,7 +236,8 @@ public enum SendOpcode {
     MONSTER_CARNIVAL_MESSAGE(0x125),
     MONSTER_CARNIVAL_DIED(0x126),
     MONSTER_CARNIVAL_LEAVE(0x127),
-    SHEEP_RANCH_SCORE(0x12B),
+    SHEEP_RANCH_INFO(0x12B),
+    SHEEP_RANCH_CLOTHES(0x12C),
     ARIANT_SCORE(0x12D),
     HORNTAIL_CAVE(0x12E),
     ZAKUM_SHRINE(0x12F),

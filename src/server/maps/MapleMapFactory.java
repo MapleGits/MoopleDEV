@@ -43,7 +43,7 @@ public class MapleMapFactory {
     private MapleDataProvider source;
     private MapleData nameData;
     private Map<Integer, MapleMap> maps = new HashMap<Integer, MapleMap>();
-    private int channel;
+    private int channel, world;
 
     public MapleMapFactory(MapleDataProvider source, MapleDataProvider stringSource) {
         this.source = source;
@@ -71,10 +71,11 @@ public class MapleMapFactory {
                 if (mobRate != null) {
                     monsterRate = ((Float) mobRate.getData()).floatValue();
                 }
-                map = new MapleMap(mapid, channel, MapleDataTool.getInt("info/returnMap", mapData), monsterRate);
+                map = new MapleMap(mapid, world, channel, MapleDataTool.getInt("info/returnMap", mapData), monsterRate);
                 map.setOnFirstUserEnter(MapleDataTool.getString(mapData.getChildByPath("info/onFirstUserEnter"), String.valueOf(mapid)));
                 map.setOnUserEnter(MapleDataTool.getString(mapData.getChildByPath("info/onUserEnter"), String.valueOf(mapid)));
                 map.setFieldLimit(MapleDataTool.getInt(mapData.getChildByPath("info/fieldLimit"), 0));
+                map.setMobInterval(MapleDataTool.getInt(mapData.getChildByPath("info/createMobInterval"), -1));
                 PortalFactory portalFactory = new PortalFactory();
                 for (MapleData portal : mapData.getChildByPath("portal")) {
                     map.addPortal(portalFactory.makePortal(MapleDataTool.getInt(portal.getChildByPath("pt")), portal));
@@ -183,6 +184,7 @@ public class MapleMapFactory {
                 map.setBoat(mapData.getChildByPath("shipObj") != null);
                 map.setTimeLimit(MapleDataTool.getIntConvert("timeLimit", mapData.getChildByPath("info"), -1));
                 map.setFieldType(MapleDataTool.getIntConvert("info/fieldType", mapData, 0));
+                map.setMobCapacity(MapleDataTool.getIntConvert("fixedMobCapacity", mapData.getChildByPath("info"), 500));//Is there a map that contains more than 500 mobs?
                 maps.put(omapid, map);
             }
         }
@@ -263,6 +265,10 @@ public class MapleMapFactory {
 
     public void setChannel(int channel) {
         this.channel = channel;
+    }
+
+    public void setWorld(int world) {
+        this.channel = world;
     }
 
     public Map<Integer, MapleMap> getMaps() {

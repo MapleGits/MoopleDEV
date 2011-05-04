@@ -32,9 +32,8 @@ import java.util.Map;
 import java.util.Properties;
 import client.MapleCharacter;
 import tools.DatabaseConnection;
-import net.channel.ChannelServer;
-import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
+import net.server.MapleParty;
+import net.server.MaplePartyCharacter;
 import provider.MapleDataProviderFactory;
 import server.TimerManager;
 import server.life.MapleMonster;
@@ -60,7 +59,7 @@ public class EventInstanceManager {
         this.em = em;
         this.name = name;
         mapFactory = new MapleMapFactory(MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Map.wz")), MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz")));
-        mapFactory.setChannel(em.getChannelServer().getChannel());
+        mapFactory.setChannel(em.getChannelServer().getId());
     }
 
     public EventManager getEm() {
@@ -75,14 +74,6 @@ public class EventInstanceManager {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    public int getInstanceId() {
-        return ChannelServer.getInstance(1).getInstanceId();
-    }
-
-    public void addInstanceId() {
-        ChannelServer.getInstance(1).addInstanceId();
     }
 
     public void startEventTimer(long time) {

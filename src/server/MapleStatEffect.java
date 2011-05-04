@@ -64,7 +64,6 @@ import constants.skills.DragonKnight;
 import constants.skills.FPArchMage;
 import constants.skills.FPMage;
 import constants.skills.FPWizard;
-import net.channel.ChannelServer;
 import provider.MapleData;
 import provider.MapleDataTool;
 import server.life.MapleMonster;
@@ -75,7 +74,7 @@ import server.maps.MapleMapObjectType;
 import server.maps.MapleMist;
 import server.maps.MapleSummon;
 import server.maps.SummonMovementType;
-import net.world.PlayerCoolDownValueHolder;
+import net.server.PlayerCoolDownValueHolder;
 import tools.ArrayMap;
 import tools.MaplePacketCreator;
 import tools.Pair;
@@ -110,6 +109,7 @@ import constants.skills.ThunderBreaker;
 import constants.skills.WhiteKnight;
 import constants.skills.WindArcher;
 import net.MaplePacket;
+import net.server.Server;
 import server.maps.FieldLimit;
 
 /**
@@ -123,23 +123,18 @@ public class MapleStatEffect implements Serializable {
     private double hpR, mpR;
     private short mpCon, hpCon;
     private int duration;
-    private boolean overTime;
+    private boolean overTime, repeatEffect;
     private int sourceid;
     private int moveTo;
     private boolean skill;
     private List<Pair<MapleBuffStat, Integer>> statups;
     private Map<MonsterStatus, Integer> monsterStatus;
-    private int x, y;
+    private int x, y, mobCount, moneyCon, cooldown, morphId = 0, ghost, fatigue, berserk, booster;
     private double prop;
     private int itemCon, itemConNo;
     private int damage, attackCount, bulletCount, bulletConsume, fixdamage;
     private Point lt, rb;
-    private int mobCount;
-    private int moneyCon;
-    private int cooldown;
-    private int morphId = 0;
-    private int ghost;
-    private int fatigue;
+
 
     public static MapleStatEffect loadSkillEffectFromData(MapleData source, int skillid, boolean overtime) {
         return loadFromData(source, skillid, true, overtime);
@@ -171,6 +166,8 @@ public class MapleStatEffect implements Serializable {
         ret.morphId = MapleDataTool.getInt("morph", source, 0);
         ret.ghost = MapleDataTool.getInt("ghost", source, 0);
         ret.fatigue = MapleDataTool.getInt("incFatigue", source, 0);
+        ret.repeatEffect = MapleDataTool.getInt("repeatEffect", source, 0) > 0;
+
         ret.sourceid = sourceid;
         ret.skill = skill;
         if (!ret.skill && ret.duration > -1) {
@@ -188,6 +185,8 @@ public class MapleStatEffect implements Serializable {
         ret.avoid = (short) MapleDataTool.getInt("eva", source, 0);
         ret.speed = (short) MapleDataTool.getInt("speed", source, 0);
         ret.jump = (short) MapleDataTool.getInt("jump", source, 0);
+        ret.berserk = MapleDataTool.getInt("berserk", source, 0);
+        ret.booster = MapleDataTool.getInt("booster", source, 0);
         if (ret.overTime && ret.getSummonMovementType() == null) {
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.WATK, Integer.valueOf(ret.watk));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.WDEF, Integer.valueOf(ret.wdef));
@@ -197,6 +196,8 @@ public class MapleStatEffect implements Serializable {
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.AVOID, Integer.valueOf(ret.avoid));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.SPEED, Integer.valueOf(ret.speed));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.JUMP, Integer.valueOf(ret.jump));
+            addBuffStatPairToListIfNotZero(statups, MapleBuffStat.PYRAMID_PQ, Integer.valueOf(ret.berserk));
+            addBuffStatPairToListIfNotZero(statups, MapleBuffStat.BOOSTER, Integer.valueOf(ret.booster));
         }
         MapleData ltd = source.getChildByPath("lt");
         if (ltd != null) {
@@ -660,7 +661,7 @@ public class MapleStatEffect implements Serializable {
                 if (moveTo == 999999999) {
                     target = applyto.getMap().getReturnMap();
                 } else {
-                    target = ChannelServer.getInstance(applyto.getClient().getChannel()).getMapFactory().getMap(moveTo);
+                    target = Server.getInstance().getWorld(applyto.getWorld()).getChannel(applyto.getClient().getChannel()).getMapFactory().getMap(moveTo);
                     int targetid = target.getId() / 10000000;
                     if (targetid != 60 && applyto.getMapId() / 10000000 != 61 && targetid != applyto.getMapId() / 10000000 && targetid != 21 && targetid != 20) {
                         return false;

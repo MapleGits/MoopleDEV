@@ -24,8 +24,7 @@ package client;
 public class BuddylistEntry {
     private String name;
     private String group;
-    private int cid;
-    private int channel;
+    private int cid, channel;
     private boolean visible;
 
     /**

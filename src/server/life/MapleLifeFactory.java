@@ -74,6 +74,14 @@ public class MapleLifeFactory {
             stats.setName(MapleDataTool.getString(mid + "/name", mobStringData, "MISSINGNO"));
             stats.setBuffToGive(MapleDataTool.getIntConvert("buff", monsterInfoData, -1));
             stats.setCP(MapleDataTool.getIntConvert("getCP", monsterInfoData, 0));
+            stats.setRemoveOnMiss(MapleDataTool.getIntConvert("removeOnMiss", monsterInfoData, 0) > 0);
+
+            MapleData coolDamage = monsterInfoData.getChildByPath("coolDamage");
+            if (coolDamage != null) {
+                int coolDmg = MapleDataTool.getIntConvert("coolDamage", monsterInfoData);
+                int coolProb = MapleDataTool.getIntConvert("coolDamageProb", monsterInfoData, 0);
+                stats.setCool(new Pair<Integer, Integer>(coolDmg, coolProb));
+            }
             MapleData loseItemData = monsterInfoData.getChildByPath("loseItem");
             if (loseItemData != null) {
                 for (MapleData liData : loseItemData.getChildren()) {

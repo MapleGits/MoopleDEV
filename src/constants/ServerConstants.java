@@ -23,26 +23,25 @@ package constants;
 
 public class ServerConstants {
     public static short VERSION = 83;
-    public static String SERVERNAME = "MoopleDEV";
+    public static String[] WORLD_NAMES = {"Scania", "Bera", "Broa", "Windia", "Khaini", "Bellocan", "Mardia", "Kradia", "Yellonde", "Demethos", "Galicia", "El Nido", "Zenith", "Arcenia", "Kastia", "Judis", "Plana", "Kalluna", "Stius", "Croa", "Medere"};;
     // Rate Configuration
-    public static byte EXP_RATE = 20;
-    public static byte MESO_RATE = 15;
-    public static final byte DROP_RATE = 5;
-    public static final byte BOSS_DROP_RATE = 2;
     public static final byte QUEST_EXP_RATE = 4;
     public static final byte QUEST_MESO_RATE = 3;
     // Login Configuration
-    public static final byte FLAG = 3;
-    public static final int CHANNEL_NUMBER = 2;
     public static final int CHANNEL_LOAD = 150;
-    public static final String EVENT_MESSAGE = "";
     public static final long RANKING_INTERVAL = 3600000;
     public static final boolean ENABLE_PIN = true;
     public static final boolean ENABLE_PIC = true;
     // Channel Configuration
     public static String SERVER_MESSAGE = "";
     public static String RECOMMEND_MESSAGE = "";
+    //Event Configuration
+    public static final boolean PERFECT_PITCH = true;
     public static final String EVENTS = "automsg KerningPQ Boats Subway AirPlane elevator";
     // IP Configuration
     public static final String HOST = "localhost";
+    //Database Configuration
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/MoopleDEV?autoReconnect=true";
+    public static final String DB_USER = "root";
+    public static final String DB_PASS = "";
 }

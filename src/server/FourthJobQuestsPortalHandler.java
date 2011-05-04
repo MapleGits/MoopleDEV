@@ -24,7 +24,7 @@ package server;
 import client.MapleCharacter;
 import client.MapleJob;
 import net.StringValueHolder;
-import net.world.MaplePartyCharacter;
+import net.server.MaplePartyCharacter;
 import tools.MaplePacketCreator;
 
 /**

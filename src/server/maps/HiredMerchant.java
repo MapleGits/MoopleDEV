@@ -31,11 +31,13 @@ import client.ItemFactory;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
+import com.mysql.jdbc.Statement;
 import constants.ItemConstants;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import tools.DatabaseConnection;
 import net.MaplePacket;
+import net.server.Server;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MaplePlayerShopItem;
@@ -48,15 +50,15 @@ import tools.Pair;
  * @author XoticStory
  */
 public class HiredMerchant extends AbstractMapleMapObject {
-    private int ownerId;
-    private int itemId;
-    private int channel;
+    private int ownerId, itemId, mesos = 0;
+    private int channel, world;
     private long start;
     private String ownerName = "";
     private String description = "";
     private MapleCharacter[] visitors = new MapleCharacter[3];
     private List<MaplePlayerShopItem> items = new LinkedList<MaplePlayerShopItem>();
     private List<Pair<String, Byte>> messages = new LinkedList<Pair<String, Byte>>();
+    private List<SoldItem> sold = new LinkedList<SoldItem>();
     private boolean open;
     public ScheduledFuture<?> schedule = null;
     private MapleMap map;
@@ -66,6 +68,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         this.start = System.currentTimeMillis();
         this.ownerId = owner.getId();
         this.channel = owner.getClient().getChannel();
+        this.world = owner.getWorld();
         this.itemId = itemId;
         this.ownerName = owner.getName();
         this.description = desc;
@@ -116,7 +119,8 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public void removeAllVisitors(String message) {
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null) {
-                visitors[i].getClient().getSession().write(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
+                visitors[i].setHiredMerchant(null);
+                visitors[i].getClient().getSession().write(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));                
                 if (message.length() > 0) {
                     visitors[i].dropMessage(1, message);
                 }
@@ -146,16 +150,22 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 c.announce(MaplePacketCreator.enableActions());
                 return;
             }
-
-            if (c.getPlayer().getMeso() >= pItem.getPrice() * quantity) {
+            int price = pItem.getPrice() * quantity;
+            if (c.getPlayer().getMeso() >= price) {
                 if (MapleInventoryManipulator.addFromDrop(c, newItem, true)) {
-                    c.getPlayer().gainMeso(-pItem.getPrice() * quantity, false);
-                    try {
-                        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = MerchantMesos + " + pItem.getPrice() * quantity + " WHERE id = ?");
-                        ps.setInt(1, ownerId);
-                        ps.executeUpdate();
-                        ps.close();
-                    } catch (Exception e) {
+                    c.getPlayer().gainMeso(-price, false);
+                    sold.add(new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price));
+                    MapleCharacter owner = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterByName(ownerName);
+                    if (owner != null)
+                        owner.addMerchantMesos(price);
+                    else {
+                        try {
+                            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = MerchantMesos + " + price + " WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
+                            ps.setInt(1, ownerId);
+                            ps.executeUpdate();
+                            ps.close();
+                        } catch (Exception e) {
+                        }
                     }
                     pItem.setBundles((short) (pItem.getBundles() - quantity));
                     if (pItem.getBundles() < 1) {
@@ -179,7 +189,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(ownerId));
         c.getChannelServer().removeHiredMerchant(ownerId);
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, ownerId);
             ps.executeUpdate();
             ps.close();
@@ -333,6 +343,14 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public int getMapId() {
         return map.getId();
     }
+
+    public List<SoldItem> getSold() {
+        return sold;
+    }
+
+    public int getMesos() {
+        return mesos;
+    }
     
     @Override
     public void sendDestroyData(MapleClient client) {
@@ -347,5 +365,34 @@ public class HiredMerchant extends AbstractMapleMapObject {
     @Override
     public void sendSpawnData(MapleClient client) {
         client.getSession().write(MaplePacketCreator.spawnHiredMerchant(this));
+    }
+
+    public class SoldItem {
+        int itemid, mesos;
+        short quantity;
+        String buyer;
+
+        public SoldItem(String buyer, int itemid, short quantity, int mesos) {
+            this.buyer = buyer;
+            this.itemid = itemid;
+            this.quantity = quantity;
+            this.mesos = mesos;
+        }
+
+        public String getBuyer() {
+            return buyer;
+        }
+
+        public int getItemId() {
+            return itemid;
+        }
+
+        public short getQuantity() {
+            return quantity;
+        }
+
+        public int getMesos() {
+            return mesos;
+        }
     }
 }

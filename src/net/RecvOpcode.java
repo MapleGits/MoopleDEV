@@ -106,7 +106,7 @@ public enum RecvOpcode {
     TROCK_ADD_MAP(0x66),
     REPORT(0x6A),
     QUEST_ACTION(0x6B),
-    //SOMETHING WITH BUFFS(0x6C), Weird, this is sent when you have combo on and when you have beholder (maybe more)
+    //SOMETHING WITH BUFFS(0x6C), Weird shet
     SKILL_MACRO(0x6E),
     SPOUSE_CHAT(0x6F),
     USE_ITEM_REWARD(0x70),

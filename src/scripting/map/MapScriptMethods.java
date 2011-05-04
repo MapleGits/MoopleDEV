@@ -34,6 +34,7 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     	super(c);
     }
 
+    String rewardstring = " title has been rewarded. Please see NPC Dalair to receive your Medal.";
     public void displayAranIntro() {
         switch (c.getPlayer().getMapId()) {
             case 914090010:
@@ -160,11 +161,21 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         MapleQuestStatus q = getPlayer().getQuest(quest);
         if (!q.addMedalMap(getPlayer().getMapId())) return;
         String status = Integer.toString(q.getMedalProgress());
+        int infoex = quest.getInfoEx();
         getPlayer().announce(MaplePacketCreator.questProgress(quest.getInfoNumber(), status));
-        getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/" + quest.getInfoEx() + " regions explored."));
-        getPlayer().announce(MaplePacketCreator.earnTitleMessage("Trying for the " + questName + " title."));
-        getPlayer().announce(MaplePacketCreator.showMedalProgress("You made progress on the " + questName + " title. " + status + "/" + quest.getInfoEx()));
-        if (q.getMedalProgress() == quest.getInfoEx()) getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+        StringBuilder smp = new StringBuilder();
+        StringBuilder etm = new StringBuilder();
+        if (q.getMedalProgress() == infoex) {
+            etm.append("Earned the ").append(questName).append(" title!");
+            smp.append("You have earned the <").append(questName).append(">").append(rewardstring);
+            getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+        } else {
+            getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/" + infoex + " regions explored."));
+            etm.append("Trying for the ").append(questName).append(" title.");
+            smp.append("You made progress on the ").append(questName).append(" title. ").append(status).append("/").append(infoex);
+        }
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage(etm.toString()));
+        showInfoText(smp.toString());
     }
 
     public void touchTheSky() { //29004
@@ -176,10 +187,12 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         if (!q.addMedalMap(getPlayer().getMapId())) return;
         String status = Integer.toString(q.getMedalProgress());
         getPlayer().announce(MaplePacketCreator.questProgress(quest.getInfoNumber(), status));
-        getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/5 Regions Completed"));
+        getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/5 Completed"));
         getPlayer().announce(MaplePacketCreator.earnTitleMessage("The One Who's Touched the Sky title in progress."));
-        getPlayer().announce(MaplePacketCreator.showMedalProgress("The One Who's Touched the Sky title in progress. " + status + "/5 Completed"));
-        if (q.getMedalProgress() == quest.getInfoEx()) getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+        if (q.getMedalProgress() == quest.getInfoEx()) {
+            showInfoText("The One Who's Touched the Sky" + rewardstring);
+            getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
+        } else showInfoText("The One Who's Touched the Sky title in progress. " + status + "/5 Completed");
     }
 }
 

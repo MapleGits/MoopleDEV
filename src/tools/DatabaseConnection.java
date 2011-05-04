@@ -21,30 +21,19 @@
 */
 package tools;
 
+import constants.ServerConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DatabaseConnection {
     private static ThreadLocal<Connection> con = new ThreadLocalConnection();
-    private static String url;
-    private static String user;
-    private static String pass;
-    private static boolean initialized = false;
+    private static String url = ServerConstants.DB_URL;
+    private static String user = ServerConstants.DB_USER;
+    private static String pass = ServerConstants.DB_PASS;
 
     public static Connection getConnection() {
-        if (!initialized) {
-            throw new IllegalStateException("DatabaseConnection not initialized");
-        }
         return con.get();
-    }
-
-    public static void initialize(Properties props) {
-        url = props.getProperty("url");
-        user = props.getProperty("user");
-        pass = props.getProperty("password");
-        initialized = true;
     }
 
     public static void release() throws SQLException {
@@ -71,7 +60,7 @@ public class DatabaseConnection {
             try {
                 return DriverManager.getConnection(url, user, pass);
             } catch (SQLException sql) {
-                System.out.println("Could not create a SQL Connection object. Please make sure you've correctly configured db.properties.");
+                System.out.println("Could not create a SQL Connection object. Please make sure you've correctly configured the database properties inside constants/ServerConstants.java. MAKE SURE YOU COMPILED!");
                 return null;
             }
         }

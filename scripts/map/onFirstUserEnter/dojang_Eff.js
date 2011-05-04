@@ -37,7 +37,7 @@ function start(ms) {
             ms.getPlayer().showDojoClock();
         if (stage % 6 > 0) {
             var realstage = stage - ((stage / 6) | 0);
-            ms.getClient().getSession().write(MaplePacketCreator.getEnergy(ms.getPlayer().getDojoEnergy()));
+            ms.getClient().getSession().write(MaplePacketCreator.getEnergy("energy", ms.getPlayer().getDojoEnergy()));
             var mob = MapleLifeFactory.getMonster(9300183 + realstage);
             if (mob != null && ms.getPlayer().getMap().getMonsterById(9300183 + realstage) == null && ms.getPlayer().getMap().getMonsterById(9300216) == null) {
                 mob.setBoss(false);

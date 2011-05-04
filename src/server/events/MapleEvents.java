@@ -22,90 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package server.events;
 
-import client.MapleCharacter;
-import client.SkillFactory;
-
 /**
- * Gey method, improve it next revs
  * @author kevintjuh93
  */
 public class MapleEvents {
-    private RescueGaga rescueGaga = null;
-    private ArtifactHunt artifacts = null;
-
-    public MapleEvents(RescueGaga rgaga, ArtifactHunt ahunt) {
-        this.rescueGaga = rgaga;
-        this.artifacts = ahunt;
-    }
-
-    public RescueGaga getGagaRescue() {
-        return rescueGaga;
-    }
-
-    public ArtifactHunt getArtifactHunt() {
-        return artifacts;
-    }
-
-   public static class RescueGaga {
-        private byte fallen;
-        private int completed;
-
-        public RescueGaga(int completed) {
-            this.completed = completed;
-            this.fallen = 0;
-        }
-
-        public int fallAndGet() {
-            fallen++;
-            if (fallen > 3) {
-                fallen = 0;
-                return 4;
-            }
-            return fallen;
-        }
-
-        public byte getFallen() {
-            return fallen;
-        }
-
-        public int getCompleted() {
-            return completed;
-        }
-
-        public void complete() {
-            completed++;
-        }
-
-        public void giveSkill(MapleCharacter chr) {
-            int skillid = 0;
-            switch (chr.getJobType()) {
-                case 0:
-                    skillid = 1013;
-                    break;
-                case 1:
-                case 2:
-                    skillid = 10001014;
-            }
-            long expiration = (System.currentTimeMillis() + (long) (3600 * 24 * 20 * 1000));//20 days
-            if (completed < 20) {
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid), (byte) 1, 1, expiration);
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 1), (byte) 1, 1, expiration);
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid + 2), (byte) 1, 1, expiration);
-            } else {
-                chr.changeSkillLevel(SkillFactory.getSkill(skillid), (byte) 2, 2, chr.getSkillExpiration(skillid));
-            }
-        }
-    }
-
-    public static class ArtifactHunt {
-        private int amount;
-
-        public ArtifactHunt(int amount) {
-            this.amount = amount;
-        }
-
-        public int getAmount() {
-            return amount;
-        }
+    public MapleEvents() {
+     
     }
 }

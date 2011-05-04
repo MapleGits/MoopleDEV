@@ -23,7 +23,7 @@ package net;
 
 import client.MapleClient;
 import constants.ServerConstants;
-import net.channel.ChannelServer;
+import net.server.Server;
 import tools.MapleAESOFB;
 import tools.MaplePacketCreator;
 import tools.data.input.ByteArrayByteStream;
@@ -36,14 +36,16 @@ import org.apache.mina.core.session.IdleStatus;
 public class MapleServerHandler extends IoHandlerAdapter {
     private PacketProcessor processor;
     private int channel = -1;
+    private int world = -1;
 
     public MapleServerHandler(PacketProcessor processor) {
         this.processor = processor;
     }
 
-    public MapleServerHandler(PacketProcessor processor, int channel) {
+    public MapleServerHandler(PacketProcessor processor, int channel, int world) {
         this.processor = processor;
         this.channel = channel;
+        this.world = world;
     }
 
     @Override
@@ -57,17 +59,23 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        String accountname = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName();
-        if (accountname != null)
-            System.out.println(accountname + " caught an exception: " + cause.toString());
-        //cause.printStackTrace();
+        try {
+            MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
+            if (client != null) ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void sessionOpened(IoSession session) throws Exception {
+        if (!Server.getInstance().isOnline()) {
+            session.close(true);
+            return;
+        }
         System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
-        if (channel > -1) {
-            if (ChannelServer.getInstance(channel).isShutdown()) {
+        if (channel > -1 && world > -1) {
+            if (Server.getInstance().getChannel(world, channel).isShutdown()) {
                 session.close(true);
                 return;
             }
@@ -80,6 +88,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
         MapleAESOFB sendCypher = new MapleAESOFB(key, ivSend, (short) (0xFFFF - ServerConstants.VERSION));
         MapleAESOFB recvCypher = new MapleAESOFB(key, ivRecv, (short) ServerConstants.VERSION);
         MapleClient client = new MapleClient(sendCypher, recvCypher, session);
+        client.setWorld(world);
         client.setChannel(channel);
         session.write(MaplePacketCreator.getHello(ServerConstants.VERSION, ivSend, ivRecv));
         session.setAttribute(MapleClient.CLIENT_KEY, client);

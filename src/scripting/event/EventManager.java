@@ -31,8 +31,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.Invocable;
 import javax.script.ScriptException;
-import net.channel.ChannelServer;
-import net.world.MapleParty;
+import net.server.Channel;
+import net.server.MapleParty;
 import server.TimerManager;
 import server.maps.MapleMap;
 
@@ -42,13 +42,13 @@ import server.maps.MapleMap;
  */
 public class EventManager {
     private Invocable iv;
-    private ChannelServer cserv;
+    private Channel cserv;
     private Map<String, EventInstanceManager> instances = new HashMap<String, EventInstanceManager>();
     private Properties props = new Properties();
     private String name;
     private ScheduledFuture<?> schedule = null;
 
-    public EventManager(ChannelServer cserv, Invocable iv, String name) {
+    public EventManager(Channel cserv, Invocable iv, String name) {
         this.iv = iv;
         this.cserv = cserv;
         this.name = name;
@@ -100,7 +100,7 @@ public class EventManager {
         }, timestamp);
     }
 
-    public ChannelServer getChannelServer() {
+    public Channel getChannelServer() {
         return cserv;
     }
 

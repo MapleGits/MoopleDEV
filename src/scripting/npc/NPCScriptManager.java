@@ -55,10 +55,10 @@ public class NPCScriptManager extends AbstractScriptManager {
             cms.put(c, cm);
             Invocable iv = null;
             if (filename != null) {
-                iv = getInvocable("npc/" + filename + ".js", c);
+                iv = getInvocable("npc/world" + c.getWorld() + "/" + filename + ".js", c);
             }
             if (iv == null) {
-                iv = getInvocable("npc/" + npc + ".js", c);
+                iv = getInvocable("npc/world" + c.getWorld() + "/" + npc + ".js", c);
             }
             if (iv == null || NPCScriptManager.getInstance() == null) {
                 dispose(c);
@@ -77,12 +77,12 @@ public class NPCScriptManager extends AbstractScriptManager {
             System.out.println("Error: NPC " + npc + ". UndeclaredThrowableException.");
             dispose(c);
             cms.remove(c);
-            notice(c);
+            notice(c, npc);
         } catch (Exception e) {
             System.out.println("Error: NPC " + npc + ".");
             dispose(c);
             cms.remove(c);
-            notice(c);
+            notice(c, npc);
         }
     }
 
@@ -95,11 +95,11 @@ public class NPCScriptManager extends AbstractScriptManager {
                 ute.printStackTrace();
                 System.out.println("Error: NPC " + getCM(c).getNpc() + ". UndeclaredThrowableException.");
                 dispose(c);
-                notice(c);
+                notice(c, getCM(c).getNpc());
             } catch (Exception e) {
                 System.out.println("Error: NPC " + getCM(c).getNpc() + ".");
                 dispose(c);
-                notice(c);
+                notice(c, getCM(c).getNpc());
             }
         }
     }
@@ -120,7 +120,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         return cms.get(c);
     }
 
-    private void notice(MapleClient c) {
-        c.getPlayer().dropMessage(1, "This NPC is not working properly. Please report it.");
+    private void notice(MapleClient c, int id) {
+        c.getPlayer().dropMessage(1, "This NPC is not working properly. Please report it. NPCID: " + id);
     }
 }

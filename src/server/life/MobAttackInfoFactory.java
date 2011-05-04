@@ -28,7 +28,6 @@ import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
-import tools.Pair;
 import tools.StringUtil;
 
 /**
@@ -36,16 +35,16 @@ import tools.StringUtil;
  * @author Danny (Leifde)
  */
 public class MobAttackInfoFactory {
-    private static Map<Pair<Integer, Integer>, MobAttackInfo> mobAttacks = new HashMap<Pair<Integer, Integer>, MobAttackInfo>();
+    private static Map<String, MobAttackInfo> mobAttacks = new HashMap<String, MobAttackInfo>();
     private static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Mob.wz"));
 
     public static MobAttackInfo getMobAttackInfo(MapleMonster mob, int attack) {
-        MobAttackInfo ret = mobAttacks.get(new Pair<Integer, Integer>(Integer.valueOf(mob.getId()), Integer.valueOf(attack)));
+        MobAttackInfo ret = mobAttacks.get(mob.getId() + "" + attack);
         if (ret != null) {
             return ret;
         }
         synchronized (mobAttacks) {
-            ret = mobAttacks.get(new Pair<Integer, Integer>(Integer.valueOf(mob.getId()), Integer.valueOf(attack)));
+            ret = mobAttacks.get(mob.getId() + "" + attack);
             if (ret == null) {
                 MapleData mobData = dataSource.getData(StringUtil.getLeftPaddedStr(Integer.toString(mob.getId()) + ".img", '0', 11));
                 if (mobData != null) {
@@ -69,7 +68,7 @@ public class MobAttackInfoFactory {
                         ret.setMpCon(mpCon);
                     }
                 }
-                mobAttacks.put(new Pair<Integer, Integer>(Integer.valueOf(mob.getId()), Integer.valueOf(attack)), ret);
+                mobAttacks.put(mob.getId() + "" + attack, ret);
             }
             return ret;
         }

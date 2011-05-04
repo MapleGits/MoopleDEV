@@ -201,13 +201,12 @@ public class MapleQuest {
 
     public boolean forceStart(MapleCharacter c, int npc) {
         if (!canStart(c, npc)) return false;
+
         MapleQuestStatus newStatus = new MapleQuestStatus(this, MapleQuestStatus.Status.STARTED, npc);
         newStatus.setForfeited(c.getQuest(this).getForfeited());
 
         if (timeLimit > 0) c.questTimeLimit(this, 30000);//timeLimit * 1000
-        if (timeLimit2 > 0) {
-            long limit = timeLimit2 * 1000;
-            limit += System.currentTimeMillis();
+        if (timeLimit2 > 0) {//=\
 
         }
         c.updateQuest(newStatus);
@@ -216,6 +215,7 @@ public class MapleQuest {
 
     public boolean forceComplete(MapleCharacter c, int npc) {
         if (!canComplete(c, npc)) return false;
+
         MapleQuestStatus newStatus = new MapleQuestStatus(this, MapleQuestStatus.Status.COMPLETED, npc);
         newStatus.setForfeited(c.getQuest(this).getForfeited());
         newStatus.setCompletionTime(System.currentTimeMillis());

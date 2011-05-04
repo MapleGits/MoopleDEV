@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import net.channel.ChannelServer;
+import net.server.Channel;
 import scripting.AbstractScriptManager;
 
 /**
@@ -46,7 +46,7 @@ public class EventScriptManager extends AbstractScriptManager {
     }
     private Map<String, EventEntry> events = new LinkedHashMap<String, EventEntry>();
 
-    public EventScriptManager(ChannelServer cserv, String[] scripts) {
+    public EventScriptManager(Channel cserv, String[] scripts) {
         super();
         for (String script : scripts) {
             if (!script.equals("")) {
@@ -71,8 +71,10 @@ public class EventScriptManager extends AbstractScriptManager {
                 entry.iv.invokeFunction("init", (Object) null);
             } catch (ScriptException ex) {
                 Logger.getLogger(EventScriptManager.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Error on script: " + entry.em.getName());
             } catch (NoSuchMethodException ex) {
                 Logger.getLogger(EventScriptManager.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Error on script: " + entry.em.getName());
             }
         }
     }

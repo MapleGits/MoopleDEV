@@ -23,6 +23,7 @@ package server.maps;
 
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import tools.Pair;
 
@@ -32,7 +33,7 @@ import tools.Pair;
 public class MapleReactorStats {
     private Point tl;
     private Point br;
-    private Map<Byte, StateData> stateInfo = new HashMap<Byte, StateData>();
+    private Map<Byte, Pair<StateData, StateData>> stateInfo = new HashMap<Byte, Pair<StateData, StateData>>();
 
     public void setTL(Point tl) {
         this.tl = tl;
@@ -50,12 +51,16 @@ public class MapleReactorStats {
         return br;
     }
 
-    public void addState(byte state, int type, Pair<Integer, Integer> reactItem, byte nextState) {
-        stateInfo.put(state, new StateData(type, reactItem, nextState));
+    public void addState(byte state, StateData data1, StateData data2) {
+        stateInfo.put(state, new Pair<StateData, StateData>(data1, data2));
     }
 
-    public byte getNextState(byte state) {
-        StateData nextState = stateInfo.get(state);
+    public byte getNextState(byte state, boolean left) {
+        System.out.println("Size: " + stateInfo.size());
+        System.out.println("State: " + state);
+        System.out.println("Left StateInfo: " + stateInfo.get(state).getLeft().toString());
+        if (stateInfo.get(state) == null) return -1;
+        StateData nextState = left ? stateInfo.get(state).getLeft() : stateInfo.get(state).getRight();
         if (nextState != null) {
             return nextState.getNextState();
         } else {
@@ -63,8 +68,17 @@ public class MapleReactorStats {
         }
     }
 
+    public List<Integer> getActiveSkills(byte state) {
+        StateData nextState = stateInfo.get(state).getLeft();
+        if (nextState != null) {
+            return nextState.getActiveSkills();
+        } else {
+            return null;
+        }
+    }
+
     public int getType(byte state) {
-        StateData nextState = stateInfo.get(state);
+        StateData nextState = stateInfo.get(state).getLeft();
         if (nextState != null) {
             return nextState.getType();
         } else {
@@ -73,7 +87,7 @@ public class MapleReactorStats {
     }
 
     public Pair<Integer, Integer> getReactItem(byte state) {
-        StateData nextState = stateInfo.get(state);
+        StateData nextState = stateInfo.get(state).getLeft();
         if (nextState != null) {
             return nextState.getReactItem();
         } else {
@@ -81,14 +95,17 @@ public class MapleReactorStats {
         }
     }
 
-    private class StateData {
+
+    public static class StateData {
         private int type;
         private Pair<Integer, Integer> reactItem;
+        private List<Integer> activeSkills;
         private byte nextState;
 
-        private StateData(int type, Pair<Integer, Integer> reactItem, byte nextState) {
+        public StateData(int type, Pair<Integer, Integer> reactItem, List<Integer> activeSkills, byte nextState) {
             this.type = type;
             this.reactItem = reactItem;
+            this.activeSkills = activeSkills;
             this.nextState = nextState;
         }
 
@@ -102,6 +119,10 @@ public class MapleReactorStats {
 
         private Pair<Integer, Integer> getReactItem() {
             return reactItem;
+        }
+
+        private List<Integer> getActiveSkills() {
+            return activeSkills;
         }
     }
 }

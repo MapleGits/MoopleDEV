@@ -48,7 +48,6 @@ import tools.Pair;
  * @author Flav
  */
 public class CashShop {
-
     public static class CashItem {
 
         private int sn, itemId, price;
@@ -107,11 +106,34 @@ public class CashShop {
             return item;
         }
     }
+    public static class SpecialCashItem {
+        private int sn, modifier;
+        private byte info; //?
+
+        public SpecialCashItem(int sn, int modifier, byte info) {
+            this.sn = sn;
+            this.modifier = modifier;
+            this.info = info;
+        }
+
+        public int getSN() {
+            return sn;
+        }
+
+        public int getModifier() {
+            return modifier;
+        }
+
+        public byte getInfo() {
+            return info;
+        }
+    }
 
     public static class CashItemFactory {
 
         private static final Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
         private static final Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
+        private static final List<SpecialCashItem> specialcashitems = new ArrayList<SpecialCashItem>();
 
         static {
             MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));
@@ -135,6 +157,15 @@ public class CashShop {
 
                 packages.put(Integer.parseInt(cashPackage.getName()), cPackage);
             }
+            try {
+                PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM specialcashitems");
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    specialcashitems.add(new SpecialCashItem(rs.getInt("sn"), rs.getInt("modifier"), rs.getByte("info")));
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
 
         public static CashItem getItem(int sn) {
@@ -153,6 +184,10 @@ public class CashShop {
 
         public static boolean isPackage(int itemId) {
             return packages.containsKey(itemId);
+        }
+
+        public static List<SpecialCashItem> getSpecialCashItems() {
+            return specialcashitems;
         }
     }
     private int accountId, characterId, nxCredit, maplePoint, nxPrepaid;

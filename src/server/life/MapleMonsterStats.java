@@ -35,13 +35,14 @@ import tools.Pair;
  */
 public class MapleMonsterStats {
     private int exp, hp, mp, level, PADamage, dropPeriod, cp, buffToGive, removeAfter;
-    private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack;
+    private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack, removeOnMiss;
     private String name;
     private Map<String, Integer> animationTimes = new HashMap<String, Integer>();
     private Map<Element, ElementalEffectiveness> resistance = new HashMap<Element, ElementalEffectiveness>();
     private List<Integer> revives = Collections.emptyList();
     private byte tagColor, tagBgColor;
     private List<Pair<Integer, Integer>> skills = new ArrayList<Pair<Integer, Integer>>();
+    private Pair<Integer, Integer> cool = null;
     private BanishInfo banish;
     private loseItem loseItem;
 
@@ -259,5 +260,21 @@ public class MapleMonsterStats {
 
     public boolean isExplosiveReward() {
         return isExplosiveReward;
+    }
+
+    public void setRemoveOnMiss(boolean removeOnMiss) {
+        this.removeOnMiss = removeOnMiss;
+    }
+
+    public boolean removeOnMiss() {
+        return removeOnMiss;
+    }
+
+    public void setCool(Pair<Integer, Integer> cool) {
+        this.cool = cool;
+    }
+
+    public Pair<Integer, Integer> getCool() {
+        return cool;
     }
 }

@@ -27,20 +27,20 @@ import client.MapleCharacter;
 import server.maps.MapleMap;
 
 public class SpawnPoint {
-    private MapleMonster monster;
+    private int monster;
     private Point pos;
     private long nextPossibleSpawn;
     private int mobTime, team;
     private AtomicInteger spawnedMonsters = new AtomicInteger(0);
     private boolean immobile;
 
-    public SpawnPoint(MapleMonster monster, Point pos, int mobTime, int team) {
+    public SpawnPoint(int monster, Point pos, int mobTime, int team) {
         super();
         this.monster = monster;
         this.pos = new Point(pos);
         this.mobTime = mobTime;
         this.team = team;
-        this.immobile = !monster.isMobile();
+        //this.immobile = !monster.isMobile();
         this.nextPossibleSpawn = System.currentTimeMillis();
     }
 
@@ -56,7 +56,7 @@ public class SpawnPoint {
     }
 
     public MapleMonster spawnMonster(MapleMap mapleMap) {
-        MapleMonster mob = new MapleMonster(monster);
+        MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
         mob.setPosition(new Point(pos));
         mob.setTeam(team);
         spawnedMonsters.incrementAndGet();

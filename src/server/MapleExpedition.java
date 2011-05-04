@@ -66,7 +66,7 @@ public class MapleExpedition {
             return Expedition.UNDEFINED;
         }
     }
-    //Code further, too lazy now
+
     private Expedition expedition;
     private int leader;
     

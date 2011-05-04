@@ -38,26 +38,25 @@ import client.MapleStat;
 import client.SkillFactory;
 import tools.Randomizer;
 import java.io.File;
-import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import net.channel.ChannelServer;
+import net.server.Channel;
 import tools.DatabaseConnection;
-import net.world.MapleParty;
-import net.world.guild.MapleAlliance;
-import net.world.guild.MapleGuild;
-import net.world.remote.WorldChannelInterface;
+import net.server.MapleParty;
+import net.server.MaplePartyCharacter;
+import net.server.Server;
+import net.server.guild.MapleAlliance;
+import net.server.guild.MapleGuild;
 import provider.MapleData;
 import provider.MapleDataProviderFactory;
 import scripting.AbstractPlayerInteraction;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
-import server.MapleSquad;
-import server.MapleSquadType;
 import server.MapleStatEffect;
-import server.events.MapleEvent;
-import server.maps.MapleMap;
+import server.events.gm.MapleEvent;
+import server.partyquest.Pyramid;
+import server.partyquest.Pyramid.PyramidMode;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 
@@ -250,10 +249,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getClient().getChannelServer().getMapFactory().getMap(mapid).resetReactors();
     }
 
-    public void environmentChange(String env, int mode) {
-        getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(env, mode));
-    }
-
     public void gainCloseness(int closeness) {
         for (MaplePet pet : getPlayer().getPets()) {
             if (pet.getCloseness() > 30000) {
@@ -334,10 +329,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             ps.setInt(1, allianceId);
             ps.executeUpdate();
             ps.close();
-            c.getChannelServer().getWorldInterface().allianceMessage(c.getPlayer().getGuild().getAllianceId(), MaplePacketCreator.disbandAlliance(allianceId), -1, -1);
-            c.getChannelServer().getWorldInterface().disbandAlliance(allianceId);
-        } catch (RemoteException r) {
-            c.getChannelServer().reconnectWorld();
+            Server.getInstance().allianceMessage(c.getPlayer().getGuild().getAllianceId(), MaplePacketCreator.disbandAlliance(allianceId), -1, -1);
+            Server.getInstance().disbandAlliance(allianceId);
         } catch (SQLException sqle) {
             sqle.printStackTrace();
         } finally {
@@ -367,6 +360,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             rs.close();
             return true;
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -376,7 +370,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         int guild1 = chr1.getGuildId();
         int guild2 = chr2.getGuildId();
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `alliance` (`name`, `guild1`, `guild2`) VALUES (?, ?, ?)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `alliance` (`name`, `guild1`, `guild2`) VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, name);
             ps.setInt(2, guild1);
             ps.setInt(3, guild2);
@@ -392,18 +386,15 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         }
         MapleAlliance alliance = new MapleAlliance(name, id, guild1, guild2);
         try {
-            WorldChannelInterface wci = chr1.getClient().getChannelServer().getWorldInterface();
-            wci.setGuildAllianceId(guild1, id);
-            wci.setGuildAllianceId(guild2, id);
+            Server.getInstance().setGuildAllianceId(guild1, id);
+            Server.getInstance().setGuildAllianceId(guild2, id);
             chr1.setAllianceRank(1);
             chr1.saveGuildStatus();
             chr2.setAllianceRank(2);
             chr2.saveGuildStatus();
-            wci.addAlliance(id, alliance);
-            wci.allianceMessage(id, MaplePacketCreator.makeNewAlliance(alliance, chr1.getClient()), -1, -1);
-        } catch (RemoteException e) {
-            chr1.getClient().getChannelServer().reconnectWorld();
-            chr2.getClient().getChannelServer().reconnectWorld();
+            Server.getInstance().addAlliance(id, alliance);
+            Server.getInstance().allianceMessage(id, MaplePacketCreator.makeNewAlliance(alliance, chr1.getClient()), -1, -1);
+        } catch (Exception e) {
             return null;
         }
         return alliance;
@@ -414,7 +405,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             return null;
         }
         List<MapleCharacter> chars = new LinkedList<MapleCharacter>();
-        for (ChannelServer channel : ChannelServer.getAllInstances()) {
+        for (Channel channel : Server.getInstance().getChannelsFromWorld(getPlayer().getWorld())) {
             for (MapleCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
                 if (chr != null) {
                     chars.add(chr);
@@ -466,95 +457,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return inMap;
     }
 
-    public MapleSquad createMapleSquad(MapleSquadType type) {
-        MapleSquad squad = new MapleSquad(c.getChannel(), getPlayer());
-        if (getSquadState(type) == 0) {
-            c.getChannelServer().addMapleSquad(squad, type);
-        } else {
-            return null;
-        }
-        return squad;
-    }
-
-    public MapleCharacter getSquadMember(MapleSquadType type, int index) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        MapleCharacter ret = null;
-        if (squad != null) {
-            ret = squad.getMembers().get(index);
-        }
-        return ret;
-    }
-
-    public int getSquadState(MapleSquadType type) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            return squad.getStatus();
-        }
-        return 0;
-    }
-
-    public void setSquadState(MapleSquadType type, int state) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            squad.setStatus(state);
-        }
-    }
-
-    public boolean checkSquadLeader(MapleSquadType type) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            return squad.getLeader().getId() == getPlayer().getId();
-        }
-        return false;
-    }
-
-    public int numSquadMembers(MapleSquadType type) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        int ret = 0;
-        if (squad != null) {
-            ret = squad.getSquadSize();
-        }
-        return ret;
-    }
-
-    public boolean isSquadMember(MapleSquadType type) {
-        return c.getChannelServer().getMapleSquad(type).containsMember(getPlayer());
-    }
-
-    public void addSquadMember(MapleSquadType type) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            squad.addMember(getPlayer());
-        }
-    }
-
-    public void removeSquadMember(MapleSquadType type, int index, boolean ban) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            squad.banMember(squad.getMembers().get(index), ban);
-        }
-    }
-
-    public boolean canAddSquadMember(MapleSquadType type) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        if (squad != null) {
-            return !squad.isBanned(getPlayer());
-        }
-        return false;
-    }
-
-    public void warpSquadMembers(MapleSquadType type, int mapId) {
-        MapleSquad squad = c.getChannelServer().getMapleSquad(type);
-        MapleMap map = c.getChannelServer().getMapFactory().getMap(mapId);
-        if (squad != null) {
-            if (checkSquadLeader(type)) {
-                for (MapleCharacter chr : squad.getMembers()) {
-                    chr.changeMap(map, map.getPortal(0));
-                }
-            }
-        }
-    }
-
     public MapleEvent getEvent() {
         return c.getChannelServer().getEvent();
     }
@@ -563,5 +465,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         if (getEvent() != null) {
             getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }
+    }
+
+    public void createPyramid(String mode) {
+        MapleParty party = getPlayer().getParty();
+        if (party == null) party = new MapleParty(-1, new MaplePartyCharacter(getPlayer()));//Only when the player isn't in a party
+        getPlayer().setPartyQuest(new Pyramid(party, PyramidMode.valueOf(mode)));
     }
 }

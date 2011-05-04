@@ -21,7 +21,6 @@
 */
 package client;
 
-import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,14 +41,12 @@ import java.util.concurrent.ScheduledFuture;
 import javax.script.ScriptEngine;
 import net.MaplePacket;
 import tools.DatabaseConnection;
-import net.channel.ChannelServer;
-import net.login.LoginServer;
-import net.world.MapleMessengerCharacter;
-import net.world.MaplePartyCharacter;
-import net.world.PartyOperation;
-import net.world.PlayerStorage;
-import net.world.guild.MapleGuildCharacter;
-import net.world.remote.WorldChannelInterface;
+import net.server.Channel;
+import net.server.Server;
+import net.server.MapleMessengerCharacter;
+import net.server.MaplePartyCharacter;
+import net.server.PartyOperation;
+import net.server.guild.MapleGuildCharacter;
 import scripting.npc.NPCConversationManager;
 import scripting.npc.NPCScriptManager;
 import scripting.quest.QuestActionManager;
@@ -86,7 +83,7 @@ public class MapleClient {
     private Set<String> macs = new HashSet<String>();
     private Map<String, ScriptEngine> engines = new HashMap<String, ScriptEngine>();
     private ScheduledFuture<?> idleTask = null;
-    private short characterSlots = 5;
+    private short characterSlots = 3;
     private byte loginattempt = 0;
     private String pin = null;
     private int pinattempt = 0;
@@ -125,7 +122,7 @@ public class MapleClient {
     }
 
     public List<MapleCharacter> loadCharacters(int serverId) {
-        List<MapleCharacter> chars = new ArrayList<MapleCharacter>(6);
+        List<MapleCharacter> chars = new ArrayList<MapleCharacter>(6);//6?
         try {
             for (CharNameAndId cni : loadCharactersInternal(serverId)) {
                 chars.add(MapleCharacter.loadCharFromDB(cni.id, this, false));
@@ -454,7 +451,7 @@ public class MapleClient {
 
     public static String getChannelServerIPFromSubnet(String clientIPAddress, int channel) {
         long ipAddress = dottedQuadToLong(clientIPAddress);
-        Properties subnetInfo = LoginServer.getInstance().getSubnetInfo();
+        Properties subnetInfo = Server.getInstance().getSubnetInfo();
         if (subnetInfo.contains("net.login.subnetcount")) {
             int subnetCount = Integer.parseInt(subnetInfo.getProperty("net.login.subnetcount"));
             for (int i = 0; i < subnetCount; i++) {
@@ -570,6 +567,7 @@ public class MapleClient {
     }
 
     public void disconnect() {
+        try {
         if (player != null && isLoggedIn()) {
             if (player.getTrade() != null) {
                 MapleTrade.cancelTrade(player);
@@ -602,16 +600,11 @@ public class MapleClient {
                     System.out.println("Error while saving Hired Merchant items.");
                 }
             }
-            try {
-                WorldChannelInterface wci = getChannelServer().getWorldInterface();
                 if (player.getMessenger() != null) {
                     MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(player);
-                    wci.leaveMessenger(player.getMessenger().getId(), messengerplayer);
+                    Server.getInstance().getWorld(world).leaveMessenger(player.getMessenger().getId(), messengerplayer);
                     player.setMessenger(null);
                 }
-            } catch (RemoteException e) {
-                getChannelServer().reconnectWorld();
-            }
             NPCScriptManager npcsm = NPCScriptManager.getInstance();
             if (npcsm != null) {
                 npcsm.dispose(this);
@@ -622,7 +615,7 @@ public class MapleClient {
 
             
             player.setMessenger(null);
-            player.getExpirationTask().cancel(true);
+            player.cancelExpirationTask();
             for (ScheduledFuture<?> sf : player.getTimers())
                 sf.cancel(true);
 
@@ -638,38 +631,34 @@ public class MapleClient {
             player.saveToDB(true);
             player.getMap().removePlayer(player);
             try {
-                WorldChannelInterface wci = getChannelServer().getWorldInterface();
                 if (player.getParty() != null) {
                     MaplePartyCharacter chrp = player.getMPC();
                     chrp.setOnline(false);
-                    wci.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
+                    Server.getInstance().getWorld(world).updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                 }
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             try {
-                WorldChannelInterface wci = getChannelServer().getWorldInterface();
                 if (!this.serverTransition && isLoggedIn()) {
-                    wci.loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                    Server.getInstance().getWorld(world).loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
                 } else {
-                    wci.loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                    Server.getInstance().getWorld(world).loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
                 }
                 if (player.getGuildId() > 0) {
-                    wci.setGuildMemberOnline(player.getMGC(), false, -1);
+                    Server.getInstance().setGuildMemberOnline(player.getMGC(), false, -1);
                     int allianceId = player.getGuild().getAllianceId();
                     if (allianceId > 0) {
-                        wci.allianceMessage(allianceId, MaplePacketCreator.allianceMemberOnline(player, false), player.getId(), -1);
+                        Server.getInstance().allianceMessage(allianceId, MaplePacketCreator.allianceMemberOnline(player, false), player.getId(), -1);
                     }
                 }
-            } catch (RemoteException e) {
-                getChannelServer().reconnectWorld();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 if (getChannelServer() != null) {
                     getChannelServer().removePlayer(player);
                 }
-                PlayerStorage.getInstance().removePlayer(player.getId());
+                Server.getInstance().getWorld(world).getPlayerStorage().removePlayer(player.getId());
                 player = null;
                 session.close(true);
             }
@@ -677,14 +666,24 @@ public class MapleClient {
         if (!this.serverTransition && isLoggedIn()) {
             this.updateLoginState(LOGIN_NOTLOGGEDIN);
         }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while disconnecting character.");
+            player = null;
+            session.close(true);
+        }
     }
 
     public int getChannel() {
         return channel;
     }
 
-    public ChannelServer getChannelServer() {
-        return ChannelServer.getInstance(getChannel());
+    public Channel getChannelServer() {
+        return Server.getInstance().getChannel(world, channel);
+    }
+
+    public Channel getChannelServer(int channel) {
+        return Server.getInstance().getChannel(world, channel);
     }
 
     public boolean deleteCharacter(int cid) {
@@ -701,8 +700,8 @@ public class MapleClient {
 	}
             if (rs.getInt("guildid") > 0) {
                 try {
-                    LoginServer.getInstance().getWorldInterface().deleteGuildCharacter(new MapleGuildCharacter(cid, 0, rs.getString("name"), -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false, rs.getInt("allianceRank")));
-                } catch (RemoteException re) {
+                    Server.getInstance().deleteGuildCharacter(new MapleGuildCharacter(cid, 0, rs.getString("name"), -1, -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false, rs.getInt("allianceRank")));
+                } catch (Exception re) {
                     rs.close();
                     ps.close();
                     return false;
@@ -761,7 +760,7 @@ public class MapleClient {
             public void run() {
                 try {
                     if (lastPong < then) {
-                        if (getSession().isConnected()) {
+                        if (getSession() != null && getSession().isConnected()) {
                             getSession().close(true);
                         }
                     }

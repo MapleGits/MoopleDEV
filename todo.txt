@@ -1,8 +1,6 @@
-- Guild Alliances
 - Family System
 - Stability shet
 - GMS-Like Job Advancements
-- Remove RMI because it's useless
 - Vega's Spell
 - Gachapon Box event
 

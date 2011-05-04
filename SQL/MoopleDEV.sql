@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50144
 File Encoding         : 65001
 
-Date: 2011-03-11 17:58:22
+Date: 2011-05-04 20:15:51
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -126,84 +126,11 @@ CREATE TABLE `buddies` (
   PRIMARY KEY (`id`),
   KEY `buddies_ibfk_1` (`characterid`),
   CONSTRAINT `buddies_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of buddies
 -- ----------------------------
-
--- ----------------------------
--- Table structure for `channelconfig`
--- ----------------------------
-DROP TABLE IF EXISTS `channelconfig`;
-CREATE TABLE `channelconfig` (
-  `channelconfigid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `channelid` int(10) unsigned NOT NULL DEFAULT '0',
-  `name` tinytext NOT NULL,
-  `value` tinytext NOT NULL,
-  PRIMARY KEY (`channelconfigid`),
-  KEY `channelid` (`channelid`),
-  CONSTRAINT `channelconfig_ibfk_1` FOREIGN KEY (`channelid`) REFERENCES `channels` (`channelid`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
-
--- ----------------------------
--- Records of channelconfig
--- ----------------------------
-INSERT INTO `channelconfig` VALUES ('1', '2', 'channel.net.port', '7576');
-INSERT INTO `channelconfig` VALUES ('2', '3', 'channel.net.port', '7577');
-INSERT INTO `channelconfig` VALUES ('3', '4', 'channel.net.port', '7578');
-INSERT INTO `channelconfig` VALUES ('4', '5', 'channel.net.port', '7589');
-INSERT INTO `channelconfig` VALUES ('5', '6', 'channel.net.port', '7590');
-INSERT INTO `channelconfig` VALUES ('6', '7', 'channel.net.port', '7591');
-INSERT INTO `channelconfig` VALUES ('7', '8', 'channel.net.port', '7592');
-INSERT INTO `channelconfig` VALUES ('8', '9', 'channel.net.port', '7593');
-INSERT INTO `channelconfig` VALUES ('9', '10', 'channel.net.port', '7594');
-INSERT INTO `channelconfig` VALUES ('10', '11', 'channel.net.port', '7595');
-INSERT INTO `channelconfig` VALUES ('11', '12', 'channel.net.port', '7596');
-INSERT INTO `channelconfig` VALUES ('12', '13', 'channel.net.port', '7597');
-INSERT INTO `channelconfig` VALUES ('13', '14', 'channel.net.port', '7598');
-INSERT INTO `channelconfig` VALUES ('14', '15', 'channel.net.port', '7599');
-INSERT INTO `channelconfig` VALUES ('15', '16', 'channel.net.port', '7600');
-INSERT INTO `channelconfig` VALUES ('16', '17', 'channel.net.port', '7601');
-INSERT INTO `channelconfig` VALUES ('17', '18', 'channel.net.port', '7602');
-INSERT INTO `channelconfig` VALUES ('18', '19', 'channel.net.port', '7603');
-INSERT INTO `channelconfig` VALUES ('19', '20', 'channel.net.port', '7604');
-
--- ----------------------------
--- Table structure for `channels`
--- ----------------------------
-DROP TABLE IF EXISTS `channels`;
-CREATE TABLE `channels` (
-  `channelid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `world` int(11) NOT NULL DEFAULT '0',
-  `number` int(11) DEFAULT NULL,
-  `key` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`channelid`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
-
--- ----------------------------
--- Records of channels
--- ----------------------------
-INSERT INTO `channels` VALUES ('1', '0', '1', '2062e90b3ea10a86ff666a76c41aa0d9e9d88f4e');
-INSERT INTO `channels` VALUES ('2', '0', '2', '5dfc64fff3b07c7c01ebd39706ec3cf3e6c37464');
-INSERT INTO `channels` VALUES ('3', '0', '3', 'f47ef28d4a014d8de91de9f28ae6fcd52dfb5f77');
-INSERT INTO `channels` VALUES ('4', '0', '4', '33fd56a7b827c7b0b2df8ea1224521cd7c00e4e4');
-INSERT INTO `channels` VALUES ('5', '0', '5', '113f78f519e010e65853241bfcb14450c4fccb66');
-INSERT INTO `channels` VALUES ('6', '0', '6', '4abba5486022346a2b309c1c2ea6a0da41a88090');
-INSERT INTO `channels` VALUES ('7', '0', '7', '76134d11fe0c2b337e2b786bfcc738b975fcf40a');
-INSERT INTO `channels` VALUES ('8', '0', '8', '5688c244c56a884a50984130a17d0b61d06743a3');
-INSERT INTO `channels` VALUES ('9', '0', '9', '6e59a6559033c70b98148f1bd67e1b63aaeedf30');
-INSERT INTO `channels` VALUES ('10', '0', '10', '603dd499e4b134bf9925600b7f150644f9e9a50b');
-INSERT INTO `channels` VALUES ('11', '0', '11', 'b48f4c3c803f58950b005d785cf828027a83eac4');
-INSERT INTO `channels` VALUES ('12', '0', '12', '52a9458618abed6a42e228b33ade9cdf5ded10b4');
-INSERT INTO `channels` VALUES ('13', '0', '13', '190535a9ffb4d4d688ac1f3fa7dc09a6c81c3b86');
-INSERT INTO `channels` VALUES ('14', '0', '14', '5ce2b432ac85290b411ef0975b96712c1c35591a');
-INSERT INTO `channels` VALUES ('15', '0', '15', '7d8bae4945561008426174be907142196ed84275');
-INSERT INTO `channels` VALUES ('16', '0', '16', 'da0517603d42ce6f9d9bdf4871bc1ecbf7a20c3c');
-INSERT INTO `channels` VALUES ('17', '0', '17', '87c56d1e33cf26f48ac76f1bd76b6637cddd9548');
-INSERT INTO `channels` VALUES ('18', '0', '18', 'fbce35ee8db37d9bf02f444c65e49fb8a9685c28');
-INSERT INTO `channels` VALUES ('19', '0', '19', '51a2bb10ecf4e2e28fe62b405106baadb0d11090');
-INSERT INTO `channels` VALUES ('20', '0', '20', '9a071c700e4c051c354817f7e2482d148380d574');
 
 -- ----------------------------
 -- Table structure for `char_area_info`
@@ -11560,14 +11487,11 @@ CREATE TABLE `drop_data_global` (
   `comments` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `mobid` (`continent`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of drop_data_global
 -- ----------------------------
-INSERT INTO `drop_data_global` VALUES ('1', '-1', '0', '2430010', '1', '1', '0', '299999', 'Used for the artifact hunt event. 30% lol');
-INSERT INTO `drop_data_global` VALUES ('2', '-1', '0', '2270008', '1', '1', '0', '149999', 'Used for Gaga Fishing event. 15%');
-INSERT INTO `drop_data_global` VALUES ('3', '-1', '0', '4001303', '1', '1', '-10311', '0', 'Quest will auto start xD 1% chance');
 
 -- ----------------------------
 -- Table structure for `dueyitems`
@@ -11630,8 +11554,8 @@ CREATE TABLE `dueypackages` (
 DROP TABLE IF EXISTS `eventstats`;
 CREATE TABLE `eventstats` (
   `characterid` int(11) unsigned NOT NULL,
-  `rescuegaga` int(11) NOT NULL DEFAULT '0' COMMENT '0',
-  `artifacthunt` int(11) NOT NULL,
+  `name` varchar(11) NOT NULL DEFAULT '0' COMMENT '0',
+  `info` int(11) NOT NULL,
   PRIMARY KEY (`characterid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -11914,22 +11838,6 @@ CREATE TABLE `keymap` (
 -- ----------------------------
 -- Records of keymap
 -- ----------------------------
-
--- ----------------------------
--- Table structure for `loginserver`
--- ----------------------------
-DROP TABLE IF EXISTS `loginserver`;
-CREATE TABLE `loginserver` (
-  `loginserverid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(40) NOT NULL DEFAULT '',
-  `world` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`loginserverid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
-
--- ----------------------------
--- Records of loginserver
--- ----------------------------
-INSERT INTO `loginserver` VALUES ('1', 'd3703816f23fdee7fce6ba061244736b83c88fc5', '0');
 
 -- ----------------------------
 -- Table structure for `macbans`
@@ -14900,11 +14808,6 @@ CREATE TABLE `monsterbook` (
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
-INSERT INTO `monsterbook` VALUES ('30009', '2380000', '1');
-INSERT INTO `monsterbook` VALUES ('30012', '2383015', '1');
-INSERT INTO `monsterbook` VALUES ('30012', '2383023', '1');
-INSERT INTO `monsterbook` VALUES ('30012', '2380004', '1');
-INSERT INTO `monsterbook` VALUES ('30012', '2380000', '1');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
@@ -15354,23 +15257,6 @@ CREATE TABLE `pets` (
 
 -- ----------------------------
 -- Records of pets
--- ----------------------------
-
--- ----------------------------
--- Table structure for `petsaves`
--- ----------------------------
-DROP TABLE IF EXISTS `petsaves`;
-CREATE TABLE `petsaves` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `characterid` int(11) NOT NULL,
-  `petid1` int(10) NOT NULL DEFAULT '-1',
-  `petid2` int(10) NOT NULL DEFAULT '-1',
-  `petid3` int(10) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- ----------------------------
--- Records of petsaves
 -- ----------------------------
 
 -- ----------------------------
@@ -19296,6 +19182,23 @@ CREATE TABLE `skills` (
 -- ----------------------------
 -- Records of skills
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for `specialcashitems`
+-- ----------------------------
+DROP TABLE IF EXISTS `specialcashitems`;
+CREATE TABLE `specialcashitems` (
+  `id` int(11) NOT NULL,
+  `sn` int(11) NOT NULL,
+  `modifier` int(11) NOT NULL COMMENT '1024 is add/remove',
+  `info` int(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of specialcashitems
+-- ----------------------------
+INSERT INTO `specialcashitems` VALUES ('1', '92000017', '1024', '1');
 
 -- ----------------------------
 -- Table structure for `storages`

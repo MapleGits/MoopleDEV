@@ -50,9 +50,9 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ItemConstants;
 import tools.Randomizer;
-import constants.ServerConstants;
 import net.MaplePacket;
-import net.channel.ChannelServer;
+import net.server.Channel;
+import net.server.Server;
 import scripting.map.MapScriptManager;
 import server.MapleItemInformationProvider;
 import server.MaplePortal;
@@ -62,17 +62,18 @@ import server.life.MapleMonster;
 import server.life.MapleNPC;
 import server.life.SpawnPoint;
 import tools.MaplePacketCreator;
-import server.events.MapleCoconut;
-import server.events.MapleFitness;
-import server.events.MapleOla;
-import server.events.MapleOxQuiz;
-import server.events.MapleSnowball;
-import server.events.MonsterCarnival;
-import server.events.MonsterCarnivalParty;
+import server.events.gm.MapleCoconut;
+import server.events.gm.MapleFitness;
+import server.events.gm.MapleOla;
+import server.events.gm.MapleOxQuiz;
+import server.events.gm.MapleSnowball;
+import server.partyquest.MonsterCarnival;
+import server.partyquest.MonsterCarnivalParty;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonsterInformationProvider;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
+import server.partyquest.Pyramid;
 import server.quest.MapleQuest;
 import tools.Pair;
 
@@ -89,7 +90,7 @@ public class MapleMap {
     private int mapid;
     private int runningOid = 100;
     private int returnMapId;
-    private int channel;
+    private int channel, world;
     private float monsterRate;
     private boolean clock;
     private boolean boat;
@@ -110,8 +111,10 @@ public class MapleMap {
     private String onUserEnter;
     private int fieldType;
     private int fieldLimit = 0;
+    private int mobCapacity;
     private ScheduledFuture<?> mapMonitor = null;
     private Pair<Integer, String> timeMob = null;
+    private int mobInterval;
     // HPQ
     private int riceCakeNum = 0; // bad place to put this (why is it in here then)
     private boolean allowHPQSummon = false; // bad place to put this
@@ -121,9 +124,10 @@ public class MapleMap {
     private MapleSnowball snowball1 = null;
     private MapleCoconut coconut;
 
-    public MapleMap(int mapid, int channel, int returnMapId, float monsterRate) {
+    public MapleMap(int mapid, int world, int channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;
         this.channel = (short) channel;
+        this.world = world;
         this.returnMapId = returnMapId;
         this.monsterRate = monsterRate;
     }
@@ -171,7 +175,7 @@ public class MapleMap {
     }
 
     public MapleMap getReturnMap() {
-        return ChannelServer.getInstance(channel).getMapFactory().getMap(returnMapId);
+        return Server.getInstance().getWorld(world).getChannel(channel).getMapFactory().getMap(returnMapId);
     }
 
     public int getReturnMapId() {
@@ -196,7 +200,7 @@ public class MapleMap {
     }
 
     public MapleMap getForcedReturnMap() {
-        return ChannelServer.getInstance(channel).getMapFactory().getMap(forcedReturnMap);
+        return Server.getInstance().getWorld(world).getChannel(channel).getMapFactory().getMap(forcedReturnMap);
     }
 
     public void setForcedReturnMap(int map) {
@@ -317,7 +321,7 @@ public class MapleMap {
 	}
 	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
 	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
-        final int mobpos = mob.getPosition().x, chServerrate = ServerConstants.DROP_RATE;
+        final int mobpos = mob.getPosition().x, chServerrate = chr.getDropRate();
 	IItem idrop;
 	byte d = 1;
 	Point pos = new Point(0, mob.getPosition().y);
@@ -340,7 +344,7 @@ public class MapleMap {
 			if (chr.getBuffedValue(MapleBuffStat.MESOUP) != null) {
 			    mesos = (int) (mesos * chr.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
 			}
-			spawnMesoDrop(mesos * ServerConstants.MESO_RATE, calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
+			spawnMesoDrop(mesos * chr.getMesoRate(), calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
 		    }
 		} else {
 		    if (ItemConstants.getInventoryType(de.itemId) == MapleInventoryType.EQUIP) {
@@ -451,8 +455,24 @@ public class MapleMap {
         }
         if (monster.isAlive()) {
             synchronized (monster) {
-                if (!monster.isAlive()) {//lol?
+                if (!monster.isAlive()) {
                     return false;
+                }
+                Pair<Integer, Integer> cool = monster.getStats().getCool();
+                if (cool != null) {
+                    Pyramid pq = (Pyramid) chr.getPartyQuest();
+                    if (pq != null) {
+                        if (damage > 0) {
+                            if (damage >= cool.getLeft()) {
+                                if ((Math.random() * 100) < cool.getRight()) pq.cool();
+                                else pq.kill();
+                            } else pq.kill();
+                        } else
+                            pq.miss();
+
+                        killMonster(monster, chr, false);
+                        return true;
+                    }
                 }
                 if (damage > 0) {
                     monster.damage(chr, damage, true);
@@ -519,7 +539,7 @@ public class MapleMap {
             }
         }
         if (monster.getId() == 8810018) {
-            for (ChannelServer cserv : ChannelServer.getAllInstances()) {
+            for (Channel cserv : Server.getInstance().getWorld(world).getChannels()) {
                 for (MapleCharacter player : cserv.getPlayerStorage().getAllCharacters()) {
                     if (player.getMapId() == 240000000) 
                         player.message("Mysterious power arose as I heard the powerful cry of the Nine Spirit Baby Dragon.");
@@ -826,6 +846,7 @@ public class MapleMap {
     }
 
     public void spawnMonster(final MapleMonster monster) {
+        if (mobCapacity == spawnedMonstersOnMap.get()) return;
         monster.setMap(this);
         synchronized (this.mapobjects) {
             spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
@@ -1414,15 +1435,15 @@ public class MapleMap {
     }
 
     /**
-     * not threadsafe, please synchronize yourself
+     * not threadsafe, please synchronize yourself, lol
      *
      * @param monster
      * @param mobTime
      */
-    public void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
+    public synchronized void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
         Point newpos = calcPointBelow(monster.getPosition());
         newpos.y -= 1;
-        SpawnPoint sp = new SpawnPoint(monster, newpos, mobTime, team);
+        SpawnPoint sp = new SpawnPoint(monster.getId(), newpos, mobTime, team);
         monsterSpawn.add(sp);
         if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
             sp.spawnMonster(this);
@@ -1551,6 +1572,10 @@ public class MapleMap {
 
     public int getSpawnedMonstersOnMap() {
         return spawnedMonstersOnMap.get();
+    }
+
+    public void setMobCapacity(int capacity) {
+        this.mobCapacity = capacity;
     }
 
     private class ExpireMapItemJob implements Runnable {
@@ -1936,5 +1961,9 @@ public class MapleMap {
                  }
              }
         }
+    }
+
+    public void setMobInterval(int interval) {
+        this.mobInterval = interval;
     }
 }

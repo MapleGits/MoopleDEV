@@ -41,9 +41,9 @@ import client.status.MonsterStatusEffect;
 import java.awt.Point;
 import tools.Randomizer;
 import net.MaplePacket;
-import net.channel.ChannelServer;
-import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
+import net.server.Channel;
+import net.server.MapleParty;
+import net.server.MaplePartyCharacter;
 import scripting.event.EventInstanceManager;
 import server.TimerManager;
 import server.life.MapleLifeFactory.BanishInfo;
@@ -805,9 +805,9 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         private int damage;
         private int chrid;
         private long lastAttackTime;
-        private ChannelServer cserv;
+        private Channel cserv;
 
-        public SingleAttackerEntry(MapleCharacter from, ChannelServer cserv) {
+        public SingleAttackerEntry(MapleCharacter from, Channel cserv) {
             this.chrid = from.getId();
             this.cserv = cserv;
         }
@@ -890,10 +890,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
         private int totDamage;
         private Map<Integer, OnePartyAttacker> attackers;
-        private ChannelServer cserv;
+        private Channel cserv;
         private int partyid;
 
-        public PartyAttackerEntry(int partyid, ChannelServer cserv) {
+        public PartyAttackerEntry(int partyid, Channel cserv) {
             this.partyid = partyid;
             this.cserv = cserv;
             attackers = new HashMap<Integer, OnePartyAttacker>(6);

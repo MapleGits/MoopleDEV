@@ -22,49 +22,39 @@
 package server;
 
 import client.MapleCharacter;
-import java.rmi.RemoteException;
-import net.channel.ChannelServer;
+import net.server.Channel;
+import net.server.Server;
 
 /**
  * @author Frz
  */
 public class ShutdownServer implements Runnable {
-    private int myChannel;
+    private int myWorld, myChannel;
 
-    public ShutdownServer(int channel) {
+    public ShutdownServer(int world, int channel) {
+        myWorld = world;
         myChannel = channel;
     }
 
     @Override
     public void run() {
-        for (ChannelServer cs : ChannelServer.getAllInstances()) {
+        for (Channel cs : Server.getInstance().getAllChannels()) {
             for (MapleCharacter chr : cs.getPlayerStorage().getAllCharacters()) chr.getClient().disconnect();
         }
-        try {
-            ChannelServer.getInstance(myChannel).shutdown();
-        } catch (Exception t) {
-            t.printStackTrace();
-        }
-        int c = 200;
-        while (ChannelServer.getInstance(myChannel).getConnectedClients() > 0 && c > 0) {
+        /*int c = 200;
+        for (int i = 0; i < Server.getInstance().getLoad().size(); i++) {
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Server.getInstance().getRegistry().deregisterChannelServer(i, myChannel);
+            } catch (Exception e) {
             }
-            c--;
         }
         try {
-            ChannelServer.getWorldRegistry().deregisterChannelServer(myChannel);
-        } catch (RemoteException e) {
-        }
-        try {
-            ChannelServer.getInstance(myChannel).unbind();
+            Channel.getInstance(myChannel).unbind();
         } catch (Throwable t) {
             t.printStackTrace();
         }
         boolean allShutdownFinished = true;
-        for (ChannelServer cserv : ChannelServer.getAllInstances()) {
+        for (Channel cserv : Channel.getAllInstances()) {
             if (!cserv.hasFinishedShutdown()) {
                 allShutdownFinished = false;
             }
@@ -72,6 +62,6 @@ public class ShutdownServer implements Runnable {
         if (allShutdownFinished) {
             TimerManager.getInstance().stop();
             System.exit(0);
-        }
+        }*/
     }
 }

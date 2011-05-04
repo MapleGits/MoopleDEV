@@ -31,24 +31,23 @@ import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
-import tools.Pair;
 
 /**
  *
  * @author Danny (Leifde)
  */
 public class MobSkillFactory {
-    private static Map<Pair<Integer, Integer>, MobSkill> mobSkills = new HashMap<Pair<Integer, Integer>, MobSkill>();
+    private static Map<String, MobSkill> mobSkills = new HashMap<String, MobSkill>();
     private final static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Skill.wz"));
     private static MapleData skillRoot = dataSource.getData("MobSkill.img");
 
     public static MobSkill getMobSkill(int skillId, int level) {
-        MobSkill ret = mobSkills.get(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)));
+        MobSkill ret = mobSkills.get(skillId + "" + level);
         if (ret != null) {
             return ret;
         }
         synchronized (mobSkills) {
-            ret = mobSkills.get(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)));
+            ret = mobSkills.get(skillId + "" + level);
             if (ret == null) {
                 MapleData skillData = skillRoot.getChildByPath(skillId + "/level/" + level);
                 if (skillData != null) {
@@ -89,7 +88,7 @@ public class MobSkillFactory {
                     ret.setLimit(limit);
                     ret.setLtRb(lt, rb);
                 }
-                mobSkills.put(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)), ret);
+                mobSkills.put(skillId + "" + level, ret);
             }
             return ret;
         }

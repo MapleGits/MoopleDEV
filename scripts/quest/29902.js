@@ -28,7 +28,7 @@
 var status = -1;
 
 function start(mode, type, selection) {
-		if (qm.forceStartQuest()) qm.questMessage("You have earned the <Veteran Adventurer> title. You can receive a Medal from NPC Dalair.");
+		if (qm.forceStartQuest()) qm.showInfoText("You have earned the <Veteran Adventurer> title. You can receive a Medal from NPC Dalair.");
 		qm.dispose();
 }
 

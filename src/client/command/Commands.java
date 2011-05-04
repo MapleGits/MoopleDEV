@@ -38,13 +38,13 @@ import client.MaplePet;
 import client.MapleStat;
 import client.SkillFactory;
 import constants.ItemConstants;
-import constants.ServerConstants;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import tools.DatabaseConnection;
-import net.channel.ChannelServer;
+import net.server.Channel;
+import net.server.Server;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -53,7 +53,7 @@ import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleShopFactory;
-import server.events.MapleEvent;
+import server.events.gm.MapleEvent;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
@@ -76,7 +76,7 @@ public class Commands {
             chr.message("Done.");
         } else {
             if (chr.gmLevel() == 0) {
-                chr.yellowMessage("Player Command " + heading + sub[0] + " does not excist");
+                chr.yellowMessage("Player Command " + heading + sub[0] + " does not exist");
             }
             return false;
         }
@@ -84,7 +84,8 @@ public class Commands {
     }
     public static boolean executeGMCommand(MapleClient c, String[] sub, char heading) {
         MapleCharacter player = c.getPlayer();
-        ChannelServer cserv = c.getChannelServer();
+        Channel cserv = c.getChannelServer();
+        Server srv = Server.getInstance();
         if (sub[0].equals("ap")) {
             player.setRemainingAp(Integer.parseInt(sub[1]));
         } else if (sub[0].equals("buffme")) {
@@ -107,9 +108,8 @@ public class Commands {
             if (player.gmLevel() > chr.gmLevel())
                 cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
         } else if (sub[0].equals("exprate")) {
-            ServerConstants.EXP_RATE = (byte) (Integer.parseInt(sub[1]) % 128);
-            cserv.broadcastPacket(MaplePacketCreator.serverNotice(6, "Exp Rate has been changed to " + Integer.parseInt(sub[1]) + "x."));
-            for (ChannelServer cs : ChannelServer.getAllInstances()) {
+            Server.getInstance().getWorld(c.getWorld()).setExpRate((byte) (Byte.parseByte(sub[1]) % 128));
+            for (Channel cs : Server.getInstance().getChannelsFromWorld(player.getWorld())) {
                 for (MapleCharacter mc : cs.getPlayerStorage().getAllCharacters()) {
                     mc.setRates();
                 }
@@ -211,17 +211,10 @@ public class Commands {
             }
         } else if (sub[0].equals("mesoperson")) {
             cserv.getPlayerStorage().getCharacterByName(sub[1]).gainMeso(Integer.parseInt(sub[2]), true);
-        } else if (sub[0].equals("mesorate")) {
-            ServerConstants.MESO_RATE = (byte) (Integer.parseInt(sub[1]) % 128);
-            cserv.broadcastPacket(MaplePacketCreator.serverNotice(6, "Meso Rate has been changed to " + Integer.parseInt(sub[1]) + "x."));
         } else if (sub[0].equals("mesos")) {
             player.gainMeso(Integer.parseInt(sub[1]), true);
         } else if (sub[0].equals("notice")) {
-            try {
-                cserv.getWorldInterface().broadcastMessage(player.getName(), MaplePacketCreator.serverNotice(6, "[Notice] " + joinStringFrom(sub, 1)).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
+           Server.getInstance().broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(6, "[Notice] " + joinStringFrom(sub, 1)).getBytes());
         } else if (sub[0].equals("openportal")) {
            player.getMap().getPortal(sub[1]).setPortalState(true);
         } else if (sub[0].equals("closeportal")) {
@@ -237,41 +230,19 @@ public class Commands {
                 c.getChannelServer().setEvent(new MapleEvent(109010000, 50));
             } else if (sub[1].equals("ox")) {
                 c.getChannelServer().setEvent(new MapleEvent(109020001, 50));
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } else if (sub[1].equals("ola")) {
                 c.getChannelServer().setEvent(new MapleEvent(109030101, 50)); // Wrong map but still Ola Ola
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } else if (sub[1].equals("fitness")) {
                 c.getChannelServer().setEvent(new MapleEvent(109040000, 50));
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } else if (sub[1].equals("snowball")) {
                 c.getChannelServer().setEvent(new MapleEvent(109060001, 50));
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } else if (sub[1].equals("coconut")) {
                 c.getChannelServer().setEvent(new MapleEvent(109080000, 50));
-            try {
-                cserv.getWorldInterface().broadcastMessage(null, MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
-            } catch (Exception e) {
-                cserv.reconnectWorld();
-            }
-
-
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
             } else {
                 player.message("Wrong Syntax: /scheduleevent treasure, ox, ola, fitness, snowball or coconut");
             }
@@ -280,8 +251,8 @@ public class Commands {
            }
 
         } else if (sub[0].equals("online")) {
-            for (ChannelServer ch : ChannelServer.getAllInstances()) {
-                String s = "Characters online (Channel " + ch.getChannel() + " Online: " + ch.getPlayerStorage().getAllCharacters().size() + ") : ";
+            for (Channel ch : srv.getChannelsFromWorld(player.getWorld())) {
+                String s = "Characters online (Channel " + ch.getId() + " Online: " + ch.getPlayerStorage().getAllCharacters().size() + ") : ";
                 if (ch.getPlayerStorage().getAllCharacters().size() < 50) {
                     for (MapleCharacter chr : ch.getPlayerStorage().getAllCharacters()) {
                         s += MapleCharacter.makeMapleReadable(chr.getName()) + ", ";
@@ -352,8 +323,8 @@ public class Commands {
                 player.dropMessage("Invalid search.\nSyntax: '/search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
             }
         } else if (sub[0].equals("servermessage")) {
-            for (int i = 1; i <= ChannelServer.getAllInstances().size(); i++) {
-                ChannelServer.getInstance(i).setServerMessage(joinStringFrom(sub, 1));
+            for (Channel ch : srv.getChannelsFromWorld(player.getWorld())) {
+                ch.setServerMessage(joinStringFrom(sub, 1));
             }
         } else if (sub[0].equals("warpsnowball")) {
             for (MapleCharacter chr : player.getMap().getCharacters()) {
@@ -425,7 +396,7 @@ public class Commands {
             } else if (sub.length > 1) {
                 time *= Integer.parseInt(sub[1]);
             }
-            for (ChannelServer cs : ChannelServer.getAllInstances()) {
+            for (Channel cs : Server.getInstance().getAllChannels()) {
                 cs.shutdown(time);
             }
         } else if (sub[0].equals("sql")) {

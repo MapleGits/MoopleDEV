@@ -21,11 +21,10 @@
 */
 package server.maps;
 
-import java.rmi.RemoteException;
 import java.util.List;
 import client.MapleCharacter;
 import java.util.ArrayList;
-import net.world.remote.WorldChannelInterface;
+import net.server.Server;
 import server.TimerManager;
 import tools.MaplePacketCreator;
 
@@ -37,13 +36,14 @@ public class MapleTVEffect {
     private List<String> message = new ArrayList<String>(5);
     private MapleCharacter user;
     private static boolean active;
-    private int type;
+    private int type, world;
     private MapleCharacter partner;
 
-    public MapleTVEffect(MapleCharacter user_, MapleCharacter partner_, List<String> msg, int type_) {
+    public MapleTVEffect(MapleCharacter user_, MapleCharacter partner_, List<String> msg, int type_, int world_) {
         this.message = msg;
         this.user = user_;
         this.type = type_;
+        this.world = world_;
         this.partner = partner_;
         broadcastTV(true);
     }
@@ -57,12 +57,11 @@ public class MapleTVEffect {
     }
 
     private void broadcastTV(boolean active_) {
-        WorldChannelInterface wci = user.getClient().getChannelServer().getWorldInterface();
+        Server server = Server.getInstance();
         setActive(active_);
-        try {
             if (active_) {
-                wci.broadcastMessage(null, MaplePacketCreator.enableTV().getBytes());
-                wci.broadcastMessage(null, MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type - 3, partner).getBytes());
+                server.broadcastMessage(world, MaplePacketCreator.enableTV().getBytes());
+                server.broadcastMessage(world, MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type - 3, partner).getBytes());
                 int delay = 15000;
                 if (type == 4) {
                     delay = 30000;
@@ -76,9 +75,7 @@ public class MapleTVEffect {
                     }
                 }, delay);
             } else {
-                wci.broadcastMessage(null, MaplePacketCreator.removeTV().getBytes());
+                server.broadcastMessage(world, MaplePacketCreator.removeTV().getBytes());
             }
-        } catch (RemoteException re) {
-        }
     }
 }

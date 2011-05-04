@@ -35,12 +35,9 @@ import client.MapleQuestStatus;
 import client.SkillFactory;
 import constants.ItemConstants;
 import java.awt.Point;
-import java.rmi.RemoteException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import net.world.MapleParty;
-import net.world.MaplePartyCharacter;
-import net.world.guild.MapleGuild;
+import net.server.MapleParty;
+import net.server.Server;
+import net.server.guild.MapleGuild;
 import scripting.event.EventManager;
 import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
@@ -52,8 +49,8 @@ import server.life.MobSkillFactory;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
+import server.partyquest.Pyramid;
 import server.quest.MapleQuest;
-import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
 public class AbstractPlayerInteraction {
@@ -148,6 +145,10 @@ public class AbstractPlayerInteraction {
         }
     }
 
+    public int getQuestProgress(int qid) {
+        return Integer.parseInt(getPlayer().getQuest(MapleQuest.getInstance(29932)).getProgress().get(0));
+    }
+
     public void gainItem(int id, short quantity) {
         gainItem(id, quantity, false);
     }
@@ -223,8 +224,8 @@ public class AbstractPlayerInteraction {
 
     public MapleGuild getGuild() {
         try {
-            return c.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId(), null);
-        } catch (RemoteException e) {
+            return Server.getInstance().getGuild(getPlayer().getGuildId(), null);
+        } catch (Exception e) {
         }
         return null;
     }
@@ -392,21 +393,6 @@ public class AbstractPlayerInteraction {
        return false;
     }
 
-    public void saveSquadMembers() {
-        try {
-            String query = "INSERT INTO zaksquads SET leaderid = ?, status = ?, members = ?, channel = ?";
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(query);
-            ps.setInt(1, getPlayer().getId());
-            ps.setInt(2, 0);
-            ps.setInt(3, getPlayer().getParty().getMembers().size());
-            ps.setInt(4, getClient().getChannel());
-            ps.executeUpdate();
-            ps.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public MobSkill getMobSkill(int skill, int level) {
         return MobSkillFactory.getMobSkill(skill, level);
     }
@@ -415,8 +401,12 @@ public class AbstractPlayerInteraction {
         c.announce(MaplePacketCreator.earnTitleMessage(msg));
     }
 
-    public void questMessage(String msg) {
-        c.announce(MaplePacketCreator.showMedalProgress(msg));
+    public void showInfoText(String msg) {
+        c.announce(MaplePacketCreator.showInfoText(msg));
+    }
+
+    public void openUI(byte ui) {
+        c.announce(MaplePacketCreator.openUI(ui));
     }
 
     public void lockUI() {
@@ -427,5 +417,13 @@ public class AbstractPlayerInteraction {
     public void unlockUI() {
         c.announce(MaplePacketCreator.disableUI(false));
 	c.announce(MaplePacketCreator.lockUI(false));
+    }
+
+    public void environmentChange(String env, int mode) {
+        getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(env, mode));
+    }
+
+    public Pyramid getPyramid() {
+        return (Pyramid) getPlayer().getPartyQuest();
     }
 }

@@ -56,8 +56,11 @@ public enum ItemFactory {
 	}
 
 	public List<Pair<IItem, MapleInventoryType>> loadItems(int id, boolean login) throws SQLException {
-		List<Pair<IItem, MapleInventoryType>> items = new ArrayList<Pair<IItem, MapleInventoryType>>();
+            List<Pair<IItem, MapleInventoryType>> items = new ArrayList<Pair<IItem, MapleInventoryType>>();
 
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            try {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `");
 		query.append(account ? "accountid" : "characterid");
@@ -68,10 +71,10 @@ public enum ItemFactory {
 			query.append(MapleInventoryType.EQUIPPED.getType());
 		}
 
-		PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(query.toString());
+		ps = DatabaseConnection.getConnection().prepareStatement(query.toString());
 		ps.setInt(1, value);
 		ps.setInt(2, id);
-		ResultSet rs = ps.executeQuery();
+		rs = ps.executeQuery();
 
 		while (rs.next()) {
 			MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
@@ -117,26 +120,32 @@ public enum ItemFactory {
 
 		rs.close();
 		ps.close();
-		return items;
+            } finally {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            }
+            return items;
 	}
 
 	public synchronized void saveItems(List<Pair<IItem, MapleInventoryType>> items, int id) throws SQLException {
-		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM `inventoryitems` WHERE `type` = ? AND `");
-		query.append(account ? "accountid" : "characterid");
-		query.append("` = ?");
+            PreparedStatement ps = null;
+            PreparedStatement pse = null;
+            try {
+                StringBuilder query = new StringBuilder();
+                query.append("DELETE FROM `inventoryitems` WHERE `type` = ? AND `");
+                query.append(account ? "accountid" : "characterid");
+                query.append("` = ?");
+                Connection con = DatabaseConnection.getConnection();
+                ps = con.prepareStatement(query.toString());
+                    ps.setInt(1, value);
+                    ps.setInt(2, id);
+                    ps.executeUpdate();
+                    ps.close();
+                    ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-		Connection con = DatabaseConnection.getConnection();
-		PreparedStatement ps = con.prepareStatement(query.toString());
-		ps.setInt(1, value);
-		ps.setInt(2, id);
-		ps.executeUpdate();
-		ps.close();
-		ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		PreparedStatement pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-		for (Pair<IItem, MapleInventoryType> pair : items) {
-			IItem item = pair.getLeft();
+                    for (Pair<IItem, MapleInventoryType> pair : items) {
+                        IItem item = pair.getLeft();
 			MapleInventoryType mit = pair.getRight();
 			ps.setInt(1, value);
 			ps.setString(2, account ? null : String.valueOf(id));
@@ -153,41 +162,45 @@ public enum ItemFactory {
 			ps.executeUpdate();
 
 			if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-				ResultSet rs = ps.getGeneratedKeys();
+                            ResultSet rs = ps.getGeneratedKeys();
 
-				if (!rs.next())
-					throw new RuntimeException("Inserting item failed.");
+                            if (!rs.next())
+				throw new RuntimeException("Inserting item failed.");
 
-				pse.setInt(1, rs.getInt(1));
-				rs.close();
-				IEquip equip = (IEquip) item;
-				pse.setInt(2, equip.getUpgradeSlots());
-				pse.setInt(3, equip.getLevel());
-				pse.setInt(4, equip.getStr());
-				pse.setInt(5, equip.getDex());
-				pse.setInt(6, equip.getInt());
-				pse.setInt(7, equip.getLuk());
-				pse.setInt(8, equip.getHp());
-				pse.setInt(9, equip.getMp());
-				pse.setInt(10, equip.getWatk());
-				pse.setInt(11, equip.getMatk());
-				pse.setInt(12, equip.getWdef());
-				pse.setInt(13, equip.getMdef());
-				pse.setInt(14, equip.getAcc());
-				pse.setInt(15, equip.getAvoid());
-				pse.setInt(16, equip.getHands());
-				pse.setInt(17, equip.getSpeed());
-				pse.setInt(18, equip.getJump());
-                                pse.setInt(19, 0);
-				pse.setInt(20, equip.getVicious());
-                                pse.setInt(21, equip.getItemLevel());
-                                pse.setInt(22, equip.getItemExp());
-                                pse.setInt(23, equip.getRingId());
-				pse.executeUpdate();
+                            pse.setInt(1, rs.getInt(1));
+                            rs.close();
+                            IEquip equip = (IEquip) item;
+                            pse.setInt(2, equip.getUpgradeSlots());
+                            pse.setInt(3, equip.getLevel());
+                            pse.setInt(4, equip.getStr());
+                            pse.setInt(5, equip.getDex());
+                            pse.setInt(6, equip.getInt());
+                            pse.setInt(7, equip.getLuk());
+                            pse.setInt(8, equip.getHp());
+                            pse.setInt(9, equip.getMp());
+                            pse.setInt(10, equip.getWatk());
+                            pse.setInt(11, equip.getMatk());
+			    pse.setInt(12, equip.getWdef());
+			    pse.setInt(13, equip.getMdef());
+			    pse.setInt(14, equip.getAcc());
+			    pse.setInt(15, equip.getAvoid());
+                            pse.setInt(16, equip.getHands());
+                            pse.setInt(17, equip.getSpeed());
+                            pse.setInt(18, equip.getJump());
+                            pse.setInt(19, 0);
+                	    pse.setInt(20, equip.getVicious());
+                            pse.setInt(21, equip.getItemLevel());
+                            pse.setInt(22, equip.getItemExp());
+                            pse.setInt(23, equip.getRingId());
+                            pse.executeUpdate();
 			}
 		}
                 
 		pse.close();
 		ps.close();
+            } finally {
+                if (ps != null) ps.close();
+		if (pse != null) pse.close();
+            }
 	}
 }
