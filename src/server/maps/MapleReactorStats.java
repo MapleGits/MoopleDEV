@@ -33,7 +33,7 @@ import tools.Pair;
 public class MapleReactorStats {
     private Point tl;
     private Point br;
-    private Map<Byte, Pair<StateData, StateData>> stateInfo = new HashMap<Byte, Pair<StateData, StateData>>();
+    private Map<Byte, List<StateData>> stateInfo = new HashMap<Byte, List<StateData>>();
 
     public void setTL(Point tl) {
         this.tl = tl;
@@ -51,16 +51,17 @@ public class MapleReactorStats {
         return br;
     }
 
-    public void addState(byte state, StateData data1, StateData data2) {
-        stateInfo.put(state, new Pair<StateData, StateData>(data1, data2));
+    public void addState(byte state, List<StateData> data) {
+        stateInfo.put(state, data);
     }
 
-    public byte getNextState(byte state, boolean left) {
-        System.out.println("Size: " + stateInfo.size());
-        System.out.println("State: " + state);
-        System.out.println("Left StateInfo: " + stateInfo.get(state).getLeft().toString());
-        if (stateInfo.get(state) == null) return -1;
-        StateData nextState = left ? stateInfo.get(state).getLeft() : stateInfo.get(state).getRight();
+    public byte getStateSize(byte state) {
+        return (byte) stateInfo.get(state).size();
+    }
+
+    public byte getNextState(byte state, byte index) {
+        if (stateInfo.get(state) == null || stateInfo.get(state).size() < (index + 1)) return -1;
+        StateData nextState = stateInfo.get(state).get(index);
         if (nextState != null) {
             return nextState.getNextState();
         } else {
@@ -68,8 +69,8 @@ public class MapleReactorStats {
         }
     }
 
-    public List<Integer> getActiveSkills(byte state) {
-        StateData nextState = stateInfo.get(state).getLeft();
+    public List<Integer> getActiveSkills(byte state, byte index) {
+        StateData nextState = stateInfo.get(state).get(index);
         if (nextState != null) {
             return nextState.getActiveSkills();
         } else {
@@ -78,16 +79,16 @@ public class MapleReactorStats {
     }
 
     public int getType(byte state) {
-        StateData nextState = stateInfo.get(state).getLeft();
-        if (nextState != null) {
-            return nextState.getType();
+        List<StateData> list = stateInfo.get(state);
+        if (list != null) {
+            return list.get(0).getType();
         } else {
             return -1;
         }
     }
 
-    public Pair<Integer, Integer> getReactItem(byte state) {
-        StateData nextState = stateInfo.get(state).getLeft();
+    public Pair<Integer, Integer> getReactItem(byte state, byte index) {
+        StateData nextState = stateInfo.get(state).get(index);
         if (nextState != null) {
             return nextState.getReactItem();
         } else {

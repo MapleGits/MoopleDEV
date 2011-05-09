@@ -54,16 +54,13 @@ public class MapleReactorFactory {
                 loadArea = MapleDataTool.getInt("info/activateByTouch", reactorData, 0) != 0;
             }
             if (stats == null) {
-                try {
                 reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
                 MapleData reactorInfoData = reactorData.getChildByPath("0");
                 stats = new MapleReactorStats();
+                List<StateData> statedatas = new ArrayList<StateData>();
                 if (reactorInfoData != null) {
                     boolean areaSet = false;
                     byte i = 0;
-                    boolean repeat = false;
-                    StateData data1 = null;
-                    StateData data2 = null;
                     while (reactorInfoData != null) {
                         MapleData eventData = reactorInfoData.getChildByPath("event");
                         if (eventData != null) {
@@ -88,28 +85,22 @@ public class MapleReactorFactory {
                                     }
                                 }
                                 byte nextState = (byte) MapleDataTool.getIntConvert("state", fknexon);
-                                if (repeat) {
-                                    data2 = new StateData(type, reactItem, skillids, nextState);
-                                    repeat = false;
-                                } else data1 = new StateData(type, reactItem, skillids, nextState);
-                            
-                                repeat = true;
+                                statedatas.add(new StateData(type, reactItem, skillids, nextState));
                             }
-                            stats.addState(i, data1, data2);
+                            stats.addState(i, statedatas);
                         }
                         i++;
                         reactorInfoData = reactorData.getChildByPath(Byte.toString(i));
+                        statedatas = new ArrayList<StateData>();
                     }
                 } else //sit there and look pretty; likely a reactor such as Zakum/Papulatus doors that shows if player can enter
                 {
-                    stats.addState((byte) 0, new StateData(999, null, null, (byte) 0), null);
+                    statedatas.add(new StateData(999, null, null, (byte) 0));
+                    stats.addState((byte) 0, statedatas);
                 }
                 reactorStats.put(Integer.valueOf(infoId), stats);
                 if (rid != infoId) {
                     reactorStats.put(Integer.valueOf(rid), stats);
-                }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             } else // stats exist at infoId but not rid; add to map
             {

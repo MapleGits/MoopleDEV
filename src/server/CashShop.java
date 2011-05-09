@@ -157,14 +157,24 @@ public class CashShop {
 
                 packages.put(Integer.parseInt(cashPackage.getName()), cPackage);
             }
+            PreparedStatement ps = null;
+            ResultSet rs = null;
             try {
-                PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM specialcashitems");
-                ResultSet rs = ps.executeQuery();
+                ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM specialcashitems");
+                rs = ps.executeQuery();
                 while (rs.next()) {
                     specialcashitems.add(new SpecialCashItem(rs.getInt("sn"), rs.getInt("modifier"), rs.getByte("info")));
                 }
+                rs.close();
+                ps.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                    if (ps != null) ps.close();
+                } catch (SQLException ex) {
+                }
             }
         }
 
@@ -210,33 +220,40 @@ public class CashShop {
         }
 
         Connection con = DatabaseConnection.getConnection();
-        PreparedStatement ps = con.prepareStatement("SELECT `nxCredit`, `maplePoint`, `nxPrepaid` FROM `accounts` WHERE `id` = ?");
-        ps.setInt(1, accountId);
-        ResultSet rs = ps.executeQuery();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement("SELECT `nxCredit`, `maplePoint`, `nxPrepaid` FROM `accounts` WHERE `id` = ?");
+            ps.setInt(1, accountId);
+            rs = ps.executeQuery();
 
-        if (rs.next()) {
-            this.nxCredit = rs.getInt("nxCredit");
-            this.maplePoint = rs.getInt("maplePoint");
-            this.nxPrepaid = rs.getInt("nxPrepaid");
+            if (rs.next()) {
+                this.nxCredit = rs.getInt("nxCredit");
+                this.maplePoint = rs.getInt("maplePoint");
+                this.nxPrepaid = rs.getInt("nxPrepaid");
+            }
+
+            rs.close();
+            ps.close();
+
+            for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false)) {
+                inventory.add(item.getLeft());
+            }
+
+            ps = con.prepareStatement("SELECT `sn` FROM `wishlists` WHERE `charid` = ?");
+            ps.setInt(1, characterId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                wishList.add(rs.getInt("sn"));
+            }
+
+            rs.close();
+            ps.close();
+        } finally {
+            if (ps != null) ps.close();
+            if (rs != null) rs.close();
         }
-
-        rs.close();
-        ps.close();
-
-        for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false)) {
-            inventory.add(item.getLeft());
-        }
-
-        ps = con.prepareStatement("SELECT `sn` FROM `wishlists` WHERE `charid` = ?");
-        ps.setInt(1, characterId);
-        rs = ps.executeQuery();
-
-        while (rs.next()) {
-            wishList.add(rs.getInt("sn"));
-        }
-
-        rs.close();
-        ps.close();
     }
 
     public int getCash(int type) {
@@ -319,17 +336,22 @@ public class CashShop {
     }
 
     public void gift(int recipient, String from, String message, int sn, int ringid) {
+        PreparedStatement ps = null;
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?, ?)");
+            ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `gifts` VALUES (DEFAULT, ?, ?, ?, ?, ?)");
             ps.setInt(1, recipient);
             ps.setString(2, from);
             ps.setString(3, message);
             ps.setInt(4, sn);
             ps.setInt(5, ringid);
             ps.executeUpdate();
-            ps.close();
         } catch (SQLException sqle) {
             sqle.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException ex) {
+            }
         }
     }
 

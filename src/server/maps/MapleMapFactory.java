@@ -148,8 +148,7 @@ public class MapleMapFactory {
                         MapleMonster monster = (MapleMonster) myLife;
                         int mobTime = MapleDataTool.getInt("mobTime", life, 0);
                         int team = MapleDataTool.getInt("team", life, -1);
-                        if (mobTime == -1) //does not respawn, force spawn once
-                        {
+                        if (mobTime == -1) { //does not respawn, force spawn once
                             map.spawnMonster(monster);
                         } else {
                             map.addMonsterSpawn(monster, mobTime, team);

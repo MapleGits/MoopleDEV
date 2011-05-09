@@ -95,8 +95,8 @@ public class MapleReactor extends AbstractMapleMapObject {
         return map;
     }
 
-    public Pair<Integer, Integer> getReactItem() {
-        return stats.getReactItem(state);
+    public Pair<Integer, Integer> getReactItem(byte index) {
+        return stats.getReactItem(state, index);
     }
 
     public boolean isAlive() {
@@ -142,15 +142,13 @@ public class MapleReactor extends AbstractMapleMapObject {
         try {
         if (stats.getType(state) < 999 && stats.getType(state) != -1) {//type 2 = only hit from right (kerning swamp plants), 00 is air left 02 is ground left
             if (!(stats.getType(state) == 2 && (charPos == 0 || charPos == 2))) { //get next state
-                for (byte b = 0; b < 2; b++) {
-                    List<Integer> activeSkills = stats.getActiveSkills(state);
+                for (byte b = 0; b < stats.getStateSize(state); b++) {//YAY?
+                    List<Integer> activeSkills = stats.getActiveSkills(state, b);
                     if (activeSkills != null) {
                         if (!activeSkills.contains(skillid)) continue;
                     }
-                    state = stats.getNextState(state, b == 0);
-                    System.out.println("nextstate: " + state);
-                    System.out.println("nextnextstate: " + stats.getNextState(state, b == 0));
-                    if (stats.getNextState(state, b == 0) == -1) {//end of reactor
+                    state = stats.getNextState(state, b);
+                    if (stats.getNextState(state, b) == -1) {//end of reactor
                         if (stats.getType(state) < 100) {//reactor broken
                             if (delay > 0) {
                                 map.destroyReactor(getObjectId());
@@ -163,7 +161,7 @@ public class MapleReactor extends AbstractMapleMapObject {
                         ReactorScriptManager.getInstance().act(c, this);
                     } else { //reactor not broken yet
                         map.broadcastMessage(MaplePacketCreator.triggerReactor(this, stance));
-                        if (state == stats.getNextState(state, b == 0)) {//current state = next state, looping reactor
+                        if (state == stats.getNextState(state, b)) {//current state = next state, looping reactor
                             ReactorScriptManager.getInstance().act(c, this);
                         }
                     }

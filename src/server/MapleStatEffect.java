@@ -894,6 +894,9 @@ public class MapleStatEffect implements Serializable {
                 buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups);
                 mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
                 localDuration = duration;
+                if (sourceid == Corsair.BATTLE_SHIP) {//hp
+                    if (applyto.getBattleshipHp() == 0) applyto.resetBattleshipHp();
+                }
             } else if (isShadowPartner()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.SHADOWPARTNER, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);

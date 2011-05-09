@@ -21,10 +21,10 @@
 */
 package net;
 
-import net.server.channelhandlers.*;
-import net.server.loginhandlers.*;
-import net.server.commonhandlers.KeepAliveHandler;
-import net.server.commonhandlers.LoginRequiringNoOpHandler;
+import net.server.handlers.login.*;
+import net.server.handlers.channel.*;
+import net.server.handlers.KeepAliveHandler;
+import net.server.handlers.LoginRequiringNoOpHandler;
 
 public final class PacketProcessor {
     private static PacketProcessor instance;

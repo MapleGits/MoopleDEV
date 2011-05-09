@@ -21,10 +21,9 @@
 */
 package client;
 
-import java.io.Serializable;
 import net.LongValueHolder;
 
-public enum MapleBuffStat implements LongValueHolder, Serializable {
+public enum MapleBuffStat implements LongValueHolder {
     MORPH(0x2),
     RECOVERY(0x4),
     MAPLE_WARRIOR(0x8),
@@ -76,8 +75,8 @@ public enum MapleBuffStat implements LongValueHolder, Serializable {
     PUPPET(0x800000000000000L),
     MESOGUARD(0x1000000000000000L),
     WEAKEN(0x4000000000000000L),
-    FINALATTACK(0x80000000),
-    SPARK(0x20000000),
+    FINALATTACK(0x80000000L),
+    SPARK(0x20000000L),
     BATTLESHIP(0xA00000040L),
     DASH2(0x8000000000000L, true), // correct (speed)
     DASH(0x10000000000000L, true), // correct (jump)
@@ -92,7 +91,6 @@ public enum MapleBuffStat implements LongValueHolder, Serializable {
     MONSTER_RIDING(0x20000000000000L, true),
     HOMING_BEACON(0x80000000000000L, true),
     SPEED_INFUSION(0x100000000000000L, true);
-    static final long serialVersionUID = 0L;
     private final long i;
     private final boolean isFirst;
 

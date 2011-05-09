@@ -155,6 +155,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 if (MapleInventoryManipulator.addFromDrop(c, newItem, true)) {
                     c.getPlayer().gainMeso(-price, false);
                     sold.add(new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price));
+                    pItem.setBundles((short) (pItem.getBundles() - quantity));
+                    if (pItem.getBundles() < 1) {
+                        pItem.setDoesExist(false);
+                    }
                     MapleCharacter owner = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterByName(ownerName);
                     if (owner != null)
                         owner.addMerchantMesos(price);
@@ -166,10 +170,6 @@ public class HiredMerchant extends AbstractMapleMapObject {
                             ps.close();
                         } catch (Exception e) {
                         }
-                    }
-                    pItem.setBundles((short) (pItem.getBundles() - quantity));
-                    if (pItem.getBundles() < 1) {
-                        pItem.setDoesExist(false);
                     }
                 } else {
                     c.getPlayer().dropMessage(1, "Your inventory is full. Please clean a slot before buying this item.");

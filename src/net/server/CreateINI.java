@@ -15,7 +15,7 @@ public class CreateINI {
         byte worlds;
         Console con = System.console();
 
-        System.out.println("Welcome to MoopleDEV's .ini creaton\r\n\r\n");
+        System.out.println("Welcome to MoopleDEV's .ini creator\r\n\r\n");
 
         sb.append("#MoopleDEV's INI file. Do NOT modify it if you are an idiot (:\r\n");
         sb.append("#Flag types: 0 = nothing, 1 = event, 2 = new, 3 = hot\r\n\r\n");

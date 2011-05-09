@@ -76,7 +76,7 @@ public class MapleClient {
     private boolean serverTransition = false;
     private Calendar birthday = null;
     private Calendar tempban = null;
-    private String accountName;
+    private String accountName = "";
     private int world;
     private long lastPong;
     private int gmlevel;
@@ -94,7 +94,7 @@ public class MapleClient {
     public MapleClient(MapleAESOFB send, MapleAESOFB receive, IoSession session) {
         this.send = send;
         this.receive = receive;
-        this.session = session;
+        this.session = session;   
     }
 
     public synchronized MapleAESOFB getReceiveCrypto() {

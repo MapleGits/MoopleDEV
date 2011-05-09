@@ -61,8 +61,8 @@ import java.util.Map.Entry;
 import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
-import net.server.channelhandlers.PlayerInteractionHandler;
-import net.server.channelhandlers.SummonDamageHandler.SummonAttackEntry;
+import net.server.handlers.channel.PlayerInteractionHandler;
+import net.server.handlers.channel.SummonDamageHandler.SummonAttackEntry;
 import net.server.MapleParty;
 import net.server.MaplePartyCharacter;
 import net.server.PartyOperation;
@@ -2389,22 +2389,11 @@ public class MaplePacketCreator {
      */
     public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        /*
-         * 1F 00 
-         * 00 00 00 00 00 00 00 00 
-         * 00 00 00 00 00 00 00 80 
-         * 00 00 00 00 
-         * 01 00 4A 63 A9 00 10 EB 09 00 
-         * 00 00 00 00
-         * 
-         */
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
         boolean special = false;
         writeLongMask(mplew, statups);
-        if (statups.get(0).getLeft().equals(MapleBuffStat.FINALATTACK)) mplew.writeInt(0);
         for (Pair<MapleBuffStat, Integer> statup : statups) {
-            if (statup.getLeft().equals(MapleBuffStat.BATTLESHIP)
-                    || statup.getLeft().equals(MapleBuffStat.MONSTER_RIDING) 
+            if (statup.getLeft().equals(MapleBuffStat.MONSTER_RIDING) 
                     || statup.getLeft().equals(MapleBuffStat.HOMING_BEACON)) special = true;
             mplew.writeShort(statup.getRight().shortValue());
             mplew.writeInt(buffid);
@@ -2641,7 +2630,7 @@ public class MaplePacketCreator {
 	long secondmask = 0;
 	for (Pair<MapleBuffStat, Integer> statup : statups) {
 	    if (statup.getLeft().isFirst()) {
-		firstmask |= statup.getLeft().getValue();
+                firstmask |= statup.getLeft().getValue();
 	    } else {
 		secondmask |= statup.getLeft().getValue();
 	    }

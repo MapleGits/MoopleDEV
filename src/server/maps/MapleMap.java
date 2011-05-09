@@ -111,7 +111,7 @@ public class MapleMap {
     private String onUserEnter;
     private int fieldType;
     private int fieldLimit = 0;
-    private int mobCapacity;
+    private int mobCapacity = -1;
     private ScheduledFuture<?> mapMonitor = null;
     private Pair<Integer, String> timeMob = null;
     private int mobInterval;
@@ -846,7 +846,7 @@ public class MapleMap {
     }
 
     public void spawnMonster(final MapleMonster monster) {
-        if (mobCapacity == spawnedMonstersOnMap.get()) return;
+        if (mobCapacity != -1 && mobCapacity == spawnedMonstersOnMap.get()) return;//PyPQ
         monster.setMap(this);
         synchronized (this.mapobjects) {
             spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
@@ -1054,7 +1054,7 @@ public class MapleMap {
 	    final MapleReactor react = (MapleReactor) o;
 
 	    if (react.getReactorType() == 100) {
-		if (react.getReactItem().getLeft() == item.getItemId() && react.getReactItem().getRight() == item.getQuantity()) {
+		if (react.getReactItem((byte) 0).getLeft() == item.getItemId() && react.getReactItem((byte) 0).getRight() == item.getQuantity()) {
 
 		    if (react.getArea().contains(drop.getPosition())) {
 			if (!react.isTimerActive()) {
@@ -1435,7 +1435,7 @@ public class MapleMap {
     }
 
     /**
-     * not threadsafe, please synchronize yourself, lol
+     * not threadsafe, please synchronize yourself, lol fuuuuu
      *
      * @param monster
      * @param mobTime
@@ -1443,7 +1443,7 @@ public class MapleMap {
     public synchronized void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
         Point newpos = calcPointBelow(monster.getPosition());
         newpos.y -= 1;
-        SpawnPoint sp = new SpawnPoint(monster.getId(), newpos, mobTime, team);
+        SpawnPoint sp = new SpawnPoint(monster.getId(), newpos, !monster.isMobile(), mobTime, team);
         monsterSpawn.add(sp);
         if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
             sp.spawnMonster(this);

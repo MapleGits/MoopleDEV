@@ -152,9 +152,8 @@ public class Server implements Runnable {
             System.exit(0);
         }
 
-        MapleServerHandler handler = new MapleServerHandler(PacketProcessor.getProcessor());
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 30);
-        acceptor.setHandler(handler);
+        acceptor.setHandler(new MapleServerHandler(PacketProcessor.getProcessor()));
         try {
             acceptor.bind(new InetSocketAddress(8484));
         } catch (IOException ex) {

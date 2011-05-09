@@ -622,7 +622,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         lastmobcount = count;
     }
 
-    public void channelChanged(MapleClient c) {
+    public void newClient(MapleClient c) {
+        c.setAccountName(this.client.getAccountName());//No null's for accountName
         this.client = c;
         MaplePortal portal = map.findClosestSpawnpoint(getPosition());
         if (portal == null) portal = map.getPortal(0);
@@ -2621,7 +2622,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             rs.close();
             ps.close();
-            ps = con.prepareStatement("SELECT name FROM accounts WHERE id = ?");
+            ps = con.prepareStatement("SELECT name FROM accounts WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, ret.accountid);
             rs = ps.executeQuery();
             if (rs.next()) {
