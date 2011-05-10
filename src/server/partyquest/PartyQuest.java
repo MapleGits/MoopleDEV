@@ -34,17 +34,13 @@ import net.server.Server;
  * @author kevintjuh93
  */
 public class PartyQuest {
-    public enum PartyQuestType {
-        PYRAMID, SUBWAY,
-    }
     int channel;
     int world;
     MapleParty party;
     List<MapleCharacter> participants = new ArrayList<MapleCharacter>();
 
-    public PartyQuest(MapleParty party) {//Party isn't always needed.
+    public PartyQuest(MapleParty party) {
         this.party = party;
-
         MaplePartyCharacter leader = party.getLeader();
         channel = leader.getChannel();
         world = leader.getWorld();

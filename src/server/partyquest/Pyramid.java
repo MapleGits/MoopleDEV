@@ -47,26 +47,31 @@ public class Pyramid extends PartyQuest {
         }
     }
 
-    int kill = 0, miss = 0, cool = 0, exp = 0, startingmap, count;
-    byte gauge, rank, skill = 0, stage = 0, buffcount = 0;//buffcount includes buffs + skills
+    int kill = 0, miss = 0, cool = 0, exp = 0, map, count;
+    byte coolAdd = 5, missSub = 4, decrease = 1;//hmmm
+    short gauge;
+    byte rank, skill = 0, stage = 0, buffcount = 0;//buffcount includes buffs + skills
     PyramidMode mode;
 
     ScheduledFuture<?> timer = null;
     ScheduledFuture<?> gaugeSchedule = null;
 
-    public Pyramid(MapleParty party, PyramidMode mode) {
+    public Pyramid(MapleParty party, PyramidMode mode, int mapid) {
         super(party);
         this.mode = mode;
-        //Todo: count things, according to maps
-    }
+        this.map = mapid;
 
-    public void warpInside() {
-        startingmap = 926010100;
-        startingmap += mode.getMode() * 1000;
-        if (getParticipants().size() > 1) startingmap += 10000;
-
-        for (MapleCharacter chr : getParticipants()) {
-            chr.changeMap(startingmap);
+        byte plus = (byte) mode.getMode();
+        coolAdd += plus;
+        missSub += plus;
+        switch (plus) {
+            case 0:
+                decrease = 1;
+            case 1:
+            case 2:
+                decrease = 2;
+            case 3:
+                decrease = 3;
         }
     }
 
@@ -77,7 +82,7 @@ public class Pyramid extends PartyQuest {
             gaugeSchedule = TimerManager.getInstance().register(new Runnable() {
                 @Override
                 public void run() {
-                    gauge--;
+                    gauge -= decrease;
                     if (gauge <= 0) warp(926010001);
 
                 }
@@ -96,8 +101,8 @@ public class Pyramid extends PartyQuest {
 
     public void cool() {
         cool++;
-        int plus = 5;
-        if ((gauge + 5) > 100) plus -= ((gauge + 5) - 100);
+        int plus = coolAdd;
+        if ((gauge + coolAdd) > 100) plus -= ((gauge + coolAdd) - 100);
         gauge += plus;
         count += plus;
         if (gauge >= 100) gauge = 100;
@@ -108,8 +113,8 @@ public class Pyramid extends PartyQuest {
 
     public void miss() {
         miss++;
-        count -= 4;
-        gauge -= 4;
+        count -= missSub;
+        gauge -= missSub;
         broadcastInfo("miss", miss);
     }
 
@@ -124,7 +129,7 @@ public class Pyramid extends PartyQuest {
                 @Override
                 public void run() {
                     stage++;
-                    warp(926010100 + (stage * 100));//Should work :D
+                    warp(map + (stage * 100));//Should work :D
                 }
             }, value * 1000);//, 4000
         broadcastInfo("party", getParticipants().size() > 1 ? 1 : 0);
@@ -141,10 +146,12 @@ public class Pyramid extends PartyQuest {
         for (MapleCharacter chr : getParticipants()) {
             chr.changeMap(mapid);
         }
-        gaugeSchedule.cancel(false);
-        gaugeSchedule = null;
-        timer.cancel(false);
-        timer = null;
+        if (stage > -1) {
+            gaugeSchedule.cancel(false);
+            gaugeSchedule = null;
+            timer.cancel(false);
+            timer = null;
+        } else stage = 0;
     }
 
     public void broadcastInfo(String info, int amount) {
@@ -230,9 +237,6 @@ public class Pyramid extends PartyQuest {
         chr.announce(MaplePacketCreator.pyramidScore(rank, exp));
         chr.gainExp(exp, true, true);
     }
-
-
-    /*TODO: MESSAGES*/
 }
 
 

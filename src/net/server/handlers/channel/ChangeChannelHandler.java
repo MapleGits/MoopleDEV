@@ -41,7 +41,6 @@ import tools.data.input.SeekableLittleEndianAccessor;
  */
 public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        try {
         int channel = slea.readByte() + 1;
         MapleCharacter chr = c.getPlayer();
         if (chr.isBanned()) {
@@ -81,16 +80,13 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         chr.getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
         chr.getMap().removePlayer(chr);
         chr.getClient().getChannelServer().removePlayer(chr);
-        Server.getInstance().getWorld(c.getWorld()).getPlayerStorage().removePlayer(chr.getId());
+        c.getWorldServer().getPlayerStorage().removePlayer(chr.getId());
         chr.saveToDB(true);
         Server.getInstance().getPlayerStorage().addPlayer(chr);
         chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
         } catch (IOException e) {
-        }
-        } catch (Exception e){
-            e.printStackTrace();
         }
     }
 }

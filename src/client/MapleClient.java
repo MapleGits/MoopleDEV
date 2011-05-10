@@ -46,6 +46,7 @@ import net.server.Server;
 import net.server.MapleMessengerCharacter;
 import net.server.MaplePartyCharacter;
 import net.server.PartyOperation;
+import net.server.World;
 import net.server.guild.MapleGuildCharacter;
 import scripting.npc.NPCConversationManager;
 import scripting.npc.NPCScriptManager;
@@ -569,6 +570,7 @@ public class MapleClient {
     public void disconnect() {
         try {
         if (player != null && isLoggedIn()) {
+            World worlda = getWorldServer();
             if (player.getTrade() != null) {
                 MapleTrade.cancelTrade(player);
             }
@@ -602,7 +604,7 @@ public class MapleClient {
             }
                 if (player.getMessenger() != null) {
                     MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(player);
-                    Server.getInstance().getWorld(world).leaveMessenger(player.getMessenger().getId(), messengerplayer);
+                    worlda.leaveMessenger(player.getMessenger().getId(), messengerplayer);
                     player.setMessenger(null);
                 }
             NPCScriptManager npcsm = NPCScriptManager.getInstance();
@@ -613,7 +615,7 @@ public class MapleClient {
                 player.setHp(50, true);
             }
 
-            
+            player.setPartyQuest(null);//):
             player.setMessenger(null);
             player.cancelExpirationTask();
             for (ScheduledFuture<?> sf : player.getTimers())
@@ -634,16 +636,16 @@ public class MapleClient {
                 if (player.getParty() != null) {
                     MaplePartyCharacter chrp = player.getMPC();
                     chrp.setOnline(false);
-                    Server.getInstance().getWorld(world).updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
+                    worlda.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
             try {
                 if (!this.serverTransition && isLoggedIn()) {
-                    Server.getInstance().getWorld(world).loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                    worlda.loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
                 } else {
-                    Server.getInstance().getWorld(world).loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                    worlda.loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
                 }
                 if (player.getGuildId() > 0) {
                     Server.getInstance().setGuildMemberOnline(player.getMGC(), false, -1);
@@ -655,10 +657,7 @@ public class MapleClient {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (getChannelServer() != null) {
-                    getChannelServer().removePlayer(player);
-                }
-                Server.getInstance().getWorld(world).getPlayerStorage().removePlayer(player.getId());
+                worlda.removePlayer(player);
                 player = null;
                 session.close(true);
             }
@@ -680,6 +679,10 @@ public class MapleClient {
 
     public Channel getChannelServer() {
         return Server.getInstance().getChannel(world, channel);
+    }
+
+    public World getWorldServer() {
+        return Server.getInstance().getWorld(world);
     }
 
     public Channel getChannelServer(int channel) {

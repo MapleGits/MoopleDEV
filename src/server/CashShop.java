@@ -165,8 +165,6 @@ public class CashShop {
                 while (rs.next()) {
                     specialcashitems.add(new SpecialCashItem(rs.getInt("sn"), rs.getInt("modifier"), rs.getByte("info")));
                 }
-                rs.close();
-                ps.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             } finally {
@@ -198,6 +196,27 @@ public class CashShop {
 
         public static List<SpecialCashItem> getSpecialCashItems() {
             return specialcashitems;
+        }
+        
+        public static void reloadSpecialCashItems() {//Yay?
+            specialcashitems.clear();
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            try {
+                ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM specialcashitems");
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    specialcashitems.add(new SpecialCashItem(rs.getInt("sn"), rs.getInt("modifier"), rs.getByte("info")));
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                    if (ps != null) ps.close();
+                } catch (SQLException ex) {
+                }
+            }            
         }
     }
     private int accountId, characterId, nxCredit, maplePoint, nxPrepaid;

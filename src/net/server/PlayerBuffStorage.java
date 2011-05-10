@@ -21,25 +21,23 @@
 */
 package net.server;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import tools.Pair;
 
 /**
  *
- * @author Danny
+ * @author Danny FUU WHY NO MAP?
  */
-public class PlayerBuffStorage implements Serializable {
-    private static final long serialVersionUID = 7273161726055369650L;
+public class PlayerBuffStorage {
     private int id = (int) (Math.random() * 100);
     private List<Pair<Integer, List<PlayerBuffValueHolder>>> buffs = new ArrayList<Pair<Integer, List<PlayerBuffValueHolder>>>();
 
     public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) {
         for (Pair<Integer, List<PlayerBuffValueHolder>> stored : buffs) {
-            if (stored.getLeft() == Integer.valueOf(chrid)) {
-                buffs.remove(stored);
-            }
+             if (stored.getLeft() == Integer.valueOf(chrid)) {
+                  buffs.remove(stored);
+             }
         }
         buffs.add(new Pair<Integer, List<PlayerBuffValueHolder>>(Integer.valueOf(chrid), toStore));
     }
@@ -48,11 +46,11 @@ public class PlayerBuffStorage implements Serializable {
         List<PlayerBuffValueHolder> ret = null;
         Pair<Integer, List<PlayerBuffValueHolder>> stored;
         for (int i = 0; i < buffs.size(); i++) {
-            stored = buffs.get(i);
-            if (stored.getLeft().equals(Integer.valueOf(chrid))) {
-                ret = stored.getRight();
-                buffs.remove(stored);
-            }
+             stored = buffs.get(i);
+             if (stored.getLeft().equals(Integer.valueOf(chrid))) {
+                 ret = stored.getRight();
+                 buffs.remove(stored);
+             }
         }
         return ret;
     }

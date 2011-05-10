@@ -37,7 +37,6 @@ import java.util.LinkedList;
 import java.util.List;
 import net.AbstractMaplePacketHandler;
 import net.server.Channel;
-import net.server.Server;
 import server.DueyPackages;
 import server.MapleInventoryManipulator;
 import tools.DatabaseConnection;
@@ -124,10 +123,10 @@ public final class DueyHandler extends AbstractMaplePacketHandler {
             }
             boolean recipientOn = false;
             MapleClient rClient = null;
-                int channel = Server.getInstance().getWorld(c.getWorld()).find(recipient);
+                int channel = c.getWorldServer().find(recipient);
                 if (channel > -1) {
                     recipientOn = true;
-                    Channel rcserv = Server.getInstance().getWorld(c.getWorld()).getChannel(channel);
+                    Channel rcserv = c.getWorldServer().getChannel(channel);
                     rClient = rcserv.getPlayerStorage().getCharacterByName(recipient).getClient();
                 }
             if (send) {

@@ -54,7 +54,7 @@ public class SpawnPoint {
         return nextPossibleSpawn <= now;
     }
 
-    public MapleMonster spawnMonster(MapleMap mapleMap) {
+    public MapleMonster spawnMonster(final MapleMap mapleMap) {
         MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
         mob.setPosition(new Point(pos));
         mob.setTeam(team);
@@ -64,6 +64,8 @@ public class SpawnPoint {
                 nextPossibleSpawn = System.currentTimeMillis();
                 if (mobTime > 0) {
                     nextPossibleSpawn += mobTime * 1000;
+                } else if (mobTime == 0) {
+                    nextPossibleSpawn += mapleMap.getMobInterval();
                 } else {
                     nextPossibleSpawn += monster.getAnimationTime("die1");
                 }
@@ -71,9 +73,7 @@ public class SpawnPoint {
             }
         });
         mapleMap.spawnMonster(mob);
-        if (mobTime == 0) {
-            nextPossibleSpawn = System.currentTimeMillis() + 5000;
-        }
+
         return mob;
     }
 

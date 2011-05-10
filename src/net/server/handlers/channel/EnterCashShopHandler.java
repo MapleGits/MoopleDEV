@@ -39,9 +39,7 @@ public class EnterCashShopHandler extends AbstractMaplePacketHandler {
 
 		if (mc.getCashShop().isOpened())
 			return;
-
 		Server.getInstance().getPlayerBuffStorage().addBuffsToStorage(mc.getId(), mc.getAllBuffs());
-
 		mc.cancelAllBuffs();
                 mc.cancelExpirationTask();
 		c.announce(MaplePacketCreator.openCashShop(c, false));

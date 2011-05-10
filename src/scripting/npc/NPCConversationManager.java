@@ -55,6 +55,8 @@ import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleStatEffect;
 import server.events.gm.MapleEvent;
+import server.maps.MapleMap;
+import server.maps.MapleMapFactory;
 import server.partyquest.Pyramid;
 import server.partyquest.Pyramid.PyramidMode;
 import server.quest.MapleQuest;
@@ -467,9 +469,31 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         }
     }
 
-    public void createPyramid(String mode) {
-        MapleParty party = getPlayer().getParty();
-        if (party == null) party = new MapleParty(-1, new MaplePartyCharacter(getPlayer()));//Only when the player isn't in a party
-        getPlayer().setPartyQuest(new Pyramid(party, PyramidMode.valueOf(mode)));
+    public boolean createPyramid(String mode, boolean party) {
+        PyramidMode mod = PyramidMode.valueOf(mode);
+
+        MapleParty partyz = getPlayer().getParty();
+        MapleMapFactory mf = c.getChannelServer().getMapFactory();
+
+        MapleMap map = null;
+        int mapid = 926010100;
+        if (party) mapid += 10000;
+        mapid += (mod.getMode() * 1000);
+
+        for (byte b = 0; b < 5; b++) {//They cannot warp to the next map before the timer ends (:
+            map = mf.getMap(mapid + b);
+            if (map.getCharacters().size() > 0) {
+                map = null; continue;
+            } else break;
+        }
+
+        if (map == null) return false;
+        
+        if (!party) partyz = new MapleParty(-1, new MaplePartyCharacter(getPlayer()));
+        Pyramid py = new Pyramid(partyz, mod, map.getId());
+        getPlayer().setPartyQuest(py);
+        py.warp(mapid);
+        dispose();
+        return true;
     }
 }

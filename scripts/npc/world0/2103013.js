@@ -21,6 +21,7 @@
 */
 var status = 0;
 var selected = -1;
+var party = 0;
 
 function start() {
 	status = -1;
@@ -70,6 +71,7 @@ function action(mode, type, selection) {
 			if (selected == 0) {
 				cm.sendNextPrev("Once you enter the Pyramid, you will be faced with the wrath of Nett. Since you don't look too sharp, I will offer you some advice and rules to follow. Remember them well.#b\r\n\r\n1. Be careful that your #e#rAct Gauge#b#n does not decrease. The only way to maintain your Gauge level is to battle the monsters without stopping.\r\n2. Those who are unable will pay dearly. Be careful to not cause any #rMiss#b.\r\n3. Be wary of the Pharaoh Jr. Yeti with the #v04032424# mark. Make the mistake of attacking him and you will regret it.\r\n4. Be wise about using the skill that is given to you for Kill accomplishments.");
 			} else if (selected == 1) {
+				party = selection;
 				cm.sendSimple("You who lack fear of death's cruelty, make your decision!\r\n#L0##i3994115##l#L1##i3994116##l#L2##i3994117##l#L3##i3994118##l");
 			} else if (selected == 3) {
 				if (selection == 0) {
@@ -101,6 +103,33 @@ function action(mode, type, selection) {
 			} else if (selected == 1) {
 				var mode = "EASY";
 				//Finish this
+				var pqparty = cm.getPlayer().getParty();
+				if (party == 1) {
+					if (pqparty == null) {
+						cm.sendOk("Create a fucking party faggot.");//BE NICE
+						cm.dispose();
+						return;		
+					} else {
+						if (pqparty.getMembers().size() < 2) {
+							cm.sendOk("Get more members...");
+							cm.dispose();
+							return;								
+						} else {
+							var i = 0;
+							for (var a = 0; a < pq.getMembers().size(); a++) {
+								var pqchar = pq.getMembers().get(a);
+								if (i > 1) break;
+								if (pqchar != null && pqchar.getMapId() == 926010000) i++;
+							}
+							if (i < 2) {
+								cm.sendOk("Make sure that 2 or more party members are in your map.");
+								cm.dispose();
+								return;								
+							}
+						}
+					}					
+				}
+				
 				if (cm.getPlayer().getLevel() < 40) {
 					cm.sendOk("You must be Lv. 40+ to enter this PQ.");
 					cm.dispose();
@@ -115,8 +144,9 @@ function action(mode, type, selection) {
 				else if (selection == 2) mode = "HARD";
 				else if (selection == 3) mode = "HELL";
 	
-				cm.createPyramid(mode);
-				cm.warp(926010100);
+				if (!cm.createPyramid(mode, party == 1)) {
+					cm.sendOk("All rooms are full for this mode, please try it again later or on another channel ):");
+				}
 				cm.dispose();
 			}
 		} else if (status == 3) {

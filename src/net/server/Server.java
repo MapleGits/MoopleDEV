@@ -52,6 +52,7 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import server.CashShop.CashItemFactory;
 
 public class Server implements Runnable {
     private IoAcceptor acceptor;
@@ -149,6 +150,7 @@ public class Server implements Runnable {
             }
         } catch (Exception e) {
             System.out.println("Error in moople.ini, start CreateINI.bat to re-make the file.");
+            e.printStackTrace();//For those who get errors
             System.exit(0);
         }
 
@@ -160,6 +162,7 @@ public class Server implements Runnable {
         }
         System.out.println("Listening on port 8484\r\n");
         SkillFactory.getSkill(99999999);
+        CashItemFactory.getSpecialCashItems();//just load who cares o.o
         online = true;
         System.out.println("Server is online.");
     }
@@ -434,15 +437,14 @@ public class Server implements Runnable {
     }
 
     public void reloadGuildCharacters(int world) {
-        for (Channel ch : getChannelsFromWorld(world)) {
-            for (MapleCharacter mc : ch.getPlayerStorage().getAllCharacters()) {
-                if (mc.getGuildId() > 0) {
-                    setGuildMemberOnline(mc.getMGC(), true, ch.getId());
-                    memberLevelJobUpdate(mc.getMGC());
-                }
-            }
-            ch.reloadGuildSummary();
+        World worlda = getWorld(world);
+        for (MapleCharacter mc : worlda.getPlayerStorage().getAllCharacters()) {
+             if (mc.getGuildId() > 0) {
+                 setGuildMemberOnline(mc.getMGC(), true, worlda.getId());
+                 memberLevelJobUpdate(mc.getMGC());
+             }
         }
+        worlda.reloadGuildSummary();
     }
 
     public void broadcastMessage(int world, byte[] bytes) {
@@ -453,6 +455,10 @@ public class Server implements Runnable {
 
     public World getWorld(int id) {
         return worlds.get(id);
+    }
+
+    public List<World> getWorlds() {
+        return worlds;
     }
 
     public PlayerStorage getPlayerStorage() {

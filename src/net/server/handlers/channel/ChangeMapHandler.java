@@ -42,19 +42,19 @@ public final class ChangeMapHandler extends AbstractMaplePacketHandler {
         if (chr.isBanned()) return;
 
         if (slea.available() == 0) { //is this even used?
-            Channel cserv = c.getChannelServer();
-            String ip = cserv.getIP();
-            String[] socket = ip.split(":");
+            try {
+            String[] socket = c.getChannelServer().getIP().split(":");
             chr.saveToDB(true);
             chr.getCashShop().open(false);
-            cserv.removePlayer(chr);
-            Server.getInstance().getPlayerStorage().addPlayer(chr);
+            Server server = Server.getInstance();
+            server.getPlayerStorage().addPlayer(chr);
+            server.getWorld(c.getWorld()).removePlayer(chr);
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
-            try {
+
                 c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
                 //c.getSession().close(true); wut? 
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else { 
             slea.readByte(); // 1 = from dying 2 = regular portals < Fking wrong fkers

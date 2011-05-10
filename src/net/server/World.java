@@ -34,6 +34,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.MaplePacket;
+import net.server.guild.MapleGuild;
+import net.server.guild.MapleGuildCharacter;
+import net.server.guild.MapleGuildSummary;
 import tools.MaplePacketCreator;
 
 /**
@@ -50,6 +54,7 @@ public class World {
     private Map<Integer, MapleMessenger> messengers = new HashMap<Integer, MapleMessenger>();
     private AtomicInteger runningMessengerId = new AtomicInteger();
     private Map<Integer, MapleFamily> families = new LinkedHashMap<Integer, MapleFamily>();
+    private Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
 
     private PlayerStorage players = new PlayerStorage();
     private int id;
@@ -118,6 +123,11 @@ public class World {
         return players;
     }
 
+    public void removePlayer(MapleCharacter chr) {
+        channels.get(chr.getClient().getChannel() - 1).removePlayer(chr);
+        players.removePlayer(chr.getId());
+    }
+
     public int getId() {
         return id;
     }
@@ -136,6 +146,92 @@ public class World {
                 return families.get(id);
             }
             return null;
+        }
+    }
+
+    public MapleGuild getGuild(MapleGuildCharacter mgc) {
+        int gid = mgc.getGuildId();
+        MapleGuild g = null;
+        g = Server.getInstance().getGuild(gid, mgc);
+        if (gsStore.get(gid) == null) {
+            gsStore.put(gid, new MapleGuildSummary(g));
+        }
+        return g;
+    }
+
+    public MapleGuildSummary getGuildSummary(int gid) {
+        if (gsStore.containsKey(gid)) {
+            return gsStore.get(gid);
+        } else {
+            MapleGuild g = Server.getInstance().getGuild(gid, null);
+            if (g != null) {
+                gsStore.put(gid, new MapleGuildSummary(g));
+            }
+            return gsStore.get(gid);
+        }
+    }
+
+    public void updateGuildSummary(int gid, MapleGuildSummary mgs) {
+        gsStore.put(gid, mgs);
+    }
+
+    public void reloadGuildSummary() {
+            MapleGuild g;
+            Server server = Server.getInstance();
+            for (int i : gsStore.keySet()) {
+                g = server.getGuild(i, null);
+                if (g != null) {
+                    gsStore.put(i, new MapleGuildSummary(g));
+                } else {
+                    gsStore.remove(i);
+                }
+            }
+    }
+
+    public void setGuildAndRank(List<Integer> cids, int guildid, int rank, int exception) {
+        for (int cid : cids) {
+            if (cid != exception) {
+                setGuildAndRank(cid, guildid, rank);
+            }
+        }
+    }
+
+    public void setGuildAndRank(int cid, int guildid, int rank) {
+        MapleCharacter mc = getPlayerStorage().getCharacterById(cid);
+        if (mc == null) {
+            return;
+        }
+        boolean bDifferentGuild;
+        if (guildid == -1 && rank == -1) {
+            bDifferentGuild = true;
+        } else {
+            bDifferentGuild = guildid != mc.getGuildId();
+            mc.setGuildId(guildid);
+            mc.setGuildRank(rank);
+            mc.saveGuildStatus();
+        }
+        if (bDifferentGuild) {
+            mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(cid), false);
+            mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
+        }
+    }
+
+    public void changeEmblem(int gid, List<Integer> affectedPlayers, MapleGuildSummary mgs) {
+        updateGuildSummary(gid, mgs);
+        sendPacket(affectedPlayers, MaplePacketCreator.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
+        setGuildAndRank(affectedPlayers, -1, -1, -1);	//respawn player
+    }
+
+    public void sendPacket(List<Integer> targetIds, MaplePacket packet, int exception) {
+        MapleCharacter c;
+        for (int i : targetIds) {
+            if (i == exception) {
+                continue;
+            }
+            c = getPlayerStorage().getCharacterById(i);
+            if (c != null) {
+                c.getClient().getSession().write(packet);
+            }
         }
     }
 

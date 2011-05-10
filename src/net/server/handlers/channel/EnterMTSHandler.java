@@ -28,6 +28,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import net.server.Server;
 import server.MTSItemInfo;
@@ -52,7 +54,10 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         chr.cancelExpirationTask();
         chr.saveToDB(true);
         chr.getMap().removePlayer(c.getPlayer());
-        c.announce(MaplePacketCreator.openCashShop(c, true));
+        try {
+            c.announce(MaplePacketCreator.openCashShop(c, true));
+        } catch (Exception ex) {
+        }
         chr.getCashShop().open(true);// xD
         Server.getInstance().getPlayerStorage().addPlayer(chr);
         c.announce(MaplePacketCreator.enableCSUse());

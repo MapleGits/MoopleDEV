@@ -39,7 +39,7 @@ public final class PartyChatHandler extends AbstractMaplePacketHandler {
             recipients[i] = slea.readInt();
         }
         String chattext = slea.readMapleAsciiString();
-            World world = Server.getInstance().getWorld(c.getWorld());
+            World world = c.getWorldServer();
             if (type == 0) {
                 world.buddyChat(recipients, player.getId(), player.getName(), chattext);
             } else if (type == 1 && player.getParty() != null) {

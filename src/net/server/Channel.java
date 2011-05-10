@@ -37,8 +37,6 @@ import net.MaplePacket;
 import net.MapleServerHandler;
 import net.PacketProcessor;
 import net.mina.MapleCodecFactory;
-import net.server.guild.MapleGuild;
-import net.server.guild.MapleGuildCharacter;
 import net.server.guild.MapleGuildSummary;
 import provider.MapleDataProviderFactory;
 import scripting.event.EventScriptManager;
@@ -53,8 +51,6 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-import server.MapleSquad;
-import server.MapleSquadType;
 import server.events.gm.MapleEvent;
 import server.maps.HiredMerchant;
 import server.maps.MapleMap;
@@ -70,17 +66,16 @@ public class Channel {
     private boolean finishedShutdown = false;
     private MapleMapFactory mapFactory;
     private EventScriptManager eventSM;
-    private Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
     private Map<Integer, HiredMerchant> hiredMerchants = new HashMap<Integer, HiredMerchant>();
     private MapleEvent event;
-    private Map<MapleSquadType, MapleSquad> mapleSquads = new HashMap<MapleSquadType, MapleSquad>();
 
-    public Channel(int world, int channel) {
+    public Channel(final int world, final int channel) {
         this.world = world;
         this.channel = channel;
         this.mapFactory = new MapleMapFactory(MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Map.wz")), MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz")));
         this.mapFactory.setChannel(channel);
         this.mapFactory.setWorld(world);
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -220,44 +215,6 @@ public class Channel {
         return eventSM;
     }
 
-    public MapleGuild getGuild(MapleGuildCharacter mgc) {
-        int gid = mgc.getGuildId();
-        MapleGuild g = null;
-        g = Server.getInstance().getGuild(gid, mgc);
-        if (gsStore.get(gid) == null) {
-            gsStore.put(gid, new MapleGuildSummary(g));
-        }
-        return g;
-    }
-
-    public MapleGuildSummary getGuildSummary(int gid) {
-        if (gsStore.containsKey(gid)) {
-            return gsStore.get(gid);
-        } else {
-            MapleGuild g = Server.getInstance().getGuild(gid, null);
-            if (g != null) {
-                gsStore.put(gid, new MapleGuildSummary(g));
-            }
-            return gsStore.get(gid);
-        }
-    }
-
-    public void updateGuildSummary(int gid, MapleGuildSummary mgs) {
-        gsStore.put(gid, mgs);
-    }
-
-    public void reloadGuildSummary() {
-            MapleGuild g;
-            for (int i : gsStore.keySet()) {
-                g = Server.getInstance().getGuild(i, null);
-                if (g != null) {
-                    gsStore.put(i, new MapleGuildSummary(g));
-                } else {
-                    gsStore.remove(i);
-                }
-            }
-    }
-
     public void broadcastGMPacket(MaplePacket data) {
         for (MapleCharacter chr : players.getAllCharacters()) {
             if (chr.isGM()) {
@@ -297,20 +254,6 @@ public class Channel {
             for (Entry<Integer, MapleMap> map : mapFactory.getMaps().entrySet()) {
                 map.getValue().respawn();
             }
-        }
-    }
-
-    public MapleSquad getMapleSquad(MapleSquadType type) {
-        return mapleSquads.get(type);
-    }
-
-    public boolean addMapleSquad(MapleSquad squad, MapleSquadType type) {
-        if (mapleSquads.get(type) == null) {
-            mapleSquads.remove(type);
-            mapleSquads.put(type, squad);
-            return true;
-        } else {
-            return false;
         }
     }
 

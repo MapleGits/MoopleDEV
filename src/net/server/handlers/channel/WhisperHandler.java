@@ -27,7 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import net.AbstractMaplePacketHandler;
-import net.server.Server;
 import net.server.World;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
@@ -48,7 +47,7 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
                 player.getClient().announce(MaplePacketCreator.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
                 c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
             } else {// not found
-                World world = Server.getInstance().getWorld(c.getWorld());
+                World world = c.getWorldServer();
                     if (world.isConnected(recipient)) {
                         world.whisper(c.getPlayer().getName(), recipient, c.getChannel(), text);
                         c.announce(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
@@ -80,7 +79,7 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
                     }
                     rs.close();
                     ps.close();
-                    int channel = Server.getInstance().getWorld(c.getWorld()).find(recipient) - 1;
+                    int channel = c.getWorldServer().find(recipient) - 1;
                     if (channel > -1) {
                         c.announce(MaplePacketCreator.getFindReply(recipient, channel, 3));
                     } else {

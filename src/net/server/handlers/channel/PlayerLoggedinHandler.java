@@ -53,8 +53,8 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         return !c.isLoggedIn();
     }
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int cid = slea.readInt();
-        Server server = Server.getInstance();
+        final int cid = slea.readInt();
+        final Server server = Server.getInstance();
         MapleCharacter player = server.getPlayerStorage().removePlayer(cid);
         if (player == null) {
             try {
@@ -94,10 +94,12 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             player.silentGiveBuffs(buffs);
         }
         Connection con = DatabaseConnection.getConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM cooldowns WHERE charid = ?");
+            ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM cooldowns WHERE charid = ?");
             ps.setInt(1, player.getId());
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 final int skillid = rs.getInt("SkillID");
                 final long length = rs.getLong("length"), startTime = rs.getLong("StartTime");
@@ -125,10 +127,15 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
                 }
                 c.announce(MaplePacketCreator.sendDueyMSG((byte) 0x1B));
             }
-            rs.close();
-            ps.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException ex) {
+                //ignore
+            }
         }
         c.announce(MaplePacketCreator.getCharInfo(player));
         if (!player.isHidden()) player.toggleHide(true);

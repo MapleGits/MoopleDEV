@@ -799,7 +799,7 @@ public class MaplePacketCreator {
         if (ServerConstants.ENABLE_PIC)
             mplew.write(c.getPic() == null || c.getPic().length() == 0 ? 0 : 1);
         else
-            mplew.write(1);
+            mplew.write(2);
         
         mplew.writeInt(c.getCharacterSlots());
         return mplew.getPacket();
@@ -1635,7 +1635,7 @@ public class MaplePacketCreator {
             mplew.writeMapleAsciiString("");
             mplew.write(new byte[6]);
         } else {
-            MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+            MapleGuildSummary gs = chr.getClient().getWorldServer().getGuildSummary(chr.getGuildId());
             if (gs != null) {
                 mplew.writeMapleAsciiString(gs.getName());
                 mplew.writeShort(gs.getLogoBG());
@@ -2312,7 +2312,7 @@ public class MaplePacketCreator {
         mplew.write(chr.getMarriageRing() != null ? 1 : 0);
         String guildName = "";
         String allianceName = "";
-        MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+        MapleGuildSummary gs = chr.getClient().getWorldServer().getGuildSummary(chr.getGuildId());
         if (chr.getGuildId() > 0 && gs != null) {
             guildName = gs.getName();
             MapleAlliance alliance = Server.getInstance().getAlliance(gs.getAllianceId());
@@ -2387,6 +2387,7 @@ public class MaplePacketCreator {
      * @param statups
      * @return
      */
+    //1F 00 00 00 00 00 03 00 00 40 00 00 00 E0 00 00 00 00 00 00 00 00 E0 01 8E AA 4F 00 00 C2 EB 0B E0 01 8E AA 4F 00 00 C2 EB 0B 0C 00 8E AA 4F 00 00 C2 EB 0B 44 02 8E AA 4F 00 00 C2 EB 0B 44 02 8E AA 4F 00 00 C2 EB 0B 00 00 E0 7A 1D 00 8E AA 4F 00 00 00 00 00 00 00 00 03
     public static MaplePacket giveBuff(int buffid, int bufflength, List<Pair<MapleBuffStat, Integer>> statups) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
@@ -3686,7 +3687,7 @@ public class MaplePacketCreator {
             mplew.write(0);
             return mplew.getPacket();
         }
-        MapleGuild g = c.getClient().getChannelServer().getGuild(c.getMGC());
+        MapleGuild g = c.getClient().getWorldServer().getGuild(c.getMGC());
         if (g == null) { //failed to read from DB - don't show a guild
             mplew.write(0);
             return mplew.getPacket();
@@ -6707,7 +6708,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket openCashShop(MapleClient c, boolean mts) {
+    public static MaplePacket openCashShop(MapleClient c, boolean mts) throws Exception {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(mts ? SendOpcode.OPEN_MTS.getValue() : SendOpcode.OPEN_CASHSHOP.getValue());
 

@@ -114,7 +114,7 @@ public class MapleMap {
     private int mobCapacity = -1;
     private ScheduledFuture<?> mapMonitor = null;
     private Pair<Integer, String> timeMob = null;
-    private int mobInterval;
+    private short mobInterval = 5000;
     // HPQ
     private int riceCakeNum = 0; // bad place to put this (why is it in here then)
     private boolean allowHPQSummon = false; // bad place to put this
@@ -1963,7 +1963,11 @@ public class MapleMap {
         }
     }
 
-    public void setMobInterval(int interval) {
+    public void setMobInterval(short interval) {
         this.mobInterval = interval;
+    }
+
+    public short getMobInterval() {
+        return mobInterval;
     }
 }

@@ -2019,7 +2019,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public boolean needQuestItem(int questid, int itemid) {
         if (questid <= 0) return true; //For non quest items :3
         MapleQuest quest = MapleQuest.getInstance(questid);
-        return getInventory(ItemConstants.getInventoryType(itemid)).countById(itemid) <= quest.getItemAmountNeeded(itemid);
+        return getInventory(ItemConstants.getInventoryType(itemid)).countById(itemid) < quest.getItemAmountNeeded(itemid);
     }
 
     public int getRank() {

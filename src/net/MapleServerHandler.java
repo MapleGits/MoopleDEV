@@ -62,9 +62,11 @@ public class MapleServerHandler extends IoHandlerAdapter {
         try {
             MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
             if (client != null) ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName();
+            cause.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //Write into a file pl0x
     }
 
     @Override
@@ -72,14 +74,14 @@ public class MapleServerHandler extends IoHandlerAdapter {
         if (!Server.getInstance().isOnline()) {
             session.close(true);
             return;
-        }
-        System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
+        }        
         if (channel > -1 && world > -1) {
             if (Server.getInstance().getChannel(world, channel).isShutdown()) {
                 session.close(true);
                 return;
             }
-        }
+        } else System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
+
         byte key[] = {0x13, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 0xB4, 0x00, 0x00, 0x00, 0x1B, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x52, 0x00, 0x00, 0x00};
         byte ivRecv[] = {70, 114, 122, 82};
         byte ivSend[] = {82, 48, 120, 115};

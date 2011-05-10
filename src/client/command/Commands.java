@@ -39,6 +39,7 @@ import client.MapleStat;
 import client.SkillFactory;
 import constants.ItemConstants;
 import java.io.File;
+import java.net.InetAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -108,7 +109,7 @@ public class Commands {
             if (player.gmLevel() > chr.gmLevel())
                 cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
         } else if (sub[0].equals("exprate")) {
-            Server.getInstance().getWorld(c.getWorld()).setExpRate((byte) (Byte.parseByte(sub[1]) % 128));
+            c.getWorldServer().setExpRate((byte) (Byte.parseByte(sub[1]) % 128));
             for (Channel cs : Server.getInstance().getChannelsFromWorld(player.getWorld())) {
                 for (MapleCharacter mc : cs.getPlayerStorage().getAllCharacters()) {
                     mc.setRates();
@@ -365,6 +366,25 @@ public class Commands {
             player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8810026), player.getPosition());
         } else if (sub[0].equals("packet")) {
             player.getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
+        } else if (sub[0].equals("warpworld")) {//test
+            Server server = Server.getInstance();
+            int world = Integer.parseInt(sub[1]);
+            if (world <= (server.getWorlds().size() - 1)) {
+                try {
+                    String[] socket = server.getIP(world, c.getChannel()).split(":");
+                    c.getChannelServer().removePlayer(player);
+                    server.getPlayerStorage().addPlayer(player);
+                    c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
+                    player.setWorld(world);
+                    player.saveToDB(false);//To set the new world :O
+                    c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
+                } catch (Exception ex) {
+                    player.message("Error when trying to change worlds, are you sure the world you are trying to warp to has the same amount of channels?");
+                }
+
+            } else
+                player.message("Invalid world; highest number available: " + (server.getWorlds().size() - 1));
+
         } else if (sub[0].equals("npc")) {
             MapleNPC npc = MapleLifeFactory.getNPC(Integer.parseInt(sub[1]));
             if (npc != null) {

@@ -256,16 +256,16 @@ public class MapleGuild {
                 for (Channel ch : Server.getInstance().getChannelsFromWorld(world)) {
                     if (notifications.get(ch).size() > 0) {
                         if (bcop == BCOp.DISBAND) {
-                            //Server.getInstance().setGuildAndRank(notifications.get(ch), 0, 5, exceptionId);
+                            Server.getInstance().getWorld(world).setGuildAndRank(notifications.get(ch), 0, 5, exceptionId);
                         } else if (bcop == BCOp.EMBELMCHANGE) {
-                            //cwi.changeEmblem(this.id, notifications.get(ch), new MapleGuildSummary(this));
+                            Server.getInstance().getWorld(world).changeEmblem(this.id, notifications.get(ch), new MapleGuildSummary(this));
                         } else {
-                            //cwi.sendPacket(notifications.get(ch), packet, exceptionId);
+                            Server.getInstance().getWorld(world).sendPacket(notifications.get(ch), packet, exceptionId);
                         }
                     }
                 }
             } catch (Exception re) {
-                System.out.println("Failed to contact channel(s) for broadcast.");
+                System.out.println("Failed to contact channel(s) for broadcast.");//fu?
             }
         }
     }

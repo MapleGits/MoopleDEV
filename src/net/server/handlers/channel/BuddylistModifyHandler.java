@@ -35,7 +35,6 @@ import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import tools.DatabaseConnection;
 import net.AbstractMaplePacketHandler;
-import net.server.Server;
 import net.server.World;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -93,7 +92,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                 c.announce(MaplePacketCreator.serverNotice(1, "Your buddylist is already full"));
             } else if (ble == null) {
                 try {
-                    World world = Server.getInstance().getWorld(c.getWorld());
+                    World world = c.getWorldServer();
                     CharacterIdNameBuddyCapacity charWithId = null;
                     int channel;
                     MapleCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
@@ -162,7 +161,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
             int otherCid = slea.readInt();
             if (!buddylist.isFull()) {
                 try {
-                    int channel = Server.getInstance().getWorld(c.getWorld()).find(otherCid);//worldInterface.find(otherCid);
+                    int channel = c.getWorldServer().find(otherCid);//worldInterface.find(otherCid);
                     String otherName = null;
                     MapleCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
                     if (otherChar == null) {
@@ -190,7 +189,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
         } else if (mode == 3) { // delete
             int otherCid = slea.readInt();
             if (buddylist.containsVisible(otherCid)) {
-                notifyRemoteChannel(c, Server.getInstance().getWorld(c.getWorld()).find(otherCid), otherCid, BuddyOperation.DELETED);
+                notifyRemoteChannel(c, c.getWorldServer().find(otherCid), otherCid, BuddyOperation.DELETED);
             }
             buddylist.remove(otherCid);
             c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
@@ -201,7 +200,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
     private void notifyRemoteChannel(MapleClient c, int remoteChannel, int otherCid, BuddyOperation operation) {
         MapleCharacter player = c.getPlayer();
         if (remoteChannel != -1) {
-            Server.getInstance().getWorld(c.getWorld()).buddyChanged(otherCid, player.getId(), player.getName(), c.getChannel(), operation);
+            c.getWorldServer().buddyChanged(otherCid, player.getId(), player.getName(), c.getChannel(), operation);
         }
     }
 }

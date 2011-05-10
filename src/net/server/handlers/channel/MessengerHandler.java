@@ -26,7 +26,6 @@ import client.MapleClient;
 import net.AbstractMaplePacketHandler;
 import net.server.MapleMessenger;
 import net.server.MapleMessengerCharacter;
-import net.server.Server;
 import net.server.World;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -36,7 +35,7 @@ public final class MessengerHandler extends AbstractMaplePacketHandler {
         String input;
         byte mode = slea.readByte();
         MapleCharacter player = c.getPlayer();
-        World world = Server.getInstance().getWorld(c.getWorld());
+        World world = c.getWorldServer();
         MapleMessenger messenger = player.getMessenger();
         switch (mode) {
             case 0x00:
