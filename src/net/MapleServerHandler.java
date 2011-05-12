@@ -21,8 +21,10 @@
 */
 package net;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import constants.ServerConstants;
+import java.util.Calendar;
 import net.server.Server;
 import tools.MapleAESOFB;
 import tools.MaplePacketCreator;
@@ -35,14 +37,13 @@ import org.apache.mina.core.session.IdleStatus;
 
 public class MapleServerHandler extends IoHandlerAdapter {
     private PacketProcessor processor;
-    private int channel = -1;
-    private int world = -1;
+    private byte world = -1, channel = -1;
 
     public MapleServerHandler(PacketProcessor processor) {
         this.processor = processor;
     }
 
-    public MapleServerHandler(PacketProcessor processor, int channel, int world) {
+    public MapleServerHandler(PacketProcessor processor, byte channel, byte world) {
         this.processor = processor;
         this.channel = channel;
         this.world = world;
@@ -58,19 +59,24 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+    public void exceptionCaught(IoSession session, Throwable cause) {
         try {
             MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
-            if (client != null) ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY)).getAccountName();
+            if (client != null) {
+                MapleCharacter player = client.getPlayer();
+                if (client.getPlayer() != null)
+                System.out.println(client.getAccountName() + " caught an exception in map: " + player.getMapId() + " on " + Calendar.getInstance().toString());
+            }
             cause.printStackTrace();
         } catch (Exception e) {
+            cause.printStackTrace();
             e.printStackTrace();
         }
         //Write into a file pl0x
     }
 
     @Override
-    public void sessionOpened(IoSession session) throws Exception {
+    public void sessionOpened(IoSession session) {
         if (!Server.getInstance().isOnline()) {
             session.close(true);
             return;
@@ -109,7 +115,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(IoSession session, Object message) throws Exception {
+    public void messageReceived(IoSession session, Object message) {
         byte[] content = (byte[]) message;
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
         short packetId = slea.readShort();

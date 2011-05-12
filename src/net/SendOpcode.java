@@ -198,7 +198,7 @@ public enum SendOpcode {
     APPLY_MONSTER_STATUS(0xF2),
     CANCEL_MONSTER_STATUS(0xF3),
     RESET_MONSTER_ANIMATION(0xF4),//LOL? o.o
-    //Something with mob, but can't figure out
+    //Something with mob, but can't figure out00
     DAMAGE_MONSTER(0xF6),
     ARIANT_THING(0xF9),
     SHOW_MONSTER_HP(0xFA),
@@ -206,7 +206,7 @@ public enum SendOpcode {
     CATCH_MONSTER(0xFC),
     SHOW_MAGNET(0xFD),
     SPAWN_NPC(0x101),
-    REMOVE_NPC(0x102), //FAIL
+    REMOVE_NPC(0x102),
     SPAWN_NPC_REQUEST_CONTROLLER(0x103),
     NPC_ACTION(0x104),
     SPAWN_HIRED_MERCHANT(0x109),

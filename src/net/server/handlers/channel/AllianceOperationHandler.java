@@ -63,7 +63,7 @@ public final class AllianceOperationHandler extends AbstractMaplePacketHandler {
                 }
                 case 0x03: // send alliance invite
                     String charName = slea.readMapleAsciiString();
-                    int channel = 1;//Server.getInstance().find(charName);
+                    byte channel = c.getWorldServer().find(charName);
                     if (channel == -1) {
                         c.getPlayer().dropMessage("The player is not online.");
                     } else {

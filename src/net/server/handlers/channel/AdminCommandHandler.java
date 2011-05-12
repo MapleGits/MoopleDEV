@@ -170,7 +170,11 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                 }
                 break;
             case 0x77: //Testing purpose
-                System.out.println(slea.readShort());
+                if (slea.available() == 4)
+                    System.out.println(slea.readInt());
+                else if (slea.available() == 2)
+                    System.out.println(slea.readShort());
+                break;
             default:
                 System.out.println("New GM packet encountered (MODE : " + mode + ": " + slea.toString());
                 break;

@@ -73,11 +73,11 @@ public class CreateINI {
         try {
             out = new FileOutputStream("launch_server.bat", false);
             System.out.println("You are about to set the Java Heap Size, if you don't know what it is, type '?'.");
-            String heapsize = con.readLine("Java Heap Size : ");
+            String heapsize = con.readLine("Java Heap Size (in MB): ");
             while (heapsize.equals("?")) {
                 System.out.println("\r\n");
                 System.out.println("WikiAnswers: Java heap is the heap size allocated to JVM applications which takes care of the new objects being created. If the objects being created exceed the heap size, it will throw an error saying memoryOutof Bound\r\n\r\n");
-                heapsize = con.readLine("Java Heap Size : ");
+                heapsize = con.readLine("Java Heap Size (in MB): ");
             }
             sb.append("@echo off").append("\r\n").append("@title MoopleDEV Server v83").append("\r\n");
             sb.append("set CLASSPATH=.;dist\\*;\r\n");

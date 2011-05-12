@@ -40,51 +40,19 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
             case 914090010:
                 lockUI();
 		c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene0"));
-                TimerManager.getInstance().schedule(new Runnable() {
-                    @Override
-                        public void run() {
-                            c.getPlayer().changeMap(914090011);
-                        }                   
-                }, 14000);
-
                 break;
             case 914090011:
-                    c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene1"  + c.getPlayer().getGender()));
-                TimerManager.getInstance().schedule(new Runnable() {
-                    @Override
-                        public void run() {
-                            c.getPlayer().changeMap(914090012);
-                        }
-                }, 16000);
+                c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene1"  + c.getPlayer().getGender()));
                 break;
             case 914090012:
-                    c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene2" + c.getPlayer().getGender()));
-                TimerManager.getInstance().schedule(new Runnable() {
-                    @Override
-                        public void run() {
-                            c.getPlayer().changeMap(914090013);
-                        }                   
-                }, 12000);
+                c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene2" + c.getPlayer().getGender()));
                 break;
             case 914090013:
 		c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene3"));
-                TimerManager.getInstance().schedule(new Runnable() {
-                    @Override
-                        public void run() {                      
-                            c.getPlayer().changeMap(140090000);
-                        }                   
-                }, 12000);
                 break;
             case 914090100:
                 lockUI();
                 c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/HandedPoleArm" + c.getPlayer().getGender()));
-                
-                TimerManager.getInstance().schedule(new Runnable() {
-                    @Override
-                        public void run() {                    
-                            c.getPlayer().changeMap(140000000);
-                        }                   
-                }, 5000);
                 break;
         }
     }
@@ -101,14 +69,6 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
     }
 
     public void startExplorerExperience() {
-        TimerManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                unlockUI();
-                c.getPlayer().changeMap(1020000);
-            }
-        }, (c.getPlayer().getMapId() == 1020200 || c.getPlayer().getMapId() == 1020500) ? 4000 : 3000);
-        
             if (c.getPlayer().getMapId() == 1020100)  //Swordman
                 c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/swordman/Scene" + c.getPlayer().getGender()));
             else if (c.getPlayer().getMapId() == 1020200) //Magician

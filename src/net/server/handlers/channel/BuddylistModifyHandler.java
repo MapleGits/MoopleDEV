@@ -94,7 +94,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                 try {
                     World world = c.getWorldServer();
                     CharacterIdNameBuddyCapacity charWithId = null;
-                    int channel;
+                    byte channel;
                     MapleCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
                     if (otherChar != null) {
                         channel = c.getChannel();
@@ -132,7 +132,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
                         if (buddyAddResult == BuddyAddResult.BUDDYLIST_FULL) {
                             c.announce(MaplePacketCreator.serverNotice(1, "\"" + addName + "\"'s Buddylist is full"));
                         } else {
-                            int displayChannel = -1;
+                            byte displayChannel = -1;
                             int otherCid = charWithId.getId();
                             if (buddyAddResult == BuddyAddResult.ALREADY_ON_LIST && channel != -1) {
                                 displayChannel = channel;
@@ -161,7 +161,7 @@ public class BuddylistModifyHandler extends AbstractMaplePacketHandler {
             int otherCid = slea.readInt();
             if (!buddylist.isFull()) {
                 try {
-                    int channel = c.getWorldServer().find(otherCid);//worldInterface.find(otherCid);
+                    byte channel = c.getWorldServer().find(otherCid);//worldInterface.find(otherCid);
                     String otherName = null;
                     MapleCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
                     if (otherChar == null) {

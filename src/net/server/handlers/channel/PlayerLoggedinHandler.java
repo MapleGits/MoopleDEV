@@ -95,31 +95,15 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         }
         Connection con = DatabaseConnection.getConnection();
         PreparedStatement ps = null;
+        PreparedStatement pss = null;
         ResultSet rs = null;
         try {
-            ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM cooldowns WHERE charid = ?");
-            ps.setInt(1, player.getId());
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                final int skillid = rs.getInt("SkillID");
-                final long length = rs.getLong("length"), startTime = rs.getLong("StartTime");
-                if (length + startTime < System.currentTimeMillis()) {
-                    continue;
-                }
-                player.giveCoolDowns(skillid, startTime, length);
-            }
-            rs.close();
-            ps.close();
-            ps = con.prepareStatement("DELETE FROM cooldowns WHERE charid = ?");
-            ps.setInt(1, player.getId());
-            ps.executeUpdate();
-            ps.close();
             ps = con.prepareStatement("SELECT Mesos FROM dueypackages WHERE RecieverId = ? and Checked = 1");
             ps.setInt(1, player.getId());
             rs = ps.executeQuery();
             if (rs.next()) {
                 try {
-                    PreparedStatement pss = DatabaseConnection.getConnection().prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?");
+                    pss = DatabaseConnection.getConnection().prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?");
                     pss.setInt(1, player.getId());
                     pss.executeUpdate();
                     pss.close();
@@ -132,6 +116,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         } finally {
             try {
                 if (rs != null) rs.close();
+                if (pss != null) pss.close();
                 if (ps != null) ps.close();
             } catch (SQLException ex) {
                 //ignore
@@ -201,7 +186,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         player.updatePartyMemberHP();
         CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
-            player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), -1, false));
+            player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), (byte) -1, false));
             c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), player.getId(), pendingBuddyRequest.getName()));
         }
         if (player.getInventory(MapleInventoryType.EQUIPPED).findById(1122017) != null) {

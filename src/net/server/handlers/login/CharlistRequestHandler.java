@@ -30,7 +30,7 @@ public final class CharlistRequestHandler extends AbstractMaplePacketHandler {
         slea.readByte();
         byte world = slea.readByte();
         c.setWorld(world);
-        c.setChannel(slea.readByte() + 1);
+        c.setChannel((byte) (slea.readByte() + 1));
         c.sendCharList(world);
     }
 }

@@ -676,7 +676,7 @@ public class MaplePacketCreator {
      * @param channelLoad Load of the channel - 1200 seems to be max.
      * @return The server info packet.
      */
-    public static MaplePacket getServerList(int serverId, String serverName, byte flag, String eventmsg, Map<Integer, Integer> channelLoad) {
+    public static MaplePacket getServerList(byte serverId, String serverName, byte flag, String eventmsg, Map<Byte, Integer> channelLoad) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERLIST.getValue());
         mplew.write(serverId);
@@ -689,8 +689,8 @@ public class MaplePacketCreator {
         mplew.write(0x0); // drop rate * 2.6
         mplew.write(0x0);
         int lastChannel = 1;
-        Set<Integer> channels = channelLoad.keySet();
-        for (int i = 30; i > 0; i--) {
+        Set<Byte> channels = channelLoad.keySet();
+        for (byte i = 30; i > 0; i--) {
             if (channels.contains(i)) {
                 lastChannel = i;
                 break;
@@ -698,7 +698,7 @@ public class MaplePacketCreator {
         }
         mplew.write(lastChannel);
         int load;
-        for (int i = 1; i <= lastChannel; i++) {
+        for (byte i = 1; i <= lastChannel; i++) {
             if (channels.contains(i)) {
                 load = (channelLoad.get(i) * 1200) / ServerConstants.CHANNEL_LOAD; // lolwut
             } else {
@@ -1083,7 +1083,7 @@ public class MaplePacketCreator {
      * @return The server message packet.
      */
     public static MaplePacket serverMessage(String message) {
-        return serverMessage(4, 0, message, true, false);
+        return serverMessage(4, (byte) 0, message, true, false);
     }
 
     /**
@@ -1103,7 +1103,7 @@ public class MaplePacketCreator {
      * @return The server notice packet.
      */
     public static MaplePacket serverNotice(int type, String message) {
-        return serverMessage(type, 0, message, false, false);
+        return serverMessage(type, (byte) 0, message, false, false);
     }
 
     /**
@@ -1123,11 +1123,11 @@ public class MaplePacketCreator {
      * @param message The message to convey.
      * @return The server notice packet.
      */
-    public static MaplePacket serverNotice(int type, int channel, String message) {
+    public static MaplePacket serverNotice(int type, byte channel, String message) {
         return serverMessage(type, channel, message, false, false);
     }
 
-    public static MaplePacket serverNotice(int type, int channel, String message, boolean smegaEar) {
+    public static MaplePacket serverNotice(int type, byte channel, String message, boolean smegaEar) {
         return serverMessage(type, channel, message, false, smegaEar);
     }
 
@@ -1149,7 +1149,7 @@ public class MaplePacketCreator {
      * @param servermessage Is this a scrolling ticker?
      * @return The server notice packet.
      */
-    private static MaplePacket serverMessage(int type, int channel, String message, boolean servermessage, boolean megaEar) {
+    private static MaplePacket serverMessage(int type, byte channel, String message, boolean servermessage, boolean megaEar) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERMESSAGE.getValue());
         mplew.write(type);
@@ -1177,7 +1177,7 @@ public class MaplePacketCreator {
      * @param ear Whether or not the ear is shown for whisper.
      * @return
      */
-    public static MaplePacket getAvatarMega(MapleCharacter chr, String medal, int channel, int itemId, List<String> message, boolean ear) {
+    public static MaplePacket getAvatarMega(MapleCharacter chr, String medal, byte channel, int itemId, List<String> message, boolean ear) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.AVATAR_MEGA.getValue());
         mplew.writeInt(itemId);
@@ -2286,7 +2286,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket sendRecommended(int world, String message) {
+    public static MaplePacket sendRecommended(byte world, String message) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SEND_RECOMMENDED.getValue());
         mplew.write(world);
@@ -3006,7 +3006,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket getWhisper(String sender, int channel, String text) {
+    public static MaplePacket getWhisper(String sender, byte channel, String text) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.WHISPER.getValue());
         mplew.write(0x12);
@@ -3541,7 +3541,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateBuddyChannel(int characterid, int channel) {
+    public static MaplePacket updateBuddyChannel(int characterid, byte channel) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.BUDDYLIST.getValue());
         mplew.write(0x14);
@@ -4039,7 +4039,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket addMessengerPlayer(String from, MapleCharacter chr, int position, int channel) {
+    public static MaplePacket addMessengerPlayer(String from, MapleCharacter chr, int position, byte channel) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MESSENGER.getValue());
         mplew.write(0x00);
@@ -4059,7 +4059,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateMessengerPlayer(String from, MapleCharacter chr, int position, int channel) {
+    public static MaplePacket updateMessengerPlayer(String from, MapleCharacter chr, int position, byte channel) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MESSENGER.getValue());
         mplew.write(0x07);
@@ -4233,7 +4233,7 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.COOLDOWN.getValue());
         mplew.writeInt(sid);
-        mplew.writeShort(time);
+        mplew.writeShort(time);//Int in v97
         return mplew.getPacket();
     }
 
@@ -4351,7 +4351,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket showAllCharacterInfo(int worldid, List<MapleCharacter> chars) {
+    public static MaplePacket showAllCharacterInfo(byte worldid, List<MapleCharacter> chars) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.ALL_CHARLIST.getValue());
         mplew.write(0);
@@ -5536,7 +5536,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket itemMegaphone(String msg, boolean whisper, int channel, IItem item) {
+    public static MaplePacket itemMegaphone(String msg, boolean whisper, byte channel, IItem item) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERMESSAGE.getValue());
         mplew.write(8);
@@ -5714,7 +5714,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket getMultiMegaphone(String[] messages, int channel, boolean showEar) {
+    public static MaplePacket getMultiMegaphone(String[] messages, byte channel, boolean showEar) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERMESSAGE.getValue());
         mplew.write(0x0A);

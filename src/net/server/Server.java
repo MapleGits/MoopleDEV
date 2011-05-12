@@ -56,12 +56,12 @@ import server.CashShop.CashItemFactory;
 
 public class Server implements Runnable {
     private IoAcceptor acceptor;
-    private List<Map<Integer, String>> channels = new LinkedList<Map<Integer, String>>();
+    private List<Map<Byte, String>> channels = new LinkedList<Map<Byte, String>>();
     private List<World> worlds = new ArrayList<World>();
     private Properties subnetInfo = new Properties();
     private static Server instance = null;
     private PlayerStorage players = new PlayerStorage();
-    private List<Map<Integer, Integer>> load = new ArrayList<Map<Integer, Integer>>();
+    private List<Map<Byte, Integer>> load = new ArrayList<Map<Byte, Integer>>();
     private Map<Integer, MapleGuild> guilds = new LinkedHashMap<Integer, MapleGuild>();
     private PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private Map<Integer, MapleAlliance> alliances = new LinkedHashMap<Integer, MapleAlliance>();
@@ -78,7 +78,7 @@ public class Server implements Runnable {
         return online;
     }
 
-    public void removeChannel(int worldid, int channel) {
+    public void removeChannel(byte worldid, byte channel) {
         channels.remove(channel);
         if (load.contains(worldid)) load.get(worldid).remove(channel);
         World world = worlds.get(worldid);
@@ -86,11 +86,11 @@ public class Server implements Runnable {
             world.removeChannel(channel);
     }
 
-    public Channel getChannel(int world, int channel) {
+    public Channel getChannel(byte world, byte channel) {
         return worlds.get(world).getChannel(channel);
     }
 
-    public List<Channel> getChannelsFromWorld(int world) {
+    public List<Channel> getChannelsFromWorld(byte world) {
         return worlds.get(world).getChannels();
     }
 
@@ -103,7 +103,7 @@ public class Server implements Runnable {
         return channelz;
     }
 
-    public String getIP(int world, int channel) {
+    public String getIP(byte world, byte channel) {
         return channels.get(world).get(channel);
     }
 
@@ -137,10 +137,10 @@ public class Server implements Runnable {
                         Byte.parseByte(p.getProperty("bossdroprate" + i)));//ohlol
 
                 worlds.add(world);
-                channels.add(new LinkedHashMap<Integer, String>());
-                load.add(new LinkedHashMap<Integer, Integer>());
+                channels.add(new LinkedHashMap<Byte, String>());
+                load.add(new LinkedHashMap<Byte, Integer>());
                 for (byte j = 0; j < Byte.parseByte(p.getProperty("channels" + i)); j++) {
-                    int channelid = j + 1;
+                    byte channelid = (byte) (j + 1);
                     Channel channel = new Channel(i, channelid);
                     world.addChannel(channel);
                     channels.get(i).put(channelid, channel.getIP());
@@ -181,11 +181,11 @@ public class Server implements Runnable {
         return subnetInfo;
     }
 
-    public Map<Integer, Integer> getLoad(int i) {
+    public Map<Byte, Integer> getLoad(byte i) {
         return load.get(i);
     }
 
-    public List<Map<Integer, Integer>> getLoad() {
+    public List<Map<Byte, Integer>> getLoad() {
         return load;
     }
 
@@ -278,15 +278,15 @@ public class Server implements Runnable {
         return false;
     }
 
-    public Set<Integer> getChannelServer() {
-        return new HashSet<Integer>(channels.get(0).keySet());
+    public Set<Byte> getChannelServer() {
+        return new HashSet<Byte>(channels.get(0).keySet());
     }
 
-    public int getHighestChannelId() {
-        int highest = 0;
-        for (Integer channel : channels.get(0).keySet()) {
+    public byte getHighestChannelId() {
+        byte highest = 0;
+        for (Byte channel : channels.get(0).keySet()) {
             if (channel != null && channel.intValue() > highest) {
-                highest = channel.intValue();
+                highest = channel.byteValue();
             }
         }
         return highest;
@@ -322,7 +322,7 @@ public class Server implements Runnable {
         
     }
 
-    public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, int channel) {
+    public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, byte channel) {
         MapleGuild g = getGuild(mgc.getGuildId(), mgc);
         g.setOnline(mgc.getId(), bOnline, channel);
     }
@@ -428,7 +428,7 @@ public class Server implements Runnable {
     }
 
     public void deleteGuildCharacter(MapleGuildCharacter mgc) {
-        setGuildMemberOnline(mgc, false, -1);
+        setGuildMemberOnline(mgc, false, (byte) -1);
         if (mgc.getGuildRank() > 1) {
             leaveGuild(mgc);
         } else {
@@ -436,7 +436,7 @@ public class Server implements Runnable {
         }
     }
 
-    public void reloadGuildCharacters(int world) {
+    public void reloadGuildCharacters(byte world) {
         World worlda = getWorld(world);
         for (MapleCharacter mc : worlda.getPlayerStorage().getAllCharacters()) {
              if (mc.getGuildId() > 0) {
@@ -447,7 +447,7 @@ public class Server implements Runnable {
         worlda.reloadGuildSummary();
     }
 
-    public void broadcastMessage(int world, byte[] bytes) {
+    public void broadcastMessage(byte world, byte[] bytes) {
         for (Channel ch : getChannelsFromWorld(world)) {
             ch.broadcastPacket(new ByteArrayMaplePacket(bytes));
         }

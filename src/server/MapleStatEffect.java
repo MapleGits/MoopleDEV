@@ -23,7 +23,6 @@ package server;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,8 +114,7 @@ import server.maps.FieldLimit;
  * @author Matze
  * @author Frz
  */
-public class MapleStatEffect implements Serializable {
-    private static final long serialVersionUID = 3692756402846632237L;
+public class MapleStatEffect {
     private short watk, matk, wdef, mdef, acc, avoid, speed, jump;
     private short hp, mp;
     private double hpR, mpR;
@@ -923,6 +921,7 @@ public class MapleStatEffect implements Serializable {
                 applyto.getClient().getSession().write(buff);
             if (mbuff != null)
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);
+            if (sourceid == Corsair.BATTLE_SHIP) applyto.announce(MaplePacketCreator.skillCooldown(5221999, applyto.getBattleshipHp() / 10));
         }         
     }
 

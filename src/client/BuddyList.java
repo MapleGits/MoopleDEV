@@ -116,7 +116,7 @@ public class BuddyList {
                 if (rs.getInt("pending") == 1) {
                     pendingRequests.push(new CharacterNameAndId(rs.getInt("buddyid"), rs.getString("buddyname")));
                 } else {
-                    put(new BuddylistEntry(rs.getString("buddyname"), rs.getString("group"), rs.getInt("buddyid"), -1, true));
+                    put(new BuddylistEntry(rs.getString("buddyname"), rs.getString("group"), rs.getInt("buddyid"), (byte) -1, true));
                 }
             }
             rs.close();
@@ -134,7 +134,7 @@ public class BuddyList {
         return pendingRequests.pollLast();
     }
 
-    public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, int channelFrom) {
+    public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, byte channelFrom) {
         put(new BuddylistEntry(nameFrom, "Default Group", cidFrom, channelFrom, false));
         if (pendingRequests.isEmpty()) {
             c.getSession().write(MaplePacketCreator.requestBuddylistAdd(cidFrom, c.getPlayer().getId(), nameFrom));

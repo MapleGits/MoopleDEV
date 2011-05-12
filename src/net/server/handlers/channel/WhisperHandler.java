@@ -79,7 +79,7 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
                     }
                     rs.close();
                     ps.close();
-                    int channel = c.getWorldServer().find(recipient) - 1;
+                    byte channel = (byte) (c.getWorldServer().find(recipient) - 1);
                     if (channel > -1) {
                         c.announce(MaplePacketCreator.getFindReply(recipient, channel, 3));
                     } else {

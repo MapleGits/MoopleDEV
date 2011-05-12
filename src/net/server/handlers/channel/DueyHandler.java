@@ -123,7 +123,7 @@ public final class DueyHandler extends AbstractMaplePacketHandler {
             }
             boolean recipientOn = false;
             MapleClient rClient = null;
-                int channel = c.getWorldServer().find(recipient);
+                byte channel = c.getWorldServer().find(recipient);
                 if (channel > -1) {
                     recipientOn = true;
                     Channel rcserv = c.getWorldServer().getChannel(channel);

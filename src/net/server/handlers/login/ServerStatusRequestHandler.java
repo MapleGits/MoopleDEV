@@ -30,10 +30,10 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ServerStatusRequestHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int world = slea.readShort();
+        byte world = (byte) slea.readShort();//Wuuu? ):
         int status;
         int num = 0;
-        for (int load : Server.getInstance().getLoad(world).keySet()) {
+        for (byte load : Server.getInstance().getLoad(world).keySet()) {
              num += load;
         }
         if (num >= ServerConstants.CHANNEL_LOAD) {

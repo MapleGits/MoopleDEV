@@ -45,7 +45,7 @@ import tools.MaplePacketCreator;
  * @author kevintjuh93
  */
 public class World {
-    private byte flag, exprate, droprate, mesorate, bossdroprate;
+    private byte id, flag, exprate, droprate, mesorate, bossdroprate;
     private String eventmsg;
     private List<Channel> channels = new ArrayList<Channel>();
 
@@ -57,9 +57,8 @@ public class World {
     private Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
 
     private PlayerStorage players = new PlayerStorage();
-    private int id;
 
-    public World(int world, byte flag, String eventmsg, byte exprate, byte droprate, byte mesorate, byte bossdroprate) {
+    public World(byte world, byte flag, String eventmsg, byte exprate, byte droprate, byte mesorate, byte bossdroprate) {
         this.id = world;
         this.flag = flag;
         this.eventmsg = eventmsg;
@@ -75,7 +74,7 @@ public class World {
         return channels;
     }
 
-    public Channel getChannel(int channel) {
+    public Channel getChannel(byte channel) {
         return channels.get(channel - 1);
     }
 
@@ -83,7 +82,7 @@ public class World {
         channels.add(channel);
     }
 
-    public void removeChannel(int channel) {
+    public void removeChannel(byte channel) {
         channels.remove(channel);
     }
 
@@ -128,7 +127,7 @@ public class World {
         players.removePlayer(chr.getId());
     }
 
-    public int getId() {
+    public byte getId() {
         return id;
     }
 
@@ -305,15 +304,15 @@ public class World {
         updateParty(party, operation, target);
     }
 
-    public int find(String name) {
-        int channel = -1;
+    public byte find(String name) {
+        byte channel = -1;
         MapleCharacter chr = getPlayerStorage().getCharacterByName(name);
         if (chr != null) channel = chr.getClient().getChannel();
         return channel;
     }
 
-    public int find(int id) {
-        int channel = -1;
+    public byte find(int id) {
+        byte channel = -1;
         MapleCharacter chr = getPlayerStorage().getCharacterById(id);
         if (chr != null) channel = chr.getClient().getChannel();
         return channel;
@@ -366,7 +365,7 @@ public class World {
         removeMessengerPlayer(messenger, position);
     }
 
-    public void messengerInvite(String sender, int messengerid, String target, int fromchannel) {
+    public void messengerInvite(String sender, int messengerid, String target, byte fromchannel) {
         if (isConnected(target)) {
             MapleMessenger messenger = getPlayerStorage().getCharacterByName(target).getMessenger();
             if (messenger == null) {
@@ -380,14 +379,14 @@ public class World {
         }
     }
 
-    public void addMessengerPlayer(MapleMessenger messenger, String namefrom, int fromchannel, int position) {
+    public void addMessengerPlayer(MapleMessenger messenger, String namefrom, byte fromchannel, int position) {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             if (!(messengerchar.getName().equals(namefrom))) {
                 MapleCharacter chr = getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     MapleCharacter from = getChannel(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                    chr.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(namefrom, from, position, fromchannel - 1));
-                    from.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), messengerchar.getChannel() - 1));
+                    chr.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(namefrom, from, position, (byte) (fromchannel - 1)));
+                    from.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), (byte) (messengerchar.getChannel() - 1)));
                 }
             } else if ((messengerchar.getName().equals(namefrom))) {
                 MapleCharacter chr = getPlayerStorage().getCharacterByName(messengerchar.getName());
@@ -427,19 +426,19 @@ public class World {
         }
     }
 
-    public void updateMessenger(int messengerid, String namefrom, int fromchannel) {
+    public void updateMessenger(int messengerid, String namefrom, byte fromchannel) {
         MapleMessenger messenger = getMessenger(messengerid);
         int position = messenger.getPositionByName(namefrom);
         updateMessenger(messenger, namefrom, position, fromchannel);
     }
 
-    public void updateMessenger(MapleMessenger messenger, String namefrom, int position, int fromchannel) {
+    public void updateMessenger(MapleMessenger messenger, String namefrom, int position, byte fromchannel) {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             Channel ch = getChannel(fromchannel);
             if (!(messengerchar.getName().equals(namefrom))) {
                 MapleCharacter chr = ch.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    chr.getClient().getSession().write(MaplePacketCreator.updateMessengerPlayer(namefrom, getChannel(fromchannel).getPlayerStorage().getCharacterByName(namefrom), position, fromchannel - 1));
+                    chr.getClient().getSession().write(MaplePacketCreator.updateMessengerPlayer(namefrom, getChannel(fromchannel).getPlayerStorage().getCharacterByName(namefrom), position, (byte) (fromchannel - 1)));
                 }
             }
         }
@@ -454,7 +453,7 @@ public class World {
     }
 
 
-    public void joinMessenger(int messengerid, MapleMessengerCharacter target, String from, int fromchannel) {
+    public void joinMessenger(int messengerid, MapleMessengerCharacter target, String from, byte fromchannel) {
         MapleMessenger messenger = getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
@@ -482,13 +481,13 @@ public class World {
         return getPlayerStorage().getCharacterByName(charName) != null;
     }
 
-    public void whisper(String sender, String target, int channel, String message) {
+    public void whisper(String sender, String target, byte channel, String message) {
         if (isConnected(target)) {
             getPlayerStorage().getCharacterByName(target).getClient().getSession().write(MaplePacketCreator.getWhisper(sender, channel, message));
         }
     }
 
-    public BuddyAddResult requestBuddyAdd(String addName, int channelFrom, int cidFrom, String nameFrom) {
+    public BuddyAddResult requestBuddyAdd(String addName, byte channelFrom, int cidFrom, String nameFrom) {
         MapleCharacter addChar = getPlayerStorage().getCharacterByName(addName);
         if (addChar != null) {
             BuddyList buddylist = addChar.getBuddylist();
@@ -504,7 +503,7 @@ public class World {
         return BuddyAddResult.OK;
     }
 
-    public void buddyChanged(int cid, int cidFrom, String name, int channel, BuddyOperation operation) {
+    public void buddyChanged(int cid, int cidFrom, String name, byte channel, BuddyOperation operation) {
         MapleCharacter addChar = getPlayerStorage().getCharacterById(cid);
         if (addChar != null) {
             BuddyList buddylist = addChar.getBuddylist();
@@ -512,41 +511,41 @@ public class World {
                 case ADDED:
                     if (buddylist.contains(cidFrom)) {
                         buddylist.put(new BuddylistEntry(name, "Default Group", cidFrom, channel, true));
-                        addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, channel - 1));
+                        addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, (byte) (channel - 1)));
                     }
                     break;
                 case DELETED:
                     if (buddylist.contains(cidFrom)) {
-                        buddylist.put(new BuddylistEntry(name, "Default Group", cidFrom, -1, buddylist.get(cidFrom).isVisible()));
-                        addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, -1));
+                        buddylist.put(new BuddylistEntry(name, "Default Group", cidFrom, (byte) -1, buddylist.get(cidFrom).isVisible()));
+                        addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, (byte) -1));
                     }
                     break;
             }
         }
     }
 
-    public void loggedOff(String name, int characterId, int channel, int[] buddies) {
+    public void loggedOff(String name, int characterId, byte channel, int[] buddies) {
         updateBuddies(characterId, channel, buddies, true);
     }
 
-    public void loggedOn(String name, int characterId, int channel, int buddies[]) {
+    public void loggedOn(String name, int characterId, byte channel, int buddies[]) {
         updateBuddies(characterId, channel, buddies, false);
     }
 
-    private void updateBuddies(int characterId, int channel, int[] buddies, boolean offline) {
+    private void updateBuddies(int characterId, byte channel, int[] buddies, boolean offline) {
         PlayerStorage playerStorage = getPlayerStorage();
         for (int buddy : buddies) {
             MapleCharacter chr = playerStorage.getCharacterById(buddy);
             if (chr != null) {
                 BuddylistEntry ble = chr.getBuddylist().get(characterId);
                 if (ble != null && ble.isVisible()) {
-                    int mcChannel;
+                    byte mcChannel;
                     if (offline) {
-                        ble.setChannel(-1);
+                        ble.setChannel((byte) -1);
                         mcChannel = -1;
                     } else {
                         ble.setChannel(channel);
-                        mcChannel = channel - 1;
+                        mcChannel = (byte) (channel - 1);
                     }
                     chr.getBuddylist().put(ble);
                     chr.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(ble.getCharacterId(), mcChannel));

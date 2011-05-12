@@ -37,12 +37,12 @@ public final class ViewCharHandler extends AbstractMaplePacketHandler {
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT world, id FROM characters WHERE accountid = ?");
             ps.setInt(1, c.getAccID());
-            int charsNum = 0;
-            List<Integer> worlds = new ArrayList<Integer>();
+            short charsNum = 0;
+            List<Byte> worlds = new ArrayList<Byte>();
             List<MapleCharacter> chars = new ArrayList<MapleCharacter>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                int cworld = rs.getInt("world");
+                byte cworld = rs.getByte("world");
                 boolean inside = false;
                 for (int w : worlds) {
                     if (w == cworld) {
@@ -60,7 +60,7 @@ public final class ViewCharHandler extends AbstractMaplePacketHandler {
             ps.close();
             int unk = charsNum + 3 - charsNum % 3;
             c.announce(MaplePacketCreator.showAllCharacter(charsNum, unk));
-            for (int w : worlds) {
+            for (byte w : worlds) {
                 List<MapleCharacter> chrsinworld = new ArrayList<MapleCharacter>();
                 for (MapleCharacter chr : chars) {
                     if (chr.getWorld() == w) {

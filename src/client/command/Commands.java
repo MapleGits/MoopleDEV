@@ -368,11 +368,12 @@ public class Commands {
             player.getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
         } else if (sub[0].equals("warpworld")) {//test
             Server server = Server.getInstance();
-            int world = Integer.parseInt(sub[1]);
+            byte world = Byte.parseByte(sub[1]);
             if (world <= (server.getWorlds().size() - 1)) {
                 try {
                     String[] socket = server.getIP(world, c.getChannel()).split(":");
-                    c.getChannelServer().removePlayer(player);
+                    c.getWorldServer().removePlayer(player);
+                    player.getMap().removePlayer(player);//LOL FORGOT THIS ><
                     server.getPlayerStorage().addPlayer(player);
                     c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
                     player.setWorld(world);

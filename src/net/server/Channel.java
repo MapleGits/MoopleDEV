@@ -37,7 +37,6 @@ import net.MaplePacket;
 import net.MapleServerHandler;
 import net.PacketProcessor;
 import net.mina.MapleCodecFactory;
-import net.server.guild.MapleGuildSummary;
 import provider.MapleDataProviderFactory;
 import scripting.event.EventScriptManager;
 import server.TimerManager;
@@ -58,8 +57,7 @@ import server.maps.MapleMap;
 public class Channel {
     private int port = 7575;
     private PlayerStorage players = new PlayerStorage();
-    private int channel;
-    private int world;
+    private byte world, channel;
     private IoAcceptor acceptor;
     private String ip;
     private boolean shutdown = false;
@@ -69,12 +67,10 @@ public class Channel {
     private Map<Integer, HiredMerchant> hiredMerchants = new HashMap<Integer, HiredMerchant>();
     private MapleEvent event;
 
-    public Channel(final int world, final int channel) {
+    public Channel(final byte world, final byte channel) {
         this.world = world;
         this.channel = channel;
-        this.mapFactory = new MapleMapFactory(MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Map.wz")), MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz")));
-        this.mapFactory.setChannel(channel);
-        this.mapFactory.setWorld(world);
+        this.mapFactory = new MapleMapFactory(MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Map.wz")), MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz")), world, channel);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -187,7 +183,7 @@ public class Channel {
         }
     }
 
-    public final int getId() {
+    public final byte getId() {
         return channel;
     }
 

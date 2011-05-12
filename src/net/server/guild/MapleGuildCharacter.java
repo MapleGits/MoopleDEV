@@ -28,8 +28,7 @@ public class MapleGuildCharacter implements Serializable {
     private static final long serialVersionUID = -8012634292341191559L;
     private int level;
     private int id;
-    private int channel;
-    private int world;
+    private byte world, channel;
     private int jobid;
     private int guildrank;
     private int guildid;
@@ -50,7 +49,7 @@ public class MapleGuildCharacter implements Serializable {
         this.allianceRank = c.getAllianceRank();
     }
 
-    public MapleGuildCharacter(int _id, int _lv, String _name, int _channel, int _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank) {
+    public MapleGuildCharacter(int _id, int _lv, String _name, byte _channel, byte _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank) {
         this.level = _lv;
         this.id = _id;
         this.name = _name;
@@ -77,15 +76,15 @@ public class MapleGuildCharacter implements Serializable {
         return id;
     }
 
-    public void setChannel(int ch) {
+    public void setChannel(byte ch) {
         channel = ch;
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
     }
 
-    public int getWorld() {
+    public byte getWorld() {
         return world;
     }
 

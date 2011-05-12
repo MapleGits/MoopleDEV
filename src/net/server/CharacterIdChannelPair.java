@@ -21,24 +21,18 @@
 */
 package net.server;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
  *
  * @author Frz
  */
-public class CharacterIdChannelPair implements Externalizable {
-    private static final long serialVersionUID = -314159265358979323L;
+public class CharacterIdChannelPair {
     private int charid;
-    private int channel;
+    private byte channel;
 
     public CharacterIdChannelPair() {
     }
 
-    public CharacterIdChannelPair(int charid, int channel) {
+    public CharacterIdChannelPair(int charid, byte channel) {
         this.charid = charid;
         this.channel = channel;
     }
@@ -47,19 +41,7 @@ public class CharacterIdChannelPair implements Externalizable {
         return charid;
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        charid = in.readInt();
-        channel = in.readByte();
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeInt(charid);
-        out.writeByte(channel);
     }
 }

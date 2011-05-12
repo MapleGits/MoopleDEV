@@ -31,7 +31,7 @@ public class MaplePartyCharacter implements Serializable {
     private String name;
     private int id;
     private int level;
-    private int channel, world;
+    private byte channel, world;
     private int jobid;
     private int mapid;
     private int doorTown = 999999999;
@@ -69,11 +69,11 @@ public class MaplePartyCharacter implements Serializable {
         return level;
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
     }
 
-    public void setChannel(int channel) {
+    public void setChannel(byte channel) {
         this.channel = channel;
     }
 
@@ -147,7 +147,7 @@ public class MaplePartyCharacter implements Serializable {
         return true;
     }
 
-    public int getWorld() {
+    public byte getWorld() {
         return world;
     }
 }

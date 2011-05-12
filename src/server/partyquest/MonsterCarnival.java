@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.ScheduledFuture;
-import net.server.Channel;
 import server.TimerManager;
 import server.maps.MapleMap;
 import tools.DatabaseConnection;
@@ -45,7 +44,7 @@ public class MonsterCarnival {
     private long timeStarted = 0;
     private ScheduledFuture<?> schedule = null;
 
-        public MonsterCarnival(int room, int channel, MonsterCarnivalParty red1, MonsterCarnivalParty blue1) {
+        public MonsterCarnival(int room, byte channel, MonsterCarnivalParty red1, MonsterCarnivalParty blue1) {
             //this.map = Channel.getInstance(channel).getMapFactory().getMap(980000001 + (room * 100));
             this.room = room;
             this.red = red1;

@@ -18,8 +18,8 @@ public final class ViewAllPicRegisterHandler extends AbstractMaplePacketHandler 
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readByte();
         int charId = slea.readInt();
-        int world = slea.readInt(); //world
-        int channel = Randomizer.rand(0, Server.getInstance().getWorld(world).getChannels().size());
+        byte world = (byte) slea.readInt(); //world
+        byte channel = (byte) Randomizer.rand(0, Server.getInstance().getWorld(world).getChannels().size());
 	String mac = slea.readMapleAsciiString();
         c.updateMacs(mac);
         if (c.hasBannedMac()) {

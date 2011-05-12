@@ -71,14 +71,14 @@ public class MapleClient {
     private MapleAESOFB receive;
     private IoSession session;
     private MapleCharacter player;
-    private int channel = 1;
+    private byte channel = 1;
     private int accId = 1;
     private boolean loggedIn = false;
     private boolean serverTransition = false;
     private Calendar birthday = null;
     private Calendar tempban = null;
     private String accountName = "";
-    private int world;
+    private byte world;
     private long lastPong;
     private int gmlevel;
     private Set<String> macs = new HashSet<String>();
@@ -450,7 +450,7 @@ public class MapleClient {
         return ipAddress;
     }
 
-    public static String getChannelServerIPFromSubnet(String clientIPAddress, int channel) {
+    public static String getChannelServerIPFromSubnet(String clientIPAddress, byte channel) {
         long ipAddress = dottedQuadToLong(clientIPAddress);
         Properties subnetInfo = Server.getInstance().getSubnetInfo();
         if (subnetInfo.contains("net.login.subnetcount")) {
@@ -459,7 +459,7 @@ public class MapleClient {
                 String[] connectionInfo = subnetInfo.getProperty("net.login.subnet." + i).split(":");
                 long subnet = dottedQuadToLong(connectionInfo[0]);
                 long channelIP = dottedQuadToLong(connectionInfo[1]);
-                int channelNumber = Integer.parseInt(connectionInfo[2]);
+                byte channelNumber = Byte.parseByte(connectionInfo[2]);
                 if (((ipAddress & subnet) == (channelIP & subnet)) && (channel == channelNumber)) {
                     return connectionInfo[1];
                 }
@@ -648,7 +648,7 @@ public class MapleClient {
                     worlda.loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
                 }
                 if (player.getGuildId() > 0) {
-                    Server.getInstance().setGuildMemberOnline(player.getMGC(), false, -1);
+                    Server.getInstance().setGuildMemberOnline(player.getMGC(), false, (byte) -1);
                     int allianceId = player.getGuild().getAllianceId();
                     if (allianceId > 0) {
                         Server.getInstance().allianceMessage(allianceId, MaplePacketCreator.allianceMemberOnline(player, false), player.getId(), -1);
@@ -673,7 +673,7 @@ public class MapleClient {
         }
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
     }
 
@@ -685,7 +685,7 @@ public class MapleClient {
         return Server.getInstance().getWorld(world);
     }
 
-    public Channel getChannelServer(int channel) {
+    public Channel getChannelServer(byte channel) {
         return Server.getInstance().getChannel(world, channel);
     }
 
@@ -703,7 +703,7 @@ public class MapleClient {
 	}
             if (rs.getInt("guildid") > 0) {
                 try {
-                    Server.getInstance().deleteGuildCharacter(new MapleGuildCharacter(cid, 0, rs.getString("name"), -1, -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false, rs.getInt("allianceRank")));
+                    Server.getInstance().deleteGuildCharacter(new MapleGuildCharacter(cid, 0, rs.getString("name"), (byte) -1, (byte) -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false, rs.getInt("allianceRank")));
                 } catch (Exception re) {
                     rs.close();
                     ps.close();
@@ -739,15 +739,15 @@ public class MapleClient {
         this.accountName = a;
     }
 
-    public void setChannel(int channel) {
+    public void setChannel(byte channel) {
         this.channel = channel;
     }
 
-    public int getWorld() {
+    public byte getWorld() {
         return world;
     }
 
-    public void setWorld(int world) {
+    public void setWorld(byte world) {
         this.world = world;
     }
 

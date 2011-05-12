@@ -51,7 +51,7 @@ import tools.Pair;
  */
 public class HiredMerchant extends AbstractMapleMapObject {
     private int ownerId, itemId, mesos = 0;
-    private int channel, world;
+    private byte channel, world;
     private long start;
     private String ownerName = "";
     private String description = "";
@@ -328,7 +328,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
 	return true;
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
     }
 

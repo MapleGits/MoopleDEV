@@ -35,12 +35,12 @@ public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {//FUUUUUUUUUUUUUUU
         Server server = Server.getInstance();
         World world;
-        for (int i = 0; i < Math.min(server.getLoad().size(), names.length); i++) {
+        for (byte i = 0; i < Math.min(server.getLoad().size(), names.length); i++) {
             world = server.getWorld(i);
             c.announce(MaplePacketCreator.getServerList(i, names[i], world.getFlag(), world.getEventMessage(),server.getLoad(i)));
         }
         c.announce(MaplePacketCreator.getEndOfServerList());
         c.announce(MaplePacketCreator.enableRecommended(true));
-        c.announce(MaplePacketCreator.sendRecommended(1, ServerConstants.RECOMMEND_MESSAGE));
+        c.announce(MaplePacketCreator.sendRecommended((byte) 1, ServerConstants.RECOMMEND_MESSAGE));
     }
 }

@@ -21,16 +21,13 @@
 */
 package net.server;
 
-import java.io.Serializable;
 import client.MapleCharacter;
 
-public class MapleMessengerCharacter implements Serializable {
-    private static final long serialVersionUID = -752545421702586662L;
+public class MapleMessengerCharacter {
     private String name;
-    private int id;
-    private int channel;
+    private int id, position;
+    private byte channel;
     private boolean online;
-    private int position;
 
     public MapleMessengerCharacter(MapleCharacter maplechar) {
         this.name = maplechar.getName();
@@ -52,7 +49,7 @@ public class MapleMessengerCharacter implements Serializable {
         return id;
     }
 
-    public int getChannel() {
+    public byte getChannel() {
         return channel;
     }
 

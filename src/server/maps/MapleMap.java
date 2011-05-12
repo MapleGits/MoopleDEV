@@ -90,7 +90,7 @@ public class MapleMap {
     private int mapid;
     private int runningOid = 100;
     private int returnMapId;
-    private int channel, world;
+    private byte channel, world;
     private float monsterRate;
     private boolean clock;
     private boolean boat;
@@ -124,9 +124,9 @@ public class MapleMap {
     private MapleSnowball snowball1 = null;
     private MapleCoconut coconut;
 
-    public MapleMap(int mapid, int world, int channel, int returnMapId, float monsterRate) {
+    public MapleMap(int mapid, byte world, byte channel, int returnMapId, float monsterRate) {
         this.mapid = mapid;
-        this.channel = (short) channel;
+        this.channel = channel;
         this.world = world;
         this.returnMapId = returnMapId;
         this.monsterRate = monsterRate;

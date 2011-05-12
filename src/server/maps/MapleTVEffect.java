@@ -36,10 +36,11 @@ public class MapleTVEffect {
     private List<String> message = new ArrayList<String>(5);
     private MapleCharacter user;
     private static boolean active;
-    private int type, world;
+    private int type;
+    private byte world;
     private MapleCharacter partner;
 
-    public MapleTVEffect(MapleCharacter user_, MapleCharacter partner_, List<String> msg, int type_, int world_) {
+    public MapleTVEffect(MapleCharacter user_, MapleCharacter partner_, List<String> msg, int type_, byte world_) {
         this.message = msg;
         this.user = user_;
         this.type = type_;

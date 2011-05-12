@@ -43,11 +43,13 @@ public class MapleMapFactory {
     private MapleDataProvider source;
     private MapleData nameData;
     private Map<Integer, MapleMap> maps = new HashMap<Integer, MapleMap>();
-    private int channel, world;
+    private byte channel, world;
 
-    public MapleMapFactory(MapleDataProvider source, MapleDataProvider stringSource) {
+    public MapleMapFactory(MapleDataProvider source, MapleDataProvider stringSource, byte world, byte channel) {
         this.source = source;
         this.nameData = stringSource.getData("Map.img");
+        this.world = world;
+        this.channel = channel;
     }
 
     public MapleMap getMap(int mapid) {
@@ -128,7 +130,7 @@ public class MapleMapFactory {
                         map.addMapleArea(new Rectangle(x1, y1, (x2 - x1), (y2 - y1)));
                     }
                 }
-                try { // TODO, make better, perhaps for few maps only
+                try { // TODO, make better, perhaps for few maps only OKIDOKI!
                     PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM playernpcs WHERE map = ?");
                     ps.setInt(1, omapid);
                     ResultSet rs = ps.executeQuery();
@@ -262,11 +264,11 @@ public class MapleMapFactory {
         return builder.toString();
     }
 
-    public void setChannel(int channel) {
+    public void setChannel(byte channel) {
         this.channel = channel;
     }
 
-    public void setWorld(int world) {
+    public void setWorld(byte world) {
         this.channel = world;
     }
 

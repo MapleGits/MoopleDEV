@@ -34,8 +34,7 @@ import net.server.Server;
  * @author kevintjuh93
  */
 public class PartyQuest {
-    int channel;
-    int world;
+    byte channel, world;
     MapleParty party;
     List<MapleCharacter> participants = new ArrayList<MapleCharacter>();
 

@@ -23,18 +23,17 @@ package net.server.handlers.login;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Random;
 import client.MapleClient;
 import net.server.Server;
 import net.AbstractMaplePacketHandler;
-import net.server.Channel;
 import tools.MaplePacketCreator;
+import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class PickCharHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int charId = slea.readInt();
-        int world = slea.readInt();
+        byte world = (byte) slea.readInt();//Wuuu? ):
         c.setWorld(world);
         String macs = slea.readMapleAsciiString();
         c.updateMacs(macs);
@@ -43,9 +42,9 @@ public final class PickCharHandler extends AbstractMaplePacketHandler {
             return;
         }
         try {
-            c.setChannel(new Random().nextInt(Server.getInstance().getLoad(world).size()));
+            c.setChannel((byte) Randomizer.nextInt(Server.getInstance().getLoad(world).size()));
         } catch (Exception e) {
-            c.setChannel(1);
+            c.setChannel((byte) 1);
         }
         try {
             if (c.getIdleTask() != null) {

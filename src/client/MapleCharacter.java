@@ -126,7 +126,7 @@ import tools.Randomizer;
 
 public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
-    private int world;
+    private byte world;
     private int accountid;
     private int rank;
     private int rankMove;
@@ -1027,10 +1027,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             this.battleshipHp = 0;
             ISkill battleship = SkillFactory.getSkill(Corsair.BATTLE_SHIP);
             int cooldown = battleship.getEffect(getSkillLevel(battleship)).getCooldown();
-            getClient().announce(MaplePacketCreator.skillCooldown(Corsair.BATTLE_SHIP, cooldown));
-            addCooldown(Corsair.BATTLE_SHIP, System.currentTimeMillis(), cooldown * 1000, TimerManager.getInstance().schedule(new CancelCooldownAction(this, Corsair.BATTLE_SHIP), cooldown * 1000));
+            announce(MaplePacketCreator.skillCooldown(Corsair.BATTLE_SHIP, cooldown));
+            addCooldown(Corsair.BATTLE_SHIP, System.currentTimeMillis(), cooldown, TimerManager.getInstance().schedule(new CancelCooldownAction(this, Corsair.BATTLE_SHIP), cooldown * 1000));
+            removeCooldown(5221999);
             cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
-            resetBattleshipHp();
+        } else {
+            announce(MaplePacketCreator.skillCooldown(5221999, battleshipHp / 10));   //:D
+            addCooldown(5221999, 0, battleshipHp, null);
         }
     }
 
@@ -2167,13 +2170,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return Collections.unmodifiableCollection(visibleMapObjects);
     }
 
-    public int getWorld() {
+    public byte getWorld() {
         return world;
     }
 
     public void giveCoolDowns(final int skillid, long starttime, long length) {
-        int time = (int) ((length + starttime) - System.currentTimeMillis());
-        addCooldown(skillid, System.currentTimeMillis(), time, TimerManager.getInstance().schedule(new CancelCooldownAction(this, skillid), time));
+        if (skillid == 5221999) {
+            this.battleshipHp = (int) length;
+            addCooldown(skillid, 0, length, null);            
+        } else {
+            int time = (int) ((length + starttime) - System.currentTimeMillis());
+            addCooldown(skillid, System.currentTimeMillis(), time, TimerManager.getInstance().schedule(new CancelCooldownAction(this, skillid), time));
+        }
     }
 
     public void giveDebuff(MapleDisease disease, MobSkill skill) {
@@ -2520,7 +2528,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.accountid = rs.getInt("accountid");
             ret.mapid = rs.getInt("map");
             ret.initialSpawnPoint = rs.getInt("spawnpoint");
-            ret.world = rs.getInt("world");
+            ret.world = rs.getByte("world");
             ret.rank = rs.getInt("rank");
             ret.rankMove = rs.getInt("rankMove");
             ret.jobRank = rs.getInt("jobRank");
@@ -2695,6 +2703,23 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 }
                 rs.close();
                 ps.close();
+                ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM cooldowns WHERE charid = ?");
+                ps.setInt(1, ret.getId());
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    final int skillid = rs.getInt("SkillID");
+                    final long length = rs.getLong("length"), startTime = rs.getLong("StartTime");
+                    if (skillid != 5221999 && (length + startTime < System.currentTimeMillis())) {
+                        continue;
+                    }
+                    ret.giveCoolDowns(skillid, startTime, length);
+                }
+                rs.close();
+                ps.close();
+                ps = con.prepareStatement("DELETE FROM cooldowns WHERE charid = ?");
+                ps.setInt(1, ret.getId());
+                ps.executeUpdate();
+                ps.close();           
                 ps = con.prepareStatement("SELECT * FROM skillmacros WHERE characterid = ?");
                 ps.setInt(1, charid);
                 rs = ps.executeQuery();
@@ -2738,7 +2763,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ret.buddylist.loadFromDb(charid);
                 ret.storage = MapleStorage.loadOrCreateFromDB(ret.accountid);
                 ret.recalcLocalStats();
-                ret.resetBattleshipHp();
+                //ret.resetBattleshipHp();
                 ret.silentEnforceMaxHpMp();
             }
             int mountid = ret.getJobType() * 10000000 + 1004;
@@ -3030,7 +3055,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void receivePartyMemberHP() {
         if (party != null) {
-            int channel = client.getChannel();
+            byte channel = client.getChannel();
             for (MaplePartyCharacter partychar : party.getMembers()) {
                 if (partychar.getMapId() == getMapId() && partychar.getChannel() == channel) {
                     MapleCharacter other = Server.getInstance().getWorld(world).getChannel(channel).getPlayerStorage().getCharacterByName(partychar.getName());
@@ -3232,7 +3257,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void saveCooldowns() {
         if (getAllCooldowns().size() > 0) {
             try {
-                PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)");
+                Connection con = DatabaseConnection.getConnection();
+                deleteWhereCharacterId(con, "DELETE FROM cooldowns WHERE charid = ?");
+                PreparedStatement ps = con.prepareStatement("INSERT INTO cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)");
                 ps.setInt(1, getId());
                 for (PlayerCoolDownValueHolder cooling : getAllCooldowns()) {
                     ps.setInt(2, cooling.skillId);
@@ -4041,7 +4068,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         this.vanquisherStage = x;
     }
 
-    public void setWorld(int world) {
+    public void setWorld(byte world) {
         this.world = world;
     }
 
@@ -4218,7 +4245,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void updatePartyMemberHP() {
         if (party != null) {
-            int channel = client.getChannel();
+            byte channel = client.getChannel();
             for (MaplePartyCharacter partychar : party.getMembers()) {
                 if (partychar.getMapId() == getMapId() && partychar.getChannel() == channel) {
                     MapleCharacter other = Server.getInstance().getWorld(world).getChannel(channel).getPlayerStorage().getCharacterByName(partychar.getName());

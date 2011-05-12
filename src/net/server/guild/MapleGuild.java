@@ -49,8 +49,9 @@ public class MapleGuild {
     private List<MapleGuildCharacter> members;
     private String rankTitles[] = new String[5]; // 1 = master, 2 = jr, 5 = lowest member
     private String name, notice;
-    private int id, gp, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature, allianceId, world;
-    private Map<Integer, List<Integer>> notifications = new LinkedHashMap<Integer, List<Integer>>();
+    private int id, gp, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature, allianceId;
+    private byte world;
+    private Map<Byte, List<Integer>> notifications = new LinkedHashMap<Byte, List<Integer>>();
     private boolean bDirty = true;
 
 
@@ -94,7 +95,7 @@ public class MapleGuild {
                 return;
             }
             do {
-                members.add(new MapleGuildCharacter(rs.getInt("id"), rs.getInt("level"), rs.getString("name"), -1, -1, rs.getInt("job"), rs.getInt("guildrank"), guildid, false, rs.getInt("allianceRank")));
+                members.add(new MapleGuildCharacter(rs.getInt("id"), rs.getInt("level"), rs.getString("name"), (byte) -1, world, rs.getInt("job"), rs.getInt("guildrank"), guildid, false, rs.getInt("allianceRank")));
             } while (rs.next());
             setOnline(initiator.getId(), true, initiator.getChannel());
             ps.close();
@@ -109,10 +110,10 @@ public class MapleGuild {
         if (!bDirty) {
             return;
         }
-        Set<Integer> chs = Server.getInstance().getChannelServer();
+        Set<Byte> chs = Server.getInstance().getChannelServer();
         if (notifications.keySet().size() != chs.size()) {
             notifications.clear();
-            for (Integer ch : chs) {
+            for (Byte ch : chs) {
                 notifications.put(ch, new LinkedList<Integer>());
             }
         } else {
@@ -281,7 +282,7 @@ public class MapleGuild {
         }
     }
 
-    public final void setOnline(int cid, boolean online, int channel) {
+    public final void setOnline(int cid, boolean online, byte channel) {
         boolean bBroadcast = true;
         for (MapleGuildCharacter mgc : members) {
             if (mgc.getId() == cid) {
