@@ -628,7 +628,7 @@ public class MapleStatEffect {
             applyto.dispelSeduce();
         }
         if (isComboReset()) {
-            applyto.setCombo(0);
+            applyto.setCombo((short) 0);
         }
         /*if (applyfrom.getMp() < getMpCon()) {
             AutobanFactory.MPCON.addPoint(applyfrom.getAutobanManager(), "mpCon hack for skill:" + sourceid + "; Player MP: " + applyto.getMp() + " MP Needed: " + getMpCon());

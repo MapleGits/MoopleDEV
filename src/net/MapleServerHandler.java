@@ -21,10 +21,8 @@
 */
 package net;
 
-import client.MapleCharacter;
 import client.MapleClient;
 import constants.ServerConstants;
-import java.util.Calendar;
 import net.server.Server;
 import tools.MapleAESOFB;
 import tools.MaplePacketCreator;
@@ -63,9 +61,9 @@ public class MapleServerHandler extends IoHandlerAdapter {
         try {
             MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
             if (client != null) {
-                MapleCharacter player = client.getPlayer();
-                if (client.getPlayer() != null)
-                System.out.println(client.getAccountName() + " caught an exception in map: " + player.getMapId() + " on " + Calendar.getInstance().toString());
+                //MapleCharacter player = client.getPlayer();
+                client.disconnect();//??
+                //System.out.println(client.getAccountName() + " caught an exception in map: " + player.getMapId());
             }
             cause.printStackTrace();
         } catch (Exception e) {

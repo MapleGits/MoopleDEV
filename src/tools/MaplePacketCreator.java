@@ -4863,8 +4863,7 @@ public class MaplePacketCreator {
                mplew.writeInt(s.getMesos());//HMMM
                mplew.writeMapleAsciiString(s.getBuyer());
             }
-            if (!sold.isEmpty()) mplew.writeInt(hm.getMesos());
-	    mplew.writeInt(chr.getMerchantMeso());
+	    mplew.writeInt(chr.getMerchantMeso());//:D?
         }
         mplew.writeMapleAsciiString(hm.getDescription());
         mplew.write(0x10); //SLOTS, which is 16 for most stores...slotMax

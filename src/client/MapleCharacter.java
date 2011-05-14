@@ -83,6 +83,7 @@ import net.server.guild.MapleGuildCharacter;
 import scripting.event.EventInstanceManager;
 import client.autoban.AutobanManager;
 import constants.ItemConstants;
+import java.util.EnumMap;
 import net.server.Server;
 import net.server.World;
 import server.CashShop;
@@ -242,7 +243,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private Map<Integer, String> entered = new LinkedHashMap<Integer, String>();
     private Set<MapleMapObject> visibleMapObjects = new LinkedHashSet<MapleMapObject>();
     private Map<ISkill, SkillEntry> skills = new LinkedHashMap<ISkill, SkillEntry>();
-    private Map<MapleBuffStat, MapleBuffStatValueHolder> effects = Collections.synchronizedMap(new LinkedHashMap<MapleBuffStat, MapleBuffStatValueHolder>());
+    private EnumMap<MapleBuffStat, MapleBuffStatValueHolder> effects = new EnumMap<MapleBuffStat, MapleBuffStatValueHolder>(MapleBuffStat.class);
     private Map<Integer, MapleKeyBinding> keymap = new LinkedHashMap<Integer, MapleKeyBinding>();
     private Map<Integer, MapleSummon> summons = new LinkedHashMap<Integer, MapleSummon>();
     private Map<Integer, MapleCoolDownValueHolder> coolDowns = new LinkedHashMap<Integer, MapleCoolDownValueHolder>();
@@ -270,13 +271,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private static int[] ariantroomslot = new int[3];
     private CashShop cashshop;
     private long portaldelay = 0, lastattack = 0;
-    private int combocounter = 0, lastmobcount = 0;
+    private short combocounter = 0;
     private List<String> blockedPortals = new ArrayList<String>();
     public ArrayList<String> area_data = new ArrayList<String>();
     private AutobanManager autoban;
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
-    private int pendantExp = 0; //Actually should just be equipExp
+    private byte pendantExp = 0, lastmobcount = 0;
     private int[] trockmaps = new int[5];
     private int[] viptrockmaps = new int[10];
     private Map<String, MapleEvents> events = new LinkedHashMap<String, MapleEvents>();
@@ -593,7 +594,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         cancelPlayerBuffs(buffStatList);
     }
 
-    public void setCombo(int count) {
+    public void setCombo(short count) {
         if (combocounter > 30000) {
             combocounter = 30000;
             return;
@@ -606,7 +607,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         lastattack = time;
     }
 
-    public int getCombo() {
+    public short getCombo() {
         return combocounter;
     }
 
@@ -618,7 +619,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return lastmobcount;
     }
 
-    public void setLastMobCount(int count) {
+    public void setLastMobCount(byte count) {
         lastmobcount = count;
     }
 

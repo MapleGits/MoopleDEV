@@ -71,7 +71,6 @@ public class CreateINI {
 
         sb = new StringBuilder();
         try {
-            out = new FileOutputStream("launch_server.bat", false);
             System.out.println("You are about to set the Java Heap Size, if you don't know what it is, type '?'.");
             String heapsize = con.readLine("Java Heap Size (in MB): ");
             while (heapsize.equals("?")) {
@@ -79,11 +78,24 @@ public class CreateINI {
                 System.out.println("WikiAnswers: Java heap is the heap size allocated to JVM applications which takes care of the new objects being created. If the objects being created exceed the heap size, it will throw an error saying memoryOutof Bound\r\n\r\n");
                 heapsize = con.readLine("Java Heap Size (in MB): ");
             }
-            sb.append("@echo off").append("\r\n").append("@title MoopleDEV Server v83").append("\r\n");
-            sb.append("set CLASSPATH=.;dist\\*;\r\n");
-            sb.append("java -Xmx").append(heapsize).append("m -Dwzpath=wz\\ -Djavax.net.ssl.keyStore=filename.keystore -Djavax.net.ssl.keyStorePassword=passwd -Djavax.net.ssl.trustStore=filename.keystore -Djavax.net.ssl.trustStorePassword=passwd net.server.Server\r\n");
-            sb.append("pause");
-
+            String linux = con.readLine("\r\nAre you using a Linux platform or not? (y/n):");
+            while (!linux.equals("y") && !linux.equals("n")) {
+                System.out.println("Type 'y' if you use linux else type 'n'.");
+                linux = con.readLine("Are you using a Linux platform or not? (y/n):");
+            }
+            if (linux.equals("n")) {
+                out = new FileOutputStream("launch_server.bat", false);
+                sb.append("@echo off").append("\r\n").append("@title MoopleDEV Server v83").append("\r\n");
+                sb.append("set CLASSPATH=.;dist\\*\r\n");
+                sb.append("java -Xmx").append(heapsize).append("m -Dwzpath=wz\\ -Djavax.net.ssl.keyStore=filename.keystore -Djavax.net.ssl.keyStorePassword=passwd -Djavax.net.ssl.trustStore=filename.keystore -Djavax.net.ssl.trustStorePassword=passwd net.server.Server\r\n");
+                sb.append("pause");
+            } else {//test
+                out = new FileOutputStream("launch_server.sh", false);
+                sb.append("#!/bin/sh").append("\r\n\r\n");
+                sb.append("export CLASSPATH=").append(".:dist//*\r\n\r\n");
+                sb.append("java -Dwzpath=wz/ \\ \r\n").append("-Djavax.net.ssl.keyStore=filename.keystore \\ \r\n-Djavax.net.ssl.keyStorePassword=passwd \\ \r\n-Djavax.net.ssl.trustStore=filename.keystore \\ \r\n-Djavax.net.ssl.trustStorePassword=passwd \\ \r\n");
+                sb.append("-Xmx").append(heapsize).append("M \\").append("\r\nnet.server.Server");                
+            }
             out.write(sb.toString().getBytes());
         } catch (Exception ex) {
         } finally {

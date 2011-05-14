@@ -81,7 +81,7 @@ public class MapleMap {
 
     private static final List<MapleMapObjectType> rangedMapobjectTypes = Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.ITEM, MapleMapObjectType.NPC, MapleMapObjectType.MONSTER, MapleMapObjectType.DOOR, MapleMapObjectType.SUMMON, MapleMapObjectType.REACTOR);
     private Map<Integer, MapleMapObject> mapobjects = new LinkedHashMap<Integer, MapleMapObject>();
-    private Collection<SpawnPoint> monsterSpawn = new LinkedList<SpawnPoint>();
+    private Collection<SpawnPoint> monsterSpawn = Collections.synchronizedList(new LinkedList<SpawnPoint>());
     private AtomicInteger spawnedMonstersOnMap = new AtomicInteger(0);
     private Collection<MapleCharacter> characters = new LinkedHashSet<MapleCharacter>();
     private Map<Integer, MaplePortal> portals = new HashMap<Integer, MaplePortal>();
@@ -1440,13 +1440,15 @@ public class MapleMap {
      * @param monster
      * @param mobTime
      */
-    public synchronized void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
-        Point newpos = calcPointBelow(monster.getPosition());
-        newpos.y -= 1;
-        SpawnPoint sp = new SpawnPoint(monster.getId(), newpos, !monster.isMobile(), mobTime, team);
-        monsterSpawn.add(sp);
-        if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
-            sp.spawnMonster(this);
+    public void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
+        synchronized (monsterSpawn) {
+            Point newpos = calcPointBelow(monster.getPosition());
+            newpos.y -= 1;
+            SpawnPoint sp = new SpawnPoint(monster.getId(), newpos, !monster.isMobile(), mobTime, team);
+            monsterSpawn.add(sp);
+            if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
+                sp.spawnMonster(this);
+            }
         }
     }
 
