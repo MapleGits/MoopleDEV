@@ -57,13 +57,11 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(IoSession session, Throwable cause) {
+    public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
         try {
             MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
             if (client != null) {
-                //MapleCharacter player = client.getPlayer();
-                client.disconnect();//??
-                //System.out.println(client.getAccountName() + " caught an exception in map: " + player.getMapId());
+                client.disconnect();
             }
             cause.printStackTrace();
         } catch (Exception e) {

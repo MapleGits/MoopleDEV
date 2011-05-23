@@ -26,48 +26,65 @@ import client.MapleCharacter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PlayerStorage {
-    private final Lock mutex = new ReentrantLock();
+    private final ReentrantReadWriteLock locks = new ReentrantReadWriteLock();
+    private final Lock rlock = locks.readLock();
+    private final Lock wlock = locks.writeLock();
     private final Map<Integer, MapleCharacter> storage = new LinkedHashMap<Integer, MapleCharacter>();
 
     public void addPlayer(MapleCharacter chr) {
-        mutex.lock();
+        wlock.lock();
         try {
             storage.put(chr.getId(), chr);
         } finally {
-	    mutex.unlock();
+	    wlock.unlock();
 	}
     }
 
     public MapleCharacter removePlayer(int chr) {
-        mutex.lock();
+        wlock.lock();
         try {
             return storage.remove(chr);
         } finally {
-            mutex.unlock();
+            wlock.unlock();
         }
     }
 
     public MapleCharacter getCharacterByName(String name) {
-        for (MapleCharacter chr : storage.values()) {            
-            if (chr.getName().toLowerCase().equals(name.toLowerCase()))
-                return chr;
+        rlock.lock();    
+        try {
+            for (MapleCharacter chr : storage.values()) {            
+                if (chr.getName().toLowerCase().equals(name.toLowerCase()))
+                    return chr;
+            }
+            return null;
+        } finally {
+            rlock.unlock();
         }
-        return null;
     }
 
-    public MapleCharacter getCharacterById(int id) {       
-        return storage.get(id);
+    public MapleCharacter getCharacterById(int id) { 
+        rlock.lock();    
+        try {
+            return storage.get(id);
+        } finally {
+            rlock.unlock();
+        }
     }
 
     public Collection<MapleCharacter> getAllCharacters() {
-        return storage.values();
+        rlock.lock();    
+        try {
+            return storage.values();
+        } finally {
+            rlock.unlock();
+        }
     }
 
     public final void disconnectAll() {
-	mutex.lock();
+	wlock.lock();
 	try {	    
 	    for (MapleCharacter chr : storage.values()) {
 		if (!chr.isGM()) {
@@ -76,7 +93,7 @@ public class PlayerStorage {
 		}
 	    }
 	} finally {
-	    mutex.unlock();
+	    wlock.unlock();
 	}
     }
 }

@@ -57,6 +57,8 @@ public class CreateINI {
             System.out.println(nextline);
             sb.append("\r\n");
         }
+       
+        sb.append("\r\n").append("gmserver=").append(Boolean.parseBoolean(con.readLine("Do you want a GM Server? (true/false)")));
         FileOutputStream out = null;
         try {
             out = new FileOutputStream("moople.ini", false);
@@ -71,7 +73,7 @@ public class CreateINI {
 
         sb = new StringBuilder();
         try {
-            System.out.println("You are about to set the Java Heap Size, if you don't know what it is, type '?'.");
+            System.out.println("\r\nYou are about to set the Java Heap Size, if you don't know what it is, type '?'.");
             String heapsize = con.readLine("Java Heap Size (in MB): ");
             while (heapsize.equals("?")) {
                 System.out.println("\r\n");

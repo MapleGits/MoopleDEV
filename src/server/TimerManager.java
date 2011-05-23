@@ -60,7 +60,7 @@ public class TimerManager implements TimerManagerMBean {
                 return t;
             }
         });
-        //this is a no-no, it actually does nothing..
+        //this is a no-no, it actually does nothing..then why the fuck are you doing it?
         stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         ses = stpe;
     }
@@ -69,6 +69,14 @@ public class TimerManager implements TimerManagerMBean {
         ses.shutdownNow();
     }
 
+    public Runnable purge() {//Yay?
+        return new Runnable() {
+            public void run() {
+                ses.purge();
+            }
+        };
+    }
+    
     public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {
         return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, TimeUnit.MILLISECONDS);
     }
@@ -101,7 +109,7 @@ public class TimerManager implements TimerManagerMBean {
     }
 
     @Override
-    public long getTaskCount() {
+    public long getTaskCount() {        
         return ses.getTaskCount();
     }
 
@@ -115,6 +123,7 @@ public class TimerManager implements TimerManagerMBean {
         return ses.isTerminated();
     }
 
+    
     private static class LoggingSaveRunnable implements Runnable {
         Runnable r;
 

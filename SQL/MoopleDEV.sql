@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50144
 File Encoding         : 65001
 
-Date: 2011-05-04 20:15:51
+Date: 2011-05-23 23:35:24
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -126,7 +126,7 @@ CREATE TABLE `buddies` (
   PRIMARY KEY (`id`),
   KEY `buddies_ibfk_1` (`characterid`),
   CONSTRAINT `buddies_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of buddies
@@ -11666,7 +11666,6 @@ CREATE TABLE `guilds` (
 -- ----------------------------
 -- Records of guilds
 -- ----------------------------
-INSERT INTO `guilds` VALUES ('1', '30016', '0', '0', '0', 'Banaan', 'Master', 'Jr. Master', 'Member', 'Member', 'Member', '10', '0', '0', 'LOOOOL', '0', '0');
 
 -- ----------------------------
 -- Table structure for `hiredmerchant`
@@ -11777,10 +11776,8 @@ CREATE TABLE `inventoryitems` (
   `expiration` bigint(20) NOT NULL DEFAULT '-1',
   `giftFrom` varchar(26) NOT NULL,
   PRIMARY KEY (`inventoryitemid`),
-  KEY `FK_inventoryitems_2` (`accountid`),
   KEY `FK_inventoryitems_1` (`characterid`),
-  CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_inventoryitems_2` FOREIGN KEY (`accountid`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
+  CONSTRAINT `FK_inventoryitems_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -14808,6 +14805,9 @@ CREATE TABLE `monsterbook` (
 -- ----------------------------
 -- Records of monsterbook
 -- ----------------------------
+INSERT INTO `monsterbook` VALUES ('11', '2388006', '2');
+INSERT INTO `monsterbook` VALUES ('11', '2387002', '1');
+INSERT INTO `monsterbook` VALUES ('11', '2380004', '1');
 
 -- ----------------------------
 -- Table structure for `monstercarddata`
@@ -15213,16 +15213,6 @@ CREATE TABLE `notes` (
 -- ----------------------------
 -- Records of notes
 -- ----------------------------
-INSERT INTO `notes` VALUES ('2', 'Banaan', 'Appel', 'Ty', '1298303514284', '1', '1');
-INSERT INTO `notes` VALUES ('3', 'Banaan', 'Appel', 'ty', '1298303519743', '1', '1');
-INSERT INTO `notes` VALUES ('4', 'Banaan', 'Appel', 'ty', '1298303523348', '1', '1');
-INSERT INTO `notes` VALUES ('5', 'Banaan', 'Appel', 'ty', '1298303527116', '1', '1');
-INSERT INTO `notes` VALUES ('6', 'Appel', 'Banaan', 'Banaan has sent you a gift! Go check out the Cash Shop.', '1298305265388', '0', '1');
-INSERT INTO `notes` VALUES ('7', 'Banaan', 'Appel', 'ty', '1298305311115', '1', '1');
-INSERT INTO `notes` VALUES ('8', 'Appel', 'Aapje', '<3', '1298490840665', '1', '1');
-INSERT INTO `notes` VALUES ('9', 'Aapje', 'Appel', 'tyty', '1298490892813', '1', '1');
-INSERT INTO `notes` VALUES ('10', 'HeyApple', 'Aapje', 'XD\n', '1298491003467', '1', '1');
-INSERT INTO `notes` VALUES ('11', 'Aapje', 'HeyApple', 'ty', '1298491029776', '1', '1');
 
 -- ----------------------------
 -- Table structure for `nxcode`
@@ -19198,7 +19188,6 @@ CREATE TABLE `specialcashitems` (
 -- ----------------------------
 -- Records of specialcashitems
 -- ----------------------------
-INSERT INTO `specialcashitems` VALUES ('1', '92000017', '1024', '1');
 
 -- ----------------------------
 -- Table structure for `storages`
@@ -19207,6 +19196,7 @@ DROP TABLE IF EXISTS `storages`;
 CREATE TABLE `storages` (
   `storageid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `accountid` int(11) NOT NULL DEFAULT '0',
+  `world` int(2) NOT NULL,
   `slots` int(11) NOT NULL DEFAULT '0',
   `meso` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`storageid`),

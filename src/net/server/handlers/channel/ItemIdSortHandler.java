@@ -52,13 +52,13 @@ public final class ItemIdSortHandler extends AbstractMaplePacketHandler {
         ArrayList<Item> itemarray = new ArrayList<Item>();
         for (Iterator<IItem> it = Inv.iterator(); it.hasNext();) {
             Item item = (Item) it.next();
-            itemarray.add((Item) (item.copy()));
+            itemarray.add((Item) item.copy());
         }
         Collections.sort(itemarray);
         for (IItem item : itemarray) {
             MapleInventoryManipulator.removeById(c, MapleInventoryType.getByType(inv), item.getItemId(), item.getQuantity(), false, false);
         }
-        for (Item i : itemarray) {
+        for (IItem i : itemarray) {
             MapleInventoryManipulator.addFromDrop(c, i, false);
         }
         c.announce(MaplePacketCreator.finishedSort2(inv));

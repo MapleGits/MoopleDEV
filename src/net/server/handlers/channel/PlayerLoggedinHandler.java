@@ -22,7 +22,6 @@
 package net.server.handlers.channel;
 
 import client.BuddylistEntry;
-import client.CharacterNameAndId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -129,6 +128,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         player.getMap().addPlayer(player);
         World world = server.getWorld(c.getWorld());
         world.getPlayerStorage().addPlayer(player);
+        server.getLoad(c.getWorld()).get(c.getChannel()).incrementAndGet();
         int buddyIds[] = player.getBuddylist().getBuddyIds();
         world.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds);
         for (CharacterIdChannelPair onlineBuddy : server.getWorld(c.getWorld()).multiBuddyFind(player.getId(), buddyIds)) {
@@ -184,11 +184,12 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             world.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, pchar);
         }
         player.updatePartyMemberHP();
+        /* Wrong packet, well at least it must popup when you open the buddy window. And when you open it, it doesn't send something to the server. So with this information I am assuming it's another packet.
         CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), "Default Group", pendingBuddyRequest.getId(), (byte) -1, false));
             c.announce(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), player.getId(), pendingBuddyRequest.getName()));
-        }
+        }*/
         if (player.getInventory(MapleInventoryType.EQUIPPED).findById(1122017) != null) {
             player.equipPendantOfSpirit();
         }

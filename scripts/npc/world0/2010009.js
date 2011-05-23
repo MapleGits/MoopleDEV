@@ -48,25 +48,6 @@ function action(mode, type, selection) {
             cm.sendNext("To make a Guild Union, 2 Guild Masters need to be in a party. The leader of this party will be assigned as the Guild Union Master.");
             cm.dispose();
         } else if(selection == 2) {
-            if (cm.getPlayer().getParty() == null) {
-                cm.sendNext("You may not create an alliance until you get into a party of 2 people"); //Not real text
-                cm.dispose();
-            } else if (partymembers.get(0).getGuild() == null) {
-                cm.sendNext("You cannot form a Guild Union until own have a guild");
-                cm.dispose();
-            } else if (partymembers.get(1).getGuild() == null) {
-                cm.sendNext("You're party member does not seem to have a guild.");
-                cm.dispose();
-            } else if (partymembers.get(0).getGuild().getAllianceId() > 0) {
-                cm.sendNext("You cannot form a Guild Union if you are already affiliated with a different Union.");
-                cm.dispose();
-            } else if (partymembers.get(1).getGuild().getAllianceId() > 0) {
-                cm.sendNext("Your party member is already affiliated with a guild");
-                cm.dispose();
-            } else if (partymembers.size() != 2) {
-                cm.sendNext("Please make sure there are only 2 players in your party.");
-                cm.dispose();
-            } else
                 cm.sendYesNo("Oh, are you interested in forming a Guild Union?");
         } else if (selection == 3) {
             var rank = cm.getPlayer().getMGC().getAllianceRank();

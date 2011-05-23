@@ -149,7 +149,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendGetText(String text) {
-        getClient().announce(MaplePacketCreator.getNPCTalkText(npc, text));
+        getClient().announce(MaplePacketCreator.getNPCTalkText(npc, text, ""));
     }
 
     /*
@@ -430,7 +430,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().hasMerchant();
     }
 
-    public boolean hasMerchantItems() {
+    public boolean hasMerchantItems(byte world) {
         try {
             if (!ItemFactory.MERCHANT.loadItems(getPlayer().getId(), false).isEmpty()) {
                 return true;

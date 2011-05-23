@@ -34,6 +34,7 @@ import client.IItem;
 import client.ISkill;
 import client.MapleBuffStat;
 import client.MapleCharacter;
+import client.MapleDisease;
 import client.MapleInventory;
 import client.MapleInventoryType;
 import client.MapleJob;
@@ -625,7 +626,7 @@ public class MapleStatEffect {
         if (isDispel() && makeChanceResult()) {
             applyto.dispelDebuffs();
         } else if (isHeroWill()) {
-            applyto.dispelSeduce();
+            applyto.dispelDebuff(MapleDisease.SEDUCE);
         }
         if (isComboReset()) {
             applyto.setCombo((short) 0);
@@ -802,7 +803,8 @@ public class MapleStatEffect {
                 chr.addSummon(sourceid, tosummon);
                 tosummon.addHP(x);
             }
-        }
+        } 
+        if (sourceid == Corsair.BATTLE_SHIP) chr.announce(MaplePacketCreator.skillCooldown(5221999, chr.getBattleshipHp()));
     }
 
     public final void applyComboBuff(final MapleCharacter applyto, int combo) {
@@ -949,7 +951,8 @@ public class MapleStatEffect {
         }
         if (isChakra()) {
             hpchange += makeHealHP(getY() / 100.0, applyfrom.getTotalLuk(), 2.3, 3.5);
-        }
+        } else if (sourceid == SuperGM.HEAL_PLUS_DISPEL) hpchange += (applyfrom.getMaxHp() - applyfrom.getHp());
+        
         return hpchange;
     }
 
@@ -989,6 +992,8 @@ public class MapleStatEffect {
                 }
             }
         }
+        if (sourceid == SuperGM.HEAL_PLUS_DISPEL) mpchange += (applyfrom.getMaxMp() - applyfrom.getMp());
+        
         return mpchange;
     }
 
@@ -1239,6 +1244,7 @@ public class MapleStatEffect {
     }
 
     public boolean makeChanceResult() {
+        System.out.println("Prop: " + prop);
         return prop == 1.0 || Math.random() < prop;
     }
 

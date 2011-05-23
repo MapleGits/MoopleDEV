@@ -21,17 +21,13 @@
 */
 package net.server.handlers.channel;
 
-import java.util.ArrayList;
-import java.util.List;
 import client.MapleClient;
-import client.MapleDisease;
 import net.AbstractMaplePacketHandler;
-import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class CancelDebuffHandler extends AbstractMaplePacketHandler {
+public final class CancelDebuffHandler extends AbstractMaplePacketHandler {//TIP: BAD STUFF LOL!
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        List<MapleDisease> diseases = c.getPlayer().getDiseases();
+        /*List<MapleDisease> diseases = c.getPlayer().getDiseases();
         List<MapleDisease> diseases_ = new ArrayList<MapleDisease>();
         for (MapleDisease disease : diseases) {
             List<MapleDisease> disease_ = new ArrayList<MapleDisease>();
@@ -42,6 +38,6 @@ public final class CancelDebuffHandler extends AbstractMaplePacketHandler {
         }
         for (MapleDisease disease : diseases_) {
             c.getPlayer().removeDisease(disease);
-        }
+        }*/
     }
 }

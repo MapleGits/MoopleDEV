@@ -22,6 +22,7 @@
 package net.server.handlers.channel;
 
 import client.IItem;
+import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
 import constants.ItemConstants;
@@ -38,56 +39,70 @@ import tools.data.input.SeekableLittleEndianAccessor;
  */
 public final class StorageHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         byte mode = slea.readByte();
-        final MapleStorage storage = c.getPlayer().getStorage();
+        final MapleStorage storage = chr.getStorage();
         if (mode == 4) { // take out
             byte type = slea.readByte();
             byte slot = slea.readByte();
             slot = storage.getSlot(MapleInventoryType.getByType(type), slot);
-            IItem item = storage.takeOut(slot);
+            IItem item = storage.getItem(slot);
             if (item != null) {
-                if (MapleInventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
-                    MapleInventoryManipulator.addFromDrop(c, item, false);
-                } else {
-                    storage.store(item);
-                    c.getPlayer().dropMessage(1, "Your inventory is full");
+                if (MapleItemInformationProvider.getInstance().isPickupRestricted(item.getItemId()) && chr.getItemQuantity(item.getItemId(), true) > 0) {
+                        c.announce(MaplePacketCreator.getStorageError((byte) 0x0C));    
                 }
-                storage.sendTakenOut(c, ii.getInventoryType(item.getItemId()));
+                if (chr.getMap().getId() == 910000000) {
+                    if (chr.getMeso() < 1000) {
+                        c.announce(MaplePacketCreator.getStorageError((byte) 0x0B));
+                        return;
+                    } else 
+                        chr.gainMeso(-1000, false);
+                }           
+                if (MapleInventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {                
+                    item = storage.takeOut(slot);//actually the same but idc
+                    if ((item.getFlag() & ItemConstants.KARMA) == ItemConstants.KARMA) 
+                        item.setFlag((byte) (item.getFlag() ^ ItemConstants.KARMA)); //items with scissors of karma used on them are reset once traded
+                    else if (item.getType() == IItem.ITEM && (item.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES)
+                        item.setFlag((byte) (item.getFlag() ^ ItemConstants.SPIKES));
+                    
+                    MapleInventoryManipulator.addFromDrop(c, item, false);
+                    storage.sendTakenOut(c, ii.getInventoryType(item.getItemId()));
+                } else c.announce(MaplePacketCreator.getStorageError((byte) 0x0A));
             }
         } else if (mode == 5) { // store
             byte slot = (byte) slea.readShort();
             int itemId = slea.readInt();
             short quantity = slea.readShort();
-            if (quantity < 1 || c.getPlayer().getItemQuantity(itemId, false) < quantity) {
+            if (quantity < 1 || chr.getItemQuantity(itemId, false) < quantity) {
                 return;
             }
             if (storage.isFull()) {
-                c.announce(MaplePacketCreator.getStorageFull());
+                c.announce(MaplePacketCreator.getStorageError((byte) 0x11));
                 return;
             }
-            if (c.getPlayer().getMeso() < 100) {
-                c.getPlayer().dropMessage(1, "You don't have enough mesos to store the item");
+            short meso = (short) (chr.getMap().getId() == 910000000 ? -500 : -100);
+            if (chr.getMeso() < meso) {
+                c.announce(MaplePacketCreator.getStorageError((byte) 0x0B));
             } else {
                 MapleInventoryType type = ii.getInventoryType(itemId);
-                IItem item = c.getPlayer().getInventory(type).getItem(slot).copy();
+                IItem item = chr.getInventory(type).getItem(slot).copy();
                 if (item.getItemId() == itemId && (item.getQuantity() >= quantity || ItemConstants.isRechargable(itemId))) {
                     if (ItemConstants.isRechargable(itemId)) {
                         quantity = item.getQuantity();
                     }
-                    c.getPlayer().gainMeso(c.getPlayer().getMap().getId() == 910000000 ? -500 : -100, false, true, false);
+                    chr.gainMeso(meso, false, true, false);
                     MapleInventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
                     item.setQuantity(quantity);
                     storage.store(item);
-                } else {
-                    return;
-                }
+                    storage.sendStored(c, ii.getInventoryType(itemId));
+                } else return;
+       
             }
-            storage.sendStored(c, ii.getInventoryType(itemId));
         } else if (mode == 7) { // meso
             int meso = slea.readInt();
             int storageMesos = storage.getMeso();
-            int playerMesos = c.getPlayer().getMeso();
+            int playerMesos = chr.getMeso();
             if ((meso > 0 && storageMesos >= meso) || (meso < 0 && playerMesos >= -meso)) {
                 if (meso < 0 && (storageMesos - meso) < 0) {
                     meso = -2147483648 + storageMesos;
@@ -101,7 +116,7 @@ public final class StorageHandler extends AbstractMaplePacketHandler {
                     }
                 }
                 storage.setMeso(storageMesos - meso);
-                c.getPlayer().gainMeso(meso, false, true, false);
+                chr.gainMeso(meso, false, true, false);
             } else {
                 return;
             }

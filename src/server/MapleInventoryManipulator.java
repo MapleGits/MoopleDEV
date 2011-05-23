@@ -184,6 +184,7 @@ public class MapleInventoryManipulator {
                     short newQ = (short) Math.min(quantity, slotMax);
                     quantity -= newQ;
                     Item nItem = new Item(item.getItemId(), (byte) 0, newQ);
+                    nItem.setExpiration(item.getExpiration());
                     nItem.setOwner(item.getOwner());
                     byte newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                     if (newSlot == -1) {

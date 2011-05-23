@@ -29,11 +29,13 @@ import java.util.List;
 import client.MapleCharacter;
 import client.MapleDisease;
 import client.status.MonsterStatus;
+import java.util.LinkedList;
+import java.util.Map;
 import tools.Randomizer;
-import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import server.maps.MapleMist;
+import tools.ArrayMap;
 
 /**
  *
@@ -101,76 +103,74 @@ public class MobSkill {
     }
 
     public void applyEffect(MapleCharacter player, MapleMonster monster, boolean skill) {
-        MonsterStatus monStat = null;
         MapleDisease disease = null;
-        boolean heal = false;
-        boolean dispel = false;
-        boolean seduce = false;
-        boolean banish = false;
+	Map<MonsterStatus, Integer> stats = new ArrayMap<MonsterStatus, Integer>();
+	List<Integer> reflection = new LinkedList<Integer>();
         switch (skillId) {
             case 100:
             case 110:
             case 150:
-                monStat = MonsterStatus.WEAPON_ATTACK_UP;
+                stats.put(MonsterStatus.WEAPON_ATTACK_UP, Integer.valueOf(x));
                 break;
             case 101:
             case 111:
             case 151:
-                monStat = MonsterStatus.MAGIC_ATTACK_UP;
+                stats.put(MonsterStatus.MAGIC_ATTACK_UP, Integer.valueOf(x));
                 break;
             case 102:
             case 112:
             case 152:
-                monStat = MonsterStatus.WEAPON_DEFENSE_UP;
+                stats.put(MonsterStatus.WEAPON_DEFENSE_UP, Integer.valueOf(x));
                 break;
             case 103:
             case 113:
             case 153:
-                monStat = MonsterStatus.MAGIC_DEFENSE_UP;
+                stats.put(MonsterStatus.MAGIC_DEFENSE_UP, Integer.valueOf(x));
                 break;
-            case 114:
-                heal = true;
-                break;
-            case 120:
-                if (Math.random() > .3) {
-                    disease = MapleDisease.SEAL;
-                }
-                break;
-            case 121:
-                if (Math.random() > .3) {
-                    disease = MapleDisease.DARKNESS;
-                }
-                break;
-            case 122:
-                if (Math.random() > .3) {
-                    disease = MapleDisease.WEAKEN;
-                }
-                break;
-            case 123:
-                if (Math.random() > .3) {
-                    disease = MapleDisease.STUN;
-                }
-                break;
-            case 124: //CURSE TODO
-                break;
-            case 125:
-                if (Math.random() > .3) {
-                    disease = MapleDisease.POISON;
-                }
-                break;
-            case 126: // Slow
-                if (Math.random() > .3) {
-                    disease = MapleDisease.SLOW;
-                }
-                break;
-            case 127:
-                dispel = true;
-                break;
-            case 128: // Seduce
-                if (Math.random() > .5) {
-                    seduce = true;
-                }
-                break;
+	    case 114:
+		if (lt != null && rb != null && skill) {
+		    List<MapleMapObject> objects = getObjectsInRange(monster, MapleMapObjectType.MONSTER);
+		    final int hps = (getX() / 1000) * (int) (950 + 1050 * Math.random());
+		    for (MapleMapObject mons : objects) {
+			((MapleMonster) mons).heal(hps, getY());
+		    }
+		} else {
+		    monster.heal(getX(), getY());
+		}
+		break;
+	    case 120:
+		disease = MapleDisease.SEAL;
+		break;
+	    case 121:
+		disease = MapleDisease.DARKNESS;
+		break;
+	    case 122:
+		disease = MapleDisease.WEAKEN;
+		break;
+	    case 123:
+		disease = MapleDisease.STUN;
+		break;
+	    case 124:
+		disease = MapleDisease.CURSE;
+		break;
+	    case 125:
+		disease = MapleDisease.POISON;
+		break;
+	    case 126: // Slow
+		disease = MapleDisease.SLOW;
+		break;
+	    case 127:
+		if (lt != null && rb != null && skill) {
+		    for (MapleCharacter character : getPlayersInRange(monster, player)) {
+			character.dispel();
+		    }
+		} else {
+		    player.dispel();
+		}
+		break;
+	    case 128: // Seduce
+		disease = MapleDisease.SEDUCE;
+		break;
             case 129: // Banish
                 if (lt != null && rb != null && skill) {
                     for (MapleCharacter chr : getPlayersInRange(monster, player)) {
@@ -190,17 +190,30 @@ public class MobSkill {
                 break;
             case 140:
                 if (makeChanceResult() && !monster.isBuffed(MonsterStatus.MAGIC_IMMUNITY)) {
-                    monStat = MonsterStatus.WEAPON_IMMUNITY;
+                    stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
                 }
                 break;
             case 141:
                 if (makeChanceResult() && !monster.isBuffed(MonsterStatus.WEAPON_IMMUNITY)) {
-                    monStat = MonsterStatus.MAGIC_IMMUNITY;
+                    stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
                 }
                 break;
-            case 143: //weapon damage reflect
-            case 144: // magic damage reflect
-            case 145: // any damage reflect
+	    case 143: // Weapon Reflect
+		stats.put(MonsterStatus.WEAPON_REFLECT, Integer.valueOf(x));
+		stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
+		reflection.add(x);
+		break;
+	    case 144: // Magic Reflect
+		stats.put(MonsterStatus.MAGIC_REFLECT, Integer.valueOf(x));
+		stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
+		reflection.add(x);
+		break;
+	    case 145: // Weapon / Magic reflect
+		stats.put(MonsterStatus.WEAPON_REFLECT, Integer.valueOf(x));
+		stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
+		stats.put(MonsterStatus.MAGIC_REFLECT, Integer.valueOf(x));
+		stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
+		reflection.add(x);
                 break;
             case 154: // accuracy up
             case 155: // avoid up
@@ -256,29 +269,21 @@ public class MobSkill {
                 }
                 break;
         }
-        if (heal) {
-            if (lt != null && rb != null && skill) {
-                List<MapleMapObject> objects = getObjectsInRange(monster, MapleMapObjectType.MONSTER);
-                if (heal) {
-                    for (MapleMapObject mons : objects) {
-                        ((MapleMonster) mons).heal(getX(), getY());
-                    }
-                }
-            } else if (heal) {
-                monster.heal(getX(), getY());
-            }
-        }
-        if (disease != null || dispel || seduce || banish) {
+	if (stats.size() > 0) {
+	    if (lt != null && rb != null && skill) {
+		for (MapleMapObject mons : getObjectsInRange(monster, MapleMapObjectType.MONSTER)) {
+		    ((MapleMonster) mons).applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
+		}
+	    } else {
+		monster.applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
+	    }
+	}        
+        if (disease != null) {
             if (lt != null && rb != null && skill) {
                 int i = 0;
                 for (MapleCharacter character : getPlayersInRange(monster, player)) {
                     if (!character.isActiveBuffedValue(2321005)) {
-                        if (dispel) {
-                            character.dispel();
-                        } else if (banish) {
-                            MapleMap to = player.getMap().getReturnMap();
-                            character.changeMap(to, to.getPortal((short) (10 * Math.random())));
-                        } else if (seduce) {
+                        if (disease.equals(MapleDisease.SEDUCE)) {
                             if (i < 10) {
                                 character.giveDebuff(MapleDisease.SEDUCE, this);
                                 i++;
@@ -288,8 +293,6 @@ public class MobSkill {
                         }
                     }
                 }
-            } else if (dispel) {
-                player.dispel();
             } else {
                 player.giveDebuff(disease, this);
             }

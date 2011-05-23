@@ -55,6 +55,14 @@ public class MapleParty implements Serializable {
         this.leader = victim;
     }
 
+    public void updateMember(MaplePartyCharacter member) {
+        for (int i = 0; i < members.size(); i++) {
+            if (members.get(i).equals(member)) {
+                members.set(i, member);
+            }
+        }
+    }
+    
     public MaplePartyCharacter getMemberById(int id) {
         for (MaplePartyCharacter chr : members) {
             if (chr.getId() == id) {

@@ -58,6 +58,7 @@ import constants.ItemConstants;
 import constants.ServerConstants;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.LongValueHolder;
 import net.MaplePacket;
 import net.SendOpcode;
@@ -676,7 +677,7 @@ public class MaplePacketCreator {
      * @param channelLoad Load of the channel - 1200 seems to be max.
      * @return The server info packet.
      */
-    public static MaplePacket getServerList(byte serverId, String serverName, byte flag, String eventmsg, Map<Byte, Integer> channelLoad) {
+    public static MaplePacket getServerList(byte serverId, String serverName, byte flag, String eventmsg, Map<Byte, AtomicInteger> channelLoad) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERLIST.getValue());
         mplew.write(serverId);
@@ -700,7 +701,7 @@ public class MaplePacketCreator {
         int load;
         for (byte i = 1; i <= lastChannel; i++) {
             if (channels.contains(i)) {
-                load = (channelLoad.get(i) * 1200) / ServerConstants.CHANNEL_LOAD; // lolwut
+                load = (channelLoad.get(i).get() * 1200) / ServerConstants.CHANNEL_LOAD; // lolwut
             } else {
                 load = ServerConstants.CHANNEL_LOAD;
             }
@@ -1677,7 +1678,7 @@ public class MaplePacketCreator {
         if (chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE) != null) {
             buffmask |= MapleBuffStat.ENERGY_CHARGE.getValue();
             buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE).intValue());
-        }//FIX THIS^
+        }//AREN'T THESE 
         mplew.writeInt((int) ((buffmask >> 32) & 0xffffffffL));
         if (buffvalue != null) {
             if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) { //TEST
@@ -2492,7 +2493,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket addQuestTimeLimit(short quest, int time) {
+    public static MaplePacket addQuestTimeLimit(final short quest, final int time) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_QUEST_INFO.getValue());
         mplew.write(6);
@@ -2502,7 +2503,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket removeQuestTimeLimit(short quest) {
+    public static MaplePacket removeQuestTimeLimit(final short quest) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_QUEST_INFO.getValue());
         mplew.write(7);
@@ -2511,7 +2512,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket updateQuest(short quest, String status) {
+    public static MaplePacket updateQuest(final short quest, final String status) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(1);
@@ -2587,11 +2588,10 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket cancelForeignDebuff(int cid, List<MapleDisease> statups) {
+    public static MaplePacket cancelForeignDebuff(int cid, long mask) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CANCEL_FOREIGN_BUFF.getValue());
         mplew.writeInt(cid);
-        long mask = getLongMaskFromListD(statups);
         mplew.writeLong(0);
         mplew.writeLong(mask);
         return mplew.getPacket();
@@ -2654,11 +2654,11 @@ public class MaplePacketCreator {
         mplew.writeLong(secondmask);
     }
 
-    public static MaplePacket cancelDebuff(List<MapleDisease> statups) {
+    public static MaplePacket cancelDebuff(long mask) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(19);
         mplew.writeShort(SendOpcode.CANCEL_BUFF.getValue());
         mplew.writeLong(0);
-        mplew.writeLong(getLongMaskFromListD(statups));
+        mplew.writeLong(mask);
         mplew.write(0);
         return mplew.getPacket();
     }
@@ -2908,7 +2908,7 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket getNPCTalkText(int npc, String talk) {
+    public static MaplePacket getNPCTalkText(int npc, String talk, String def) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.NPC_TALK.getValue());
         mplew.write(4); // Doesn't matter
@@ -2916,7 +2916,7 @@ public class MaplePacketCreator {
         mplew.write(2);
         mplew.write(0); //speaker
         mplew.writeMapleAsciiString(talk);
-        mplew.writeInt(0);
+        mplew.writeMapleAsciiString(def);//:D
         mplew.writeInt(0);
         return mplew.getPacket();
     }
@@ -3059,7 +3059,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket getStorage(int npcId, byte slots, Collection<IItem> items, int meso) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_STORAGE.getValue());
+        mplew.writeShort(SendOpcode.STORAGE.getValue());
         mplew.write(0x16);
         mplew.writeInt(npcId);
         mplew.write(slots);
@@ -3076,17 +3076,22 @@ public class MaplePacketCreator {
         mplew.write(0);
         return mplew.getPacket();
     }
-
-    public static MaplePacket getStorageFull() {
+    
+    /*
+     * 0x0A = Inv full
+     * 0x0B = You do not have enough mesos
+     * 0x0C = One-Of-A-Kind error
+     */
+    public static MaplePacket getStorageError(byte i) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_STORAGE.getValue());
-        mplew.write(0x11);
+        mplew.writeShort(SendOpcode.STORAGE.getValue());
+        mplew.write(i);
         return mplew.getPacket();
     }
 
     public static MaplePacket mesoStorage(byte slots, int meso) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_STORAGE.getValue());
+        mplew.writeShort(SendOpcode.STORAGE.getValue());
         mplew.write(0x13);
         mplew.write(slots);
         mplew.writeShort(2);
@@ -3098,7 +3103,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket storeStorage(byte slots, MapleInventoryType type, Collection<IItem> items) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_STORAGE.getValue());
+        mplew.writeShort(SendOpcode.STORAGE.getValue());
         mplew.write(0xD);
         mplew.write(slots);
         mplew.writeShort(type.getBitfieldEncoding());
@@ -3113,7 +3118,7 @@ public class MaplePacketCreator {
 
     public static MaplePacket takeOutStorage(byte slots, MapleInventoryType type, Collection<IItem> items) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_STORAGE.getValue());
+        mplew.writeShort(SendOpcode.STORAGE.getValue());
         mplew.write(0x9);
         mplew.write(slots);
         mplew.writeShort(type.getBitfieldEncoding());
@@ -3391,7 +3396,8 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket applyMonsterStatus(final int oid, final MonsterStatusEffect mse) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	System.out.println("PACKET");
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 	mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
 	mplew.writeInt(oid);
         mplew.writeLong(0);

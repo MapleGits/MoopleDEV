@@ -45,10 +45,8 @@ public class NPCScriptManager extends AbstractScriptManager {
     public void start(MapleClient c, int npc, String filename, MapleCharacter chr) {
         try {
             NPCConversationManager cm = new NPCConversationManager(c, npc);
-            if (npc == 1202000) {
-                action(c, (byte) 1, (byte) 0, 0);
-            }
             if (cms.containsKey(c)) {
+                System.out.println("FUU D:");
                 dispose(c);
                 return;
             }
@@ -105,9 +103,10 @@ public class NPCScriptManager extends AbstractScriptManager {
     }
 
     public void dispose(NPCConversationManager cm) {
-        cms.remove(cm.getClient());
-        scripts.remove(cm.getClient());
-        resetContext("npc/" + cm.getNpc() + ".js", cm.getClient());
+        MapleClient c = cm.getClient();
+        cms.remove(c);
+        scripts.remove(c);
+        resetContext("npc/world" + c.getWorld() + "/" + cm.getNpc() + ".js", c);
     }
 
     public void dispose(MapleClient c) {

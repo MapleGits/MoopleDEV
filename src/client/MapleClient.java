@@ -575,6 +575,7 @@ public class MapleClient {
                 MapleTrade.cancelTrade(player);
             }
             player.saveCooldowns();
+            player.unequipPendantOfSpirit();
             MapleMiniGame game = player.getMiniGame();
             if (game != null) {
                 player.setMiniGame(null);
@@ -658,7 +659,9 @@ public class MapleClient {
                 e.printStackTrace();
             } finally {
                 worlda.removePlayer(player);
+                
                 player = null;
+                Server.getInstance().getLoad(world).get(channel).decrementAndGet();
                 session.close(true);
             }
         }
@@ -668,6 +671,7 @@ public class MapleClient {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error while disconnecting character.");
+            getWorldServer().removePlayer(player);
             player = null;
             session.close(true);
         }
@@ -820,7 +824,7 @@ public class MapleClient {
         }
     }
 
-    private static boolean checkHash(String hash, String type, String password) {
+    public static boolean checkHash(String hash, String type, String password) {
         try {
             MessageDigest digester = MessageDigest.getInstance(type);
             digester.update(password.getBytes("UTF-8"), 0, password.length());

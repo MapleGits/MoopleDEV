@@ -21,8 +21,10 @@ public class ViewAllCharSelectedWithPicHandler extends AbstractMaplePacketHandle
     String pic = slea.readMapleAsciiString();
     int charId = slea.readInt();
     byte world = (byte) slea.readInt();//world
-                byte channel = (byte) Randomizer.rand(0, Server.getInstance().getWorld(world).getChannels().size());
-		String macs = slea.readMapleAsciiString();
+    c.setWorld(world);
+    byte channel = (byte) Randomizer.rand(0, Server.getInstance().getWorld(world).getChannels().size());
+    c.setChannel(channel);
+                String macs = slea.readMapleAsciiString();
 		c.updateMacs(macs);
 
 		if (c.hasBannedMac()) {

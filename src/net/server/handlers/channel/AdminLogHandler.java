@@ -27,6 +27,6 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class AdminLogHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        c.getPlayer().addCommandToList(slea.readMapleAsciiString());
+        //harhar
     }
 }

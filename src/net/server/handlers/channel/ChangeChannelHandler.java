@@ -43,6 +43,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte channel = (byte) (slea.readByte() + 1);
         MapleCharacter chr = c.getPlayer();
+        Server server = Server.getInstance();
         if (chr.isBanned()) {
             c.disconnect();
             return;
@@ -64,13 +65,12 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
                 merchant.removeVisitor(c.getPlayer());
             }
         }       
-        Server.getInstance().getPlayerBuffStorage().addBuffsToStorage(chr.getId(), chr.getAllBuffs());
+        server.getPlayerBuffStorage().addBuffsToStorage(chr.getId(), chr.getAllBuffs());
+        chr.cancelBuffEffects();
         chr.cancelMagicDoor();
         chr.saveCooldowns();
         chr.cancelExpirationTask();
-        if (chr.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
-        }
+        //Canceling mounts? Noty
         if (chr.getBuffedValue(MapleBuffStat.PUPPET) != null) {
             chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
         }
@@ -82,7 +82,8 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         chr.getClient().getChannelServer().removePlayer(chr);
         c.getWorldServer().getPlayerStorage().removePlayer(chr.getId());
         chr.saveToDB(true);
-        Server.getInstance().getPlayerStorage().addPlayer(chr);
+        server.getLoad(c.getWorld()).get(c.getChannel()).decrementAndGet();
+        server.getPlayerStorage().addPlayer(chr);
         chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));

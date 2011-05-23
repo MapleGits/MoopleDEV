@@ -30,6 +30,7 @@ import java.util.List;
 import client.IItem;
 import client.ISkill;
 import client.Item;
+import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleInventoryType;
@@ -42,7 +43,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import tools.DatabaseConnection;
 import net.server.Channel;
 import net.server.Server;
@@ -75,6 +76,12 @@ public class Commands {
             NPCScriptManager.getInstance().dispose(c);
             c.announce(MaplePacketCreator.enableActions());
             chr.message("Done.");
+        } else if (sub[0].equals("rape")) {
+            List<Pair<MapleBuffStat, Integer>> list = new ArrayList<Pair<MapleBuffStat, Integer>>();
+            list.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, 8));
+            list.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.CONFUSE, 1));
+            chr.announce(MaplePacketCreator.giveBuff(0, 0, list));
+            chr.getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(chr.getId(), list), false);            
         } else {
             if (chr.gmLevel() == 0) {
                 chr.yellowMessage("Player Command " + heading + sub[0] + " does not exist");
@@ -105,9 +112,9 @@ public class Commands {
         } else if (sub[0].equals("cleardrops")) {
             player.getMap().clearDrops(player);
         } else if (sub[0].equals("dc")) {
-            MapleCharacter chr = cserv.getPlayerStorage().getCharacterByName(sub[1]);
+            MapleCharacter chr = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
             if (player.gmLevel() > chr.gmLevel())
-                cserv.getPlayerStorage().getCharacterByName(sub[1]).getClient().disconnect();
+                chr.getClient().disconnect();
         } else if (sub[0].equals("exprate")) {
             c.getWorldServer().setExpRate((byte) (Byte.parseByte(sub[1]) % 128));
             for (Channel cs : Server.getInstance().getChannelsFromWorld(player.getWorld())) {
@@ -266,63 +273,51 @@ public class Commands {
         } else if (sub[0].equals("pianus")) {
             player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8510000), player.getPosition());
         } else if (sub[0].equalsIgnoreCase("search")) {
+            StringBuilder sb = new StringBuilder();
             if (sub.length > 2) {
                 String search = joinStringFrom(sub, 2);
+                long start = System.currentTimeMillis();//for the lulz
                 MapleData data = null;
                 MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File("wz/String.wz"));
-                player.dropMessage("~Searching~ <<Type: " + sub[1] + " | Search: " + search + ">>");
                 if (!sub[1].equalsIgnoreCase("ITEM")) {
                     if (sub[1].equalsIgnoreCase("NPC")) {
                         data = dataProvider.getData("Npc.img");
-                    } else if (sub[1].equalsIgnoreCase("MOB")) {
-                        List<String> retMobs = new LinkedList<String>();
+                    } else if (sub[1].equalsIgnoreCase("MOB") || sub[1].equalsIgnoreCase("MONSTER")) {
                         data = dataProvider.getData("Mob.img");
-                        List<Pair<Integer, String>> mobPairList = new LinkedList<Pair<Integer, String>>();
-                        for (MapleData mobIdData : data.getChildren()) {
-                            int mobIdFromData = Integer.parseInt(mobIdData.getName());
-                            String mobNameFromData = MapleDataTool.getString(mobIdData.getChildByPath("name"), "NO-NAME");
-                            mobPairList.add(new Pair<Integer, String>(mobIdFromData, mobNameFromData));
-                        }
-                        for (Pair<Integer, String> mobPair : mobPairList) {
-                            if (mobPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-                                retMobs.add(mobPair.getLeft() + " - " + mobPair.getRight());
-                            }
-                        }
-                        if (retMobs != null && retMobs.size() > 0) {
-                            for (String singleRetMob : retMobs) {
-                                player.dropMessage(singleRetMob);
-                            }
-                        } else {
-                            player.dropMessage("No Mob's Found");
-                        }
                     } else if (sub[1].equalsIgnoreCase("SKILL")) {
-                        data = dataProvider.getData("Skill.img");
+                        data = dataProvider.getData("Skill.img");    
+                    } else if (sub[1].equalsIgnoreCase("MAP")) {  
+                        sb.append("#bUse the '/m' command to find a map. If it finds a map with the same name, it will warp you to it.");
                     } else {
-                        player.dropMessage("Invalid search.\nSyntax: '/search [type] [name]', where [type] is NPC, MAP, ITEM, MOB, or SKILL.");
-                        return true;
+                        sb.append("#bInvalid search.\r\nSyntax: '/search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
                     }
-                    List<Pair<Integer, String>> searchList = new LinkedList<Pair<Integer, String>>();
-                    for (MapleData searchData : data.getChildren()) {
-                        int searchFromData = Integer.parseInt(searchData.getName());
-                        String infoFromData = sub[1].equalsIgnoreCase("MAP") ? MapleDataTool.getString(searchData.getChildByPath("streetName"), "NO-NAME") + " - " + MapleDataTool.getString(searchData.getChildByPath("mapName"), "NO-NAME") : MapleDataTool.getString(searchData.getChildByPath("name"), "NO-NAME");
-                        searchList.add(new Pair<Integer, String>(searchFromData, infoFromData));
-                    }
-                    for (Pair<Integer, String> searched : searchList) {
-                        if (searched.getRight().toLowerCase().contains(search.toLowerCase())) {
-                            player.dropMessage(searched.getLeft() + " - " + searched.getRight());
+                    if (data != null) {
+                        String name;
+                        for (MapleData searchData : data.getChildren()) {
+                            name = MapleDataTool.getString(searchData.getChildByPath("name"), "NO-NAME");
+                            if (name.toLowerCase().contains(search.toLowerCase()))                                   
+                                sb.append("#b").append(Integer.parseInt(searchData.getName())).append("#k - #r").append(name).append("\r\n");
                         }
                     }
                 } else {
                     for (Pair<Integer, String> itemPair : MapleItemInformationProvider.getInstance().getAllItems()) {
-                        if (itemPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-                            player.dropMessage(itemPair.getLeft() + " - " + itemPair.getRight());
+                        if (sb.length() < 32654) {//ohlol
+                            if (itemPair.getRight().toLowerCase().contains(search.toLowerCase())) {
+                                //#v").append(id).append("# #k- 
+                                sb.append("#b").append(itemPair.getLeft()).append("#k - #r").append(itemPair.getRight()).append("\r\n");
+                            }
+                        } else {
+                            sb.append("#bCouldn't load all items, there are too many results.\r\n");
+                            break;
                         }
-                    }
-                    player.dropMessage("Search Complete.");
+                    }                    
                 }
-            } else {
-                player.dropMessage("Invalid search.\nSyntax: '/search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
-            }
+                if (sb.length() == 0) sb.append("#bNo ").append(sub[1].toLowerCase()).append("s found.\r\n");
+                
+                sb.append("\r\n#kLoaded within ").append((double) (System.currentTimeMillis() - start) / 1000).append(" seconds.");//because I can, and it's free
+            
+            } else sb.append("#bInvalid search.\r\nSyntax: '/search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
+            c.announce(MaplePacketCreator.getNPCTalk(9010000, (byte) 0, sb.toString(), "00 00",(byte) 0)); 
         } else if (sub[0].equals("servermessage")) {
             for (Channel ch : srv.getChannelsFromWorld(player.getWorld())) {
                 ch.setServerMessage(joinStringFrom(sub, 1));
@@ -366,7 +361,7 @@ public class Commands {
             player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8810026), player.getPosition());
         } else if (sub[0].equals("packet")) {
             player.getMap().broadcastMessage(MaplePacketCreator.customPacket(joinStringFrom(sub, 1)));
-        } else if (sub[0].equals("warpworld")) {//test
+        } else if (sub[0].equals("warpworld")) {
             Server server = Server.getInstance();
             byte world = Byte.parseByte(sub[1]);
             if (world <= (server.getWorlds().size() - 1)) {
@@ -377,7 +372,7 @@ public class Commands {
                     server.getPlayerStorage().addPlayer(player);
                     c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
                     player.setWorld(world);
-                    player.saveToDB(false);//To set the new world :O
+                    player.saveToDB(true);//To set the new world :O (true because else 2 player instances are created, one in both worlds)
                     c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
                 } catch (Exception ex) {
                     player.message("Error when trying to change worlds, are you sure the world you are trying to warp to has the same amount of channels?");
@@ -385,7 +380,6 @@ public class Commands {
 
             } else
                 player.message("Invalid world; highest number available: " + (server.getWorlds().size() - 1));
-
         } else if (sub[0].equals("npc")) {
             MapleNPC npc = MapleLifeFactory.getNPC(Integer.parseInt(sub[1]));
             if (npc != null) {

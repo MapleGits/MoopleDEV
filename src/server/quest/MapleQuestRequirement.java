@@ -71,9 +71,10 @@ public class MapleQuestRequirement {
                     int itemId = MapleDataTool.getInt(itemEntry.getChildByPath("id"));
                     short quantity = 0;
                     MapleInventoryType iType = ii.getInventoryType(itemId);
-                    for (IItem item : c.getInventory(iType).listById(itemId)) {
-                        quantity += item.getQuantity();
-                    }
+                    for (IItem item : c.getInventory(iType).listById(itemId)) quantity += item.getQuantity();
+                    //Weird stuff, nexon made some quests only available when wearing gm clothes. This enables us to accept it ><
+                    if (iType.equals(MapleInventoryType.EQUIP)) for (IItem item : c.getInventory(MapleInventoryType.EQUIPPED).listById(itemId)) quantity += item.getQuantity();
+                    
                     if (itemEntry.getChildByPath("count") != null) {
                         if (quantity < MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) || MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) <= 0 && quantity > 0) {
                             return false;

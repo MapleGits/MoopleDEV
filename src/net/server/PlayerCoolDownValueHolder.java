@@ -21,14 +21,11 @@
 */
 package net.server;
 
-import java.io.Serializable;
-
 /**
  *
  * @author Danny
  */
-public class PlayerCoolDownValueHolder implements Serializable {
-    private static final long serialVersionUID = 8526352757227689744L;
+public class PlayerCoolDownValueHolder {
     public int skillId;
     public long startTime;
     public long length;

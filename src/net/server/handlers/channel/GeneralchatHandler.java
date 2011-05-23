@@ -38,7 +38,6 @@ public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
             sp[0] = sp[0].toLowerCase().substring(1);
             if (!Commands.executePlayerCommand(c, sp, heading)) {
                 if (chr.isGM()) {
-                    chr.addCommandToList(s);
                     if (!Commands.executeGMCommand(c, sp, heading)) {
                         Commands.executeAdminCommand(c, sp, heading);
                     }

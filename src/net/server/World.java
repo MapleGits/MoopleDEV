@@ -293,7 +293,7 @@ public class World {
                 break;
             case SILENT_UPDATE:
             case LOG_ONOFF:
-                //party.updateMember(target);
+                party.updateMember(target);
                 break;
             case CHANGE_LEADER:
                 party.setLeader(target);

@@ -474,6 +474,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration, boolean venom) {
+        System.out.println(status.getSkill().getElement().name());
         switch (stats.getEffectiveness(status.getSkill().getElement())) {
             case IMMUNE:
             case STRONG:
@@ -577,7 +578,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) { //Shadow Web
             status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
         } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
-            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF) noty
+            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF) noty ohlol
             if (ambushDamage < 1) ambushDamage = 1;
             
             status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(ambushDamage));
@@ -596,7 +597,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         return true;
     }
 
-    public void applyMonsterBuff(final Map<MonsterStatus, Integer> stats, final int x, int skillId, long duration, MobSkill skill) {
+    public void applyMonsterBuff(final Map<MonsterStatus, Integer> stats, final int x, int skillId, long duration, MobSkill skill, final List<Integer> reflection) {
         TimerManager timerManager = TimerManager.getInstance();
         final Runnable cancelTask = new Runnable() {
 

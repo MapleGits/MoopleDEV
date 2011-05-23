@@ -21,38 +21,37 @@
 */
 package net.server;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import tools.Pair;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
- * @author Danny FUU WHY NO MAP?
+ * @author Danny//changed to map :3
  */
 public class PlayerBuffStorage {
     private int id = (int) (Math.random() * 100);
-    private List<Pair<Integer, List<PlayerBuffValueHolder>>> buffs = new ArrayList<Pair<Integer, List<PlayerBuffValueHolder>>>();
+    private final Lock mutex = new ReentrantLock();    
+    private Map<Integer, List<PlayerBuffValueHolder>> buffs = new HashMap<Integer, List<PlayerBuffValueHolder>>();
 
     public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) {
-        for (Pair<Integer, List<PlayerBuffValueHolder>> stored : buffs) {
-             if (stored.getLeft() == Integer.valueOf(chrid)) {
-                  buffs.remove(stored);
-             }
+        mutex.lock();
+        try {
+            buffs.put(chrid, toStore);//Old one will be replace if it's in here.
+        } finally {
+            mutex.unlock();
         }
-        buffs.add(new Pair<Integer, List<PlayerBuffValueHolder>>(Integer.valueOf(chrid), toStore));
     }
 
     public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) {
-        List<PlayerBuffValueHolder> ret = null;
-        Pair<Integer, List<PlayerBuffValueHolder>> stored;
-        for (int i = 0; i < buffs.size(); i++) {
-             stored = buffs.get(i);
-             if (stored.getLeft().equals(Integer.valueOf(chrid))) {
-                 ret = stored.getRight();
-                 buffs.remove(stored);
-             }
-        }
-        return ret;
+        mutex.lock();
+        try {
+            return buffs.remove(chrid);
+        } finally {
+            mutex.unlock();
+        }        
     }
 
     @Override

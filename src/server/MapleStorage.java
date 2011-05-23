@@ -58,30 +58,32 @@ public class MapleStorage {
         this.meso = meso;
     }
 
-    private static MapleStorage create(int id) {
+    private static MapleStorage create(int id, byte world) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO storages (accountid, slots, meso) VALUES (?, 4, 0)");
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO storages (accountid, world, slots, meso) VALUES (?, ?, 4, 0)");
             ps.setInt(1, id);
+            ps.setByte(2, world);
             ps.executeUpdate();
             ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return loadOrCreateFromDB(id);
+        return loadOrCreateFromDB(id, world);
     }
 
-    public static MapleStorage loadOrCreateFromDB(int id) {
+    public static MapleStorage loadOrCreateFromDB(int id, byte world) {
         MapleStorage ret = null;
         int storeId;
         try {
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT storageid, slots, meso FROM storages WHERE accountid = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT storageid, slots, meso FROM storages WHERE accountid = ? AND world = ?");
             ps.setInt(1, id);
+            ps.setByte(2, world);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
                 rs.close();
                 ps.close();
-                return create(id);
+                return create(id, world);
             } else {
                 storeId = rs.getInt("storageid");
                 ret = new MapleStorage(storeId, (byte) rs.getInt("slots"), rs.getInt("meso"));
@@ -135,6 +137,10 @@ public class MapleStorage {
         }
     }
 
+    public IItem getItem(byte slot) {
+        return items.get(slot);       
+    }
+    
     public IItem takeOut(byte slot) {
         IItem ret = items.remove(slot);
         MapleInventoryType type = MapleItemInformationProvider.getInstance().getInventoryType(ret.getItemId());

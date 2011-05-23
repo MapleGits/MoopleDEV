@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.ByteArrayMaplePacket;
 import net.MaplePacket;
 import tools.DatabaseConnection;
@@ -53,6 +55,7 @@ import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import server.CashShop.CashItemFactory;
+import server.MapleItemInformationProvider;
 
 public class Server implements Runnable {
     private IoAcceptor acceptor;
@@ -61,7 +64,7 @@ public class Server implements Runnable {
     private Properties subnetInfo = new Properties();
     private static Server instance = null;
     private PlayerStorage players = new PlayerStorage();
-    private List<Map<Byte, Integer>> load = new ArrayList<Map<Byte, Integer>>();
+    private ArrayList<Map<Byte, AtomicInteger>> load = new ArrayList<Map<Byte, AtomicInteger>>();
     private Map<Integer, MapleGuild> guilds = new LinkedHashMap<Integer, MapleGuild>();
     private PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private Map<Integer, MapleAlliance> alliances = new LinkedHashMap<Integer, MapleAlliance>();
@@ -123,6 +126,7 @@ public class Server implements Runnable {
         acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
         TimerManager tMan = TimerManager.getInstance();
         tMan.start();
+        tMan.register(tMan.purge(), 300000);//Purging ftw...
         tMan.register(new RankingWorker(), ServerConstants.RANKING_INTERVAL);
 
         try {
@@ -138,16 +142,16 @@ public class Server implements Runnable {
 
                 worlds.add(world);
                 channels.add(new LinkedHashMap<Byte, String>());
-                load.add(new LinkedHashMap<Byte, Integer>());
+                load.add(new LinkedHashMap<Byte, AtomicInteger>());
                 for (byte j = 0; j < Byte.parseByte(p.getProperty("channels" + i)); j++) {
                     byte channelid = (byte) (j + 1);
                     Channel channel = new Channel(i, channelid);
                     world.addChannel(channel);
                     channels.get(i).put(channelid, channel.getIP());
-                    load.get(i).put(channelid, 0);
+                    load.get(i).put(channelid, new AtomicInteger());
                 }
                 System.out.println("Finished loading world " + i + "\r\n");
-            }
+            }            
         } catch (Exception e) {
             System.out.println("Error in moople.ini, start CreateINI.bat to re-make the file.");
             e.printStackTrace();//For those who get errors
@@ -161,10 +165,19 @@ public class Server implements Runnable {
         } catch (IOException ex) {
         }
         System.out.println("Listening on port 8484\r\n");
+        System.out.print("Loading server");  
+        ScheduledFuture<?> loldot = null;//rofl
+        loldot = tMan.register(new Runnable() {
+            public void run() {
+                System.out.print(".");  
+            }            
+        }, 500, 500);
         SkillFactory.getSkill(99999999);
         CashItemFactory.getSpecialCashItems();//just load who cares o.o
+        MapleItemInformationProvider.getInstance().getAllItems();
+        loldot.cancel(true);
+        System.out.println("\r\nServer is now online.");   
         online = true;
-        System.out.println("Server is online.");
     }
 
     public void shutdown() {
@@ -181,11 +194,11 @@ public class Server implements Runnable {
         return subnetInfo;
     }
 
-    public Map<Byte, Integer> getLoad(byte i) {
+    public Map<Byte, AtomicInteger> getLoad(byte i) {
         return load.get(i);
     }
 
-    public List<Map<Byte, Integer>> getLoad() {
+    public List<Map<Byte, AtomicInteger>> getLoad() {
         return load;
     }
 
@@ -278,8 +291,8 @@ public class Server implements Runnable {
         return false;
     }
 
-    public Set<Byte> getChannelServer() {
-        return new HashSet<Byte>(channels.get(0).keySet());
+    public Set<Byte> getChannelServer(byte world) {
+        return new HashSet<Byte>(channels.get(world).keySet());
     }
 
     public byte getHighestChannelId() {

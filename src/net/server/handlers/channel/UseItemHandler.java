@@ -23,6 +23,7 @@ package net.server.handlers.channel;
 
 import client.IItem;
 import client.MapleClient;
+import client.MapleDisease;
 import client.MapleInventoryType;
 import net.AbstractMaplePacketHandler;
 import server.MapleInventoryManipulator;
@@ -50,7 +51,7 @@ public final class UseItemHandler extends AbstractMaplePacketHandler {
                 remove(c, slot);
                 return;
             } else if (itemId == 2050003) {
-                c.getPlayer().dispelSeal();
+                c.getPlayer().dispelDebuff(MapleDisease.SEAL);
                 remove(c, slot);
                 return;
             }

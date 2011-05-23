@@ -110,7 +110,7 @@ public class MapleGuild {
         if (!bDirty) {
             return;
         }
-        Set<Byte> chs = Server.getInstance().getChannelServer();
+        Set<Byte> chs = Server.getInstance().getChannelServer(world);
         if (notifications.keySet().size() != chs.size()) {
             notifications.clear();
             for (Byte ch : chs) {
@@ -254,14 +254,14 @@ public class MapleGuild {
                 buildNotifications();
             }
             try {
-                for (Channel ch : Server.getInstance().getChannelsFromWorld(world)) {
-                    if (notifications.get(ch).size() > 0) {
+                for (Byte b : Server.getInstance().getChannelServer(world)) {
+                    if (notifications.get(b).size() > 0) {
                         if (bcop == BCOp.DISBAND) {
-                            Server.getInstance().getWorld(world).setGuildAndRank(notifications.get(ch), 0, 5, exceptionId);
+                            Server.getInstance().getWorld(world).setGuildAndRank(notifications.get(b), 0, 5, exceptionId);
                         } else if (bcop == BCOp.EMBELMCHANGE) {
-                            Server.getInstance().getWorld(world).changeEmblem(this.id, notifications.get(ch), new MapleGuildSummary(this));
+                            Server.getInstance().getWorld(world).changeEmblem(this.id, notifications.get(b), new MapleGuildSummary(this));
                         } else {
-                            Server.getInstance().getWorld(world).sendPacket(notifications.get(ch), packet, exceptionId);
+                            Server.getInstance().getWorld(world).sendPacket(notifications.get(b), packet, exceptionId);
                         }
                     }
                 }
