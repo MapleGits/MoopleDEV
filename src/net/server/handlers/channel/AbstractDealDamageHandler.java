@@ -301,9 +301,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                             AutobanFactory.FIX_DAMAGE.autoban(player, String.valueOf(totDamageToOneMonster) + " damage");
                     }
                 }
-                System.out.println(attackEffect.getMonsterStati().size());
                 if (totDamageToOneMonster > 0 && attackEffect != null && attackEffect.getMonsterStati().size() > 0) {
-                    System.out.println("Ice Strike");
                     if (attackEffect.makeChanceResult()) {
                         monster.applyStatus(player, new MonsterStatusEffect(attackEffect.getMonsterStati(), theSkill, null, false), attackEffect.isPoison(), attackEffect.getDuration());
                     }

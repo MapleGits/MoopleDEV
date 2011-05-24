@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
+import client.ISkill;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -264,14 +265,12 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             if (exp > 0) {
                 Integer holySymbol = attacker.getBuffedValue(MapleBuffStat.HOLY_SYMBOL);
                 if (holySymbol != null) {
-                    if (numExpSharers == 1) {
-                        personalExp *= 1.0 + (holySymbol.doubleValue() / 500.0);
-                    } else {
-                        personalExp *= 1.0 + (holySymbol.doubleValue() / 100.0);
-                    }
+                    if (numExpSharers == 1) personalExp *= 1.0 + (holySymbol.doubleValue() / 500.0);
+                    else personalExp *= 1.0 + (holySymbol.doubleValue() / 100.0);                    
                 }
+                if (stati.containsKey(MonsterStatus.SHOWDOWN)) personalExp *= (stati.get(MonsterStatus.SHOWDOWN).getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0 + 1.0);
             }
-            if (exp < 0) {
+            if (exp < 0) {//O.O ><
                 personalExp = Integer.MAX_VALUE;
             }
             attacker.gainExp(personalExp, true, false, highestDamage);
@@ -474,7 +473,6 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration, boolean venom) {
-        System.out.println(status.getSkill().getElement().name());
         switch (stats.getEffectiveness(status.getSkill().getElement())) {
             case IMMUNE:
             case STRONG:
@@ -549,9 +547,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
         } else if (venom) {
             if (from.getJob() == MapleJob.NIGHTLORD || from.getJob() == MapleJob.SHADOWER || from.getJob().isA(MapleJob.NIGHTWALKER3)) {
-                int poisonLevel = 0;
-                int matk = 0;
-                int id = from.getJob().getId();
+                int poisonLevel = 0, matk = 0, id = from.getJob().getId();
                 int skill = (id == 412 ? 4120005 : (id == 422 ? 4220005 : 14110004));
                 poisonLevel = from.getSkillLevel(SkillFactory.getSkill(skill));
                 if (poisonLevel <= 0) {
@@ -578,11 +574,14 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) { //Shadow Web
             status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
         } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
-            int ambushDamage = 100; //(FIX THE DAMAGE YOURSELF) noty ohlol
-            if (ambushDamage < 1) ambushDamage = 1;
+            ISkill skill = SkillFactory.getSkill(status.getSkill().getId());
+            final int damage = (int) (((from.getStr() + from.getLuk()) * (skill.getEffect(from.getSkillLevel(skill)).getDamage())) / 200);
+            if (getHp() - damage <= 1)  {
+                return false;
+            }
             
-            status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(ambushDamage));
-            status.setDamageSchedule(timerManager.register(new DamageTask(ambushDamage, from, status, cancelTask, 2), 1000, 1000));
+            status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(damage));
+            status.setDamageSchedule(timerManager.register(new DamageTask(damage, from, status, cancelTask, 2), 1000, 1000));
         }
         for (MonsterStatus stat : status.getStati().keySet()) {
             stati.put(stat, status);
@@ -1070,4 +1069,8 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     public int getPADamage() {
         return stats.getPADamage();
     }
+    
+    public Map<MonsterStatus, MonsterStatusEffect> getStati() {
+        return stati;
+    }    
 }

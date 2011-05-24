@@ -3396,7 +3396,6 @@ public class MaplePacketCreator {
     }
 
     public static MaplePacket applyMonsterStatus(final int oid, final MonsterStatusEffect mse) {
-	System.out.println("PACKET");
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 	mplew.writeShort(SendOpcode.APPLY_MONSTER_STATUS.getValue());
 	mplew.writeInt(oid);

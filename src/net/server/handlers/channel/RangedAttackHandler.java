@@ -34,7 +34,9 @@ import client.SkillFactory;
 import constants.ItemConstants;
 import constants.skills.Aran;
 import constants.skills.Buccaneer;
+import constants.skills.NightLord;
 import constants.skills.NightWalker;
+import constants.skills.Shadower;
 import constants.skills.ThunderBreaker;
 import constants.skills.WindArcher;
 import tools.Randomizer;
@@ -119,7 +121,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
             boolean shadowClaw = player.getBuffedValue(MapleBuffStat.SHADOW_CLAW) != null;
             if (!soulArrow && !shadowClaw && attack.skill != 11101004 && attack.skill != 15111007 && attack.skill != 14101006) {
                 int bulletConsume = bulletCount;
-                if (effect != null && effect.getBulletConsume() != 0) {
+                if (effect != null && effect.getBulletConsume() != 0 && attack.skill != Shadower.TAUNT || attack.skill != NightLord.TAUNT) {
                     bulletConsume = effect.getBulletConsume() * (hasShadowPartner ? 2 : 1);
                 }
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, projectile, bulletConsume, false, true);

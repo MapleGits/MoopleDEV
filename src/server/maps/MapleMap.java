@@ -321,12 +321,16 @@ public class MapleMap {
 	}
 	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
 	final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
-        final int mobpos = mob.getPosition().x, chServerrate = chr.getDropRate();
+        final int mobpos = mob.getPosition().x;
+        int chServerrate = chr.getDropRate();
 	IItem idrop;
 	byte d = 1;
 	Point pos = new Point(0, mob.getPosition().y);
-
-	final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
+        
+        Map<MonsterStatus, MonsterStatusEffect> stati = mob.getStati();
+        if (stati.containsKey(MonsterStatus.SHOWDOWN)) chServerrate *= (stati.get(MonsterStatus.SHOWDOWN).getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0 + 1.0);
+	
+        final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
 	final List<MonsterDropEntry> dropEntry = new ArrayList<MonsterDropEntry>(mi.retrieveDrop(mob.getId()));
 
 	Collections.shuffle(dropEntry);

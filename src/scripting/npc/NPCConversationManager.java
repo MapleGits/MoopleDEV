@@ -430,7 +430,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().hasMerchant();
     }
 
-    public boolean hasMerchantItems(byte world) {
+    public boolean hasMerchantItems() {
         try {
             if (!ItemFactory.MERCHANT.loadItems(getPlayer().getId(), false).isEmpty()) {
                 return true;

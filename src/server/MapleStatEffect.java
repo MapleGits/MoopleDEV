@@ -468,7 +468,7 @@ public class MapleStatEffect {
                     break;
                 case NightLord.NINJA_AMBUSH:
                 case Shadower.NINJA_AMBUSH:
-                    monsterStatus.put(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(1));
+                    monsterStatus.put(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(ret.damage));
                     break;
                 case Page.THREATEN:
                     monsterStatus.put(MonsterStatus.WATK, Integer.valueOf(ret.x));
@@ -493,7 +493,9 @@ public class MapleStatEffect {
                     break;
                 case NightLord.TAUNT:
                 case Shadower.TAUNT:
-                    monsterStatus.put(MonsterStatus.SHOWDOWN, Integer.valueOf(1));
+		    monsterStatus.put(MonsterStatus.SHOWDOWN, ret.x);
+		    monsterStatus.put(MonsterStatus.MDEF, ret.x);
+		    monsterStatus.put(MonsterStatus.WDEF, ret.x);
                     break;
                 case ILWizard.COLD_BEAM:
                 case ILMage.ICE_STRIKE:
@@ -1244,7 +1246,6 @@ public class MapleStatEffect {
     }
 
     public boolean makeChanceResult() {
-        System.out.println("Prop: " + prop);
         return prop == 1.0 || Math.random() < prop;
     }
 
