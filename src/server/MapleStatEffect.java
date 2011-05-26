@@ -1087,6 +1087,10 @@ public class MapleStatEffect {
         return skill && sourceid == DarkKnight.BERSERK;
     }
 
+    public boolean isRecovery() {
+        return sourceid == Beginner.RECOVERY || sourceid == Noblesse.RECOVERY || sourceid == Legend.RECOVERY;
+    }
+    
     private boolean isDs() {
         return skill && (sourceid == Rogue.DARK_SIGHT || sourceid == WindArcher.WIND_WALK || sourceid == NightWalker.DARK_SIGHT);
     }

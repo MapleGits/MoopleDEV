@@ -27,7 +27,7 @@ import tools.data.output.LittleEndianWriter;
 public class ChairMovement extends AbstractLifeMovement {
     private int unk;
 
-    public ChairMovement(int type, Point position, int duration, int newstate) {
+    public ChairMovement(byte type, Point position, int duration, byte newstate) {
         super(type, position, duration, newstate);
     }
 

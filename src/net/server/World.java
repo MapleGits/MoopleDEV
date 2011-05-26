@@ -28,6 +28,8 @@ import client.BuddyList.BuddyOperation;
 import client.BuddylistEntry;
 import client.MapleCharacter;
 import client.MapleFamily;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,6 +40,7 @@ import net.MaplePacket;
 import net.server.guild.MapleGuild;
 import net.server.guild.MapleGuildCharacter;
 import net.server.guild.MapleGuildSummary;
+import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
 /**
@@ -195,6 +198,20 @@ public class World {
         }
     }
 
+    public void setOfflineGuildStatus(int guildid, byte guildrank, int cid) {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?");
+            ps.setInt(1, guildid);
+            ps.setInt(2, guildrank);
+            ps.setInt(3, cid);
+            ps.execute();
+            ps.close();
+            ps = null;
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+    }
+    
     public void setGuildAndRank(int cid, int guildid, int rank) {
         MapleCharacter mc = getPlayerStorage().getCharacterById(cid);
         if (mc == null) {

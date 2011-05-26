@@ -2606,7 +2606,7 @@ public class MaplePacketCreator {
              mplew.writeShort(statup.getRight().shortValue());
         }
         mplew.writeInt(0);
-        mplew.write(0);
+        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -4860,14 +4860,14 @@ public class MaplePacketCreator {
         if (hm.isOwner(chr)) {
             mplew.writeInt(hm.getTimeLeft());
             mplew.write(firstTime ? 1 : 0);
-            List<SoldItem> sold = hm.getSold();
-            mplew.write(sold.size());
-            for (SoldItem s : sold) {
+            //List<SoldItem> sold = hm.getSold();
+            mplew.write(0);//sold.size()
+            /*for (SoldItem s : sold) { fix this
                mplew.writeInt(s.getItemId());
                mplew.writeShort(s.getQuantity());
-               mplew.writeInt(s.getMesos());//HMMM
+               mplew.writeInt(s.getMesos());
                mplew.writeMapleAsciiString(s.getBuyer());
-            }
+            }*/
 	    mplew.writeInt(chr.getMerchantMeso());//:D?
         }
         mplew.writeMapleAsciiString(hm.getDescription());
@@ -5637,7 +5637,7 @@ public class MaplePacketCreator {
      * 7 = Enter portal sound
      * 8 = Job change
      * 9 = Quest complete
-     * 10 = damage O.O
+     * 10 = Recovery
      * 14 = Monster book pickup
      * 15 = Equipment levelup
      * 16 = Maker Skill Success
@@ -5660,7 +5660,15 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static MaplePacket showHpHealed(int cid, int amount) {
+    public static MaplePacket showOwnRecovery(byte heal) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
+        mplew.write(0x0A);
+        mplew.write(heal);
+        return mplew.getPacket();
+    }
+    
+    public static MaplePacket showRecovery(int cid, byte amount) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_FOREIGN_EFFECT.getValue());
         mplew.writeInt(cid);

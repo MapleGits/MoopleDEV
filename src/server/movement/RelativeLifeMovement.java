@@ -25,7 +25,7 @@ import java.awt.Point;
 import tools.data.output.LittleEndianWriter;
 
 public class RelativeLifeMovement extends AbstractLifeMovement {
-    public RelativeLifeMovement(int type, Point position, int duration, int newstate) {
+    public RelativeLifeMovement(byte type, Point position, int duration, byte newstate) {
         super(type, position, duration, newstate);
     }
 

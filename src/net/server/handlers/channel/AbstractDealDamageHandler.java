@@ -269,17 +269,19 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                             break;
                         }
                     }
-                } else if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
-                    final ISkill skill = SkillFactory.getSkill(21101003);
-                    final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                } else if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null || player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
+                    ISkill skill;
+                    if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
+                        skill = SkillFactory.getSkill(21101003);
+                        final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
-                    if (eff.makeChanceResult()) {
-                        monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() * 1000, false);
+                        if (eff.makeChanceResult()) monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() * 1000, false);
+                    } 
+                    if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) { 
+                        skill = SkillFactory.getSkill(21100005);
+                        player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
+                        player.updateSingleStat(MapleStat.HP, player.getHp());
                     }
-                } else if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
-                    final ISkill skill = SkillFactory.getSkill(21100005);
-                    player.setHp(player.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
-                    player.updateSingleStat(MapleStat.HP, player.getHp());
                 } else if (id == 412 || id == 422 || id == 1411) {
                     ISkill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
                     if (player.getSkillLevel(type) > 0) {
@@ -314,6 +316,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                 } else {
                     map.damageMonster(player, monster, totDamageToOneMonster);
                 }
+                player.setLastAttack(System.currentTimeMillis());
             }
         }
     }

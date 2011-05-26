@@ -27,7 +27,6 @@ import java.util.List;
 import net.AbstractMaplePacketHandler;
 import server.maps.AnimatedMapleMapObject;
 import server.movement.AbsoluteLifeMovement;
-import server.movement.AranMovement;
 import server.movement.ChairMovement;
 import server.movement.ChangeEquip;
 import server.movement.JumpDownMovement;
@@ -37,11 +36,11 @@ import server.movement.RelativeLifeMovement;
 import tools.data.input.LittleEndianAccessor;
 
 public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketHandler {
-    protected List<LifeMovementFragment> parseMovement(LittleEndianAccessor lea) {
+protected List<LifeMovementFragment> parseMovement(LittleEndianAccessor lea) {
         List<LifeMovementFragment> res = new ArrayList<LifeMovementFragment>();
-        int numCommands = lea.readByte();
-        for (int i = 0; i < numCommands; i++) {
-            int command = lea.readByte();
+        byte numCommands = lea.readByte();
+        for (byte i = 0; i < numCommands; i++) {
+            byte command = lea.readByte();
             switch (command) {
                 case 0: // normal move
                 case 5:
@@ -123,11 +122,12 @@ public abstract class AbstractMovementPacketHandler extends AbstractMaplePacketH
                     res.add(jdm);
                     break;
                 }
-                case 21: {
-                    byte newstate = lea.readByte();
+                case 21: {//Causes aran to do weird stuff when attacking o.o
+                    /*byte newstate = lea.readByte();
                     short unk = lea.readShort();
-                    AranMovement am = new AranMovement(command, new Point(0, 0), unk, newstate);
-                    res.add(am);
+                    AranMovement am = new AranMovement(command, null, unk, newstate);
+                    res.add(am);*/
+                    lea.skip(3);
                     break;
                 }
                 default:

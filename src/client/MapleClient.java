@@ -616,7 +616,7 @@ public class MapleClient {
                 player.setHp(50, true);
             }
 
-            player.setPartyQuest(null);//):
+            player.setPartyQuest(null);
             player.setMessenger(null);
             player.cancelExpirationTask();
             for (ScheduledFuture<?> sf : player.getTimers())

@@ -377,7 +377,7 @@ public class MapleGuild {
                     bDirty = true;
                     try {
                         if (mgc.isOnline()) {
-                            //Registry.getInstance().getChannel(mgc.getChannel()).setGuildAndRank(cid, 0, 5);
+                            Server.getInstance().getWorld(mgc.getWorld()).setGuildAndRank(cid, 0, 5);
                         } else {
                             try {
                                 PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)");
@@ -390,7 +390,7 @@ public class MapleGuild {
                             } catch (SQLException e) {
                                 System.out.println("expelMember - MapleGuild " + e);
                             }
-                            //Registry.getInstance().getChannel(1).setOfflineGuildStatus((short) 0, (byte) 5, cid);
+                            Server.getInstance().getWorld(mgc.getWorld()).setOfflineGuildStatus((short) 0, (byte) 5, cid);
                         }
                     } catch (Exception re) {
                         re.printStackTrace();
@@ -408,9 +408,9 @@ public class MapleGuild {
             if (cid == mgc.getId()) {
                 try {
                     if (mgc.isOnline()) {
-                        //Registry.getInstance().getChannel(mgc.getChannel()).setGuildAndRank(cid, this.id, newRank);
+                        Server.getInstance().getWorld(mgc.getWorld()).setGuildAndRank(cid, this.id, newRank);
                     } else {
-                        //Registry.getInstance().getChannel(1).setOfflineGuildStatus((short) this.id, (byte) newRank, cid);
+                        Server.getInstance().getWorld(mgc.getWorld()).setOfflineGuildStatus((short) this.id, (byte) newRank, cid);
                     }
                 } catch (Exception re) {
                     re.printStackTrace();

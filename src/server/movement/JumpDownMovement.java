@@ -29,7 +29,7 @@ public class JumpDownMovement extends AbstractLifeMovement {
     private int unk;
     private int fh;
 
-    public JumpDownMovement(int type, Point position, int duration, int newstate) {
+    public JumpDownMovement(byte type, Point position, int duration, byte newstate) {
         super(type, position, duration, newstate);
     }
 

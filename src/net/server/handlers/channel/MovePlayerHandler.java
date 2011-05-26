@@ -32,13 +32,13 @@ public final class MovePlayerHandler extends AbstractMovementPacketHandler {
         slea.skip(9);
         final List<LifeMovementFragment> res = parseMovement(slea);
         if (res != null) {
+            updatePosition(res, c.getPlayer(), 0);
+            c.getPlayer().getMap().movePlayer(c.getPlayer(), c.getPlayer().getPosition());
             if (c.getPlayer().isHidden()) {
                 c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(c.getPlayer().getId(), res), false);
             } else {
                 c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.movePlayer(c.getPlayer().getId(), res), false);
-            }
-            updatePosition(res, c.getPlayer(), 0);
-            c.getPlayer().getMap().movePlayer(c.getPlayer(), c.getPlayer().getPosition());
+            }            
         }
     }
 }

@@ -22,7 +22,6 @@
 
 package net.server.handlers.channel;
 
-import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.SkillFactory;
@@ -34,9 +33,8 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player.getJobType() == 2) { //Keep it this till Evan comes in Private Servers.
-            if (player.getCombo() > 0 && (System.currentTimeMillis() - player.getLastAttack() > 3000)) {
-                player.setCombo((short) 0);
-                player.cancelBuffStats(MapleBuffStat.ARAN_COMBO);
+            if (player.getCombo() > 0 && (System.currentTimeMillis() - player.getLastAttack() > 4500)) {
+                c.disconnect();
             } else {
                 short combo = (short) (player.getCombo() + 1);
 	    switch (combo) {
@@ -53,7 +51,6 @@ public class AranComboHandler extends AbstractMaplePacketHandler {
 		    SkillFactory.getSkill(21000000).getEffect(combo / 10).applyComboBuff(player, combo);
 		    break;
 	    }
-                player.setLastAttack(System.currentTimeMillis());
                 player.setCombo(combo);
                 c.announce(MaplePacketCreator.showCombo(combo));
             }

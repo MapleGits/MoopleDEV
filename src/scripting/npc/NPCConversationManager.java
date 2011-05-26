@@ -301,10 +301,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void maxMastery() {
         for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
             try {
-                ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
-                if ((skill.getId() / 10000 % 10 == 2 || (getClient().getPlayer().isCygnus() && skill.getId() / 10000 % 10 == 1) || (getClient().getPlayer().isAran() && skill.getId() / 10000 % 10 == 2)) && getPlayer().getSkillLevel(skill) < 1) {
-                    getPlayer().changeSkillLevel(skill, (byte) 0, skill.getMaxLevel(), -1);
-                }
+                ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));                
+                getPlayer().changeSkillLevel(skill, (byte) 0, skill.getMaxLevel(), -1);
             } catch (NumberFormatException nfe) {
                 break;
             } catch (NullPointerException npe) {

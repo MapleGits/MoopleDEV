@@ -63,9 +63,9 @@ public class MapleServerHandler extends IoHandlerAdapter {
             if (client != null) {
                 client.disconnect();
             }
-            cause.printStackTrace();
+            cause.getCause().printStackTrace();        
         } catch (Exception e) {
-            cause.printStackTrace();
+            cause.getCause().printStackTrace();
             e.printStackTrace();
         }
         //Write into a file pl0x

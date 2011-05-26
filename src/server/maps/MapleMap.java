@@ -1034,7 +1034,7 @@ public class MapleMap {
 
     public final void spawnItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean playerDrop) {
 	final Point droppos = calcDropPos(pos, pos);
-	final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner, (byte) 0, playerDrop);
+	final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner, (byte) (ffaDrop ? 2 : 0), playerDrop);
 
 	spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
 

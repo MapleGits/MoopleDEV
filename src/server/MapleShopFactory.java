@@ -37,6 +37,10 @@ public class MapleShopFactory {
         return instance;
     }
 
+    public void reloadShops() {
+        shops.clear();
+    }
+    
     private MapleShop loadShop(int id, boolean isShopId) {
         MapleShop ret = MapleShop.createFromDB(id, isShopId);
         if (ret != null) {

@@ -28,7 +28,7 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
     private Point pixelsPerSecond;
     private int unk;
 
-    public AbsoluteLifeMovement(int type, Point position, int duration, int newstate) {
+    public AbsoluteLifeMovement(byte type, Point position, int duration, byte newstate) {
         super(type, position, duration, newstate);
     }
 

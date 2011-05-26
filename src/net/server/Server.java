@@ -37,7 +37,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.ByteArrayMaplePacket;
 import net.MaplePacket;
 import tools.DatabaseConnection;
 import net.MapleServerHandler;
@@ -460,9 +459,9 @@ public class Server implements Runnable {
         worlda.reloadGuildSummary();
     }
 
-    public void broadcastMessage(byte world, byte[] bytes) {
+    public void broadcastMessage(byte world, MaplePacket packet) {
         for (Channel ch : getChannelsFromWorld(world)) {
-            ch.broadcastPacket(new ByteArrayMaplePacket(bytes));
+            ch.broadcastPacket(packet);
         }
     }
 

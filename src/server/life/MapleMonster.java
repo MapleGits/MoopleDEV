@@ -574,11 +574,12 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         } else if (status.getSkill().getId() == 4111003 || status.getSkill().getId() == 14111001) { //Shadow Web
             status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
         } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
-            ISkill skill = SkillFactory.getSkill(status.getSkill().getId());
-            final int damage = (int) (((from.getStr() + from.getLuk()) * (skill.getEffect(from.getSkillLevel(skill)).getDamage())) / 200);
-            if (getHp() - damage <= 1)  {
-                return false;
-            }
+            final ISkill skill = SkillFactory.getSkill(status.getSkill().getId());
+            final byte level = from.getSkillLevel(skill);
+            final int damage = (int) ((from.getStr() + from.getLuk()) * (1.5 + (level * 0.05)) * skill.getEffect(level).getDamage());
+            /*if (getHp() - damage <= 1)  { make hp 1 betch
+                damage = getHp() - (getHp() - 1);
+            }*/
             
             status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(damage));
             status.setDamageSchedule(timerManager.register(new DamageTask(damage, from, status, cancelTask, 2), 1000, 1000));

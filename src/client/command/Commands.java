@@ -80,8 +80,8 @@ public class Commands {
             List<Pair<MapleBuffStat, Integer>> list = new ArrayList<Pair<MapleBuffStat, Integer>>();
             list.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MORPH, 8));
             list.add(new Pair<MapleBuffStat, Integer>(MapleBuffStat.CONFUSE, 1));
-            chr.announce(MaplePacketCreator.giveBuff(0, 0, list));
-            chr.getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(chr.getId(), list), false);            
+            chr.announce(MaplePacketCreator.giveBuff(0, 0, list));         
+            chr.getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(chr.getId(), list));                        
         } else {
             if (chr.gmLevel() == 0) {
                 chr.yellowMessage("Player Command " + heading + sub[0] + " does not exist");
@@ -222,7 +222,7 @@ public class Commands {
         } else if (sub[0].equals("mesos")) {
             player.gainMeso(Integer.parseInt(sub[1]), true);
         } else if (sub[0].equals("notice")) {
-           Server.getInstance().broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(6, "[Notice] " + joinStringFrom(sub, 1)).getBytes());
+           Server.getInstance().broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(6, "[Notice] " + joinStringFrom(sub, 1)));
         } else if (sub[0].equals("openportal")) {
            player.getMap().getPortal(sub[1]).setPortalState(true);
         } else if (sub[0].equals("closeportal")) {
@@ -238,19 +238,19 @@ public class Commands {
                 c.getChannelServer().setEvent(new MapleEvent(109010000, 50));
             } else if (sub[1].equals("ox")) {
                 c.getChannelServer().setEvent(new MapleEvent(109020001, 50));
-                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()));
             } else if (sub[1].equals("ola")) {
                 c.getChannelServer().setEvent(new MapleEvent(109030101, 50)); // Wrong map but still Ola Ola
-                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()));
             } else if (sub[1].equals("fitness")) {
                 c.getChannelServer().setEvent(new MapleEvent(109040000, 50));
-                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()));
             } else if (sub[1].equals("snowball")) {
                 c.getChannelServer().setEvent(new MapleEvent(109060001, 50));
-                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()));
             } else if (sub[1].equals("coconut")) {
                 c.getChannelServer().setEvent(new MapleEvent(109080000, 50));
-                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()).getBytes());
+                srv.broadcastMessage(player.getWorld(), MaplePacketCreator.serverNotice(0, "Hello Scania let's play an event in " + player.getMap().getMapName() + " CH " + c.getChannel() + "! " + player.getMap().getEventNPC()));
             } else {
                 player.message("Wrong Syntax: /scheduleevent treasure, ox, ola, fitness, snowball or coconut");
             }
