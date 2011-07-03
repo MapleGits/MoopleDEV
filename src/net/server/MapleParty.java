@@ -21,14 +21,12 @@
 */
 package net.server;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MapleParty implements Serializable {
-    private static final long serialVersionUID = -4928127017438074653L;
+public class MapleParty {
     private MaplePartyCharacter leader;
     private List<MaplePartyCharacter> members = new LinkedList<MaplePartyCharacter>();
     private int id;

@@ -24,56 +24,53 @@ package server.life;
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 import client.MapleCharacter;
-import server.maps.MapleMap;
 
 public class SpawnPoint {
     private int monster, mobTime, team;
     private Point pos;
     private long nextPossibleSpawn;
+    private int mobInterval = 5000;
     private AtomicInteger spawnedMonsters = new AtomicInteger(0);
     private boolean immobile;
 
-    public SpawnPoint(int monster, Point pos, boolean immobile, int mobTime, int team) {
+    public SpawnPoint(int monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team) {
         super();
         this.monster = monster;
         this.pos = new Point(pos);
         this.mobTime = mobTime;
         this.team = team;
         this.immobile = immobile;
+        this.mobInterval = mobInterval;
         this.nextPossibleSpawn = System.currentTimeMillis();
     }
 
     public boolean shouldSpawn() {
-        return shouldSpawn(System.currentTimeMillis());
-    }
-
-    private boolean shouldSpawn(long now) {
-        if (mobTime < 0 || ((mobTime != 0 || immobile) && spawnedMonsters.get() > 0) || spawnedMonsters.get() > 2) {
+        if (mobTime < 0 || ((mobTime != 0 || immobile) && spawnedMonsters.get() > 0) || spawnedMonsters.get() > 2) {//lol
             return false;
         }
-        return nextPossibleSpawn <= now;
+        return nextPossibleSpawn <= System.currentTimeMillis();
     }
-
-    public MapleMonster spawnMonster(final MapleMap mapleMap) {
+    
+    public MapleMonster getMonster() {
         MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
         mob.setPosition(new Point(pos));
         mob.setTeam(team);
         spawnedMonsters.incrementAndGet();
         mob.addListener(new MonsterListener() {
+            @Override
             public void monsterKilled(MapleMonster monster, MapleCharacter highestDamageChar) {
                 nextPossibleSpawn = System.currentTimeMillis();
                 if (mobTime > 0) {
                     nextPossibleSpawn += mobTime * 1000;
-                } else if (mobTime == 0) {
-                    nextPossibleSpawn += mapleMap.getMobInterval();
                 } else {
                     nextPossibleSpawn += monster.getAnimationTime("die1");
                 }
                 spawnedMonsters.decrementAndGet();
             }
         });
-        mapleMap.spawnMonster(mob);
-
+        if (mobTime == 0) {
+            nextPossibleSpawn = System.currentTimeMillis() + mobInterval;
+        }
         return mob;
     }
 

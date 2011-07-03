@@ -43,6 +43,7 @@ public class MapleCodecFactory implements ProtocolCodecFactory {
         return decoder;
     }
 
+    @Override
     public ProtocolEncoder getEncoder(IoSession session) throws Exception {
         return encoder;
     }

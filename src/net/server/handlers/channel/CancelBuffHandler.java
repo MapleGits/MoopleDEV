@@ -32,11 +32,12 @@ import constants.skills.Marksman;
 import constants.skills.WindArcher;
 import net.AbstractMaplePacketHandler;
 import net.MaplePacketHandler;
-import server.MapleItemInformationProvider;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.MaplePacketCreator;
 
 public final class CancelBuffHandler extends AbstractMaplePacketHandler implements MaplePacketHandler {
+    
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int sourceid = slea.readInt();
         switch (sourceid) {

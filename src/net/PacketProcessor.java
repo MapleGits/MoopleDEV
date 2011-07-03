@@ -21,6 +21,7 @@
 */
 package net;
 
+import net.server.handlers.CustomPacketHandler;
 import net.server.handlers.login.*;
 import net.server.handlers.channel.*;
 import net.server.handlers.KeepAliveHandler;
@@ -71,7 +72,9 @@ public final class PacketProcessor {
         handlers = new MaplePacketHandler[handlers.length];
 
         registerHandler(RecvOpcode.PONG, new KeepAliveHandler());
+        registerHandler(RecvOpcode.CUSTOM_PACKET, new CustomPacketHandler());
         //LOGIN HANDLERS
+        registerHandler(RecvOpcode.ACCEPT_TOS, new AcceptToSHandler());
         registerHandler(RecvOpcode.AFTER_LOGIN, new AfterLoginHandler());
         registerHandler(RecvOpcode.SERVERLIST_REREQUEST, new ServerlistRequestHandler());
         registerHandler(RecvOpcode.CHARLIST_REQUEST, new CharlistRequestHandler());
@@ -199,7 +202,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.ACCEPT_FAMILY, new AcceptFamilyHandler());
         registerHandler(RecvOpcode.DUEY_ACTION, new DueyHandler());
         registerHandler(RecvOpcode.USE_DEATHITEM, new UseDeathItemHandler());
-        registerHandler(RecvOpcode.PLAYER_UPDATE, new PlayerUpdateHandler());
+        //registerHandler(RecvOpcode.PLAYER_UPDATE, new PlayerUpdateHandler());don't use unused stuff
         registerHandler(RecvOpcode.USE_MAPLELIFE, new UseMapleLifeHandler());
         registerHandler(RecvOpcode.USE_CATCH_ITEM, new UseCatchItemHandler());
         registerHandler(RecvOpcode.MOB_DAMAGE_MOB_FRIENDLY, new MobDamageMobFriendlyHandler());

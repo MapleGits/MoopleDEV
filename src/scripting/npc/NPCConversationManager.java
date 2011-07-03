@@ -55,6 +55,7 @@ import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleStatEffect;
 import server.events.gm.MapleEvent;
+import server.expeditions.MapleExpedition;
 import server.maps.MapleMap;
 import server.maps.MapleMapFactory;
 import server.partyquest.Pyramid;
@@ -301,7 +302,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void maxMastery() {
         for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
             try {
-                ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));                
+                ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
                 getPlayer().changeSkillLevel(skill, (byte) 0, skill.getMaxLevel(), -1);
             } catch (NumberFormatException nfe) {
                 break;
@@ -335,7 +336,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             sqle.printStackTrace();
         } finally {
             try {
-                if (ps != null) {
+                if (ps != null && !ps.isClosed()) {
                     ps.close();
                 }
             } catch (SQLException ex) {
@@ -466,8 +467,14 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             getPlayer().setTeam(getEvent().getLimit() % 2); //muhaha :D
         }
     }
-
-    public boolean createPyramid(String mode, boolean party) {
+    
+    public MapleExpedition createExpedition(String type, byte min) {
+        MapleParty party = getPlayer().getParty();
+        if (party == null || party.getMembers().size() < min) return null;
+        return new MapleExpedition(getPlayer());        
+    }
+    
+    public boolean createPyramid(String mode, boolean party) {//lol
         PyramidMode mod = PyramidMode.valueOf(mode);
 
         MapleParty partyz = getPlayer().getParty();
@@ -475,19 +482,28 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
         MapleMap map = null;
         int mapid = 926010100;
-        if (party) mapid += 10000;
+        if (party) {
+            mapid += 10000;
+        }
         mapid += (mod.getMode() * 1000);
 
         for (byte b = 0; b < 5; b++) {//They cannot warp to the next map before the timer ends (:
             map = mf.getMap(mapid + b);
             if (map.getCharacters().size() > 0) {
-                map = null; continue;
-            } else break;
+                map = null;
+                continue;
+            } else {
+                break;
+            }
         }
 
-        if (map == null) return false;
-        
-        if (!party) partyz = new MapleParty(-1, new MaplePartyCharacter(getPlayer()));
+        if (map == null) {
+            return false;
+        }
+
+        if (!party) {
+            partyz = new MapleParty(-1, new MaplePartyCharacter(getPlayer()));
+        }
         Pyramid py = new Pyramid(partyz, mod, map.getId());
         getPlayer().setPartyQuest(py);
         py.warp(mapid);

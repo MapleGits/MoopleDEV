@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.life;
 
 import java.awt.Point;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -37,17 +38,27 @@ import provider.MapleDataTool;
  * @author Danny (Leifde)
  */
 public class MobSkillFactory {
+
     private static Map<String, MobSkill> mobSkills = new HashMap<String, MobSkill>();
     private final static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Skill.wz"));
     private static MapleData skillRoot = dataSource.getData("MobSkill.img");
+    private static ReentrantReadWriteLock dataLock = new ReentrantReadWriteLock();
 
-    public static MobSkill getMobSkill(int skillId, int level) {
-        MobSkill ret = mobSkills.get(skillId + "" + level);
-        if (ret != null) {
-            return ret;
+    public static MobSkill getMobSkill(final int skillId, final int level) {
+        final String key = skillId + "" + level;
+        dataLock.readLock().lock();
+        try {
+            MobSkill ret = mobSkills.get(key);
+            if (ret != null) {
+                return ret;
+            }
+        } finally {
+            dataLock.readLock().unlock();
         }
-        synchronized (mobSkills) {
-            ret = mobSkills.get(skillId + "" + level);
+        dataLock.writeLock().lock();
+        try {
+            MobSkill ret;
+            ret = mobSkills.get(key);
             if (ret == null) {
                 MapleData skillData = skillRoot.getChildByPath(skillId + "/level/" + level);
                 if (skillData != null) {
@@ -91,6 +102,8 @@ public class MobSkillFactory {
                 mobSkills.put(skillId + "" + level, ret);
             }
             return ret;
+        } finally {
+            dataLock.writeLock().unlock();
         }
     }
 }

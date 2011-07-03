@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.life;
 
 import java.io.File;
@@ -36,6 +36,7 @@ import tools.Pair;
 import tools.StringUtil;
 
 public class MapleLifeFactory {
+
     private static MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Mob.wz"));
     private final static MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz"));
     private static MapleData mobStringData = stringDataWZ.getData("Mob.img");
@@ -76,17 +77,21 @@ public class MapleLifeFactory {
             stats.setCP(MapleDataTool.getIntConvert("getCP", monsterInfoData, 0));
             stats.setRemoveOnMiss(MapleDataTool.getIntConvert("removeOnMiss", monsterInfoData, 0) > 0);
 
-            MapleData coolDamage = monsterInfoData.getChildByPath("coolDamage");
-            if (coolDamage != null) {
+            MapleData special = monsterInfoData.getChildByPath("coolDamage");
+            if (special != null) {
                 int coolDmg = MapleDataTool.getIntConvert("coolDamage", monsterInfoData);
                 int coolProb = MapleDataTool.getIntConvert("coolDamageProb", monsterInfoData, 0);
                 stats.setCool(new Pair<Integer, Integer>(coolDmg, coolProb));
             }
-            MapleData loseItemData = monsterInfoData.getChildByPath("loseItem");
-            if (loseItemData != null) {
-                for (MapleData liData : loseItemData.getChildren()) {
-                    stats.setLoseItem(new loseItem(MapleDataTool.getInt(liData.getChildByPath("id")), (byte) MapleDataTool.getInt(liData.getChildByPath("prop")), (byte) MapleDataTool.getInt(liData.getChildByPath("x"))));
+            special = monsterInfoData.getChildByPath("loseItem");
+            if (special != null) {
+                for (MapleData liData : special.getChildren()) {
+                    stats.addLoseItem(new loseItem(MapleDataTool.getInt(liData.getChildByPath("id")), (byte) MapleDataTool.getInt(liData.getChildByPath("prop")), (byte) MapleDataTool.getInt(liData.getChildByPath("x"))));
                 }
+            }
+            special = monsterInfoData.getChildByPath("selfDestruction");
+            if (special != null) {
+                stats.setSelfDestruction(new selfDestruction((byte) MapleDataTool.getInt(special.getChildByPath("action")), MapleDataTool.getInt(special.getChildByPath("removeAfter"))));
             }
             MapleData firstAttackData = monsterInfoData.getChildByPath("firstAttack");
             int firstAttack = 0;
@@ -99,17 +104,10 @@ public class MapleLifeFactory {
             }
             stats.setFirstAttack(firstAttack > 0);
             stats.setDropPeriod(MapleDataTool.getIntConvert("dropItemPeriod", monsterInfoData, 0) * 10000);
-            if (stats.isBoss() || mid == 8810018) {
-                MapleData hpTagColor = monsterInfoData.getChildByPath("hpTagColor");
-                MapleData hpTagBgColor = monsterInfoData.getChildByPath("hpTagBgcolor");
-                if (hpTagBgColor == null || hpTagColor == null) {
-                    stats.setTagColor(0);
-                    stats.setTagBgColor(0);
-                } else {
-                    stats.setTagColor(MapleDataTool.getIntConvert("hpTagColor", monsterInfoData));
-                    stats.setTagBgColor(MapleDataTool.getIntConvert("hpTagBgcolor", monsterInfoData));
-                }
-            }
+            
+            stats.setTagColor(MapleDataTool.getIntConvert("hpTagColor", monsterInfoData, 0));
+            stats.setTagBgColor(MapleDataTool.getIntConvert("hpTagBgcolor", monsterInfoData, 0));
+
             for (MapleData idata : monsterData) {
                 if (!idata.getName().equals("info")) {
                     int delay = 0;
@@ -159,6 +157,7 @@ public class MapleLifeFactory {
     }
 
     public static class BanishInfo {
+
         private int map;
         private String portal, msg;
 
@@ -182,8 +181,10 @@ public class MapleLifeFactory {
     }
 
     public static class loseItem {
+
         private int id;
         private byte chance, x;
+
         private loseItem(int id, byte chance, byte x) {
             this.id = id;
             this.chance = chance;
@@ -200,6 +201,25 @@ public class MapleLifeFactory {
 
         public byte getX() {
             return x;
+        }
+    }
+
+    public static class selfDestruction {
+
+        private byte action;
+        private int removeAfter;
+
+        private selfDestruction(byte action, int removeAfter) {
+            this.action = action;
+            this.removeAfter = removeAfter;
+        }
+
+        public byte getAction() {
+            return action;
+        }
+
+        public int removeAfter() {
+            return removeAfter;
         }
     }
 }

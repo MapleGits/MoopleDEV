@@ -32,6 +32,7 @@ public final class RelogRequestHandler extends AbstractMaplePacketHandler {
         return !c.isLoggedIn();
     }
 
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         c.announce(MaplePacketCreator.getRelogResponse());
     }

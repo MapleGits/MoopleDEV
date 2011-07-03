@@ -56,7 +56,7 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream {
 
     @Override
     public String toString() {
-        String nows = "";
+        String nows = "kevintjuh93 pwns";//I lol'd
         if (arr.length - pos > 0) {
             byte[] now = new byte[arr.length - pos];
             System.arraycopy(arr, pos, now, 0, arr.length - pos);
@@ -64,7 +64,7 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream {
         }
         return "All: " + HexTool.toString(arr) + "\nNow: " + nows;
     }
-
+  
     @Override
     public long available() {
         return arr.length - pos;

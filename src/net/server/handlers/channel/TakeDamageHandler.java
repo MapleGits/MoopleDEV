@@ -1,27 +1,28 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.server.handlers.channel;
 
 import client.ISkill;
+import client.Item;
 import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleClient;
@@ -29,47 +30,75 @@ import client.MapleInventoryType;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import constants.skills.Corsair;
+import java.awt.Point;
+import java.util.List;
 import net.AbstractMaplePacketHandler;
+import server.MapleInventoryManipulator;
+import server.MapleItemInformationProvider;
+import server.life.MapleLifeFactory.loseItem;
 import server.life.MapleMonster;
 import server.life.MobAttackInfo;
 import server.life.MobAttackInfoFactory;
 import server.life.MobSkill;
 import server.life.MobSkillFactory;
+import server.maps.MapleMap;
 import tools.MaplePacketCreator;
+import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class TakeDamageHandler extends AbstractMaplePacketHandler {
+
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         slea.readInt();
-        int damagefrom = slea.readByte();
+        byte damagefrom = slea.readByte();
         slea.readByte(); //Element
         int damage = slea.readInt();
-        int oid = 0;
-        int monsteridfrom = 0;
-        int pgmr = 0;
-        int direction = 0;
-        int pos_x = 0;
-        int pos_y = 0;
-        int fake = 0;
-        boolean is_pgmr = false;
-        boolean is_pg = true;
+        int oid = 0, monsteridfrom = 0, pgmr = 0, direction = 0;
+        int pos_x = 0, pos_y = 0, fake = 0;
+        boolean is_pgmr = false, is_pg = true;
         int mpattack = 0;
         MapleMonster attacker = null;
+        final MapleMap map = player.getMap();
         if (damagefrom != -3) {
             monsteridfrom = slea.readInt();
             oid = slea.readInt();
-            attacker = (MapleMonster) player.getMap().getMapObject(oid);
-            if (attacker.isBuffed(MonsterStatus.NEUTRALISE)) {
-                return;
-            }
-            if ((player.getMap().getMonsterById(monsteridfrom) == null || attacker == null) && monsteridfrom != 9300166) {
-                return;
-            } else if (monsteridfrom == 9300166) {
-                if (player.haveItem(4031868)) {
-                    c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), player.getInventory(MapleInventoryType.ETC).findById(4031868), c.getPlayer().getPosition(), true, true);
+            attacker = (MapleMonster) map.getMapObject(oid);
+            List<loseItem> loseItems = null;
+            if (attacker != null) {
+                if (attacker.isBuffed(MonsterStatus.NEUTRALISE)) {
+                    return;
                 }
+                if (damage > 0) {
+                    loseItems = map.getMonsterById(monsteridfrom).getStats().loseItem();
+                    if (loseItems != null) {
+                        MapleInventoryType type;
+                        final int playerpos = player.getPosition().x;
+                        byte d = 1;
+                        Point pos = new Point(0, player.getPosition().y);
+                        for (loseItem loseItem : loseItems) {
+                            type = MapleItemInformationProvider.getInstance().getInventoryType(loseItem.getId());
+                            for (byte b = 0; b < loseItem.getX(); b++) {//LOL?
+                                if (Randomizer.nextInt(101) >= loseItem.getChance()) {
+                                    if (player.haveItem(loseItem.getId())) {
+                                        pos.x = (int) (playerpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
+                                        MapleInventoryManipulator.removeById(c, type, loseItem.getId(), 1, false, false);
+                                        map.spawnItemDrop(c.getPlayer(), c.getPlayer(), new Item(loseItem.getId(), (byte) 0, (short) 1), map.calcDropPos(pos, player.getPosition()), true, true);
+                                        d++;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        map.removeMapObject(attacker);
+                    }
+                }
+            } else {
+                return;
             }
+
             direction = slea.readByte();
         }
         if (damagefrom != -1 && damagefrom != -2 && attacker != null) {
@@ -94,10 +123,10 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                             if (bouncedamage > attacker.getMaxHp() / 5) {
                                 bouncedamage = attacker.getMaxHp() / 5;
                             }
-                            player.getMap().damageMonster(player, attacker, bouncedamage);
-                            player.getMap().broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), true);
+                            map.damageMonster(player, attacker, bouncedamage);
+                            map.broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), true);
                             player.getClient().announce(MaplePacketCreator.showOwnBuffEffect(id, 5));
-                            player.getMap().broadcastMessage(player, MaplePacketCreator.showBuffeffect(player.getId(), id, 5), false);
+                            map.broadcastMessage(player, MaplePacketCreator.showBuffeffect(player.getId(), id, 5), false);
                         }
                     }
                 }
@@ -116,9 +145,9 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                 if (damagefrom == -1 && player.getBuffedValue(MapleBuffStat.POWERGUARD) != null) {
                     int bouncedamage = (int) (damage * (player.getBuffedValue(MapleBuffStat.POWERGUARD).doubleValue() / 100));
                     bouncedamage = Math.min(bouncedamage, attacker.getMaxHp() / 10);
-                    player.getMap().damageMonster(player, attacker, bouncedamage);
+                    map.damageMonster(player, attacker, bouncedamage);
                     damage -= bouncedamage;
-                    player.getMap().broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), false, true);
+                    map.broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), false, true);
                     player.checkMonsterAggro(attacker);
                 }
             }
@@ -157,16 +186,16 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                 if (player.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
                     if (player.getBuffedValue(MapleBuffStat.MONSTER_RIDING).intValue() == Corsair.BATTLE_SHIP) {
                         player.decreaseBattleshipHp(damage);
-                    }    
+                    }
                 }
                 player.addMPHP(-damage, -mpattack);
             }
         }
         if (!player.isHidden()) {
-            player.getMap().broadcastMessage(player, MaplePacketCreator.damagePlayer(damagefrom, monsteridfrom, player.getId(), damage, fake, direction, is_pgmr, pgmr, is_pg, oid, pos_x, pos_y), false);
+            map.broadcastMessage(player, MaplePacketCreator.damagePlayer(damagefrom, monsteridfrom, player.getId(), damage, fake, direction, is_pgmr, pgmr, is_pg, oid, pos_x, pos_y), false);
             player.checkBerserk();
         }
-        if (player.getMap().getId() >= 925020000 && player.getMap().getId() < 925030000) {
+        if (map.getId() >= 925020000 && map.getId() < 925030000) {
             player.setDojoEnergy(player.isGM() ? 300 : player.getDojoEnergy() < 300 ? player.getDojoEnergy() + 1 : 0); //Fking gm's
             player.getClient().announce(MaplePacketCreator.getEnergy("energy", player.getDojoEnergy()));
         }

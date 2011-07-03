@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.maps;
 
 import java.sql.PreparedStatement;
@@ -50,6 +50,7 @@ import tools.Pair;
  * @author XoticStory
  */
 public class HiredMerchant extends AbstractMapleMapObject {
+
     private int ownerId, itemId, mesos = 0;
     private byte channel, world;
     private long start;
@@ -74,6 +75,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         this.description = desc;
         this.map = owner.getMap();
         this.schedule = TimerManager.getInstance().schedule(new Runnable() {
+
             @Override
             public void run() {
                 HiredMerchant.this.closeShop(owner.getClient(), true);
@@ -120,7 +122,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null) {
                 visitors[i].setHiredMerchant(null);
-                visitors[i].getClient().getSession().write(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));                
+                visitors[i].getClient().getSession().write(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
                 if (message.length() > 0) {
                     visitors[i].dropMessage(1, message);
                 }
@@ -140,7 +142,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
             if (newItem.getType() == IItem.ITEM && (newItem.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES) {
                 newItem.setFlag((byte) (newItem.getFlag() ^ ItemConstants.SPIKES));
             }
-            if (quantity < 1 || pItem.getBundles() < 1 || !pItem.isExist()) {
+            if (quantity < 1 || pItem.getBundles() < 1 || !pItem.isExist() || pItem.getBundles() < quantity) {
                 c.announce(MaplePacketCreator.enableActions());
                 return;
             } else if (newItem.getType() == 1 && newItem.getQuantity() > 1) {
@@ -160,9 +162,9 @@ public class HiredMerchant extends AbstractMapleMapObject {
                         pItem.setDoesExist(false);
                     }
                     MapleCharacter owner = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterByName(ownerName);
-                    if (owner != null)
+                    if (owner != null) {
                         owner.addMerchantMesos(price);
-                    else {
+                    } else {
                         try {
                             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = MerchantMesos + " + price + " WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
                             ps.setInt(1, ownerId);
@@ -177,11 +179,28 @@ public class HiredMerchant extends AbstractMapleMapObject {
             } else {
                 c.getPlayer().dropMessage(1, "You do not have enough mesos.");
             }
+            try {
+                this.saveItems(false);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public void forceClose() {
+        if (schedule != null) {
+            schedule.cancel(false);
+        }
         try {
-            this.saveItems(false);
-        } catch (Exception e) {
+            saveItems(true);
+        } catch (SQLException ex) {
         }
-        }
+        Server.getInstance().getChannel(world, channel).removeHiredMerchant(ownerId);
+        map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(getOwnerId()));
+
+        map.removeMapObject(this);
+
+        map = null;
+        schedule = null;
     }
 
     public void closeShop(MapleClient c, boolean timeout) {
@@ -203,11 +222,11 @@ public class HiredMerchant extends AbstractMapleMapObject {
                 }
                 items.clear();
             }
-                try {
-                    this.saveItems(false);
-                } catch (Exception e) {
-                }
-        items.clear();
+            try {
+                this.saveItems(false);
+            } catch (Exception e) {
+            }
+            items.clear();
 
         } catch (Exception e) {
         }
@@ -284,48 +303,62 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
         for (MaplePlayerShopItem pItems : items) {
             IItem newItem = pItems.getItem();
-            if (shutdown)
+            if (shutdown) {
                 newItem.setQuantity((short) (pItems.getItem().getQuantity() * pItems.getBundles()));
-            else
+            } else {
                 newItem.setQuantity(pItems.getItem().getQuantity());
-            if (pItems.getBundles() > 0)
+            }
+            if (pItems.getBundles() > 0) {
                 itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));
+            }
         }
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
     }
 
     private static boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
-	byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
+        byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
         List<MapleInventoryType> li = new LinkedList<MapleInventoryType>();
-	for (MaplePlayerShopItem item : items) {
-	    final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getItem().getItemId());
-	    if (!li.contains(invtype)) li.add(invtype);
+        for (MaplePlayerShopItem item : items) {
+            final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getItem().getItemId());
+            if (!li.contains(invtype)) {
+                li.add(invtype);
+            }
             if (invtype == MapleInventoryType.EQUIP) {
-		eq++;
-	    } else if (invtype == MapleInventoryType.USE) {
-		use++;
-	    } else if (invtype == MapleInventoryType.SETUP) {
-		setup++;
-	    } else if (invtype == MapleInventoryType.ETC) {
-		etc++;
-	    } else if (invtype == MapleInventoryType.CASH) {
-		cash++;
-	    }
-	}
-        for (MapleInventoryType mit : li) {
-            if (mit == MapleInventoryType.EQUIP) {
-                if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq) return false;
-            } else if (mit == MapleInventoryType.USE) {
-		if (chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use) return false;
-            } else if (mit == MapleInventoryType.SETUP) {
-		if( chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup) return false;
-            } else if (mit == MapleInventoryType.ETC) {
-		if (chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc) return false;
-            } else if (mit == MapleInventoryType.CASH) {
-		if (chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) return false;
+                eq++;
+            } else if (invtype == MapleInventoryType.USE) {
+                use++;
+            } else if (invtype == MapleInventoryType.SETUP) {
+                setup++;
+            } else if (invtype == MapleInventoryType.ETC) {
+                etc++;
+            } else if (invtype == MapleInventoryType.CASH) {
+                cash++;
             }
         }
-	return true;
+        for (MapleInventoryType mit : li) {
+            if (mit == MapleInventoryType.EQUIP) {
+                if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq) {
+                    return false;
+                }
+            } else if (mit == MapleInventoryType.USE) {
+                if (chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use) {
+                    return false;
+                }
+            } else if (mit == MapleInventoryType.SETUP) {
+                if (chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup) {
+                    return false;
+                }
+            } else if (mit == MapleInventoryType.ETC) {
+                if (chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc) {
+                    return false;
+                }
+            } else if (mit == MapleInventoryType.CASH) {
+                if (chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public byte getChannel() {
@@ -333,7 +366,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public int getTimeLeft() {
-	return (int) ((System.currentTimeMillis() - start) / 1000);
+        return (int) ((System.currentTimeMillis() - start) / 1000);
     }
 
     public List<Pair<String, Byte>> getMessages() {
@@ -351,7 +384,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public int getMesos() {
         return mesos;
     }
-    
+
     @Override
     public void sendDestroyData(MapleClient client) {
         return;
@@ -368,6 +401,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public class SoldItem {
+
         int itemid, mesos;
         short quantity;
         String buyer;

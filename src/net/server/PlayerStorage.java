@@ -23,6 +23,7 @@ package net.server;
 
 import java.util.Collection;
 import client.MapleCharacter;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -86,12 +87,11 @@ public class PlayerStorage {
     public final void disconnectAll() {
 	wlock.lock();
 	try {	    
-	    for (MapleCharacter chr : storage.values()) {
-		if (!chr.isGM()) {
-		    chr.getClient().disconnect();
-		    storage.remove(chr);
-		}
-	    }
+            final Iterator<MapleCharacter> chrit = storage.values().iterator();
+	    while (chrit.hasNext()) {
+                chrit.next().getClient().disconnect();
+                chrit.remove();
+            }
 	} finally {
 	    wlock.unlock();
 	}

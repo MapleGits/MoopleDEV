@@ -1,29 +1,30 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.server;
 
 import client.MapleCharacter;
 import client.SkillFactory;
 import constants.ServerConstants;
+import gm.GMPacketCreator;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -45,6 +46,7 @@ import net.mina.MapleCodecFactory;
 import net.server.guild.MapleAlliance;
 import net.server.guild.MapleGuild;
 import net.server.guild.MapleGuildCharacter;
+import gm.server.GMServer;
 import server.TimerManager;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -55,15 +57,18 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import server.CashShop.CashItemFactory;
 import server.MapleItemInformationProvider;
+import tools.MaplePacketCreator;
+import tools.Pair;
 
 public class Server implements Runnable {
+
     private IoAcceptor acceptor;
     private List<Map<Byte, String>> channels = new LinkedList<Map<Byte, String>>();
     private List<World> worlds = new ArrayList<World>();
     private Properties subnetInfo = new Properties();
     private static Server instance = null;
-    private PlayerStorage players = new PlayerStorage();
     private ArrayList<Map<Byte, AtomicInteger>> load = new ArrayList<Map<Byte, AtomicInteger>>();
+    private List<Pair<Byte, String>> worldRecommendedList = new LinkedList<Pair<Byte, String>>();
     private Map<Integer, MapleGuild> guilds = new LinkedHashMap<Integer, MapleGuild>();
     private PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private Map<Integer, MapleAlliance> alliances = new LinkedHashMap<Integer, MapleAlliance>();
@@ -80,12 +85,19 @@ public class Server implements Runnable {
         return online;
     }
 
+    public List<Pair<Byte, String>> worldRecommendedList() {
+        return worldRecommendedList;
+    }
+
     public void removeChannel(byte worldid, byte channel) {
         channels.remove(channel);
-        if (load.contains(worldid)) load.get(worldid).remove(channel);
+        if (load.contains(worldid)) {
+            load.get(worldid).remove(channel);
+        }
         World world = worlds.get(worldid);
-        if (world != null)
+        if (world != null) {
             world.removeChannel(channel);
+        }
     }
 
     public Channel getChannel(byte world, byte channel) {
@@ -98,9 +110,11 @@ public class Server implements Runnable {
 
     public List<Channel> getAllChannels() {
         List<Channel> channelz = new ArrayList<Channel>();
-        for (World world : worlds)
-            for (Channel ch : world.getChannels())
+        for (World world : worlds) {
+            for (Channel ch : world.getChannels()) {
                 channelz.add(ch);
+            }
+        }
 
         return channelz;
     }
@@ -118,6 +132,7 @@ public class Server implements Runnable {
             System.out.println("Please start create_server.bat");
             System.exit(0);
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(shutdown(false)));
         DatabaseConnection.getConnection();
         IoBuffer.setUseDirectBuffer(false);
         IoBuffer.setAllocator(new SimpleBufferAllocator());
@@ -138,7 +153,8 @@ public class Server implements Runnable {
                         Byte.parseByte(p.getProperty("droprate" + i)),
                         Byte.parseByte(p.getProperty("mesorate" + i)),
                         Byte.parseByte(p.getProperty("bossdroprate" + i)));//ohlol
-
+                
+                worldRecommendedList.add(new Pair<Byte, String>(i, p.getProperty("whyamirecommended" + i)));
                 worlds.add(world);
                 channels.add(new LinkedHashMap<Byte, String>());
                 load.add(new LinkedHashMap<Byte, AtomicInteger>());
@@ -149,8 +165,9 @@ public class Server implements Runnable {
                     channels.get(i).put(channelid, channel.getIP());
                     load.get(i).put(channelid, new AtomicInteger());
                 }
+                world.setServerMessage(p.getProperty("servermessage" + i));
                 System.out.println("Finished loading world " + i + "\r\n");
-            }            
+            }
         } catch (Exception e) {
             System.out.println("Error in moople.ini, start CreateINI.bat to re-make the file.");
             e.printStackTrace();//For those who get errors
@@ -164,25 +181,31 @@ public class Server implements Runnable {
         } catch (IOException ex) {
         }
         System.out.println("Listening on port 8484\r\n");
-        System.out.print("Loading server");  
+        System.out.print("Loading server");
         ScheduledFuture<?> loldot = null;//rofl
         loldot = tMan.register(new Runnable() {
+
+            @Override
             public void run() {
-                System.out.print(".");  
-            }            
+                System.out.print(".");
+            }
         }, 500, 500);
-        SkillFactory.getSkill(99999999);
+        SkillFactory.loadAllSkills();
         CashItemFactory.getSpecialCashItems();//just load who cares o.o
         MapleItemInformationProvider.getInstance().getAllItems();
+        if (Boolean.parseBoolean(p.getProperty("gmserver"))) {
+            GMServer.getInstance();
+        }
         loldot.cancel(true);
-        System.out.println("\r\nServer is now online.");   
+        System.out.println("\r\nServer is now online.");
         online = true;
     }
 
     public void shutdown() {
         TimerManager.getInstance().stop();
+        acceptor.unbind();
         System.out.println("Server offline.");
-        System.exit(0);
+        System.exit(0);// BOEIEND :D
     }
 
     public static void main(String args[]) {
@@ -330,8 +353,8 @@ public class Server implements Runnable {
             guilds.clear();
         }
         //for (List<Channel> world : worlds.values()) {
-                //reloadGuildCharacters();
-        
+        //reloadGuildCharacters();
+
     }
 
     public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, byte channel) {
@@ -451,10 +474,10 @@ public class Server implements Runnable {
     public void reloadGuildCharacters(byte world) {
         World worlda = getWorld(world);
         for (MapleCharacter mc : worlda.getPlayerStorage().getAllCharacters()) {
-             if (mc.getGuildId() > 0) {
-                 setGuildMemberOnline(mc.getMGC(), true, worlda.getId());
-                 memberLevelJobUpdate(mc.getMGC());
-             }
+            if (mc.getGuildId() > 0) {
+                setGuildMemberOnline(mc.getMGC(), true, worlda.getId());
+                memberLevelJobUpdate(mc.getMGC());
+            }
         }
         worlda.reloadGuildSummary();
     }
@@ -473,7 +496,76 @@ public class Server implements Runnable {
         return worlds;
     }
 
-    public PlayerStorage getPlayerStorage() {
-        return players;
+    public void gmChat(String message, String exclude) {
+        GMServer server = GMServer.getInstance();
+        server.broadcastInGame(MaplePacketCreator.serverNotice(6, message));
+        server.broadcastOutGame(GMPacketCreator.chat(message), exclude);
+    }
+
+    public final Runnable shutdown(final boolean restart) {//only once :D
+        return new Runnable() {
+
+            @Override
+            public void run() {
+                System.out.println((restart ? "Restarting" : "Shutting down") + " the server!\r\n");
+                for (World w : getWorlds()) {
+                    w.shutdown();
+                }
+                for (World w : getWorlds()) {
+                    while (w.getPlayerStorage().getAllCharacters().size() > 0) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                            System.err.println("FUCK MY LIFE");
+                        }
+                    }
+                }
+                for (Channel ch : getAllChannels()) {
+                    while (ch.getConnectedClients() > 0) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                            System.err.println("FUCK MY LIFE");
+                        }
+                    }
+                }
+
+                TimerManager.getInstance().purge();
+                TimerManager.getInstance().stop();
+
+                for (Channel ch : getAllChannels()) {
+                    while (!ch.finishedShutdown()) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                            System.err.println("FUCK MY LIFE");
+                        }
+                    }
+                }
+                worlds.clear();
+                worlds = null;
+                channels.clear();
+                channels = null;
+                worldRecommendedList.clear();
+                worldRecommendedList = null;
+                load.clear();
+                load = null;
+                System.out.println("Worlds + Channels are offline.");
+                acceptor.unbind();
+                acceptor = null;
+                if (!restart) {
+                    System.exit(0);
+                } else {
+                    System.out.println("\r\nRestarting the server....\r\n");
+                    try {
+                        instance.finalize();//FUU I CAN AND IT'S FREE
+                    } catch (Throwable ex) {
+                    }
+                    instance = null;
+                    System.gc();
+                    getInstance().run();//DID I DO EVERYTHING?! D:
+                }
+            }
+        };
     }
 }

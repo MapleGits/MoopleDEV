@@ -91,11 +91,15 @@ public class SkillFactory {
 	if (!skills.isEmpty()) {
 	    return skills.get(Integer.valueOf(id));
 	}
+        return null;
+    }
+
+    public static void loadAllSkills() {
         //System.out.println("Loading Skills:::");
 	final MapleDataDirectoryEntry root = datasource.getRoot();
 
         int skillid;
-
+        
 	for (MapleDataFileEntry topDir : root.getFiles()) { // Loop thru jobs
 	    if (topDir.getName().length() <= 8) {
 		for (MapleData data : datasource.getData(topDir.getName())) { // Loop thru each jobs
@@ -104,16 +108,13 @@ public class SkillFactory {
 			    if (data2 != null) {
 				skillid = Integer.parseInt(data2.getName());
 				skills.put(skillid, loadFromData(skillid, data2));
-
 			    }
 			}
 		    }
 		}
 	    }
-	}
-        return null;
+	}        
     }
-
     public static Skill loadFromData(int id, MapleData data) {
         Skill ret = new Skill(id);
         boolean isBuff = false;

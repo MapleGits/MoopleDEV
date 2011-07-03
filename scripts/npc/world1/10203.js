@@ -36,7 +36,8 @@ function action(mode, type, selection) {
     if (status == 0) {
         cm.sendYesNo("Would you like to experience what it's like to be a Thief?");
     } else if (status == 1){
-        cm.warp(1020400);
+	cm.lockUI();
+        cm.warp(1020400, 0);
         cm.dispose();
     }
 }

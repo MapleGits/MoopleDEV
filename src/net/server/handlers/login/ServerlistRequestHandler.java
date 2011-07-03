@@ -32,15 +32,16 @@ import tools.data.input.SeekableLittleEndianAccessor;
 public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
     private static final String[] names = ServerConstants.WORLD_NAMES;
 
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {//FUUUUUUUUUUUUUUU
+    @Override
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         Server server = Server.getInstance();
         World world;
         for (byte i = 0; i < Math.min(server.getLoad().size(), names.length); i++) {
             world = server.getWorld(i);
-            c.announce(MaplePacketCreator.getServerList(i, names[i], world.getFlag(), world.getEventMessage(),server.getLoad(i)));
+            c.announce(MaplePacketCreator.getServerList(i, names[i], world.getFlag(), world.getEventMessage(), server.getLoad(i)));
         }
         c.announce(MaplePacketCreator.getEndOfServerList());
-        c.announce(MaplePacketCreator.enableRecommended(true));
-        c.announce(MaplePacketCreator.sendRecommended((byte) 1, ServerConstants.RECOMMEND_MESSAGE));
+        c.announce(MaplePacketCreator.selectWorld(0));//too lazy to make a check lol
+        c.announce(MaplePacketCreator.sendRecommended(server.worldRecommendedList()));
     }
 }

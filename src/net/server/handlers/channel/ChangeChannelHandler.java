@@ -40,6 +40,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
  * @author Matze
  */
 public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte channel = (byte) (slea.readByte() + 1);
         MapleCharacter chr = c.getPlayer();
@@ -69,7 +70,6 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         chr.cancelBuffEffects();
         chr.cancelMagicDoor();
         chr.saveCooldowns();
-        chr.cancelExpirationTask();
         //Canceling mounts? Noty
         if (chr.getBuffedValue(MapleBuffStat.PUPPET) != null) {
             chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
@@ -80,10 +80,8 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         chr.getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
         chr.getMap().removePlayer(chr);
         chr.getClient().getChannelServer().removePlayer(chr);
-        c.getWorldServer().getPlayerStorage().removePlayer(chr.getId());
         chr.saveToDB(true);
         server.getLoad(c.getWorld()).get(c.getChannel()).decrementAndGet();
-        server.getPlayerStorage().addPlayer(chr);
         chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));

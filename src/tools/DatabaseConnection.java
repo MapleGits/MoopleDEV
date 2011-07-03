@@ -26,7 +26,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DatabaseConnection {
+public class DatabaseConnection {//gay
     private static ThreadLocal<Connection> con = new ThreadLocalConnection();
     private static String url = ServerConstants.DB_URL;
     private static String user = ServerConstants.DB_USER;
@@ -56,7 +56,7 @@ public class DatabaseConnection {
         }
 
         private Connection getConnection() {
-            //Fk u nigger
+            //Fk u *n word*
             try {
                 return DriverManager.getConnection(url, user, pass);
             } catch (SQLException sql) {

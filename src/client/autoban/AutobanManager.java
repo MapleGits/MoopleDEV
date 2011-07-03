@@ -91,7 +91,7 @@ public class AutobanManager {
     public void setTimestamp(int type, int time) {
         if (this.timestamp[type] == time) {  
             this.timestampcounter[type]++;
-            if (this.timestampcounter[type] >= 3) {
+            if (this.timestampcounter[type] > 3) {
                 chr.getClient().disconnect();
                 //System.out.println("Same timestamp for type: " + type + "; Character: " + chr);
             }

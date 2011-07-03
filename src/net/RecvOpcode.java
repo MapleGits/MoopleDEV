@@ -22,11 +22,14 @@
 package net;
 
 public enum RecvOpcode {
+    CUSTOM_PACKET(0x3713),//13 37 lol
+    
     LOGIN_PASSWORD(0x01),
     GUEST_LOGIN(0x02),
     SERVERLIST_REREQUEST(0x04),
     CHARLIST_REQUEST(0x05),
     SERVERSTATUS_REQUEST(0x06),
+    ACCEPT_TOS(0x07),
     SET_GENDER(0x08),
     AFTER_LOGIN(0x09),
     REGISTER_PIN(0x0A),
@@ -40,7 +43,7 @@ public enum RecvOpcode {
     CREATE_CHAR(0x16),
     DELETE_CHAR(0x17),
     PONG(0x18),
-    CLIENT_START(0x19),
+    CLIENT_START_ERROR(0x19),
     CLIENT_ERROR(0x1A),
     STRANGE_DATA(0x1B),
     RELOG(0x1C),

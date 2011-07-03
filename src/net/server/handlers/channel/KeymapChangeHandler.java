@@ -21,12 +21,15 @@
 */
 package net.server.handlers.channel;
 
+import client.ISkill;
 import client.MapleClient;
 import client.MapleKeyBinding;
+import client.SkillFactory;
 import net.AbstractMaplePacketHandler;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class KeymapChangeHandler extends AbstractMaplePacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (slea.available() != 8) {
             slea.readInt();
@@ -35,6 +38,10 @@ public final class KeymapChangeHandler extends AbstractMaplePacketHandler {
                 int key = slea.readInt();
                 int type = slea.readByte();
                 int action = slea.readInt();
+                ISkill skill = SkillFactory.getSkill(action);
+                if (skill != null && c.getPlayer().getSkillLevel(skill) < 1) {
+                    continue;
+                }
                 c.getPlayer().changeKeybinding(key, new MapleKeyBinding(type, action));
             }
         }

@@ -27,5 +27,6 @@ import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class PlayerUpdateHandler extends AbstractMaplePacketHandler {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        //Make it save every x minutes? No?
     }
 }

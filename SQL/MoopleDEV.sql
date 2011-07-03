@@ -1,18 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : gms
-Source Server Version : 50144
-Source Host           : localhost:3306
-Source Database       : moopledev
-
-Target Server Type    : MYSQL
-Target Server Version : 50144
-File Encoding         : 65001
-
-Date: 2011-05-23 23:35:24
-*/
-
 SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for `accounts`
@@ -40,6 +25,7 @@ CREATE TABLE `accounts` (
   `gender` tinyint(2) NOT NULL DEFAULT '10',
   `tempban` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `greason` tinyint(4) NOT NULL DEFAULT '0',
+  `tos` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ranking1` (`id`,`banned`,`gm`)

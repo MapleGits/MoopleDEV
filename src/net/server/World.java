@@ -1,25 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.server;
 
 import client.BuddyList;
@@ -48,17 +47,16 @@ import tools.MaplePacketCreator;
  * @author kevintjuh93
  */
 public class World {
+
     private byte id, flag, exprate, droprate, mesorate, bossdroprate;
     private String eventmsg;
     private List<Channel> channels = new ArrayList<Channel>();
-
     private Map<Integer, MapleParty> parties = new HashMap<Integer, MapleParty>();
     private AtomicInteger runningPartyId = new AtomicInteger();
     private Map<Integer, MapleMessenger> messengers = new HashMap<Integer, MapleMessenger>();
     private AtomicInteger runningMessengerId = new AtomicInteger();
     private Map<Integer, MapleFamily> families = new LinkedHashMap<Integer, MapleFamily>();
     private Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
-
     private PlayerStorage players = new PlayerStorage();
 
     public World(byte world, byte flag, String eventmsg, byte exprate, byte droprate, byte mesorate, byte bossdroprate) {
@@ -112,11 +110,19 @@ public class World {
     public byte getDropRate() {
         return droprate;
     }
-    
+
+    public void setDropRate(byte drop) {
+        this.droprate = drop;
+    }
+
     public byte getMesoRate() {
         return mesorate;
     }
-    
+
+    public void setMesoRate(byte meso) {
+        this.mesorate = meso;
+    }
+
     public byte getBossDropRate() {
         return bossdroprate;
     }
@@ -178,16 +184,16 @@ public class World {
     }
 
     public void reloadGuildSummary() {
-            MapleGuild g;
-            Server server = Server.getInstance();
-            for (int i : gsStore.keySet()) {
-                g = server.getGuild(i, null);
-                if (g != null) {
-                    gsStore.put(i, new MapleGuildSummary(g));
-                } else {
-                    gsStore.remove(i);
-                }
+        MapleGuild g;
+        Server server = Server.getInstance();
+        for (int i : gsStore.keySet()) {
+            g = server.getGuild(i, null);
+            if (g != null) {
+                gsStore.put(i, new MapleGuildSummary(g));
+            } else {
+                gsStore.remove(i);
             }
+        }
     }
 
     public void setGuildAndRank(List<Integer> cids, int guildid, int rank, int exception) {
@@ -211,7 +217,7 @@ public class World {
             se.printStackTrace();
         }
     }
-    
+
     public void setGuildAndRank(int cid, int guildid, int rank) {
         MapleCharacter mc = getPlayerStorage().getCharacterById(cid);
         if (mc == null) {
@@ -265,7 +271,7 @@ public class World {
     public MapleParty disbandParty(int partyid) {
         return parties.remove(partyid);
     }
-    
+
     public void updateParty(MapleParty party, PartyOperation operation, MaplePartyCharacter target) {
         for (MaplePartyCharacter partychar : party.getMembers()) {
             MapleCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
@@ -283,11 +289,11 @@ public class World {
         switch (operation) {
             case LEAVE:
             case EXPEL:
-                    MapleCharacter chr = getPlayerStorage().getCharacterByName(target.getName());
-                    if (chr != null) {
-                        chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannel(), party, operation, target));
-                        chr.setParty(null);
-                        chr.setMPC(null);
+                MapleCharacter chr = getPlayerStorage().getCharacterByName(target.getName());
+                if (chr != null) {
+                    chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannel(), party, operation, target));
+                    chr.setParty(null);
+                    chr.setMPC(null);
                 }
         }
     }
@@ -324,14 +330,18 @@ public class World {
     public byte find(String name) {
         byte channel = -1;
         MapleCharacter chr = getPlayerStorage().getCharacterByName(name);
-        if (chr != null) channel = chr.getClient().getChannel();
+        if (chr != null) {
+            channel = chr.getClient().getChannel();
+        }
         return channel;
     }
 
     public byte find(int id) {
         byte channel = -1;
         MapleCharacter chr = getPlayerStorage().getCharacterById(id);
-        if (chr != null) channel = chr.getClient().getChannel();
+        if (chr != null) {
+            channel = chr.getClient().getChannel();
+        }
         return channel;
     }
 
@@ -416,10 +426,10 @@ public class World {
 
     public void removeMessengerPlayer(MapleMessenger messenger, int position) {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
-             MapleCharacter chr = getPlayerStorage().getCharacterByName(messengerchar.getName());
-             if (chr != null) {
-                 chr.getClient().getSession().write(MaplePacketCreator.removeMessengerPlayer(position));
-             }
+            MapleCharacter chr = getPlayerStorage().getCharacterByName(messengerchar.getName());
+            if (chr != null) {
+                chr.getClient().getSession().write(MaplePacketCreator.removeMessengerPlayer(position));
+            }
         }
     }
 
@@ -469,7 +479,6 @@ public class World {
         messenger.silentRemoveMember(target);
     }
 
-
     public void joinMessenger(int messengerid, MapleMessengerCharacter target, String from, byte fromchannel) {
         MapleMessenger messenger = getMessenger(messengerid);
         if (messenger == null) {
@@ -493,7 +502,7 @@ public class World {
         messengers.put(messenger.getId(), messenger);
         return messenger;
     }
-    
+
     public boolean isConnected(String charName) {
         return getPlayerStorage().getCharacterByName(charName) != null;
     }
@@ -569,5 +578,24 @@ public class World {
                 }
             }
         }
+    }
+
+    public void setServerMessage(String msg) {
+        for (Channel ch : channels) {
+            ch.setServerMessage(msg);
+        }
+    }
+
+    public void broadcastPacket(MaplePacket data) {
+        for (MapleCharacter chr : players.getAllCharacters()) {
+            chr.announce(data);
+        }
+    }
+
+    public final void shutdown() {
+        for (Channel ch : getChannels()) {
+            ch.shutdown();
+        }
+        players.disconnectAll();
     }
 }

@@ -24,10 +24,12 @@ package server.life;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import server.life.MapleLifeFactory.BanishInfo;
 import server.life.MapleLifeFactory.loseItem;
+import server.life.MapleLifeFactory.selfDestruction;
 import tools.Pair;
 
 /**
@@ -43,8 +45,9 @@ public class MapleMonsterStats {
     private byte tagColor, tagBgColor;
     private List<Pair<Integer, Integer>> skills = new ArrayList<Pair<Integer, Integer>>();
     private Pair<Integer, Integer> cool = null;
-    private BanishInfo banish;
-    private loseItem loseItem;
+    private BanishInfo banish = null;
+    private List<loseItem> loseItem = null;
+    private selfDestruction selfDestruction = null;
 
     public int getExp() {
         return exp;
@@ -246,14 +249,25 @@ public class MapleMonsterStats {
         this.cp = cp;
     }
 
-    public loseItem loseItem() {
+    public List<loseItem> loseItem() {
         return loseItem;
     }
 
-    public void setLoseItem(loseItem li) {
-        this.loseItem = li;
+    public void addLoseItem(loseItem li) {
+        if (loseItem == null) {
+            loseItem = new LinkedList<loseItem>();
+        }
+        loseItem.add(li);
     }
 
+    public selfDestruction selfDestruction() {
+        return selfDestruction;
+    }
+
+    public void setSelfDestruction(selfDestruction sd) {
+        this.selfDestruction = sd;
+    }
+    
     public void setExplosiveReward(boolean isExplosiveReward) {
         this.isExplosiveReward = isExplosiveReward;
     }

@@ -24,7 +24,6 @@ package net;
 import tools.HexTool;
 
 public class ByteArrayMaplePacket implements MaplePacket {
-    private static final long serialVersionUID = 6541851098377688397L;
     private byte[] data;
     private Runnable onSend;
 

@@ -36,7 +36,8 @@ function action(mode, type, selection) {
     if (status == 0) {
         cm.sendYesNo("Would you like to experience what it's like to be a Warrior?");
     } else if (status == 1){
-        cm.warp(1020100);
-        cm.dispose();
+	cm.lockUI();
+        cm.warp(1020100, 0);
+	cm.dispose();
     }
 }

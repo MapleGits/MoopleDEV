@@ -21,7 +21,6 @@
 */
 package net.server.handlers.channel;
 
-import java.util.List;
 import client.ISkill;
 import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
@@ -31,7 +30,6 @@ import net.MaplePacket;
 import server.MapleStatEffect;
 import server.TimerManager;
 import tools.MaplePacketCreator;
-import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MagicDamageHandler extends AbstractDealDamageHandler {
@@ -58,8 +56,8 @@ public final class MagicDamageHandler extends AbstractDealDamageHandler {
         ISkill eaterSkill = SkillFactory.getSkill((player.getJob().getId() - (player.getJob().getId() % 10)) * 10000);// MP Eater, works with right job
         int eaterLevel = player.getSkillLevel(eaterSkill);
         if (eaterLevel > 0) {
-            for (Pair<Integer, List<Integer>> singleDamage : attack.allDamage) {
-                eaterSkill.getEffect(eaterLevel).applyPassive(player, player.getMap().getMapObject(singleDamage.getLeft()), 0);
+            for (Integer singleDamage : attack.allDamage.keySet()) {
+                eaterSkill.getEffect(eaterLevel).applyPassive(player, player.getMap().getMapObject(singleDamage), 0);
             }
         }
     }

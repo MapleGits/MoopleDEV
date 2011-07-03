@@ -37,6 +37,7 @@ import constants.skills.NightWalker;
 import constants.skills.Rogue;
 import constants.skills.WindArcher;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import server.MapleStatEffect;
 import server.TimerManager;
@@ -49,6 +50,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
         return skillId > 1111002 && skillId < 1111007 || skillId == 11111002 || skillId == 11111003;
     }
 
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         AttackInfo attack = parseDamage(slea, player, false);
@@ -95,7 +97,11 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
             }
         }
         if (attack.numAttacked > 0 && attack.skill == DragonKnight.SACRIFICE) {
-            int totDamageToOneMonster = attack.allDamage.get(0).getRight().get(0).intValue(); // sacrifice attacks only 1 mob with 1 attack
+            int totDamageToOneMonster = 0; // sacrifice attacks only 1 mob with 1 attack
+            final Iterator<List<Integer>> dmgIt = attack.allDamage.values().iterator();
+            if (dmgIt.hasNext()) {
+                totDamageToOneMonster = dmgIt.next().get(0).intValue();
+            }
             int remainingHP = player.getHp() - totDamageToOneMonster * attack.getAttackEffect(player, null).getX() / 100;
             if (remainingHP > 1) {
                 player.setHp(remainingHP);

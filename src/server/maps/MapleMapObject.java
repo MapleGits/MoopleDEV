@@ -32,4 +32,5 @@ public interface MapleMapObject {
     public void setPosition(Point position);
     public void sendSpawnData(MapleClient client);
     public void sendDestroyData(MapleClient client);
+    public void nullifyPosition();
 }

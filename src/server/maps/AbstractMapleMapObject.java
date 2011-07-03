@@ -27,6 +27,7 @@ public abstract class AbstractMapleMapObject implements MapleMapObject {
     private Point position = new Point();
     private int objectId;
 
+    @Override
     public abstract MapleMapObjectType getType();
 
     @Override
@@ -49,4 +50,9 @@ public abstract class AbstractMapleMapObject implements MapleMapObject {
     public void setObjectId(int id) {
         this.objectId = id;
     }
+    
+    @Override
+    public void nullifyPosition() {
+        this.position = null;
+    }    
 }

@@ -32,13 +32,19 @@ public class CreateINI {
             sb.append("#Properties for world ").append(b).append("\r\n");
 
             System.out.println("Properties for world " + b);
-            if (b > 2) System.out.println("Make sure you create a npc folder for this world!");
+            if (b > 1) System.out.println("Make sure you create a npc folder for this world!");
             sb.append("flag").append(b).append("=").append(
                     Byte.parseByte(con.readLine("   Flag: "))).append("\r\n");
-
+            
+            sb.append("servermessage").append(b).append("=").append(
+                    con.readLine("   Server message: ")).append("\r\n");
+            
             sb.append("eventmessage").append(b).append("=").append(
                     con.readLine("   Event message: ")).append("\r\n");
-
+            
+            sb.append("whyamirecommended").append(b).append("=").append(
+                    con.readLine("   Recommend message: ")).append("\r\n");
+            
             sb.append("channels").append(b).append("=").append(
                     Byte.parseByte(con.readLine("   Number of channels: "))).append("\r\n");
 

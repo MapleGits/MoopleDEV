@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.server;
 
 import java.io.File;
@@ -31,7 +31,11 @@ import java.util.Map;
 import client.MapleCharacter;
 import constants.ServerConstants;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import tools.DatabaseConnection;
 import net.MaplePacket;
 import net.MapleServerHandler;
@@ -51,44 +55,31 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import server.events.gm.MapleEvent;
+import server.expeditions.MapleExpedition;
+import server.expeditions.MapleExpeditionType;
 import server.maps.HiredMerchant;
 import server.maps.MapleMap;
 
-public class Channel {
+public final class Channel {
+
     private int port = 7575;
     private PlayerStorage players = new PlayerStorage();
     private byte world, channel;
     private IoAcceptor acceptor;
-    private String ip;
-    private boolean shutdown = false;
-    private boolean finishedShutdown = false;
+    private String ip, serverMessage;
     private MapleMapFactory mapFactory;
     private EventScriptManager eventSM;
     private Map<Integer, HiredMerchant> hiredMerchants = new HashMap<Integer, HiredMerchant>();
+    private ReentrantReadWriteLock merchant_lock = new ReentrantReadWriteLock(true);
+    private EnumMap<MapleExpeditionType, MapleExpedition> expeditions = new EnumMap<MapleExpeditionType, MapleExpedition>(MapleExpeditionType.class);
     private MapleEvent event;
+    private boolean finishedShutdown = false;
 
     public Channel(final byte world, final byte channel) {
         this.world = world;
         this.channel = channel;
         this.mapFactory = new MapleMapFactory(MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Map.wz")), MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz")), world, channel);
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                    for (MapleCharacter mc : getPlayerStorage().getAllCharacters()) {
-                        mc.saveToDB(true);
-                        if (mc.getHiredMerchant() != null) {
-                            if (mc.getHiredMerchant().isOpen()) {
-                                try {
-                                    mc.getHiredMerchant().saveItems(true);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                }
-            }
-        });        
         try {
             eventSM = new EventScriptManager(this, ServerConstants.EVENTS.split(" "));
             Connection c = DatabaseConnection.getConnection();
@@ -110,7 +101,7 @@ public class Channel {
             acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
             acceptor.bind(new InetSocketAddress(port));
             ((SocketSessionConfig) acceptor.getSessionConfig()).setTcpNoDelay(true);
-            
+
             eventSM.init();
             System.out.println("    Channel " + getId() + ": Listening on port " + port);
         } catch (Exception e) {
@@ -118,35 +109,36 @@ public class Channel {
         }
     }
 
-    public void shutdown() {
-        shutdown = true;
-        boolean error = true;
-        while (error) {
-            try {
-                for (HiredMerchant hm : getHiredMerchants().values()) {
-                    hm.saveItems(true);
-                }
-                for (MapleCharacter chr : players.getAllCharacters()) {
-                    synchronized (chr) {
-                        chr.getClient().disconnect();
-                    }
-                    error = false;
-                }
-            } catch (Exception e) {
-                error = true;
-            }
+    public final void shutdown() {
+        try {
+            System.out.println("Shutting down Channel " + channel + " on World " + world);
+            
+            closeAllMerchants();
+            players.disconnectAll();
+            acceptor.unbind();
+            
+            finishedShutdown = true;
+            System.out.println("Successfully shut down Channel " + channel + " on World " + world + "\r\n");          
+        } catch (Exception e) {
+            System.err.println("Error while shutting down Channel " + channel + " on World " + world + "\r\n" + e);
         }
-        finishedShutdown = true;
     }
 
-    public void unbind() {
-        acceptor.unbind();
+    public void closeAllMerchants() {
+        WriteLock wlock = merchant_lock.writeLock();
+        wlock.lock();
+        try {
+            final Iterator<HiredMerchant> hmit = hiredMerchants.values().iterator();
+            while (hmit.hasNext()) {
+                hmit.next().forceClose();
+                hmit.remove();
+            }
+        } catch (Exception e) {
+        } finally {
+            wlock.unlock();
+        }
     }
-
-    public boolean hasFinishedShutdown() {
-        return finishedShutdown;
-    }
-
+    
     public MapleMapFactory getMapFactory() {
         return mapFactory;
     }
@@ -157,7 +149,7 @@ public class Channel {
 
     public void addPlayer(MapleCharacter chr) {
         players.addPlayer(chr);
-        chr.announce(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
+        chr.announce(MaplePacketCreator.serverMessage(serverMessage));
     }
 
     public PlayerStorage getPlayerStorage() {
@@ -172,11 +164,6 @@ public class Channel {
         return players.getAllCharacters().size();
     }
 
-    public void setServerMessage(String newMessage) {
-        ServerConstants.SERVER_MESSAGE = newMessage;
-        broadcastPacket(MaplePacketCreator.serverMessage(ServerConstants.SERVER_MESSAGE));
-    }
-
     public void broadcastPacket(MaplePacket data) {
         for (MapleCharacter chr : players.getAllCharacters()) {
             chr.announce(data);
@@ -189,14 +176,6 @@ public class Channel {
 
     public String getIP() {
         return ip;
-    }
-
-    public boolean isShutdown() {
-        return shutdown;
-    }
-
-    public void shutdown(int time) {
-        //TimerManager.getInstance().schedule(new ShutdownServer(getChannel()), time);
     }
 
     public MapleEvent getEvent() {
@@ -214,6 +193,14 @@ public class Channel {
     public void broadcastGMPacket(MaplePacket data) {
         for (MapleCharacter chr : players.getAllCharacters()) {
             if (chr.isGM()) {
+                chr.announce(data);
+            }
+        }
+    }
+
+    public void broadcastGMPacket(MaplePacket data, String exclude) {
+        for (MapleCharacter chr : players.getAllCharacters()) {
+            if (chr.isGM() && !chr.getName().equals(exclude)) {
                 chr.announce(data);
             }
         }
@@ -242,9 +229,12 @@ public class Channel {
             }
         }
         return partym;
+
+
     }
 
     public class respawnMaps implements Runnable {
+
         @Override
         public void run() {
             for (Entry<Integer, MapleMap> map : mapFactory.getMaps().entrySet()) {
@@ -258,13 +248,25 @@ public class Channel {
     }
 
     public void addHiredMerchant(int chrid, HiredMerchant hm) {
-        hiredMerchants.put(chrid, hm);
+        WriteLock wlock = merchant_lock.writeLock();
+        wlock.lock();
+        try {
+            hiredMerchants.put(chrid, hm);
+        } finally {
+            wlock.unlock();
+        }
     }
 
     public void removeHiredMerchant(int chrid) {
-        hiredMerchants.remove(chrid);
-    }  
-    
+        WriteLock wlock = merchant_lock.writeLock();
+        wlock.lock();
+        try {        
+            hiredMerchants.remove(chrid);
+        } finally {
+            wlock.unlock();
+        }
+        }
+
     public int[] multiBuddyFind(int charIdFrom, int[] characterIds) {
         List<Integer> ret = new ArrayList<Integer>(characterIds.length);
         PlayerStorage playerStorage = getPlayerStorage();
@@ -282,5 +284,30 @@ public class Channel {
             retArr[pos++] = i.intValue();
         }
         return retArr;
-    }    
+    }
+
+    public boolean hasExpedition(MapleExpeditionType type) {
+        return expeditions.containsKey(type);
+    }
+
+    public void addExpedition(MapleExpeditionType type, MapleExpedition exped) {
+        expeditions.put(type, exped);
+    }
+
+    public MapleExpedition getExpedition(MapleExpeditionType type) {
+        return expeditions.get(type);
+    }
+
+    public boolean isConnected(String name) {
+        return getPlayerStorage().getCharacterByName(name) != null;
+    }
+    
+    public boolean finishedShutdown() {
+        return finishedShutdown;
+    }
+    
+    public void setServerMessage(String message) {
+        this.serverMessage = message;
+        broadcastPacket(MaplePacketCreator.serverMessage(message));
+    }
 }

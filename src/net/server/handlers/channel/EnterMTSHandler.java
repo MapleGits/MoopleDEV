@@ -28,8 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.AbstractMaplePacketHandler;
 import net.server.Server;
 import server.MTSItemInfo;
@@ -38,6 +36,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
 import tools.DatabaseConnection;
 
 public final class EnterMTSHandler extends AbstractMaplePacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter chr = c.getPlayer();
         if (!chr.isAlive()) {
@@ -59,7 +58,6 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler {
         } catch (Exception ex) {
         }
         chr.getCashShop().open(true);// xD
-        Server.getInstance().getPlayerStorage().addPlayer(chr);
         c.announce(MaplePacketCreator.enableCSUse());
         c.announce(MaplePacketCreator.MTSWantedListingOver(0, 0));
         c.announce(MaplePacketCreator.showMTSCash(c.getPlayer()));

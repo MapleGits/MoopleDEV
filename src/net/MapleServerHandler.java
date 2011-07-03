@@ -1,24 +1,24 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net;
 
 import client.MapleClient;
@@ -32,8 +32,10 @@ import tools.data.input.SeekableLittleEndianAccessor;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
+import tools.PrintError;
 
 public class MapleServerHandler extends IoHandlerAdapter {
+
     private PacketProcessor processor;
     private byte world = -1, channel = -1;
 
@@ -58,17 +60,15 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        try {
+        /*synchronized (session) {
             MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
             if (client != null) {
                 client.disconnect();
             }
-            cause.getCause().printStackTrace();        
-        } catch (Exception e) {
-            cause.getCause().printStackTrace();
-            e.printStackTrace();
-        }
-        //Write into a file pl0x
+        }*/
+        session.close(true);
+        PrintError.print(PrintError.EXCEPTION_CAUGHT, cause);
+        //sessionClosed should be called
     }
 
     @Override
@@ -76,13 +76,15 @@ public class MapleServerHandler extends IoHandlerAdapter {
         if (!Server.getInstance().isOnline()) {
             session.close(true);
             return;
-        }        
+        }
         if (channel > -1 && world > -1) {
-            if (Server.getInstance().getChannel(world, channel).isShutdown()) {
+            if (Server.getInstance().getChannel(world, channel) == null) {
                 session.close(true);
                 return;
             }
-        } else System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
+        } else {
+            System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
+        }
 
         byte key[] = {0x13, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 0xB4, 0x00, 0x00, 0x00, 0x1B, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x52, 0x00, 0x00, 0x00};
         byte ivRecv[] = {70, 114, 122, 82};
@@ -103,8 +105,12 @@ public class MapleServerHandler extends IoHandlerAdapter {
         synchronized (session) {
             MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
             if (client != null) {
-                client.disconnect();
-                session.removeAttribute(MapleClient.CLIENT_KEY);
+                try {
+                    client.disconnect();                    
+                } finally {
+                    session.removeAttribute(MapleClient.CLIENT_KEY);  
+                    client.empty();
+                }
             }
         }
         super.sessionClosed(session);
@@ -117,14 +123,13 @@ public class MapleServerHandler extends IoHandlerAdapter {
         short packetId = slea.readShort();
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
         MaplePacketHandler packetHandler = processor.getHandler(packetId);
+
         if (packetHandler != null && packetHandler.validateState(client)) {
             try {
                 packetHandler.handlePacket(slea, client);
             } catch (Throwable t) {
             }
         }
-//        else if (packetHandler == null)
-//            System.out.println(slea);
     }
 
     @Override
