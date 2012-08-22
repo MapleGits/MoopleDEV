@@ -24,7 +24,6 @@ package server;
 import client.MapleCharacter;
 import java.util.LinkedList;
 import java.util.List;
-import net.MaplePacket;
 import tools.MaplePacketCreator;
 
 /**
@@ -33,8 +32,8 @@ import tools.MaplePacketCreator;
  */
 public class MapleSquad {
     private MapleCharacter leader;
-    private List<MapleCharacter> members = new LinkedList<MapleCharacter>();
-    private List<MapleCharacter> bannedMembers = new LinkedList<MapleCharacter>();
+    private List<MapleCharacter> members = new LinkedList<>();
+    private List<MapleCharacter> bannedMembers = new LinkedList<>();
     private int ch;
     private int status = 0;
 
@@ -80,8 +79,7 @@ public class MapleSquad {
             return false;
         } else {
             members.add(member);
-            MaplePacket packet = MaplePacketCreator.serverNotice(5, member.getName() + " has joined the fight!");
-            getLeader().getClient().getSession().write(packet);
+            getLeader().getClient().getSession().write(MaplePacketCreator.serverNotice(5, member.getName() + " has joined the fight!"));
             return true;
         }
     }

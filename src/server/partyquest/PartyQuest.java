@@ -25,18 +25,18 @@ package server.partyquest;
 import client.MapleCharacter;
 import java.util.ArrayList;
 import java.util.List;
-import net.server.MapleParty;
-import net.server.MaplePartyCharacter;
 import net.server.Server;
+import net.server.world.MapleParty;
+import net.server.world.MaplePartyCharacter;
 
 /**
  *
  * @author kevintjuh93
  */
 public class PartyQuest {
-    byte channel, world;
+    int channel, world;
     MapleParty party;
-    List<MapleCharacter> participants = new ArrayList<MapleCharacter>();
+    List<MapleCharacter> participants = new ArrayList<>();
 
     public PartyQuest(MapleParty party) {
         this.party = party;

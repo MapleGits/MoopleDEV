@@ -21,9 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import net.IntValueHolder;
-
-public enum MapleStat implements IntValueHolder {
+public enum MapleStat {
 
     SKIN(0x1),
     FACE(0x2),
@@ -51,7 +49,6 @@ public enum MapleStat implements IntValueHolder {
         this.i = i;
     }
 
-    @Override
     public int getValue() {
         return i;
     }

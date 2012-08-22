@@ -25,20 +25,18 @@ import client.MapleClient;
 import constants.ServerConstants;
 import net.AbstractMaplePacketHandler;
 import net.server.Server;
-import net.server.World;
+import net.server.world.World;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ServerlistRequestHandler extends AbstractMaplePacketHandler {
-    private static final String[] names = ServerConstants.WORLD_NAMES;
 
     @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         Server server = Server.getInstance();
-        World world;
-        for (byte i = 0; i < Math.min(server.getLoad().size(), names.length); i++) {
-            world = server.getWorld(i);
-            c.announce(MaplePacketCreator.getServerList(i, names[i], world.getFlag(), world.getEventMessage(), server.getLoad(i)));
+
+        for (World world : server.getWorlds()) {
+            c.announce(MaplePacketCreator.getServerList(world.getId(), ServerConstants.WORLD_NAMES[world.getId()], world.getFlag(), world.getEventMessage(), world.getChannels()));
         }
         c.announce(MaplePacketCreator.getEndOfServerList());
         c.announce(MaplePacketCreator.selectWorld(0));//too lazy to make a check lol

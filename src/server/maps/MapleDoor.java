@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import client.MapleCharacter;
 import client.MapleClient;
-import net.server.MaplePartyCharacter;
+import net.server.world.MaplePartyCharacter;
 import server.MaplePortal;
 import tools.MaplePacketCreator;
 

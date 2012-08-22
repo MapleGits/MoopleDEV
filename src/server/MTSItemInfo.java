@@ -21,8 +21,8 @@
 */
 package server;
 
+import client.inventory.Item;
 import java.util.Calendar;
-import client.IItem;
 
 /**
  *
@@ -30,12 +30,12 @@ import client.IItem;
  */
 public class MTSItemInfo {
     private int price;
-    private IItem item;
+    private Item item;
     private String seller;
     private int id;
     private int year, month, day = 1;
 
-    public MTSItemInfo(IItem item, int price, int id, int cid, String seller, String date) {
+    public MTSItemInfo(Item item, int price, int id, int cid, String seller, String date) {
         this.item = item;
         this.price = price;
         this.seller = seller;
@@ -45,7 +45,7 @@ public class MTSItemInfo {
         this.day = Integer.parseInt(date.substring(8, 10));
     }
 
-    public IItem getItem() {
+    public Item getItem() {
         return item;
     }
 

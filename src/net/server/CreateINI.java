@@ -9,6 +9,7 @@ import java.io.IOException;
  * @author kevintjuh93
  */
 public class CreateINI {
+
     public static void main(String args[]) {
         StringBuilder sb = new StringBuilder();
         String nextline = "\r\n";//Because I can, and it's free.
@@ -32,38 +33,40 @@ public class CreateINI {
             sb.append("#Properties for world ").append(b).append("\r\n");
 
             System.out.println("Properties for world " + b);
-            if (b > 1) System.out.println("Make sure you create a npc folder for this world!");
+            if (b > 1) {
+                System.out.println("Make sure you create a npc folder for this world!");
+            }
             sb.append("flag").append(b).append("=").append(
-                    Byte.parseByte(con.readLine("   Flag: "))).append("\r\n");
-            
+                    Integer.parseInt(con.readLine("   Flag: "))).append("\r\n");
+
             sb.append("servermessage").append(b).append("=").append(
                     con.readLine("   Server message: ")).append("\r\n");
-            
+
             sb.append("eventmessage").append(b).append("=").append(
                     con.readLine("   Event message: ")).append("\r\n");
-            
+
             sb.append("whyamirecommended").append(b).append("=").append(
                     con.readLine("   Recommend message: ")).append("\r\n");
-            
+
             sb.append("channels").append(b).append("=").append(
                     Byte.parseByte(con.readLine("   Number of channels: "))).append("\r\n");
 
             sb.append("exprate").append(b).append("=").append(
-                    Byte.parseByte(con.readLine("   Exp rate: "))).append("\r\n");
-            
+                    Integer.parseInt(con.readLine("   Exp rate: "))).append("\r\n");
+
             sb.append("droprate").append(b).append("=").append(
-                    Byte.parseByte(con.readLine("   Drop rate: "))).append("\r\n");
-            
+                    Integer.parseInt(con.readLine("   Drop rate: "))).append("\r\n");
+
             sb.append("mesorate").append(b).append("=").append(
-                    Byte.parseByte(con.readLine("   Meso rate: "))).append("\r\n");
+                    Integer.parseInt(con.readLine("   Meso rate: "))).append("\r\n");
 
             sb.append("bossdroprate").append(b).append("=").append(
-                    Byte.parseByte(con.readLine("   Boss drop rate: "))).append("\r\n");
-            
+                    Integer.parseInt(con.readLine("   Boss drop rate: "))).append("\r\n");
+
             System.out.println(nextline);
             sb.append("\r\n");
         }
-       
+
         sb.append("\r\n").append("gmserver=").append(Boolean.parseBoolean(con.readLine("Do you want a GM Server? (true/false)")));
         FileOutputStream out = null;
         try {
@@ -72,7 +75,9 @@ public class CreateINI {
         } catch (Exception ex) {
         } finally {
             try {
-                if (out != null) out.close();
+                if (out != null) {
+                    out.close();
+                }
             } catch (IOException ex) {
             }
         }
@@ -83,7 +88,8 @@ public class CreateINI {
             String heapsize = con.readLine("Java Heap Size (in MB): ");
             while (heapsize.equals("?")) {
                 System.out.println("\r\n");
-                System.out.println("WikiAnswers: Java heap is the heap size allocated to JVM applications which takes care of the new objects being created. If the objects being created exceed the heap size, it will throw an error saying memoryOutof Bound\r\n\r\n");
+                System.out.println("WikiAnswers: Java heap is the heap size allocated to JVM applications which takes care of the new objects being created. If the objects being created exceed the heap size, it will throw an error saying memoryOutof Bound\r\n");
+                System.out.println("I recommend using 64 bit with the heap size around 4000, if you have 4 gb RAM.");
                 heapsize = con.readLine("Java Heap Size (in MB): ");
             }
             String linux = con.readLine("\r\nAre you using a Linux platform or not? (y/n):");
@@ -95,20 +101,23 @@ public class CreateINI {
                 out = new FileOutputStream("launch_server.bat", false);
                 sb.append("@echo off").append("\r\n").append("@title MoopleDEV Server v83").append("\r\n");
                 sb.append("set CLASSPATH=.;dist\\*\r\n");
-                sb.append("java -Xmx").append(heapsize).append("m -Dwzpath=wz\\ -Djavax.net.ssl.keyStore=filename.keystore -Djavax.net.ssl.keyStorePassword=passwd -Djavax.net.ssl.trustStore=filename.keystore -Djavax.net.ssl.trustStorePassword=passwd net.server.Server\r\n");
+                sb.append("java -Xmx").append(heapsize).append("m -Dwzpath=wz\\ net.server.Server\r\n");
                 sb.append("pause");
             } else {//test
                 out = new FileOutputStream("launch_server.sh", false);
                 sb.append("#!/bin/sh").append("\r\n\r\n");
-                sb.append("export CLASSPATH=").append(".:dist//*\r\n\r\n");
-                sb.append("java -Dwzpath=wz/ \\ \r\n").append("-Djavax.net.ssl.keyStore=filename.keystore \\ \r\n-Djavax.net.ssl.keyStorePassword=passwd \\ \r\n-Djavax.net.ssl.trustStore=filename.keystore \\ \r\n-Djavax.net.ssl.trustStorePassword=passwd \\ \r\n");
-                sb.append("-Xmx").append(heapsize).append("M \\").append("\r\nnet.server.Server");                
+                sb.append("export CLASSPATH=\".:dist/*\" \r\n\r\n");
+                sb.append("java -Dwzpath=wz/ \\\r\n");
+                sb.append("-Xmx").append(heapsize).append("m ").append("net.server.Server");
+                System.out.println("Use DOS2UNIX command to convert the .sh file once again.");
             }
             out.write(sb.toString().getBytes());
         } catch (Exception ex) {
         } finally {
             try {
-                if (out != null) out.close();
+                if (out != null) {
+                    out.close();
+                }
             } catch (IOException ex) {
             }
         }

@@ -1,30 +1,31 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation version 3 as published by
+the Free Software Foundation. You may not use, modify or distribute
+this program under any other version of the GNU Affero General Public
+License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package scripting.item;
 
 import client.MapleClient;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.script.Compilable;
@@ -34,10 +35,13 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import tools.FilePrinter;
+import tools.MaplePacketCreator;
 
 public class ItemScriptManager {
+
     private static ItemScriptManager instance = new ItemScriptManager();
-    private Map<String, ItemScript> scripts = new HashMap<String, ItemScript>();
+    private Map<String, Invocable> scripts = new HashMap<>();
     private ScriptEngineFactory sef;
 
     private ItemScriptManager() {
@@ -56,11 +60,16 @@ public class ItemScriptManager {
 
     public void getItemScript(MapleClient c, String scriptName) {
         if (scripts.containsKey(scriptName)) {
-            scripts.get(scriptName).start(new ItemScriptMethods(c));
+            try {
+                scripts.get(scriptName).invokeFunction("start", new ItemScriptMethods(c));
+            } catch (ScriptException | NoSuchMethodException ex) {
+                FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", ex);
+            }
             return;
         }
         File scriptFile = new File("scripts/item/" + scriptName + ".js");
         if (!scriptFile.exists()) {
+            c.announce(MaplePacketCreator.enableActions());
             return;
         }
         FileReader fr = null;
@@ -69,21 +78,21 @@ public class ItemScriptManager {
             fr = new FileReader(scriptFile);
             CompiledScript compiled = ((Compilable) portal).compile(fr);
             compiled.eval();
-        } catch (ScriptException e) {
-            System.err.println("THROW" + e);
-        } catch (IOException e) {
-            System.err.println("THROW" + e);
+
+            final Invocable script = ((Invocable) portal);
+            scripts.put(scriptName, script);
+            script.invokeFunction("start", new ItemScriptMethods(c));
+        } catch (final UndeclaredThrowableException | ScriptException ute) {
+            FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", ute);
+        } catch (final Exception e) {
+            FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", e);
         } finally {
             if (fr != null) {
                 try {
                     fr.close();
                 } catch (IOException e) {
-                    System.err.println("ERROR CLOSING" + e);
                 }
             }
         }
-        ItemScript script = ((Invocable) portal).getInterface(ItemScript.class);
-        scripts.put(scriptName, script);
-        script.start(new ItemScriptMethods(c));
     }
 }

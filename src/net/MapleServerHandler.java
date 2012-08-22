@@ -23,52 +23,42 @@ package net;
 
 import client.MapleClient;
 import constants.ServerConstants;
+import java.io.IOException;
 import net.server.Server;
+import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
+import tools.FilePrinter;
 import tools.MapleAESOFB;
 import tools.MaplePacketCreator;
 import tools.data.input.ByteArrayByteStream;
 import tools.data.input.GenericSeekableLittleEndianAccessor;
 import tools.data.input.SeekableLittleEndianAccessor;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.service.IoHandlerAdapter;
-import org.apache.mina.core.session.IdleStatus;
-import tools.PrintError;
 
 public class MapleServerHandler extends IoHandlerAdapter {
 
     private PacketProcessor processor;
-    private byte world = -1, channel = -1;
+    private int world = -1, channel = -1;
 
-    public MapleServerHandler(PacketProcessor processor) {
-        this.processor = processor;
+    public MapleServerHandler() {
+        this.processor = PacketProcessor.getProcessor(-1, -1);
     }
 
-    public MapleServerHandler(PacketProcessor processor, byte channel, byte world) {
-        this.processor = processor;
-        this.channel = channel;
+    public MapleServerHandler(int world, int channel) {
+        this.processor = PacketProcessor.getProcessor(world, channel);
         this.world = world;
-    }
-
-    @Override
-    public void messageSent(IoSession session, Object message) throws Exception {
-        Runnable r = ((MaplePacket) message).getOnSend();
-        if (r != null) {
-            r.run();
-        }
-        super.messageSent(session, message);
+        this.channel = channel;
     }
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        /*synchronized (session) {
-            MapleClient client = ((MapleClient) session.getAttribute(MapleClient.CLIENT_KEY));
-            if (client != null) {
-                client.disconnect();
-            }
-        }*/
-        session.close(true);
-        PrintError.print(PrintError.EXCEPTION_CAUGHT, cause);
-        //sessionClosed should be called
+        if (cause instanceof IOException || cause instanceof ClassCastException) {
+            return;
+        }
+        MapleClient mc = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+        if (mc != null && mc.getPlayer() != null) {
+            FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, cause, "Exception caught by: " + mc.getPlayer());
+        }
     }
 
     @Override
@@ -102,15 +92,20 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        synchronized (session) {
-            MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-            if (client != null) {
-                try {
-                    client.disconnect();                    
-                } finally {
-                    session.removeAttribute(MapleClient.CLIENT_KEY);  
-                    client.empty();
+        MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+        if (client != null) {
+            try {
+                boolean inCashShop = false;
+                if (client.getPlayer() != null) {
+                    inCashShop = client.getPlayer().getCashShop().isOpened();
                 }
+                client.disconnect(false, inCashShop);
+            } catch (Throwable t) {
+                FilePrinter.printError(FilePrinter.ACCOUNT_STUCK, t);
+            } finally {
+                session.close();
+                session.removeAttribute(MapleClient.CLIENT_KEY);
+                //client.empty();
             }
         }
         super.sessionClosed(session);
@@ -122,12 +117,14 @@ public class MapleServerHandler extends IoHandlerAdapter {
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
         short packetId = slea.readShort();
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-        MaplePacketHandler packetHandler = processor.getHandler(packetId);
-
+        
+        final MaplePacketHandler packetHandler = processor.getHandler(packetId);
         if (packetHandler != null && packetHandler.validateState(client)) {
             try {
                 packetHandler.handlePacket(slea, client);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
+                FilePrinter.printError(FilePrinter.PACKET_HANDLER + packetHandler.getClass().getName() + ".txt", t, "Error for " + (client.getPlayer() == null ? "" : "player ; " + client.getPlayer() + " on map ; " + client.getPlayer().getMapId() + " - ") + "account ; " + client.getAccountName() + "\r\n" + slea.toString());
+                //client.announce(MaplePacketCreator.enableActions());//bugs sometimes
             }
         }
     }

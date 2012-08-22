@@ -21,19 +21,19 @@
 */
 package server;
 
-import client.IItem;
+import client.inventory.Item;
 
 /**
  *
  * @author Matze
  */
 public class MaplePlayerShopItem {
-    private IItem item;
+    private Item item;
     private short bundles;
     private int price;
     private boolean doesExist;
 
-    public MaplePlayerShopItem(IItem item, short bundles, int price) {
+    public MaplePlayerShopItem(Item item, short bundles, int price) {
         this.item = item;
         this.bundles = bundles;
         this.price = price;
@@ -48,7 +48,7 @@ public class MaplePlayerShopItem {
         return doesExist;
     }
 
-    public IItem getItem() {
+    public Item getItem() {
         return item;
     }
 

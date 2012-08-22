@@ -21,30 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package scripting.npc;
 
-import client.Equip;
-import client.IItem;
-import client.ISkill;
-import client.ItemFactory;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import constants.ExpTable;
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleInventoryType;
 import client.MapleJob;
-import client.MaplePet;
 import client.MapleSkinColor;
 import client.MapleStat;
+import client.Skill;
 import client.SkillFactory;
-import tools.Randomizer;
+import client.inventory.Equip;
+import client.inventory.Item;
+import client.inventory.ItemFactory;
+import client.inventory.MapleInventoryType;
+import client.inventory.MaplePet;
+import constants.ExpTable;
 import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import net.server.Channel;
-import tools.DatabaseConnection;
-import net.server.MapleParty;
-import net.server.MaplePartyCharacter;
+import net.server.channel.Channel;
+import net.server.world.MapleParty;
+import net.server.world.MaplePartyCharacter;
 import net.server.Server;
 import net.server.guild.MapleAlliance;
 import net.server.guild.MapleGuild;
@@ -61,7 +59,9 @@ import server.maps.MapleMapFactory;
 import server.partyquest.Pyramid;
 import server.partyquest.Pyramid.PyramidMode;
 import server.quest.MapleQuest;
+import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
+import tools.Randomizer;
 
 /**
  *
@@ -265,8 +265,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
                 getClient().announce(MaplePacketCreator.showOwnPetLevelUp(index));
                 getPlayer().getMap().broadcastMessage(getPlayer(), MaplePacketCreator.showPetLevelUp(getPlayer(), index));
             }
-            IItem petz = getPlayer().getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
-            getPlayer().getClient().announce(MaplePacketCreator.updateSlot(petz));
+            Item petz = getPlayer().getInventory(MapleInventoryType.CASH).getItem(pet.getPosition());
+            getPlayer().forceUpdateItem(petz);
         }
     }
 
@@ -302,7 +302,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void maxMastery() {
         for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
             try {
-                ISkill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
+                Skill skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
                 getPlayer().changeSkillLevel(skill, (byte) 0, skill.getMaxLevel(), -1);
             } catch (NumberFormatException nfe) {
                 break;
@@ -349,15 +349,16 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             return false;
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name FROM alliance WHERE name = ?");
-            ps.setString(1, name);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                ps.close();
-                rs.close();
-                return false;
+            ResultSet rs;
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name FROM alliance WHERE name = ?")) {
+                ps.setString(1, name);
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    ps.close();
+                    rs.close();
+                    return false;
+                }
             }
-            ps.close();
             rs.close();
             return true;
         } catch (SQLException e) {
@@ -367,20 +368,20 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public static MapleAlliance createAlliance(MapleCharacter chr1, MapleCharacter chr2, String name) {
-        int id = 0;
+        int id;
         int guild1 = chr1.getGuildId();
         int guild2 = chr2.getGuildId();
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `alliance` (`name`, `guild1`, `guild2`) VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setString(1, name);
-            ps.setInt(2, guild1);
-            ps.setInt(3, guild2);
-            ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            rs.next();
-            id = rs.getInt(1);
-            rs.close();
-            ps.close();
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO `alliance` (`name`, `guild1`, `guild2`) VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, name);
+                ps.setInt(2, guild1);
+                ps.setInt(3, guild2);
+                ps.executeUpdate();
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    rs.next();
+                    id = rs.getInt(1);
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -405,7 +406,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         if (getPlayer().getParty() == null) {
             return null;
         }
-        List<MapleCharacter> chars = new LinkedList<MapleCharacter>();
+        List<MapleCharacter> chars = new LinkedList<>();
         for (Channel channel : Server.getInstance().getChannelsFromWorld(getPlayer().getWorld())) {
             for (MapleCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
                 if (chr != null) {
@@ -490,7 +491,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         for (byte b = 0; b < 5; b++) {//They cannot warp to the next map before the timer ends (:
             map = mf.getMap(mapid + b);
             if (map.getCharacters().size() > 0) {
-                map = null;
                 continue;
             } else {
                 break;

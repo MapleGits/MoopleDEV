@@ -22,13 +22,11 @@
 package net.server.guild;
 
 import client.MapleCharacter;
-import java.io.Serializable;
 
-public class MapleGuildCharacter implements Serializable {
-    private static final long serialVersionUID = -8012634292341191559L;
+public class MapleGuildCharacter {
     private int level;
     private int id;
-    private byte world, channel;
+    private int world, channel;
     private int jobid;
     private int guildrank;
     private int guildid;
@@ -49,7 +47,7 @@ public class MapleGuildCharacter implements Serializable {
         this.allianceRank = c.getAllianceRank();
     }
 
-    public MapleGuildCharacter(int _id, int _lv, String _name, byte _channel, byte _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank) {
+    public MapleGuildCharacter(int _id, int _lv, String _name, int _channel, int _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank) {
         this.level = _lv;
         this.id = _id;
         this.name = _name;
@@ -76,15 +74,15 @@ public class MapleGuildCharacter implements Serializable {
         return id;
     }
 
-    public void setChannel(byte ch) {
+    public void setChannel(int ch) {
         channel = ch;
     }
 
-    public byte getChannel() {
+    public int getChannel() {
         return channel;
     }
 
-    public byte getWorld() {
+    public int getWorld() {
         return world;
     }
 

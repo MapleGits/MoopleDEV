@@ -21,19 +21,19 @@
 */
 package server;
 
-import client.IItem;
+import client.inventory.Item;
 import java.util.Calendar;
 
 public class DueyPackages {
     private String sender = null;
-    private IItem item = null;
+    private Item item = null;
     private int mesos = 0;
     private int day;
     private int month;
     private int year;
     private int packageId = 0;
 
-    public DueyPackages(int pId, IItem item) {
+    public DueyPackages(int pId, Item item) {
         this.item = item;
         packageId = pId;
     }
@@ -50,7 +50,7 @@ public class DueyPackages {
         sender = name;
     }
 
-    public IItem getItem() {
+    public Item getItem() {
         return item;
     }
 

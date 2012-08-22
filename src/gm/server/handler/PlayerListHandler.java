@@ -6,7 +6,7 @@ import gm.GMPacketHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.server.Channel;
+import net.server.channel.Channel;
 import net.server.Server;
 import org.apache.mina.core.session.IoSession;
 import tools.data.input.SeekableLittleEndianAccessor;

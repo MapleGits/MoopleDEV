@@ -21,9 +21,7 @@
 */
 package client;
 
-import net.LongValueHolder;
-
-public enum MapleDisease implements LongValueHolder {
+public enum MapleDisease {
     NULL(0x0),
     SLOW(0x1),
     SEDUCE(0x80),
@@ -41,7 +39,6 @@ public enum MapleDisease implements LongValueHolder {
         this.i = i;
     }
 
-    @Override
     public long getValue() {
         return i;
     }

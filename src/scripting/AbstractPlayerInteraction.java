@@ -21,21 +21,21 @@
 */
 package scripting;
 
-import java.util.Arrays;
-import java.util.List;
-import client.Equip;
-import client.IItem;
-import client.ISkill;
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleInventory;
-import client.MapleInventoryType;
-import client.MaplePet;
 import client.MapleQuestStatus;
+import client.Skill;
 import client.SkillFactory;
+import client.inventory.Equip;
+import client.inventory.Item;
+import client.inventory.MapleInventory;
+import client.inventory.MapleInventoryType;
+import client.inventory.MaplePet;
 import constants.ItemConstants;
 import java.awt.Point;
-import net.server.MapleParty;
+import java.util.Arrays;
+import java.util.List;
+import net.server.world.MapleParty;
 import net.server.Server;
 import net.server.guild.MapleGuild;
 import scripting.event.EventManager;
@@ -163,7 +163,7 @@ public class AbstractPlayerInteraction {
         }
         if (quantity >= 0) {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-            IItem item = ii.getEquipById(id);
+            Item item = ii.getEquipById(id);
             if (!MapleInventoryManipulator.checkSpace(c, id, quantity, "")) {
                 c.getPlayer().dropMessage(1, "Your inventory is full. Please remove an item from your " + ii.getInventoryType(id).name() + " inventory.");
                 return;
@@ -318,23 +318,23 @@ public class AbstractPlayerInteraction {
 
     public void giveTutorialSkills() {
         if (getPlayer().getMapId() == 914000100) {
-        ISkill skill = SkillFactory.getSkill(20000018);
-        ISkill skill0 = SkillFactory.getSkill(20000017);
+        Skill skill = SkillFactory.getSkill(20000018);
+        Skill skill0 = SkillFactory.getSkill(20000017);
         getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
         getPlayer().changeSkillLevel(skill0, (byte) 1, 1, -1);
         } else if (getPlayer().getMapId() == 914000200) {
-        ISkill skill = SkillFactory.getSkill(20000015);
-        ISkill skill0 = SkillFactory.getSkill(20000014);
+        Skill skill = SkillFactory.getSkill(20000015);
+        Skill skill0 = SkillFactory.getSkill(20000014);
         getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
         getPlayer().changeSkillLevel(skill0, (byte) 1, 1, -1);
         } else if (getPlayer().getMapId() == 914000210) {
-        ISkill skill = SkillFactory.getSkill(20000016);
+        Skill skill = SkillFactory.getSkill(20000016);
         getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
         }
     }
 
      public void removeAranPoleArm() {
-        IItem tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
+        Item tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
 	MapleInventoryManipulator.removeFromSlot(c.getPlayer().getClient(), MapleInventoryType.EQUIPPED, (byte) -11, tempItem.getQuantity(), false, true);
        }
 

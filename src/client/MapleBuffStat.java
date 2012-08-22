@@ -21,9 +21,7 @@
 */
 package client;
 
-import net.LongValueHolder;
-
-public enum MapleBuffStat implements LongValueHolder {
+public enum MapleBuffStat {
     MORPH(0x2),
     RECOVERY(0x4),
     MAPLE_WARRIOR(0x8),
@@ -104,7 +102,6 @@ public enum MapleBuffStat implements LongValueHolder {
         this.isFirst = false;
     }
 
-    @Override
     public long getValue() {
         return i;
     }

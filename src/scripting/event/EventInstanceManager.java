@@ -21,6 +21,7 @@
 */
 package scripting.event;
 
+import client.MapleCharacter;
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,24 +31,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import client.MapleCharacter;
-import tools.DatabaseConnection;
-import net.server.MapleParty;
-import net.server.MaplePartyCharacter;
+import javax.script.ScriptException;
+import net.server.world.MapleParty;
+import net.server.world.MaplePartyCharacter;
 import provider.MapleDataProviderFactory;
 import server.TimerManager;
 import server.life.MapleMonster;
 import server.maps.MapleMap;
 import server.maps.MapleMapFactory;
+import tools.DatabaseConnection;
 
 /**
  *
  * @author Matze
  */
 public class EventInstanceManager {
-    private List<MapleCharacter> chars = new ArrayList<MapleCharacter>();
-    private List<MapleMonster> mobs = new LinkedList<MapleMonster>();
-    private Map<MapleCharacter, Integer> killCount = new HashMap<MapleCharacter, Integer>();
+    private List<MapleCharacter> chars = new ArrayList<>();
+    private List<MapleMonster> mobs = new LinkedList<>();
+    private Map<MapleCharacter, Integer> killCount = new HashMap<>();
     private EventManager em;
     private MapleMapFactory mapFactory;
     private String name;
@@ -71,7 +72,7 @@ public class EventInstanceManager {
             chars.add(chr);
             chr.setEventInstance(this);
             em.getIv().invokeFunction("playerEntry", this, chr);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -106,7 +107,7 @@ public class EventInstanceManager {
     }
 
     public List<MapleCharacter> getPlayers() {
-        return new ArrayList<MapleCharacter>(chars);
+        return new ArrayList<>(chars);
     }
 
     public void registerMonster(MapleMonster mob) {
@@ -120,7 +121,7 @@ public class EventInstanceManager {
         if (mobs.isEmpty()) {
             try {
                 em.getIv().invokeFunction("allMonstersDead", this);
-            } catch (Exception ex) {
+            } catch (ScriptException | NoSuchMethodException ex) {
                 ex.printStackTrace();
             }
         }
@@ -129,7 +130,7 @@ public class EventInstanceManager {
     public void playerKilled(MapleCharacter chr) {
         try {
             em.getIv().invokeFunction("playerDead", this, chr);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -140,7 +141,7 @@ public class EventInstanceManager {
             if (b instanceof Boolean) {
                 return (Boolean) b;
             }
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
         return true;
@@ -149,7 +150,7 @@ public class EventInstanceManager {
     public void playerDisconnected(MapleCharacter chr) {
         try {
             em.getIv().invokeFunction("playerDisconnected", this, chr);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -169,7 +170,7 @@ public class EventInstanceManager {
                 kc += inc;
             }
             killCount.put(chr, kc);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -198,10 +199,11 @@ public class EventInstanceManager {
 
     public void schedule(final String methodName, long delay) {
         TimerManager.getInstance().schedule(new Runnable() {
+            @Override
             public void run() {
                 try {
                     em.getIv().invokeFunction(methodName, EventInstanceManager.this);
-                } catch (Exception ex) {
+                } catch (ScriptException | NoSuchMethodException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -214,13 +216,13 @@ public class EventInstanceManager {
 
     public void saveWinner(MapleCharacter chr) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO eventstats (event, instance, characterid, channel) VALUES (?, ?, ?, ?)");
-            ps.setString(1, em.getName());
-            ps.setString(2, getName());
-            ps.setInt(3, chr.getId());
-            ps.setInt(4, chr.getClient().getChannel());
-            ps.executeUpdate();
-            ps.close();
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO eventstats (event, instance, characterid, channel) VALUES (?, ?, ?, ?)")) {
+                ps.setString(1, em.getName());
+                ps.setString(2, getName());
+                ps.setInt(3, chr.getId());
+                ps.setInt(4, chr.getClient().getChannel());
+                ps.executeUpdate();
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -251,7 +253,7 @@ public class EventInstanceManager {
     public void leftParty(MapleCharacter chr) {
         try {
             em.getIv().invokeFunction("leftParty", this, chr);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -259,7 +261,7 @@ public class EventInstanceManager {
     public void disbandParty() {
         try {
             em.getIv().invokeFunction("disbandParty", this);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -267,7 +269,7 @@ public class EventInstanceManager {
     public void finishPQ() {
         try {
             em.getIv().invokeFunction("clearPQ", this);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }
@@ -275,7 +277,7 @@ public class EventInstanceManager {
     public void removePlayer(MapleCharacter chr) {
         try {
             em.getIv().invokeFunction("playerExit", this, chr);
-        } catch (Exception ex) {
+        } catch (ScriptException | NoSuchMethodException ex) {
             ex.printStackTrace();
         }
     }

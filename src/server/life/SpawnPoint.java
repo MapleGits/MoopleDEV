@@ -1,44 +1,46 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.life;
 
+import client.MapleCharacter;
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
-import client.MapleCharacter;
 
 public class SpawnPoint {
-    private int monster, mobTime, team;
+
+    private int monster, mobTime, team, fh, f;
     private Point pos;
     private long nextPossibleSpawn;
     private int mobInterval = 5000;
     private AtomicInteger spawnedMonsters = new AtomicInteger(0);
     private boolean immobile;
 
-    public SpawnPoint(int monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team) {
-        super();
-        this.monster = monster;
+    public SpawnPoint(final MapleMonster monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team) {
+        this.monster = monster.getId();
         this.pos = new Point(pos);
         this.mobTime = mobTime;
         this.team = team;
+        this.fh = monster.getFh();
+        this.f = monster.getF();
         this.immobile = immobile;
         this.mobInterval = mobInterval;
         this.nextPossibleSpawn = System.currentTimeMillis();
@@ -50,11 +52,13 @@ public class SpawnPoint {
         }
         return nextPossibleSpawn <= System.currentTimeMillis();
     }
-    
+
     public MapleMonster getMonster() {
         MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
         mob.setPosition(new Point(pos));
         mob.setTeam(team);
+        mob.setFh(fh);
+        mob.setF(f);
         spawnedMonsters.incrementAndGet();
         mob.addListener(new MonsterListener() {
             @Override
@@ -76,5 +80,13 @@ public class SpawnPoint {
 
     public Point getPosition() {
         return pos;
+    }
+
+    public final int getF() {
+        return f;
+    }
+
+    public final int getFh() {
+        return fh;
     }
 }

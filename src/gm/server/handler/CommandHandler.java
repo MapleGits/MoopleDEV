@@ -4,7 +4,7 @@ import client.MapleCharacter;
 import gm.GMPacketCreator;
 import gm.GMPacketHandler;
 import net.server.Server;
-import net.server.World;
+import net.server.world.World;
 import org.apache.mina.core.session.IoSession;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -58,7 +58,7 @@ public class CommandHandler implements GMPacketHandler {
                 String user = slea.readMapleAsciiString();
                 for (World world : Server.getInstance().getWorlds()) {
                     if (world.isConnected(user)) {
-                        world.getPlayerStorage().getCharacterByName(user).getClient().disconnect();
+                        world.getPlayerStorage().getCharacterByName(user).getClient().disconnect(false, false);
                         session.write(GMPacketCreator.commandResponse((byte) 1));
                         return;
                     }

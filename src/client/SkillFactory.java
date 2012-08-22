@@ -84,10 +84,10 @@ import server.MapleStatEffect;
 import server.life.Element;
 
 public class SkillFactory {
-    private static Map<Integer, ISkill> skills = new HashMap<Integer, ISkill>();
+    private static Map<Integer, Skill> skills = new HashMap<>();
     private static MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider(MapleDataProviderFactory.fileInWZPath("Skill.wz"));
 
-    public static ISkill getSkill(int id) {
+    public static Skill getSkill(int id) {
 	if (!skills.isEmpty()) {
 	    return skills.get(Integer.valueOf(id));
 	}

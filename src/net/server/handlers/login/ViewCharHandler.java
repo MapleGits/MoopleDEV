@@ -21,47 +21,53 @@
 */
 package net.server.handlers.login;
 
+import client.MapleCharacter;
+import client.MapleClient;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import client.MapleCharacter;
-import client.MapleClient;
-import tools.DatabaseConnection;
 import net.AbstractMaplePacketHandler;
+import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ViewCharHandler extends AbstractMaplePacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT world, id FROM characters WHERE accountid = ?");
-            ps.setInt(1, c.getAccID());
-            short charsNum = 0;
-            List<Byte> worlds = new ArrayList<Byte>();
-            List<MapleCharacter> chars = new ArrayList<MapleCharacter>();
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                byte cworld = rs.getByte("world");
-                boolean inside = false;
-                for (int w : worlds) {
-                    if (w == cworld) {
-                        inside = true;
+            short charsNum;
+            List<Integer> worlds;
+            List<MapleCharacter> chars;
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT world, id FROM characters WHERE accountid = ?")) {
+                ps.setInt(1, c.getAccID());
+                charsNum = 0;
+                worlds = new ArrayList<>();
+                chars = new ArrayList<>();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int cworld = rs.getByte("world");
+                        boolean inside = false;
+                        for (int w : worlds) {
+                            if (w == cworld) {
+                                inside = true;
+                            }
+                        }
+                        if (!inside) {
+                            worlds.add(cworld);
+                        }
+                        MapleCharacter chr = MapleCharacter.loadCharFromDB(rs.getInt("id"), c, false);
+                        chars.add(chr);
+                        charsNum++;
                     }
                 }
-                if (!inside) {
-                    worlds.add(cworld);
-                }
-                MapleCharacter chr = MapleCharacter.loadCharFromDB(rs.getInt("id"), c, false);
-                chars.add(chr);
-                charsNum++;
             }
-            rs.close();
-            ps.close();
             int unk = charsNum + 3 - charsNum % 3;
             c.announce(MaplePacketCreator.showAllCharacter(charsNum, unk));
-            for (byte w : worlds) {
-                List<MapleCharacter> chrsinworld = new ArrayList<MapleCharacter>();
+            for (Iterator<Integer> it = worlds.iterator(); it.hasNext();) {
+                int w = it.next();
+                List<MapleCharacter> chrsinworld = new ArrayList<>();
                 for (MapleCharacter chr : chars) {
                     if (chr.getWorld() == w) {
                         chrsinworld.add(chr);

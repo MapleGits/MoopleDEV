@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class AutobanManager {
     private MapleCharacter chr;
-    private Map<AutobanFactory, Integer> points = new HashMap<AutobanFactory, Integer>();
-    private Map<AutobanFactory, Long> lastTime = new HashMap<AutobanFactory, Long>();
+    private Map<AutobanFactory, Integer> points = new HashMap<>();
+    private Map<AutobanFactory, Long> lastTime = new HashMap<>();
     private int misses = 0;
     private int lastmisses = 0;
     private int samemisscount = 0;
@@ -92,7 +92,7 @@ public class AutobanManager {
         if (this.timestamp[type] == time) {  
             this.timestampcounter[type]++;
             if (this.timestampcounter[type] > 3) {
-                chr.getClient().disconnect();
+                chr.getClient().disconnect(false, false);
                 //System.out.println("Same timestamp for type: " + type + "; Character: " + chr);
             }
             return;

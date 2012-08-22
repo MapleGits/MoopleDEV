@@ -21,23 +21,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client.status;
 
+import client.Skill;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
-import client.ISkill;
 import server.life.MobSkill;
 import tools.ArrayMap;
 
 public class MonsterStatusEffect {
 
     private Map<MonsterStatus, Integer> stati;
-    private ISkill skill;
+    private Skill skill;
     private MobSkill mobskill;
     private boolean monsterSkill;
     private ScheduledFuture<?> cancelTask;
     private ScheduledFuture<?> damageSchedule;
 
-    public MonsterStatusEffect(Map<MonsterStatus, Integer> stati, ISkill skillId, MobSkill mobskill, boolean monsterSkill) {
-        this.stati = new ArrayMap<MonsterStatus, Integer>(stati);
+    public MonsterStatusEffect(Map<MonsterStatus, Integer> stati, Skill skillId, MobSkill mobskill, boolean monsterSkill) {
+        this.stati = new ArrayMap<>(stati);
         this.skill = skillId;
         this.monsterSkill = monsterSkill;
         this.mobskill = mobskill;
@@ -51,7 +51,7 @@ public class MonsterStatusEffect {
         return stati.put(status, newVal);
     }
 
-    public ISkill getSkill() {
+    public Skill getSkill() {
         return skill;
     }
 

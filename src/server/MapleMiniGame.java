@@ -21,12 +21,11 @@
 */
 package server;
 
+import client.MapleCharacter;
+import client.MapleClient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import client.MapleCharacter;
-import client.MapleClient;
-import net.MaplePacket;
 import server.maps.AbstractMapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
@@ -40,9 +39,9 @@ public class MapleMiniGame extends AbstractMapleMapObject {
     private MapleCharacter visitor;
     private String GameType = null;
     private int[] piece = new int[250];
-    private List<Integer> list4x3 = new ArrayList<Integer>();
-    private List<Integer> list5x4 = new ArrayList<Integer>();
-    private List<Integer> list6x5 = new ArrayList<Integer>();
+    private List<Integer> list4x3 = new ArrayList<>();
+    private List<Integer> list5x4 = new ArrayList<>();
+    private List<Integer> list6x5 = new ArrayList<>();
     private String description;
     private int loser = 1;
     private int piecetype;
@@ -93,7 +92,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
         return visitor == challenger;
     }
 
-    public void broadcastToVisitor(MaplePacket packet) {
+    public void broadcastToVisitor(final byte[] packet) {
         if (visitor != null) {
             visitor.getClient().announce(packet);
         }
@@ -186,7 +185,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
     }
 
     public int getCardId(int slot) {
-        int cardid = 0;
+        int cardid;
         if (matchestowin == 6) {
             cardid = list4x3.get(slot - 1);
         } else if (matchestowin == 10) {
@@ -209,7 +208,7 @@ public class MapleMiniGame extends AbstractMapleMapObject {
         return loser;
     }
 
-    public void broadcast(MaplePacket packet) {
+    public void broadcast(final byte[] packet) {
         if (owner.getClient() != null && owner.getClient().getSession() != null) {
             owner.getClient().announce(packet);
         }
@@ -329,12 +328,10 @@ public class MapleMiniGame extends AbstractMapleMapObject {
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        return;
     }
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        return;
     }
 
     @Override

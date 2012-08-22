@@ -21,17 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.quest;
 
-import java.util.HashMap;
-import java.util.Map;
-import client.ISkill;
 import client.MapleCharacter;
-import client.MapleInventoryType;
 import client.MapleJob;
 import client.MapleQuestStatus;
 import client.MapleStat;
+import client.Skill;
 import client.SkillFactory;
+import client.inventory.MapleInventoryType;
 import constants.ItemConstants;
 import constants.ServerConstants;
+import java.util.HashMap;
+import java.util.Map;
 import provider.MapleData;
 import provider.MapleDataTool;
 import server.MapleInventoryManipulator;
@@ -103,7 +103,7 @@ public class MapleQuestAction {
                 break;
             case ITEM:
                 MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-                Map<Integer, Integer> props = new HashMap<Integer, Integer>();
+                Map<Integer, Integer> props = new HashMap<>();
                 for (MapleData iEntry : data.getChildren()) {
                     if (iEntry.getChildByPath("prop") != null && MapleDataTool.getInt(iEntry.getChildByPath("prop")) != -1 && canGetItem(iEntry, c)) {
                         for (int i = 0; i < MapleDataTool.getInt(iEntry.getChildByPath("prop")); i++) {
@@ -174,7 +174,7 @@ public class MapleQuestAction {
                     int skillid = MapleDataTool.getInt(sEntry.getChildByPath("id"));
                     byte skillLevel = (byte) MapleDataTool.getInt(sEntry.getChildByPath("skillLevel"));
                     int masterLevel = MapleDataTool.getInt(sEntry.getChildByPath("masterLevel"));
-                    ISkill skillObject = SkillFactory.getSkill(skillid);
+                    Skill skillObject = SkillFactory.getSkill(skillid);
                     boolean shouldLearn = false;
                     MapleData applicableJobs = sEntry.getChildByPath("job");
                     for (MapleData applicableJob : applicableJobs) {

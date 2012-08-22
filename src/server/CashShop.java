@@ -21,12 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server;
 
-import client.IEquip;
-import client.IItem;
-import client.Item;
-import client.ItemFactory;
-import client.MapleInventoryType;
-import client.MaplePet;
+import client.inventory.Equip;
+import client.inventory.Item;
+import client.inventory.ItemFactory;
+import client.inventory.MapleInventoryType;
+import client.inventory.MaplePet;
 import constants.ItemConstants;
 import java.io.File;
 import java.sql.Connection;
@@ -84,9 +83,9 @@ public class CashShop {
             return onSale;
         }
 
-        public IItem toItem() {
+        public Item toItem() {
             MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-            IItem item;
+            Item item;
 
             int petid = -1;
 
@@ -131,9 +130,9 @@ public class CashShop {
 
     public static class CashItemFactory {
 
-        private static final Map<Integer, CashItem> items = new HashMap<Integer, CashItem>();
-        private static final Map<Integer, List<Integer>> packages = new HashMap<Integer, List<Integer>>();
-        private static final List<SpecialCashItem> specialcashitems = new ArrayList<SpecialCashItem>();
+        private static final Map<Integer, CashItem> items = new HashMap<>();
+        private static final Map<Integer, List<Integer>> packages = new HashMap<>();
+        private static final List<SpecialCashItem> specialcashitems = new ArrayList<>();
 
         static {
             MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));
@@ -149,7 +148,7 @@ public class CashShop {
             }
 
             for (MapleData cashPackage : etc.getData("CashPackage.img").getChildren()) {
-                List<Integer> cPackage = new ArrayList<Integer>();
+                List<Integer> cPackage = new ArrayList<>();
 
                 for (MapleData item : cashPackage.getChildByPath("SN").getChildren()) {
                     cPackage.add(Integer.parseInt(item.getData().toString()));
@@ -180,8 +179,8 @@ public class CashShop {
             return items.get(sn);
         }
 
-        public static List<IItem> getPackage(int itemId) {
-            List<IItem> cashPackage = new ArrayList<IItem>();
+        public static List<Item> getPackage(int itemId) {
+            List<Item> cashPackage = new ArrayList<>();
 
             for (int sn : packages.get(itemId)) {
                 cashPackage.add(getItem(sn).toItem());
@@ -222,8 +221,8 @@ public class CashShop {
     private int accountId, characterId, nxCredit, maplePoint, nxPrepaid;
     private boolean opened;
     private ItemFactory factory;
-    private List<IItem> inventory = new ArrayList<IItem>();
-    private List<Integer> wishList = new ArrayList<Integer>();
+    private List<Item> inventory = new ArrayList<>();
+    private List<Integer> wishList = new ArrayList<>();
     private int notes = 0;
 
     public CashShop(int accountId, int characterId, int jobType) throws SQLException {
@@ -255,7 +254,7 @@ public class CashShop {
             rs.close();
             ps.close();
 
-            for (Pair<IItem, MapleInventoryType> item : factory.loadItems(accountId, false)) {
+            for (Pair<Item, MapleInventoryType> item : factory.loadItems(accountId, false)) {
                 inventory.add(item.getLeft());
             }
 
@@ -310,16 +309,16 @@ public class CashShop {
         opened = b;
     }
 
-    public List<IItem> getInventory() {
+    public List<Item> getInventory() {
         return inventory;
     }
 
-    public IItem findByCashId(int cashId) {
+    public Item findByCashId(int cashId) {
         boolean isRing = false;
-        IEquip equip = null;
-        for (IItem item : inventory) {
-            if (item.getType() == IItem.EQUIP) {
-                equip = (IEquip) item;
+        Equip equip = null;
+        for (Item item : inventory) {
+            if (item.getType() == 1) {
+                equip = (Equip) item;
                 isRing = equip.getRingId() > -1;
             }
             if ((item.getPetId() > -1 ? item.getPetId() : isRing ? equip.getRingId() : item.getCashId()) == cashId) {
@@ -330,11 +329,11 @@ public class CashShop {
         return null;
     }
 
-    public void addToInventory(IItem item) {
+    public void addToInventory(Item item) {
         inventory.add(item);
     }
 
-    public void removeFromInventory(IItem item) {
+    public void removeFromInventory(Item item) {
         inventory.remove(item);
     }
 
@@ -375,8 +374,8 @@ public class CashShop {
     }
 
 
-    public List<Pair<IItem, String>> loadGifts() {
-        List<Pair<IItem, String>> gifts = new ArrayList<Pair<IItem, String>>();
+    public List<Pair<Item, String>> loadGifts() {
+        List<Pair<Item, String>> gifts = new ArrayList<>();
         Connection con = DatabaseConnection.getConnection();
 
         try {
@@ -387,18 +386,18 @@ public class CashShop {
             while (rs.next()) {
                 notes++;
                 CashItem cItem = CashItemFactory.getItem(rs.getInt("sn"));
-                IItem item = cItem.toItem();
-                IEquip equip = null;
+                Item item = cItem.toItem();
+                Equip equip = null;
                 item.setGiftFrom(rs.getString("from"));
                 if (item.getType() == MapleInventoryType.EQUIP.getType()) {
-                    equip = (IEquip) item;
+                    equip = (Equip) item;
                     equip.setRingId(rs.getInt("ringid"));
-                    gifts.add(new Pair<IItem, String>(equip, rs.getString("message")));
+                    gifts.add(new Pair<Item, String>(equip, rs.getString("message")));
                 } else
-                    gifts.add(new Pair<IItem, String>(item, rs.getString("message")));
+                    gifts.add(new Pair<>(item, rs.getString("message")));
 
                 if (CashItemFactory.isPackage(cItem.getItemId())) { //Packages never contains a ring
-                    for (IItem packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
+                    for (Item packageItem : CashItemFactory.getPackage(cItem.getItemId())) {
                         packageItem.setGiftFrom(rs.getString("from"));
                         addToInventory(packageItem);
                     }
@@ -437,10 +436,10 @@ public class CashShop {
         ps.setInt(4, accountId);
         ps.executeUpdate();
         ps.close();
-        List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
+        List<Pair<Item, MapleInventoryType>> itemsWithType = new ArrayList<>();
 
-        for (IItem item : inventory) {
-            itemsWithType.add(new Pair<IItem, MapleInventoryType>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
+        for (Item item : inventory) {
+            itemsWithType.add(new Pair<>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
         }
 
         factory.saveItems(itemsWithType, accountId);

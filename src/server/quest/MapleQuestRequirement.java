@@ -1,35 +1,36 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.quest;
 
-import java.util.Calendar;
-import client.IItem;
 import client.MapleCharacter;
-import client.MapleInventoryType;
 import client.MapleJob;
-import client.MaplePet;
 import client.MapleQuestStatus;
+import client.inventory.Item;
+import client.inventory.MapleInventoryType;
+import client.inventory.MaplePet;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import provider.MapleData;
 import provider.MapleDataTool;
@@ -40,6 +41,7 @@ import server.MapleItemInformationProvider;
  * @author Matze
  */
 public class MapleQuestRequirement {
+
     private MapleQuestRequirementType type;
     private MapleData data;
     private MapleQuest quest;
@@ -71,16 +73,25 @@ public class MapleQuestRequirement {
                     int itemId = MapleDataTool.getInt(itemEntry.getChildByPath("id"));
                     short quantity = 0;
                     MapleInventoryType iType = ii.getInventoryType(itemId);
-                    for (IItem item : c.getInventory(iType).listById(itemId)) quantity += item.getQuantity();
+                    for (Item item : c.getInventory(iType).listById(itemId)) {
+                        quantity += item.getQuantity();
+                    }
                     //Weird stuff, nexon made some quests only available when wearing gm clothes. This enables us to accept it ><
-                    if (iType.equals(MapleInventoryType.EQUIP)) for (IItem item : c.getInventory(MapleInventoryType.EQUIPPED).listById(itemId)) quantity += item.getQuantity();
-                    
+                    if (iType.equals(MapleInventoryType.EQUIP)) {
+                        for (Iterator<Item> it = c.getInventory(MapleInventoryType.EQUIPPED).listById(itemId).iterator(); it.hasNext();) {
+                            Item item = it.next();
+                            quantity += item.getQuantity();
+                        }
+                    }
+
                     if (itemEntry.getChildByPath("count") != null) {
                         if (quantity < MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) || MapleDataTool.getInt(itemEntry.getChildByPath("count"), 0) <= 0 && quantity > 0) {
                             return false;
                         }
                     } else {
-                        if (quantity != 0) return false;
+                        if (quantity != 0) {
+                            return false;
+                        }
                     }
                 }
                 return true;
@@ -108,7 +119,9 @@ public class MapleQuestRequirement {
                 return c.getLevel() >= MapleDataTool.getInt(getData());
             case MIN_PET_TAMENESS:
                 MaplePet pet = c.getPet(0);
-                if (pet == null) return false;
+                if (pet == null) {
+                    return false;
+                }
                 return c.getPet(0).getCloseness() >= MapleDataTool.getInt(getData());
             case MOB:
                 for (MapleData mobEntry : getData().getChildren()) {
@@ -124,7 +137,7 @@ public class MapleQuestRequirement {
             case NPC:
                 return npcid == null || npcid == MapleDataTool.getInt(getData());
             case INFO_EX:
-                 return c.getQuest(quest).getMedalProgress() >= quest.getInfoEx();
+                return c.getQuest(quest).getMedalProgress() >= quest.getInfoEx();
             case COMPLETED_QUEST:
                 return c.getCompletedQuests().size() >= MapleDataTool.getInt(getData());
             default:
@@ -141,17 +154,17 @@ public class MapleQuestRequirement {
     }
 
     public List<Integer> getQuestItemsToShowOnlyIfQuestIsActivated() {
-	if (type != MapleQuestRequirementType.ITEM) {
-	    return null;
-	}
-	MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-	List<Integer> delta = new ArrayList<Integer>();
-	for (MapleData itemEntry : getData().getChildren()) {
-	    int itemId = MapleDataTool.getInt(itemEntry.getChildByPath("id"));
-	    if (ii.isQuestItem(itemId)) {
-		delta.add(itemId);
-	    }
-	}
-	return Collections.unmodifiableList(delta);
+        if (type != MapleQuestRequirementType.ITEM) {
+            return null;
+        }
+        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+        List<Integer> delta = new ArrayList<>();
+        for (MapleData itemEntry : getData().getChildren()) {
+            int itemId = MapleDataTool.getInt(itemEntry.getChildByPath("id"));
+            if (ii.isQuestItem(itemId)) {
+                delta.add(itemId);
+            }
+        }
+        return Collections.unmodifiableList(delta);
     }
 }

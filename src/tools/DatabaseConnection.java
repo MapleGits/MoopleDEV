@@ -24,60 +24,129 @@ package tools;
 import constants.ServerConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
 
-public class DatabaseConnection {//gay
-    private static ThreadLocal<Connection> con = new ThreadLocalConnection();
-    private static String url = ServerConstants.DB_URL;
-    private static String user = ServerConstants.DB_USER;
-    private static String pass = ServerConstants.DB_PASS;
+public class DatabaseConnection {
+    private static final HashMap<Integer, DatabaseConnection.ConWrapper> connections = new HashMap();
+    private static boolean propsInited = false;
+    private static long connectionTimeOut = 2 * 60 * 1000; // 2 minutes
+    public static final int RETURN_GENERATED_KEYS = 1;
+
+    private DatabaseConnection() {
+    }
 
     public static Connection getConnection() {
-        return con.get();
+        Thread cThread = Thread.currentThread();
+        int threadID = (int) cThread.getId();
+        DatabaseConnection.ConWrapper ret = connections.get(threadID);
+        if (ret == null) {
+            Connection retCon = connectToDB();
+            ret = new DatabaseConnection.ConWrapper(retCon);
+            ret.id = threadID;
+            connections.put(threadID, ret);
+        }
+        return ret.getConnection();
     }
 
-    public static void release() throws SQLException {
-        con.get().close();
-        con.remove();
-    }
-
-    private static class ThreadLocalConnection extends ThreadLocal<Connection> {
-        static {
-            try {
-                Class.forName("com.mysql.jdbc.Driver"); // touch the mysql driver
-            } catch (ClassNotFoundException e) {
-                System.out.println("Could not locate the JDBC mysql driver.");
+    private static long getWaitTimeout(Connection con) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery("SHOW VARIABLES LIKE 'wait_timeout'");
+            if (rs.next()) {
+                return Math.max(1000, rs.getInt(2) * 1000 - 1000);
+            } else {
+                return -1;
             }
-        }
-
-        @Override
-        protected Connection initialValue() {
-            return getConnection();
-        }
-
-        private Connection getConnection() {
-            //Fk u *n word*
-            try {
-                return DriverManager.getConnection(url, user, pass);
-            } catch (SQLException sql) {
-                System.out.println("Could not create a SQL Connection object. Please make sure you've correctly configured the database properties inside constants/ServerConstants.java. MAKE SURE YOU COMPILED!");
-                return null;
-            }
-        }
-
-        @Override
-        public Connection get() {
-            Connection con = super.get();
-            try {
-                if (!con.isClosed()) {
-                    return con;
+        } catch (SQLException ex) {
+            return -1;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                } finally {
+                    if (rs != null) {
+                        try {
+                            rs.close();
+                        } catch (SQLException ex1) {
+                        }
+                    }
                 }
-            } catch (SQLException sql) {
-                // Munch munch, we'll get a new connection. :)
             }
-            con = getConnection();
-            super.set(con);
-            return con;
         }
+    }
+
+    private static Connection connectToDB() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");    // touch the MySQL driver
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            Connection con = DriverManager.getConnection(ServerConstants.DB_URL, ServerConstants.DB_USER, ServerConstants.DB_PASS);
+            if (!propsInited) {
+                long timeout = getWaitTimeout(con);
+                if (timeout == -1) {
+                } else {
+                    connectionTimeOut = timeout;
+                }
+                propsInited = true;
+            }
+            return con;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static class ConWrapper {
+        private long lastAccessTime = 0;
+        private Connection connection;
+        private int id;
+
+        public ConWrapper(Connection con) {
+            this.connection = con;
+        }
+
+        public Connection getConnection() {
+            if (expiredConnection()) {
+                try { // Assume that the connection is stale
+                    connection.close();
+                } catch (Throwable err) {
+                    // Who cares
+                }
+                this.connection = connectToDB();
+            }
+
+            lastAccessTime = System.currentTimeMillis(); // Record Access
+            return this.connection;
+        }
+
+        /**
+         * Returns whether this connection has expired
+         * @return
+         */
+        public boolean expiredConnection() {
+            if (lastAccessTime == 0) {
+                return false;
+            }
+            try {
+                return System.currentTimeMillis() - lastAccessTime >= connectionTimeOut || connection.isClosed();
+            } catch (Throwable ex) {
+                return true;
+            }
+        }
+    }
+
+    public static void closeAll() throws SQLException {
+        for (DatabaseConnection.ConWrapper con : connections.values()) {
+            con.connection.close();
+        }
+        connections.clear();
     }
 }

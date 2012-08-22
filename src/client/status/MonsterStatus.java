@@ -21,10 +21,7 @@
 */
 package client.status;
 
-import java.io.Serializable;
-import net.IntValueHolder;
-
-public enum MonsterStatus implements IntValueHolder, Serializable {
+public enum MonsterStatus {
     NEUTRALISE(0x02),
     WATK(0x1),
     WDEF(0x2),
@@ -68,7 +65,6 @@ public enum MonsterStatus implements IntValueHolder, Serializable {
 	return first;
     }
     
-    @Override
     public int getValue() {
         return i;
     }

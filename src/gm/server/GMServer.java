@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package gm.server;
 
+import client.MapleCharacter;
 import gm.GMPacketCreator;
 import gm.GMServerHandler;
 import gm.mina.GMCodecFactory;
@@ -32,7 +33,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import net.MaplePacket;
+import net.server.channel.Channel;
+import net.server.Server;
+import net.server.world.World;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.SimpleBufferAllocator;
 import org.apache.mina.core.filterchain.IoFilter;
@@ -49,20 +52,14 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  */
 public class GMServer {
 
-    private IoAcceptor acceptor;
-    private Map<String, IoSession> outGame;//LOL
-    private Map<String, IoSession> inGame;
-    private static GMServer instance;
+    private static IoAcceptor acceptor;
+    private final static Map<String, IoSession> outGame = new HashMap<>();//LOL
+    private final static Map<String, IoSession> inGame = new HashMap<>();
+    private static boolean started = false;
     public final static String KEYWORD = "MOOPLEDEV";
 
-    public static GMServer getInstance() {
-        if (instance == null) {
-            instance = new GMServer();
-        }
-        return instance;
-    }
+    public static void startGMServer() {
 
-    public GMServer() {
         IoBuffer.setUseDirectBuffer(false);
         IoBuffer.setAllocator(new SimpleBufferAllocator());
         acceptor = new NioSocketAcceptor();
@@ -76,11 +73,20 @@ public class GMServer {
         } catch (Exception e) {
             System.out.println("Failed binding the GM Server to port : 5252");
         }
-        outGame = new HashMap<String, IoSession>();
-        inGame = new HashMap<String, IoSession>();
+
+        for (World w : Server.getInstance().getWorlds()) {//For when 
+            for (Channel c : w.getChannels()) {
+                for (MapleCharacter chr : c.getPlayerStorage().getAllCharacters()) {
+                    if (chr.isGM()) {
+                        inGame.put(chr.getName(), chr.getClient().getSession());
+                    }
+                }
+            }
+        }
+        started = true;
     }
 
-    public void broadcastOutGame(MaplePacket packet, String exclude) {
+    public static void broadcastOutGame(byte[] packet, String exclude) {
         for (IoSession ss : outGame.values()) {
             if (!ss.getAttribute("NAME").equals(exclude)) {
                 ss.write(packet);
@@ -88,13 +94,13 @@ public class GMServer {
         }
     }
 
-    public void broadcastInGame(MaplePacket packet) {
+    public static void broadcastInGame(byte[] packet) {
         for (IoSession ss : inGame.values()) {
             ss.write(packet);
         }
     }
 
-    public void addInGame(String name, IoSession session) {
+    public static void addInGame(String name, IoSession session) {
         if (!inGame.containsKey(name)) {
             broadcastOutGame(GMPacketCreator.chat(name + " has logged in."), null);
             broadcastOutGame(GMPacketCreator.addUser(name), null);
@@ -102,18 +108,18 @@ public class GMServer {
         inGame.put(name, session);//replace old one (:
     }
 
-    public void addOutGame(String name, IoSession session) {
+    public static void addOutGame(String name, IoSession session) {
         outGame.put(name, session);
     }
 
-    public void removeInGame(String name) {
+    public static void removeInGame(String name) {
         if (inGame.remove(name) != null) {
             broadcastOutGame(GMPacketCreator.removeUser(name), null);
             broadcastOutGame(GMPacketCreator.chat(name + " has logged out."), null);
         }
     }
 
-    public void removeOutGame(String name) {
+    public static void removeOutGame(String name) {
         IoSession ss = outGame.remove(name);
         if (ss != null) {
             if (!ss.isClosing()) {
@@ -123,17 +129,17 @@ public class GMServer {
         }
     }
 
-    public boolean contains(String name) {
+    public static boolean contains(String name) {
         return inGame.containsKey(name) || outGame.containsKey(name);
     }
 
-    public final void closeAllSessions() {
+    public static void closeAllSessions() {
         try {//I CAN AND IT'S FREE BITCHES
             Collection<IoSession> sss = Collections.synchronizedCollection(outGame.values());
             synchronized (sss) {
                 final Iterator<IoSession> outIt = sss.iterator();
                 while (outIt.hasNext()) {
-                    outIt.next().close(true);
+                    outIt.next().close();
                     outIt.remove();
                 }
             }
@@ -142,14 +148,14 @@ public class GMServer {
         }
     }
 
-    public List<String> getUserList(String exclude) {
-        List<String> returnList = new ArrayList<String>(outGame.keySet());
+    public static List<String> getUserList(String exclude) {
+        List<String> returnList = new ArrayList<>(outGame.keySet());
         returnList.remove(exclude);//Already sent in LoginHandler (So you are first on the list (:
         returnList.addAll(inGame.keySet());
         return returnList;
     }
 
-    public final void shutdown() {//nothing to save o.o
+    public static void shutdown() {//nothing to save o.o
         try {
             closeAllSessions();
             acceptor.unbind();
@@ -157,5 +163,9 @@ public class GMServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isStarted() {
+        return started;
     }
 }

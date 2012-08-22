@@ -40,9 +40,9 @@ public class BuddyList {
     public enum BuddyAddResult {
         BUDDYLIST_FULL, ALREADY_ON_LIST, OK
     }
-    private Map<Integer, BuddylistEntry> buddies = new LinkedHashMap<Integer, BuddylistEntry>();
+    private Map<Integer, BuddylistEntry> buddies = new LinkedHashMap<>();
     private int capacity;
-    private Deque<CharacterNameAndId> pendingRequests = new LinkedList<CharacterNameAndId>();
+    private Deque<CharacterNameAndId> pendingRequests = new LinkedList<>();
 
     public BuddyList(int capacity) {
         this.capacity = capacity;
@@ -134,7 +134,7 @@ public class BuddyList {
         return pendingRequests.pollLast();
     }
 
-    public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, byte channelFrom) {
+    public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, int channelFrom) {
         put(new BuddylistEntry(nameFrom, "Default Group", cidFrom, channelFrom, false));
         if (pendingRequests.isEmpty()) {
             c.getSession().write(MaplePacketCreator.requestBuddylistAdd(cidFrom, c.getPlayer().getId(), nameFrom));

@@ -76,6 +76,7 @@ public enum RecvOpcode {
     HIRED_MERCHANT_REQUEST(0x3F),
     FREDRICK_ACTION(0x40),
     DUEY_ACTION(0x41),
+    ADMIN_SHOP(0x44),//oh lol
     ITEM_SORT(0x45),
     ITEM_SORT2(0x46),
     ITEM_MOVE(0x47),
@@ -129,6 +130,7 @@ public enum RecvOpcode {
     NOTE_ACTION(0x83),
     USE_DOOR(0x85),
     CHANGE_KEYMAP(0x87),
+    RPS_ACTION(0x88),
     RING_ACTION(0x89),
     WEDDING_ACTION(0x8A),
     OPEN_FAMILY(0x92),

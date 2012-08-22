@@ -39,13 +39,8 @@ public class GMServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void messageSent(IoSession session, Object message) throws Exception {
-        super.messageSent(session, message);
-    }
-
-    @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        GMServer.getInstance().removeOutGame((String) session.getAttribute("NAME"));
+        GMServer.removeOutGame((String) session.getAttribute("NAME"));
     }
 
     @Override
@@ -56,7 +51,7 @@ public class GMServerHandler extends IoHandlerAdapter {
     @Override
     public void sessionClosed(IoSession session) throws Exception {
         synchronized (session) {
-            GMServer.getInstance().removeOutGame((String) session.getAttribute("NAME"));
+            GMServer.removeOutGame((String) session.getAttribute("NAME"));
         }
         super.sessionClosed(session);
     }

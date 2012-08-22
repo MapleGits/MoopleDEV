@@ -21,13 +21,12 @@
 */
 package server;
 
+import client.MapleCharacter;
+import client.MapleClient;
+import client.inventory.Item;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import client.IItem;
-import client.MapleCharacter;
-import client.MapleClient;
-import net.MaplePacket;
 import net.SendOpcode;
 import server.maps.AbstractMapleMapObject;
 import server.maps.MapleMapObjectType;
@@ -41,11 +40,11 @@ import tools.data.output.MaplePacketLittleEndianWriter;
 public class MaplePlayerShop extends AbstractMapleMapObject {
     private MapleCharacter owner;
     private MapleCharacter[] visitors = new MapleCharacter[3];
-    private List<MaplePlayerShopItem> items = new ArrayList<MaplePlayerShopItem>();
+    private List<MaplePlayerShopItem> items = new ArrayList<>();
     private MapleCharacter[] slot = {null, null, null};
     private String description;
     private int boughtnumber = 0;
-    private List<String> bannedList = new ArrayList<String>();
+    private List<String> bannedList = new ArrayList<>();
 
     public MaplePlayerShop(MapleCharacter owner, String description) {
         this.setPosition(owner.getPosition());
@@ -119,7 +118,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
     public void buy(MapleClient c, int item, short quantity) {
         if (isVisitor(c.getPlayer())) {
             MaplePlayerShopItem pItem = items.get(item);
-            IItem newItem = pItem.getItem().copy();
+            Item newItem = pItem.getItem().copy();
             newItem.setQuantity(newItem.getQuantity());
             if (quantity < 1 || pItem.getBundles() < 1 || newItem.getQuantity() > pItem.getBundles() || !pItem.isExist()) {
                 return;
@@ -149,7 +148,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
         }
     }
 
-    public void broadcastToVisitors(MaplePacket packet) {
+    public void broadcastToVisitors(final byte[] packet) {
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null) {
                 visitors[i].getClient().getSession().write(packet);
@@ -173,7 +172,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
         }
     }
 
-    public static MaplePacket shopErrorMessage(int error, int type) {
+    public static byte[] shopErrorMessage(int error, int type) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.PLAYER_INTERACTION.getValue());
         mplew.write(0x0A);
@@ -182,7 +181,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
         return mplew.getPacket();
     }
 
-    public void broadcast(MaplePacket packet) {
+    public void broadcast(final byte[] packet) {
         if (owner.getClient() != null && owner.getClient().getSession() != null) {
             owner.getClient().getSession().write(packet);
         }

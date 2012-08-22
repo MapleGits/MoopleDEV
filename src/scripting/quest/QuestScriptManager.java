@@ -21,22 +21,23 @@
 */
 package scripting.quest;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.script.Invocable;
 import client.MapleClient;
 import client.MapleQuestStatus;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.script.Invocable;
 import scripting.AbstractScriptManager;
 import server.quest.MapleQuest;
+import tools.FilePrinter;
 
 /**
  *
  * @author RMZero213
  */
 public class QuestScriptManager extends AbstractScriptManager {
-    private Map<MapleClient, QuestActionManager> qms = new HashMap<MapleClient, QuestActionManager>();
-    private Map<MapleClient, QuestScript> scripts = new HashMap<MapleClient, QuestScript>();
+    private Map<MapleClient, QuestActionManager> qms = new HashMap<>();
+    private Map<MapleClient, Invocable> scripts = new HashMap<>();
     private static QuestScriptManager instance = new QuestScriptManager();
 
     public synchronized static QuestScriptManager getInstance() {
@@ -61,23 +62,27 @@ public class QuestScriptManager extends AbstractScriptManager {
                 return;
             }
             engine.put("qm", qm);
-            QuestScript qs = iv.getInterface(QuestScript.class);
-            scripts.put(c, qs);
-            qs.start((byte) 1, (byte) 0, 0); // start it off as something
-        } catch (UndeclaredThrowableException ute) {
-            ute.printStackTrace();
-            System.out.println("Error executing Quest script. (" + quest + ") UndeclaredThrowableException.");
+            scripts.put(c, iv);
+            iv.invokeFunction("start", (byte) 1, (byte) 0, 0);
+        } catch (final UndeclaredThrowableException ute) {
+            FilePrinter.printError(FilePrinter.QUEST + questid + ".txt", ute);
+            dispose(c);
+        } catch (final Throwable t) {
+            FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", t);
             dispose(c);
         }
     }
 
     public void start(MapleClient c, byte mode, byte type, int selection) {
-        QuestScript qs = scripts.get(c);
-        if (qs != null) {
+        Invocable iv = scripts.get(c);
+        if (iv != null) {
             try {
-                qs.start(mode, type, selection);
-            } catch (Exception e) {
-                System.out.println("Error executing Quest script. (" + c.getQM().getQuest() + ") " + e);
+                iv.invokeFunction("start", mode, type, selection);
+            } catch (final UndeclaredThrowableException ute) {
+                FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", ute);
+                dispose(c);
+            } catch (final Throwable t) {
+                FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", t);
                 dispose(c);
             }
         }
@@ -101,22 +106,27 @@ public class QuestScriptManager extends AbstractScriptManager {
                 return;
             }
             engine.put("qm", qm);
-            QuestScript qs = iv.getInterface(QuestScript.class);
-            scripts.put(c, qs);
-            qs.end((byte) 1, (byte) 0, 0); // start it off as something
-        } catch (Exception e) {
-            System.out.println("Error executing Quest script. (" + quest + ") " + e);
+            scripts.put(c, iv);
+            iv.invokeFunction("end", (byte) 1, (byte) 0, 0);
+        } catch (final UndeclaredThrowableException ute) {
+            FilePrinter.printError(FilePrinter.QUEST + questid + ".txt", ute);
+            dispose(c);
+        } catch (final Throwable t) {
+            FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", t);
             dispose(c);
         }
     }
 
     public void end(MapleClient c, byte mode, byte type, int selection) {
-        QuestScript qs = scripts.get(c);
-        if (qs != null) {
+        Invocable iv = scripts.get(c);
+        if (iv != null) {
             try {
-                qs.end(mode, type, selection);
-            } catch (Exception e) {
-                System.out.println("Error executing Quest script. (" + c.getQM().getQuest() + ") " + e);
+                iv.invokeFunction("end", mode, type, selection);
+            } catch (final UndeclaredThrowableException ute) {
+                FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", ute);
+                dispose(c);
+            } catch (final Throwable t) {
+                FilePrinter.printError(FilePrinter.QUEST + getQM(c).getQuest() + ".txt", t);
                 dispose(c);
             }
         }

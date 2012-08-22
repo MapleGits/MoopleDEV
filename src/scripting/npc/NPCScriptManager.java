@@ -1,41 +1,44 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package scripting.npc;
 
+import client.MapleCharacter;
+import client.MapleClient;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.script.Invocable;
-import client.MapleClient;
-import client.MapleCharacter;
-import java.lang.reflect.UndeclaredThrowableException;
+import javax.script.ScriptException;
 import scripting.AbstractScriptManager;
+import tools.FilePrinter;
 
 /**
  *
  * @author Matze
  */
 public class NPCScriptManager extends AbstractScriptManager {
-    private Map<MapleClient, NPCConversationManager> cms = new HashMap<MapleClient, NPCConversationManager>();
-    private Map<MapleClient, NPCScript> scripts = new HashMap<MapleClient, NPCScript>();
+
+    private Map<MapleClient, NPCConversationManager> cms = new HashMap<>();
+    private Map<MapleClient, Invocable> scripts = new HashMap<>();
     private static NPCScriptManager instance = new NPCScriptManager();
 
     public synchronized static NPCScriptManager getInstance() {
@@ -46,7 +49,6 @@ public class NPCScriptManager extends AbstractScriptManager {
         try {
             NPCConversationManager cm = new NPCConversationManager(c, npc);
             if (cms.containsKey(c)) {
-                System.out.println("FUU D:");
                 dispose(c);
                 return;
             }
@@ -63,41 +65,38 @@ public class NPCScriptManager extends AbstractScriptManager {
                 return;
             }
             engine.put("cm", cm);
-            NPCScript ns = iv.getInterface(NPCScript.class);
-            scripts.put(c, ns);
-            if (chr == null) {
-                ns.start();
-            } else {
-                ns.start(chr);
+            scripts.put(c, iv);
+            try {
+                iv.invokeFunction("start");
+            } catch (final NoSuchMethodException nsme) {
+                try {
+                    iv.invokeFunction("start", chr);
+                } catch (final NoSuchMethodException nsma) {
+                    iv.invokeFunction("action", (byte) 1, (byte) 0, 0);
+                }
             }
-        } catch (UndeclaredThrowableException ute) {
-            ute.printStackTrace();
-            System.out.println("Error: NPC " + npc + ". UndeclaredThrowableException.");
-            dispose(c);
-            cms.remove(c);
+        } catch (final UndeclaredThrowableException | ScriptException ute) {
+            FilePrinter.printError(FilePrinter.NPC + npc + ".txt", ute);
             notice(c, npc);
-        } catch (Exception e) {
-            System.out.println("Error: NPC " + npc + ".");
             dispose(c);
-            cms.remove(c);
+        } catch (final Exception e) {
+            FilePrinter.printError(FilePrinter.NPC + npc + ".txt", e);
             notice(c, npc);
+            dispose(c);
         }
     }
 
     public void action(MapleClient c, byte mode, byte type, int selection) {
-        NPCScript ns = scripts.get(c);
-        if (ns != null) {
+        Invocable iv = scripts.get(c);
+        if (iv != null) {
             try {
-                ns.action(mode, type, selection);
-            } catch (UndeclaredThrowableException ute) {
-                ute.printStackTrace();
-                System.out.println("Error: NPC " + getCM(c).getNpc() + ". UndeclaredThrowableException.");
-                dispose(c);
-                notice(c, getCM(c).getNpc());
-            } catch (Exception e) {
-                System.out.println("Error: NPC " + getCM(c).getNpc() + ".");
-                dispose(c);
-                notice(c, getCM(c).getNpc());
+                iv.invokeFunction("action", mode, type, selection);
+            } catch (ScriptException | NoSuchMethodException t) {
+                if (getCM(c) != null) {
+                    FilePrinter.printError(FilePrinter.NPC + getCM(c).getNpc() + ".txt", t);
+                    notice(c, getCM(c).getNpc());
+                }
+                dispose(c);//lol this should be last, not notice fags
             }
         }
     }
@@ -120,6 +119,8 @@ public class NPCScriptManager extends AbstractScriptManager {
     }
 
     private void notice(MapleClient c, int id) {
-        c.getPlayer().dropMessage(1, "This NPC is not working properly. Please report it. NPCID: " + id);
+        if (c != null) {
+            c.getPlayer().dropMessage(1, "An unknown error occured while executing this npc. Please report it to one of the admins! ID: " + id);
+        }
     }
 }

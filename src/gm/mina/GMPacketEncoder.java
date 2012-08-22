@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package gm.mina;
 
-import net.MaplePacket;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -31,7 +30,7 @@ public class GMPacketEncoder implements ProtocolEncoder {
 
     @Override
     public synchronized void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
-        out.write(IoBuffer.wrap(((MaplePacket) message).getBytes()));
+        out.write(IoBuffer.wrap(((byte[]) message)));
     }
 
     @Override

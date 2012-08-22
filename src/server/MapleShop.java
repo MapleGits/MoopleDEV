@@ -21,6 +21,11 @@
 */
 package server;
 
+import client.MapleClient;
+import client.inventory.Item;
+import client.inventory.MapleInventoryType;
+import client.inventory.MaplePet;
+import constants.ItemConstants;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,12 +34,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import client.IItem;
-import client.Item;
-import client.MapleClient;
-import client.MapleInventoryType;
-import client.MaplePet;
-import constants.ItemConstants;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
@@ -43,7 +42,7 @@ import tools.MaplePacketCreator;
  * @author Matze
  */
 public class MapleShop {
-    private static final Set<Integer> rechargeableItems = new LinkedHashSet<Integer>();
+    private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
     private int id;
     private int npcId;
     private List<MapleShopItem> items;
@@ -66,7 +65,7 @@ public class MapleShop {
     private MapleShop(int id, int npcId) {
         this.id = id;
         this.npcId = npcId;
-        items = new ArrayList<MapleShopItem>();
+        items = new ArrayList<>();
     }
 
     private void addItem(MapleShopItem item) {
@@ -155,7 +154,7 @@ public class MapleShop {
             quantity = 1;
         }
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        IItem item = c.getPlayer().getInventory(type).getItem((byte) slot);
+        Item item = c.getPlayer().getInventory(type).getItem((byte) slot);
         if (ItemConstants.isRechargable(item.getItemId())) {
             quantity = item.getQuantity();
         }
@@ -184,7 +183,7 @@ public class MapleShop {
 
     public void recharge(MapleClient c, byte slot) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        IItem item = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
+        Item item = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
         if (item == null || !ItemConstants.isRechargable(item.getItemId())) {
             return;
         }
@@ -196,7 +195,7 @@ public class MapleShop {
             int price = (int) Math.round(ii.getPrice(item.getItemId()) * (slotMax - item.getQuantity()));
             if (c.getPlayer().getMeso() >= price) {
                 item.setQuantity(slotMax);
-                c.getSession().write(MaplePacketCreator.updateInventorySlot(MapleInventoryType.USE, (Item) item));
+                c.getPlayer().forceUpdateItem(item);
                 c.getPlayer().gainMeso(-price, false, true, false);
                 c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0x8));
             } else {
@@ -236,7 +235,7 @@ public class MapleShop {
             ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
             ps.setInt(1, shopId);
             rs = ps.executeQuery();
-            List<Integer> recharges = new ArrayList<Integer>(rechargeableItems);
+            List<Integer> recharges = new ArrayList<>(rechargeableItems);
             while (rs.next()) {
                 if (ItemConstants.isRechargable(rs.getInt("itemid"))) {
                     MapleShopItem starItem = new MapleShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"), rs.getInt("pitch"));

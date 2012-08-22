@@ -21,7 +21,7 @@
 */
 package constants;
 
-import client.MapleInventoryType;
+import client.inventory.MapleInventoryType;
 
 /**
  *

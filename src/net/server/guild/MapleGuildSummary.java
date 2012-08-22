@@ -21,8 +21,7 @@
 */
 package net.server.guild;
 
-public class MapleGuildSummary implements java.io.Serializable {
-    private static final long serialVersionUID = 2107845458870315533L;
+public class MapleGuildSummary {
     private String name;
     private short logoBG;
     private byte logoBGColor;

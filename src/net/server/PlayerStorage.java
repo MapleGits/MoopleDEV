@@ -21,8 +21,8 @@
 */
 package net.server;
 
-import java.util.Collection;
 import client.MapleCharacter;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class PlayerStorage {
     private final ReentrantReadWriteLock locks = new ReentrantReadWriteLock();
     private final Lock rlock = locks.readLock();
     private final Lock wlock = locks.writeLock();
-    private final Map<Integer, MapleCharacter> storage = new LinkedHashMap<Integer, MapleCharacter>();
+    private final Map<Integer, MapleCharacter> storage = new LinkedHashMap<>();
 
     public void addPlayer(MapleCharacter chr) {
         wlock.lock();
@@ -89,7 +89,7 @@ public class PlayerStorage {
 	try {	    
             final Iterator<MapleCharacter> chrit = storage.values().iterator();
 	    while (chrit.hasNext()) {
-                chrit.next().getClient().disconnect();
+                chrit.next().getClient().disconnect(true, false);
                 chrit.remove();
             }
 	} finally {

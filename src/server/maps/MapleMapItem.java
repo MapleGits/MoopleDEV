@@ -20,23 +20,23 @@
 */
 package server.maps;
 
-import java.awt.Point;
-import client.IItem;
 import client.MapleCharacter;
 import client.MapleClient;
+import client.inventory.Item;
+import java.awt.Point;
 import java.util.concurrent.locks.ReentrantLock;
 import tools.MaplePacketCreator;
 
 public class MapleMapItem extends AbstractMapleMapObject {
 
-    protected IItem item;
+    protected Item item;
     protected MapleMapObject dropper;
     protected int character_ownerid, meso, questid = -1;
     protected byte type;
     protected boolean pickedUp = false, playerDrop;
     public ReentrantLock itemLock = new ReentrantLock();
 
-    public MapleMapItem(IItem item, Point position, MapleMapObject dropper, MapleCharacter owner, byte type, boolean playerDrop) {
+    public MapleMapItem(Item item, Point position, MapleMapObject dropper, MapleCharacter owner, byte type, boolean playerDrop) {
 	setPosition(position);
 	this.item = item;
 	this.dropper = dropper;
@@ -46,7 +46,7 @@ public class MapleMapItem extends AbstractMapleMapObject {
 	this.playerDrop = playerDrop;
     }
 
-    public MapleMapItem(IItem item, Point position, MapleMapObject dropper, MapleCharacter owner, byte type, boolean playerDrop, int questid) {
+    public MapleMapItem(Item item, Point position, MapleMapObject dropper, MapleCharacter owner, byte type, boolean playerDrop, int questid) {
 	setPosition(position);
 	this.item = item;
 	this.dropper = dropper;
@@ -67,7 +67,7 @@ public class MapleMapItem extends AbstractMapleMapObject {
 	this.playerDrop = playerDrop;
     }
 
-    public final IItem getItem() {
+    public final Item getItem() {
 	return item;
     }
 

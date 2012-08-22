@@ -1,36 +1,40 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net;
 
 public enum SendOpcode {
+
     LOGIN_STATUS(0x00),
-    SEND_LINK(0x01),
-    SERVERSTATUS(0x03),
-    GENDER_DONE(0x04),
-    TOS(0x05),
-    PIN_OPERATION(0x06),
-    PIN_ASSIGNED(0x07),
-    ALL_CHARLIST(0x08),
-    AFTER_LOGIN_ERROR(0x09),
+    GUEST_ID_LOGIN(0x01),
+    ACCOUNT_INFO(0x02),//I guess this was in v83 too :)
+    SERVERSTATUS(0x03),//CHECK_USER_LIMIT_RESULT
+    GENDER_DONE(0x04),//SET_ACCOUNT_RESULT
+    CONFIRM_EULA_RESULT(0x05),
+    CHECK_PINCODE(0x06),
+    UPDATE_PINCODE(0x07),
+    
+    VIEW_ALL_CHAR(0x08),
+    SELECT_CHARACTER_BY_VAC(0x09),
+    
     SERVERLIST(0x0A),
     CHARLIST(0x0B),
     SERVER_IP(0x0C),
@@ -41,22 +45,25 @@ public enum SendOpcode {
     PING(0x11),
     KOREAN_INTERNET_CAFE_SHIT(0x12),//Useless ignore it.
     CHANNEL_SELECTED(0x14),
+    HACKSHIELD_REQUEST(0x15),//maybe this is RELOG_RESPONSE, can't care less
     RELOG_RESPONSE(0x16),
-    SELECT_WORLD(0x1A),
-    SEND_RECOMMENDED(0x1B),
-    WRONG_PIC(0x1C),
-    MODIFY_INVENTORY_ITEM(0x1D),
-    UPDATE_INVENTORY_SLOTS(0x1E),
-    UPDATE_STATS(0x1F),
+    CHECK_CRC_RESULT(0x19),
+    LAST_CONNECTED_WORLD(0x1A),
+    RECOMMENDED_WORLD_MESSAGE(0x1B),
+    CHECK_SPW_RESULT(0x1C),
+    
+    INVENTORY_OPERATION(0x1D),
+    INVENTORY_GROW(0x1E),
+    STAT_CHANGED(0x1F),
     GIVE_BUFF(0x20),
     CANCEL_BUFF(0x21),
-    TEMPORARY_STATS(0x22),
-    TEMPORARY_SKILLS(0x23),
+    FORCED_STAT_SET(0x22),
+    FORCED_STAT_RESET(0x23),
     UPDATE_SKILLS(0x24),
     FAME_RESPONSE(0x26),
     SHOW_STATUS_INFO(0x27),
-    GAMEPATCHES_DC(0x28),
-    NOTE_ACTION(0x29),
+    OPEN_FULL_CLIENT_DOWNLOAD_LINK(0x28),
+    MEMO_RESULT(0x29),
     TROCK_LOCATIONS(0x2A),
     LIE_DETECTOR(0x2B),
     REPORTREPLY(0x2D),
@@ -65,10 +72,10 @@ public enum SendOpcode {
     SHOW_QUEST_COMPLETION(0x31),
     SEND_TITLE_BOX(0x32),
     USE_SKILL_BOOK(0x33),
-    FINISH_SORT(0x34),
-    FINISH_SORT2(0x35),
+    GATHER_ITEM_RESULT(0x34),
+    SORT_ITEM_RESULT(0x35),
     REPORT_RESPONSE(0x37),
-    MESO_LIMIT(0x39),
+    TRADE_MONEY_LIMIT(0x39),
     GENDER(0x3A),
     BBS_OPERATION(0x3B),
     CHAR_INFO(0x3D),
@@ -80,17 +87,27 @@ public enum SendOpcode {
     SERVERMESSAGE(0x44),
     SOMETHING_WITH_INVENTORY(0x45), //45 00 00 = Inventory is full betches
     OWL_OF_MINERVA(0x46), //WOOT
-    RING_ACTION(0x48),
-    RING_ACTION2(0x49),
-    WEDDING_ACTION(0x4A),
-    PET_MESSAGE(0x4C), //4C 00 01 00 00 00
-    YELLOW_TIP(0x4D),
-    CATCH_MESSAGE(0x4F),
+    
+    RING_RESULT(0x48),
+    MARRIAGE_RESULT(0x49),
+    WEDDING_GIFT_RESULT(0x4A),
+    NOTIFY_MARRIED_PARTNER_MAP_TRANSFER(0x4B),
+    
+    CASH_PET_FOOD_RESULT(0x4C), //4C 00 01 00 00 00
+    WEEK_EVENT_MESSAGE(0x4D),
+    SET_POTION_DISCOUNT_RATE(0x4E),
+    
+    BRIDLE_MOB_CATCH_FAIL(0x4F),
     PLAYER_NPC(0x51),
+    IMITATED_NPC_DATA(0x52),
     MONSTERBOOK_ADD(0x53),
     MONSTER_BOOK_CHANGE_COVER(0x55),
-    MINIMAP_SHIT(0x56), //Resets minimap or something xD
-    ENERGY(0x5A),
+    MINIMAP_ON_OFF(0x56),
+    CONSULT_AUTHKEY_UPDATE(0x57),
+    CLASS_COMPETITION_AUTHKEY_UPDATE(0x58),
+    WEB_BOARD_AUTHKEY_UPDATE(0x59),
+    SESSION_VALUE(0x5A),
+    BONUS_EXP_CHANGED(0x5C),//pendant of spirit etc (guess, not sure about the opcode in v83)
     SHOW_PEDIGREE(0x5E),
     OPEN_FAMILY(0x5F),
     FAMILY_MESSAGE(0x60),
@@ -102,53 +119,70 @@ public enum SendOpcode {
     FAMILY_LOGIN(0x66), //? is logged in. LOLWUT
     FAMILY_BUFF(0x67),
     FAMILY_USE_REQUEST(0x68),
-    LEVELUP_MSG(0x69),
-    MARRIAGE_MSG(0x6A),
-    JOB_MSG(0x6B),
-    BLANK_MESSAGE(0x6D), //It's not blank, It's a popup nibs
+    
+    NOTIFY_LEVELUP(0x69),
+    NOTIFY_MARRIAGE(0x6A),
+    NOTIFY_JOB_CHANGE(0x6B),
+    SET_BUY_EQUIP_EXT(0x6C),//lol?
+    MAPLE_TV_RESULT(0x6D), //It's not blank, It's a popup nibs
+    AVATAR_RESULT(0x6E),//useless t-t
     AVATAR_MEGA(0x6F),
-    NAME_CHANGE_MESSAGE(0x71),
-    CHARACTER_TRANSFER_MESSAGE(0x72),
-    UNKNOWN_ERROR_MSG(0x73),
+    REMOVE_MEGA(0x70),
+    CANCEL_NAME_CHANGE(0x71),
+    CANCEL_CHARACTER_TRANSFER(0x72),
+    DESTROY_SHOP_RESULT(0x73),
     GM_POLICE(0x74),
     SILVER_BOX(0x75),
-    UNKNOWN_MESSAGE3(0x76),
-    NAME_CHANGE_MESSAGE2(0x78),
-    EARN_TITLE_MSG(0x7A),
+    NEW_YEAR_CARD(0x76),
+    RANDOM_MORPH(0x77),
+    CANCEL_NAME_CHANGE_BY_OTHER(0x78),
+    SCRIPT_PROGRESS_MESSAGE(0x7A),
     MAPLE_ADMIN(0x7B),
     SKILL_MACRO(0x7C),
     WARP_TO_MAP(0x7D),
     OPEN_MTS(0x7E),
     OPEN_CASHSHOP(0x7F),
-    RESET_SCREEN(0x82),
-    BLOCK_MESSAGE(0x83),
-    BLOCK_MESSAGE2(0x84),
-    FORCED_MAP_EQUIP(0x85),
+    SET_BACK_EFFECT(0x80),
+    SET_MAP_OBJECT_VISIBLE(0x81),//CMapLoadable::OnSetMapObjectVisible O_O
+    CLEAR_BACK_EFFECT(0x82),
+    BLOCKED_MAP(0x83),//TransferFieldRequestIgnored
+    BLOCKED_SERVER(0x84),
+    FORCED_MAP_EQUIP(0x85),//FIELD_SPECIFIC_DATA
     MULTICHAT(0x86),
     WHISPER(0x87),
     SPOUSE_CHAT(0x88),
-    WEIRD_MSG(0x89), //You can't use it in this map
-    BOSS_ENV(0x8A),
-    BLOCK_PORTAL_SHOP(0x8B), 
-    MAP_EFFECT(0x8E),
-    HPQ_MOON(0x8F),//Thanks for the info RMZero.
-    GM_PACKET(0x90),
-    OX_QUIZ(0x91),
-    GMEVENT_INSTRUCTIONS(0x92),
+    SUMMON_ITEM_INAVAILABLE(0x89), //You can't use it in this map
+    
+    FIELD_EFFECT(0x8A),
+    FIELD_OBSTACLE_ONOFF(0x8B),
+    FIELD_OBSTACLE_ONOFF_STATUS(0x8C),
+    FIELD_OBSTACLE_ALL_RESET(0x8D),
+    BLOW_WEATHER(0x8E),
+    PLAY_JUKEBOX(0x8F),
+
+    ADMIN_RESULT(0x90),
+    OX_QUIZ(0x91),//QUIZ
+    GMEVENT_INSTRUCTIONS(0x92),//DESC
     CLOCK(0x93),
-    BOAT_EFFECT(0x95),
-    POPUP(0x98),
+    BOAT_EFFECT(0x94),
+    //boat shit too (0x95)
+    SET_QUEST_CLEAR(0x96),
+    SET_QUEST_TIME(0x97),
+    WARN_MESSAGE(0x98),
+    SET_OBJECT_STATE(0x99),
     STOP_CLOCK(0x9A),
     ARIANT_SCOREBOARD(0x9B),
     PYRAMID_GAUGE(0x9D),
     PYRAMID_SCORE(0x9E),
     SPAWN_PLAYER(0xA0),
     REMOVE_PLAYER_FROM_MAP(0xA1),
-    CHATTEXT(0xA2),
-    CHATTEXT1(0xA3), //WEIRD, EXACTLY THE SAME SHIT?
+    CHATTEXT(0xA2), //0
+    CHATTEXT1(0xA3), //1
     CHALKBOARD(0xA4),
     UPDATE_CHAR_BOX(0xA5),
+    SHOW_CONSUME_EFFECT(0xA6),
     SHOW_SCROLL_EFFECT(0xA7),
+    
     SPAWN_PET(0xA8),
     MOVE_PET(0xAA),
     PET_CHAT(0xAB),
@@ -165,6 +199,7 @@ public enum SendOpcode {
     CLOSE_RANGE_ATTACK(0xBA),
     RANGED_ATTACK(0xBB),
     MAGIC_ATTACK(0xBC),
+    ENERGY_ATTACK(0xBD),
     SKILL_EFFECT(0xBE),
     CANCEL_SKILL_EFFECT(0xBF),
     DAMAGE_PLAYER(0xC0),
@@ -246,14 +281,29 @@ public enum SendOpcode {
     NPC_TALK(0x130),
     OPEN_NPC_SHOP(0x131),
     CONFIRM_SHOP_TRANSACTION(0x132),
+    ADMIN_SHOP_MESSAGE(0x133),//lame :P
+    ADMIN_SHOP(0x134),
     STORAGE(0x135),
     FREDRICK_MESSAGE(0x136),
     FREDRICK(0x137),
+    RPS_GAME(0x138),
     MESSENGER(0x139),
     PLAYER_INTERACTION(0x13A),
-    DUEY(0x13C),
-    SHOW_CASH(0x144), 
-    CASHSHOP_OPERATION(0x145), 
+    
+    TOURNAMENT(0x13B),
+    TOURNAMENT_MATCH_TABLE(0x13C),
+    TOURNAMENT_SET_PRIZE(0x13D),
+    TOURNAMENT_UEW(0x13E),
+    TOURNAMENT_CHARACTERS(0x13F),
+    WEDDING_PROGRESS(0x140),
+    WEDDING_CEREMONY_END(0x141),
+    
+    PARCEL(0x142),
+    
+    CHARGE_PARAM_RESULT(0x143),
+    QUERY_CASH_RESULT(0x144),
+    CASHSHOP_OPERATION(0x145),
+    
     KEYMAP(0x14F),
     AUTO_HP_POT(0x150),
     AUTO_MP_POT(0x151),

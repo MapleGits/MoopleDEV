@@ -21,11 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import java.awt.Point;
 import client.MapleClient;
+import java.awt.Point;
 import scripting.portal.PortalScriptManager;
 import server.MaplePortal;
-import server.FourthJobQuestsPortalHandler;
 import tools.MaplePacketCreator;
 
 public class MapleGenericPortal implements MaplePortal {
@@ -118,9 +117,7 @@ public class MapleGenericPortal implements MaplePortal {
     public void enterPortal(MapleClient c) {
         boolean changed = false;
         if (getScriptName() != null) {
-            if (!FourthJobQuestsPortalHandler.handlePortal(getScriptName(), c.getPlayer())) {
-                changed = PortalScriptManager.getInstance().executePortalScript(this, c);
-            }
+            changed = PortalScriptManager.getInstance().executePortalScript(this, c);
         } else if (getTargetMapId() != 999999999) {
             MapleMap to = c.getPlayer().getEventInstance() == null ? c.getChannelServer().getMapFactory().getMap(getTargetMapId()) : c.getPlayer().getEventInstance().getMapInstance(getTargetMapId());
             MaplePortal pto = to.getPortal(getTarget());

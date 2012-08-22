@@ -20,13 +20,11 @@
 */
 package server.maps;
 
-import net.LongValueHolder;
-
 /**
  *
  * @author AngelSL
  */
-public enum FieldLimit implements LongValueHolder {
+public enum FieldLimit {
     JUMP(0x01),
     MOVEMENTSKILLS(0x02),
     SUMMON(0x04),
@@ -51,7 +49,6 @@ public enum FieldLimit implements LongValueHolder {
         this.i = i;
     }
 
-    @Override
     public long getValue() {
         return i;
     }

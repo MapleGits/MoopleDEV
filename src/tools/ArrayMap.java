@@ -21,7 +21,6 @@
 */
 package tools;
 
-import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -29,11 +28,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ArrayMap<K, V> extends AbstractMap<K, V> implements Serializable {
-    static final long serialVersionUID = 9179541993413738569L;
+public class ArrayMap<K, V> extends AbstractMap<K, V> {
 
-    static class Entry<K, V> implements Map.Entry<K, V>, Serializable {
-        static final long serialVersionUID = 9179541993413738569L;
+    static class Entry<K, V> implements Map.Entry<K, V> {
         protected K key;
         protected V value;
 
@@ -42,14 +39,17 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> implements Serializable {
             this.value = value;
         }
 
+        @Override
         public K getKey() {
             return key;
         }
 
+        @Override
         public V getValue() {
             return value;
         }
 
+        @Override
         public V setValue(V newValue) {
             V oldValue = value;
             value = newValue;
@@ -81,16 +81,16 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> implements Serializable {
     private ArrayList<Entry<K, V>> list;
 
     public ArrayMap() {
-        list = new ArrayList<Entry<K, V>>();
+        list = new ArrayList<>();
     }
 
     public ArrayMap(Map<K, V> map) {
-        list = new ArrayList<Entry<K, V>>();
+        list = new ArrayList<>();
         putAll(map);
     }
 
     public ArrayMap(int initialCapacity) {
-        list = new ArrayList<Entry<K, V>>(initialCapacity);
+        list = new ArrayList<>(initialCapacity);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> implements Serializable {
             oldValue = entry.getValue();
             entry.setValue(value);
         } else {
-            list.add(new Entry<K, V>(key, value));
+            list.add(new Entry<>(key, value));
         }
         return oldValue;
     }

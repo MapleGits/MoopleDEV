@@ -74,16 +74,6 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     }
 
     /**
-     * Writes 0 times number of times.
-     * 
-     * @param times The number of times to write.
-     */
-    public void write0(int times) {
-        for(int i = 0; i < times; i++)
-        bos.writeByte((byte) 0);
-    }
-
-    /**
      * Write a byte in integer form to the stream.
      *
      * @param b The byte as an <code>Integer</code> to write.
@@ -177,7 +167,17 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      */
     @Override
     public void writePos(Point s) {
-	writeShort(s.x);
-	writeShort(s.y);
+        writeShort(s.x);
+        writeShort(s.y);
+    }
+
+    /**
+     * Writes a boolean true ? 1 : 0
+     *
+     * @param b The boolean to write.
+     */
+    @Override
+    public void writeBool(final boolean b) {
+        write(b ? 1 : 0);
     }
 }

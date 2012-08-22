@@ -31,8 +31,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.Invocable;
 import javax.script.ScriptException;
-import net.server.Channel;
-import net.server.MapleParty;
+import net.server.channel.Channel;
+import net.server.world.MapleParty;
 import server.TimerManager;
 import server.maps.MapleMap;
 

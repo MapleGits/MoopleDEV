@@ -1,27 +1,30 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.maps;
 
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,19 +36,17 @@ import server.PortalFactory;
 import server.life.AbstractLoadedMapleLife;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
-import tools.StringUtil;
-import java.awt.Point;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import tools.DatabaseConnection;
+import tools.StringUtil;
 
 public class MapleMapFactory {
+
     private MapleDataProvider source;
     private MapleData nameData;
-    private Map<Integer, MapleMap> maps = new HashMap<Integer, MapleMap>();
-    private byte channel, world;
+    private Map<Integer, MapleMap> maps = new HashMap<>();
+    private int channel, world;
 
-    public MapleMapFactory(MapleDataProvider source, MapleDataProvider stringSource, byte world, byte channel) {
+    public MapleMapFactory(MapleDataProvider source, MapleDataProvider stringSource, int world, int channel) {
         this.source = source;
         this.nameData = stringSource.getData("Map.img");
         this.world = world;
@@ -83,11 +84,12 @@ public class MapleMapFactory {
                     map.addPortal(portalFactory.makePortal(MapleDataTool.getInt(portal.getChildByPath("pt")), portal));
                 }
                 MapleData timeMob = mapData.getChildByPath("info/timeMob");
-                if (timeMob != null)
-                    map.timeMob(MapleDataTool.getInt(timeMob.getChildByPath("id")), 
-                                MapleDataTool.getString(timeMob.getChildByPath("message")));
+                if (timeMob != null) {
+                    map.timeMob(MapleDataTool.getInt(timeMob.getChildByPath("id")),
+                            MapleDataTool.getString(timeMob.getChildByPath("message")));
+                }
 
-                List<MapleFoothold> allFootholds = new LinkedList<MapleFoothold>();
+                List<MapleFoothold> allFootholds = new LinkedList<>();
                 Point lBound = new Point();
                 Point uBound = new Point();
                 for (MapleData footRoot : mapData.getChildByPath("foothold")) {
@@ -130,21 +132,22 @@ public class MapleMapFactory {
                         map.addMapleArea(new Rectangle(x1, y1, (x2 - x1), (y2 - y1)));
                     }
                 }
-                try { // TODO, make better, perhaps for few maps only OKIDOKI!
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM playernpcs WHERE map = ?");
-                    ps.setInt(1, omapid);
-                    ResultSet rs = ps.executeQuery();
-                    while (rs.next()) {
-                        map.addMapObject(new PlayerNPCs(rs));
+                try { try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM playernpcs WHERE map = ?")) {
+                        ps.setInt(1, omapid);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            while (rs.next()) {
+                                map.addMapObject(new PlayerNPCs(rs));
+                            }
+                        }
                     }
-                    rs.close();
-                    ps.close();
                 } catch (Exception e) {
                 }
                 for (MapleData life : mapData.getChildByPath("life")) {
                     String id = MapleDataTool.getString(life.getChildByPath("id"));
                     String type = MapleDataTool.getString(life.getChildByPath("type"));
-                    if (id.equals("9001105")) id = "9001108";//soz
+                    if (id.equals("9001105")) {
+                        id = "9001108";//soz
+                    }
                     AbstractLoadedMapleLife myLife = loadLife(life, id, type);
                     if (myLife instanceof MapleMonster) {
                         MapleMonster monster = (MapleMonster) myLife;
@@ -264,11 +267,11 @@ public class MapleMapFactory {
         return builder.toString();
     }
 
-    public void setChannel(byte channel) {
+    public void setChannel(int channel) {
         this.channel = channel;
     }
 
-    public void setWorld(byte world) {
+    public void setWorld(int world) {
         this.channel = world;
     }
 

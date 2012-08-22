@@ -21,27 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
+import client.MapleCharacter;
+import client.MapleClient;
+import client.inventory.Item;
+import client.inventory.ItemFactory;
+import client.inventory.MapleInventoryType;
+import com.mysql.jdbc.Statement;
+import constants.ItemConstants;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import client.IItem;
-import client.ItemFactory;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleInventoryType;
-import com.mysql.jdbc.Statement;
-import constants.ItemConstants;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import tools.DatabaseConnection;
-import net.MaplePacket;
 import net.server.Server;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MaplePlayerShopItem;
 import server.TimerManager;
+import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 import tools.Pair;
 
@@ -52,14 +51,14 @@ import tools.Pair;
 public class HiredMerchant extends AbstractMapleMapObject {
 
     private int ownerId, itemId, mesos = 0;
-    private byte channel, world;
+    private int channel, world;
     private long start;
     private String ownerName = "";
     private String description = "";
     private MapleCharacter[] visitors = new MapleCharacter[3];
-    private List<MaplePlayerShopItem> items = new LinkedList<MaplePlayerShopItem>();
-    private List<Pair<String, Byte>> messages = new LinkedList<Pair<String, Byte>>();
-    private List<SoldItem> sold = new LinkedList<SoldItem>();
+    private List<MaplePlayerShopItem> items = new LinkedList<>();
+    private List<Pair<String, Byte>> messages = new LinkedList<>();
+    private List<SoldItem> sold = new LinkedList<>();
     private boolean open;
     public ScheduledFuture<?> schedule = null;
     private MapleMap map;
@@ -83,7 +82,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         }, 1000 * 60 * 60 * 24);
     }
 
-    public void broadcastToVisitors(MaplePacket packet) {
+    public void broadcastToVisitors(final byte[] packet) {
         for (MapleCharacter visitor : visitors) {
             if (visitor != null) {
                 visitor.getClient().getSession().write(packet);
@@ -134,12 +133,12 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public void buy(MapleClient c, int item, short quantity) {
         MaplePlayerShopItem pItem = items.get(item);
         synchronized (items) {
-            IItem newItem = pItem.getItem().copy();
+            Item newItem = pItem.getItem().copy();
             newItem.setQuantity((short) ((pItem.getItem().getQuantity() * quantity)));
             if ((newItem.getFlag() & ItemConstants.KARMA) == ItemConstants.KARMA) {
                 newItem.setFlag((byte) (newItem.getFlag() ^ ItemConstants.KARMA));
             }
-            if (newItem.getType() == IItem.ITEM && (newItem.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES) {
+            if (newItem.getType() == 2 && (newItem.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES) {
                 newItem.setFlag((byte) (newItem.getFlag() ^ ItemConstants.SPIKES));
             }
             if (quantity < 1 || pItem.getBundles() < 1 || !pItem.isExist() || pItem.getBundles() < quantity) {
@@ -166,10 +165,10 @@ public class HiredMerchant extends AbstractMapleMapObject {
                         owner.addMerchantMesos(price);
                     } else {
                         try {
-                            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = MerchantMesos + " + price + " WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
-                            ps.setInt(1, ownerId);
-                            ps.executeUpdate();
-                            ps.close();
+                            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET MerchantMesos = MerchantMesos + " + price + " WHERE id = ?", Statement.RETURN_GENERATED_KEYS)) {
+                                ps.setInt(1, ownerId);
+                                ps.executeUpdate();
+                            }
                         } catch (Exception e) {
                         }
                     }
@@ -208,13 +207,13 @@ public class HiredMerchant extends AbstractMapleMapObject {
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(ownerId));
         c.getChannelServer().removeHiredMerchant(ownerId);
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, ownerId);
-            ps.executeUpdate();
-            ps.close();
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE characters SET HasMerchant = 0 WHERE id = ?", Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, ownerId);
+                ps.executeUpdate();
+            }
             if (check(c.getPlayer(), getItems()) && !timeout) {
                 for (MaplePlayerShopItem mpsi : getItems()) {
-                    if (mpsi.isExist() && (mpsi.getItem().getType() == IItem.EQUIP)) {
+                    if (mpsi.isExist() && (mpsi.getItem().getType() == 1)) {
                         MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), false);
                     } else if (mpsi.isExist()) {
                         MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getExpiration());
@@ -299,17 +298,17 @@ public class HiredMerchant extends AbstractMapleMapObject {
     }
 
     public void saveItems(boolean shutdown) throws SQLException {
-        List<Pair<IItem, MapleInventoryType>> itemsWithType = new ArrayList<Pair<IItem, MapleInventoryType>>();
+        List<Pair<Item, MapleInventoryType>> itemsWithType = new ArrayList<>();
 
         for (MaplePlayerShopItem pItems : items) {
-            IItem newItem = pItems.getItem();
+            Item newItem = pItems.getItem();
             if (shutdown) {
                 newItem.setQuantity((short) (pItems.getItem().getQuantity() * pItems.getBundles()));
             } else {
                 newItem.setQuantity(pItems.getItem().getQuantity());
             }
             if (pItems.getBundles() > 0) {
-                itemsWithType.add(new Pair<IItem, MapleInventoryType>(newItem, MapleInventoryType.getByType(newItem.getType())));
+                itemsWithType.add(new Pair<>(newItem, MapleInventoryType.getByType(newItem.getType())));
             }
         }
         ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId);
@@ -317,7 +316,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
     private static boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items) {
         byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
-        List<MapleInventoryType> li = new LinkedList<MapleInventoryType>();
+        List<MapleInventoryType> li = new LinkedList<>();
         for (MaplePlayerShopItem item : items) {
             final MapleInventoryType invtype = MapleItemInformationProvider.getInstance().getInventoryType(item.getItem().getItemId());
             if (!li.contains(invtype)) {
@@ -361,7 +360,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         return true;
     }
 
-    public byte getChannel() {
+    public int getChannel() {
         return channel;
     }
 
@@ -387,7 +386,6 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        return;
     }
 
     @Override

@@ -24,9 +24,8 @@ public class LoginHandler implements GMPacketHandler {
             session.write(GMPacketCreator.sendLoginResponse((byte) -1, null));
             return;
         }
-        GMServer server = GMServer.getInstance();
         String login = slea.readMapleAsciiString();
-        if (server.contains(login)) {
+        if (GMServer.contains(login)) {
             session.write(GMPacketCreator.sendLoginResponse((byte) 0, null));
             return;
         }
@@ -63,11 +62,11 @@ public class LoginHandler implements GMPacketHandler {
                     return;
                     }*/
                     session.setAttribute("NAME", login);
-                    server.addOutGame(login, session);
+                    GMServer.addOutGame(login, session);
                     session.write(GMPacketCreator.sendLoginResponse((byte) 3, login));
-                    server.broadcastOutGame(GMPacketCreator.chat(login + " has logged in."), login);
-                    server.broadcastOutGame(GMPacketCreator.addUser(login), login);
-                    session.write(GMPacketCreator.sendUserList(server.getUserList(login)));
+                    GMServer.broadcastOutGame(GMPacketCreator.chat(login + " has logged in."), login);
+                    GMServer.broadcastOutGame(GMPacketCreator.addUser(login), login);
+                    session.write(GMPacketCreator.sendUserList(GMServer.getUserList(login)));
                     return;
                 }
             }

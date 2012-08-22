@@ -21,15 +21,15 @@
 */
 package server;
 
+import client.MapleCharacter;
+import client.inventory.Item;
+import client.inventory.MapleInventoryType;
+import constants.ItemConstants;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import client.IItem;
-import client.MapleCharacter;
-import client.MapleInventoryType;
-import constants.ItemConstants;
-import java.util.ArrayList;
 import tools.MaplePacketCreator;
 
 /**
@@ -38,8 +38,8 @@ import tools.MaplePacketCreator;
  */
 public class MapleTrade {
     private MapleTrade partner = null;
-    private List<IItem> items = new ArrayList<IItem>();
-    private List<IItem> exchangeItems;
+    private List<Item> items = new ArrayList<>();
+    private List<Item> exchangeItems;
     private int meso = 0;
     private int exchangeMeso;
     boolean locked = false;
@@ -82,10 +82,10 @@ public class MapleTrade {
     private void complete2() {
         items.clear();
         meso = 0;
-        for (IItem item : exchangeItems) {
+        for (Item item : exchangeItems) {
             if ((item.getFlag() & ItemConstants.KARMA) == ItemConstants.KARMA) 
                 item.setFlag((byte) (item.getFlag() ^ ItemConstants.KARMA)); //items with scissors of karma used on them are reset once traded
-            else if (item.getType() == IItem.ITEM && (item.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES)
+            else if (item.getType() == 2 && (item.getFlag() & ItemConstants.SPIKES) == ItemConstants.SPIKES)
                 item.setFlag((byte) (item.getFlag() ^ ItemConstants.SPIKES));
 
                 MapleInventoryManipulator.addFromDrop(chr.getClient(), item, true);
@@ -101,7 +101,7 @@ public class MapleTrade {
     }
 
     private void cancel() {
-        for (IItem item : items) {
+        for (Item item : items) {
             MapleInventoryManipulator.addFromDrop(chr.getClient(), item, true);
         }
         if (meso > 0) {
@@ -145,7 +145,7 @@ public class MapleTrade {
         }
     }
 
-    public void addItem(IItem item) {
+    public void addItem(Item item) {
         items.add(item);
         chr.getClient().getSession().write(MaplePacketCreator.getTradeItemAdd((byte) 0, item));
         if (partner != null) {
@@ -175,14 +175,14 @@ public class MapleTrade {
         return chr;
     }
 
-    public List<IItem> getItems() {
-        return new LinkedList<IItem>(items);
+    public List<Item> getItems() {
+        return new LinkedList<>(items);
     }
 
     private boolean fitsInInventory() {
         MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
-        Map<MapleInventoryType, Integer> neededSlots = new LinkedHashMap<MapleInventoryType, Integer>();
-        for (IItem item : exchangeItems) {
+        Map<MapleInventoryType, Integer> neededSlots = new LinkedHashMap<>();
+        for (Item item : exchangeItems) {
             MapleInventoryType type = mii.getInventoryType(item.getItemId());
             if (neededSlots.get(type) == null) {
                 neededSlots.put(type, 1);

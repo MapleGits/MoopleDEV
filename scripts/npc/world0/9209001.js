@@ -51,7 +51,7 @@ function action(mode, type, selection) {
     } else if(status == 1) {
         if (sel == 0) {
             cm.warp(680100000 + parseInt(Math.random() * 3));
-            cm.getPlayer().saveLocation("SUNDAY_MARKET");
+            cm.getPlayer().saveLocation("EVENT");//harhar
             cm.dispose();
         } else if (selection == 0) {
             cm.sendNext("The Maple 7th Day Market opens only on Sundays. You can enter if you find me in any town, Henesys, New Leaf City, Leafre, Kerning City, Ludibrium, I'm just about everywhere!");

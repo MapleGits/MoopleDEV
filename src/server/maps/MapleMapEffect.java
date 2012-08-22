@@ -22,7 +22,6 @@
 package server.maps;
 
 import client.MapleClient;
-import net.MaplePacket;
 import tools.MaplePacketCreator;
 
 public class MapleMapEffect {
@@ -35,11 +34,11 @@ public class MapleMapEffect {
         this.itemId = itemId;
     }
 
-    public MaplePacket makeDestroyData() {
+    public final byte[] makeDestroyData() {
         return MaplePacketCreator.removeMapEffect();
     }
 
-    public MaplePacket makeStartData() {
+    public final byte[] makeStartData() {
         return MaplePacketCreator.startMapEffect(msg, itemId, active);
     }
 

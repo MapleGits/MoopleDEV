@@ -22,7 +22,6 @@
 package net.server.guild;
 
 import tools.MaplePacketCreator;
-import net.MaplePacket;
 
 public enum MapleGuildResponse {
     NOT_IN_CHANNEL(0x2a),
@@ -34,7 +33,7 @@ public enum MapleGuildResponse {
         value = val;
     }
 
-    public MaplePacket getPacket() {
+    public final byte[] getPacket() {
         return MaplePacketCreator.genericGuildMessage((byte) value);
     }
 }

@@ -21,10 +21,7 @@
 */
 package tools.data.output;
 
-import java.awt.Point;
 import java.io.ByteArrayOutputStream;
-import net.ByteArrayMaplePacket;
-import net.MaplePacket;
 import tools.HexTool;
 
 /**
@@ -60,8 +57,8 @@ public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter {
      *
      * @return A <code>MaplePacket</code> with the bytes in this stream.
      */
-    public MaplePacket getPacket() {
-        return new ByteArrayMaplePacket(baos.toByteArray());
+    public byte[] getPacket() {
+        return baos.toByteArray();
     }
 
     /**

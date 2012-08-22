@@ -25,7 +25,7 @@ public class BuddylistEntry {
     private String name;
     private String group;
     private int cid;
-    private byte channel;
+    private int channel;
     private boolean visible;
 
     /**
@@ -35,7 +35,7 @@ public class BuddylistEntry {
      * @param channel should be -1 if the buddy is offline
      * @param visible
      */
-    public BuddylistEntry(String name, String group, int characterId, byte channel, boolean visible) {
+    public BuddylistEntry(String name, String group, int characterId, int channel, boolean visible) {
         this.name = name;
         this.group = group;
         this.cid = characterId;
@@ -46,11 +46,11 @@ public class BuddylistEntry {
     /**
      * @return the channel the character is on. If the character is offline returns -1.
      */
-    public byte getChannel() {
+    public int getChannel() {
         return channel;
     }
 
-    public void setChannel(byte channel) {
+    public void setChannel(int channel) {
         this.channel = channel;
     }
 

@@ -21,9 +21,7 @@
 */
 package server.maps;
 
-import net.IntValueHolder;
-
-public enum SummonMovementType implements IntValueHolder {
+public enum SummonMovementType {
     STATIONARY(0), FOLLOW(1), CIRCLE_FOLLOW(3);
     private final int val;
 
@@ -31,7 +29,6 @@ public enum SummonMovementType implements IntValueHolder {
         this.val = val;
     }
 
-    @Override
     public int getValue() {
         return val;
     }
