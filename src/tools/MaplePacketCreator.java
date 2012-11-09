@@ -185,12 +185,34 @@ public class MaplePacketCreator {
         addInventoryInfo(mplew, chr);
         addSkillInfo(mplew, chr);
         addQuestInfo(mplew, chr);
-        mplew.writeShort(0);
+        addMiniGameInfo(mplew, chr);
         addRingInfo(mplew, chr);
         addTeleportInfo(mplew, chr);
         addMonsterBookInfo(mplew, chr);
+        addNewYearInfo(mplew, chr);//have fun!
+        addAreaInfo(mplew, chr);//assuming it stayed here xd
         mplew.writeShort(0);
-        mplew.writeInt(0);
+    }
+
+    private static void addNewYearInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        mplew.writeShort(0);
+        /*  
+         *(_DWORD *)this = CInPacket::Decode4(a2);
+         *((_DWORD *)v2 + 1) = CInPacket::Decode4(a2);
+         CInPacket::DecodeStr(&v7);
+         v9 = 0;
+         (*(void (__stdcall **)(char *, int))((char *)&loc_B1410B + 1))((char *)v2 + 8, v7);
+         *(_DWORD *)((char *)v2 + 21) = (unsigned __int8)CInPacket::Decode1(a2);
+         CInPacket::DecodeBuffer((char *)v2 + 25, 8);
+         *(_DWORD *)((char *)v2 + 33) = CInPacket::Decode4(a2);
+         CInPacket::DecodeStr(&v6);
+         LOBYTE(v8) = 1;
+         (*(void (__stdcall **)(char *, int))((char *)&loc_B1410B + 1))((char *)v2 + 37, v6);
+         *(_DWORD *)((char *)v2 + 50) = (unsigned __int8)CInPacket::Decode1(a2);
+         *(_DWORD *)((char *)v2 + 54) = (unsigned __int8)CInPacket::Decode1(a2);
+         CInPacket::DecodeBuffer((char *)v2 + 58, 8);
+         CInPacket::DecodeStr(&v9);
+         */
     }
 
     private static void addTeleportInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
@@ -201,6 +223,26 @@ public class MaplePacketCreator {
         }
         for (int i = 0; i < 10; i++) {
             mplew.writeInt(viptele[i]);
+        }
+    }
+
+    private static void addMiniGameInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        mplew.writeShort(0);
+        /*for (int m = size; m > 0; m--) {//nexon does this :P
+         mplew.writeInt(0);
+         mplew.writeInt(0);
+         mplew.writeInt(0);
+         mplew.writeInt(0);
+         mplew.writeInt(0);
+         }*/
+    }
+
+    private static void addAreaInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        Map<Short, String> areaInfos = chr.getAreaInfos();
+        mplew.writeShort(areaInfos.size());
+        for (Short area : areaInfos.keySet()) {
+            mplew.writeShort(area);
+            mplew.writeMapleAsciiString(areaInfos.get(area));
         }
     }
 
@@ -5268,12 +5310,12 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] updateAreaInfo(String mode, int quest) {
+    public static byte[] updateAreaInfo(int area, String info) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(0x0A); //0x0B in v95
-        mplew.writeShort(quest);
-        mplew.writeMapleAsciiString(mode);
+        mplew.writeShort(area);//infoNumber
+        mplew.writeMapleAsciiString(info);
         return mplew.getPacket();
     }
 

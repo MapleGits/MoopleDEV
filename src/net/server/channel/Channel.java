@@ -87,7 +87,7 @@ public final class Channel {
             IoBuffer.setAllocator(new SimpleBufferAllocator());
             acceptor = new NioSocketAcceptor();
             TimerManager.getInstance().register(new respawnMaps(), 10000);
-            acceptor.setHandler(new MapleServerHandler(channel, world));
+            acceptor.setHandler(new MapleServerHandler(world, channel));
             acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 30);
             acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
             acceptor.bind(new InetSocketAddress(port));

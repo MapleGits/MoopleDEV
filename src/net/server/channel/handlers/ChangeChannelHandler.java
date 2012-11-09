@@ -81,7 +81,7 @@ public final class ChangeChannelHandler extends AbstractMaplePacketHandler {
         chr.getInventory(MapleInventoryType.EQUIPPED).checked(false); //test
         chr.getMap().removePlayer(chr);
         chr.getClient().getChannelServer().removePlayer(chr);
-        chr.saveToDB(true);
+        chr.saveToDB();
         chr.getClient().updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         try {
             c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));

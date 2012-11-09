@@ -23,13 +23,12 @@
 By kevintjuh93
 */
 function enter(pi) { 
-	if (pi.getAranIntroState("mo2=o")) {
-		pi.blockPortal();
-		return false;
+	pi.blockPortal();
+	if (pi.containsAreaInfo(21002, "mo2=o")) {
+	    return false;
 	}
-	pi.mapSound("Aran/balloon");
-	pi.updateAranIntroState("mo1=o;mo2=o");
-    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon2");   
-    pi.blockPortal();    
-    return true; 
-}  
+	pi.playSound("Aran/balloon");
+	pi.updateAreaInfo(21002, "mo1=o;mo2=o");
+	pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/legendBalloon2");
+	return true;
+}

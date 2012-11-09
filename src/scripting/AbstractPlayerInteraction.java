@@ -1,43 +1,44 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package scripting;
 
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleQuestStatus;
-import client.Skill;
 import client.SkillFactory;
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
+import client.inventory.ModifyInventory;
 import constants.ItemConstants;
 import java.awt.Point;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import net.server.world.MapleParty;
 import net.server.Server;
 import net.server.guild.MapleGuild;
+import net.server.world.MapleParty;
 import scripting.event.EventManager;
 import scripting.npc.NPCScriptManager;
 import server.MapleInventoryManipulator;
@@ -54,6 +55,7 @@ import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 
 public class AbstractPlayerInteraction {
+
     public MapleClient c;
 
     public AbstractPlayerInteraction(MapleClient c) {
@@ -121,10 +123,13 @@ public class AbstractPlayerInteraction {
         NPCScriptManager.getInstance().start(c, npcid, null, null);
     }
 
-    public void updateQuest(int questid, String status) {
-            c.announce(MaplePacketCreator.updateQuest((short) questid, status));
+    public void updateQuest(int questid, String data) {
+        MapleQuestStatus status = c.getPlayer().getQuest(MapleQuest.getInstance(questid));
+        status.setStatus(MapleQuestStatus.Status.STARTED);
+        status.setProgress(0, data);//override old if exists
+        c.getPlayer().updateQuest(status);
     }
-    
+
     public MapleQuestStatus.Status getQuestStatus(int id) {
         return c.getPlayer().getQuest(MapleQuest.getInstance(id)).getStatus();
     }
@@ -200,20 +205,20 @@ public class AbstractPlayerInteraction {
     }
 
     public void mapEffect(String path) {
-       c.announce(MaplePacketCreator.mapEffect(path));
+        c.announce(MaplePacketCreator.mapEffect(path));
     }
 
     public void mapSound(String path) {
-       c.announce(MaplePacketCreator.mapSound(path));
+        c.announce(MaplePacketCreator.mapSound(path));
     }
 
     public void showIntro(String path) {
-       c.announce(MaplePacketCreator.showIntro(path));
+        c.announce(MaplePacketCreator.showIntro(path));
     }
 
     public void showInfo(String path) {
-       c.announce(MaplePacketCreator.showInfo(path));
-       c.announce(MaplePacketCreator.enableActions());
+        c.announce(MaplePacketCreator.showInfo(path));
+        c.announce(MaplePacketCreator.enableActions());
     }
 
     public void guildMessage(int type, String message) {
@@ -316,31 +321,29 @@ public class AbstractPlayerInteraction {
         c.announce(MaplePacketCreator.getItemMessage(id));//Useful shet :3
     }
 
-    public void giveTutorialSkills() {
-        if (getPlayer().getMapId() == 914000100) {
-        Skill skill = SkillFactory.getSkill(20000018);
-        Skill skill0 = SkillFactory.getSkill(20000017);
-        getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
-        getPlayer().changeSkillLevel(skill0, (byte) 1, 1, -1);
-        } else if (getPlayer().getMapId() == 914000200) {
-        Skill skill = SkillFactory.getSkill(20000015);
-        Skill skill0 = SkillFactory.getSkill(20000014);
-        getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
-        getPlayer().changeSkillLevel(skill0, (byte) 1, 1, -1);
-        } else if (getPlayer().getMapId() == 914000210) {
-        Skill skill = SkillFactory.getSkill(20000016);
-        getPlayer().changeSkillLevel(skill, (byte) 1, 1, -1);
-        }
+    public void teachSkill(int skillid, byte level, byte masterLevel, long expiration) {
+        getPlayer().changeSkillLevel(SkillFactory.getSkill(skillid), level, masterLevel, expiration);
     }
 
-     public void removeAranPoleArm() {
-        Item tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
-	MapleInventoryManipulator.removeFromSlot(c.getPlayer().getClient(), MapleInventoryType.EQUIPPED, (byte) -11, tempItem.getQuantity(), false, true);
-       }
+    public void removeEquipFromSlot(byte slot) {
+        Item tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(slot);
+        MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIPPED, slot, tempItem.getQuantity(), false, false);
+    }
+
+    public void gainAndEquip(int itemid, byte slot) {
+        final Item old = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(slot);
+        if (old != null) {
+            MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIPPED, slot, old.getQuantity(), false, false);
+        }
+        final Item newItem = MapleItemInformationProvider.getInstance().getEquipById(itemid);
+        newItem.setPosition(slot);
+        c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).addFromDB(newItem);
+        c.announce(MaplePacketCreator.modifyInventory(false, Collections.singletonList(new ModifyInventory(0, newItem))));
+    }
 
     public void spawnMonster(int id, int x, int y) {
         MapleMonster monster = MapleLifeFactory.getMonster(id);
-        monster.setPosition(new Point(x,y));
+        monster.setPosition(new Point(x, y));
         getPlayer().getMap().spawnMonster(monster);
     }
 
@@ -353,44 +356,24 @@ public class AbstractPlayerInteraction {
     }
 
     public void displayGuide(int num) {
-       c.announce(MaplePacketCreator.showInfo("UI/tutorial.img/" + num));
+        c.announce(MaplePacketCreator.showInfo("UI/tutorial.img/" + num));
     }
 
     public void talkGuide(String message) {
-       c.announce(MaplePacketCreator.talkGuide(message));
+        c.announce(MaplePacketCreator.talkGuide(message));
     }
 
     public void guideHint(int hint) {
-       c.announce(MaplePacketCreator.guideHint(hint));
+        c.announce(MaplePacketCreator.guideHint(hint));
     }
 
-    public void updateAranIntroState(String mode) {
-       c.getPlayer().addAreaData(21002, mode);
-       c.announce(MaplePacketCreator.updateAreaInfo(mode, 21002));
+    public void updateAreaInfo(Short area, String info) {
+        c.getPlayer().updateAreaInfo(area, info);
+        c.announce(MaplePacketCreator.enableActions());//idk, nexon does the same :P
     }
 
-    public void updateAranIntroState2(String mode) {
-       c.getPlayer().addAreaData(21019, mode);
-       c.announce(MaplePacketCreator.updateAreaInfo(mode, 21019));
-    }
-
-    public boolean getAranIntroState(String mode) {
-       if (c.getPlayer().area_data.contains(mode)) {
-           return true;
-       }
-       return false;
-    }
-
-    public void updateCygnusIntroState(String mode) {
-       c.getPlayer().addAreaData(20021, mode);
-       c.announce(MaplePacketCreator.updateAreaInfo(mode, 20021));
-    }
-
-    public boolean getCygnusIntroState(String mode) {
-       if (c.getPlayer().area_data.contains(mode)) {
-           return true;
-       }
-       return false;
+    public boolean containsAreaInfo(short area, String info) {
+        return c.getPlayer().containsAreaInfo(area, info);
     }
 
     public MobSkill getMobSkill(int skill, int level) {
@@ -411,12 +394,12 @@ public class AbstractPlayerInteraction {
 
     public void lockUI() {
         c.announce(MaplePacketCreator.disableUI(true));
-	c.announce(MaplePacketCreator.lockUI(true));
+        c.announce(MaplePacketCreator.lockUI(true));
     }
 
     public void unlockUI() {
         c.announce(MaplePacketCreator.disableUI(false));
-	c.announce(MaplePacketCreator.lockUI(false));
+        c.announce(MaplePacketCreator.lockUI(false));
     }
 
     public void environmentChange(String env, int mode) {

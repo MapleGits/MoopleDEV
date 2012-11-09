@@ -22,10 +22,10 @@
 
 /* @Author Lerk
  * 
- * 2200000.js: Fake Dollhouse: Returns player to Eos Tower 100th Floor [221024400]
+ * 2200000.js: Fake Dollhouse: Returns player to Eos Tower 100th Floor [221023200]
 */
 
 function act(){
     rm.playerMessage(5, "Gotcha! Try again next time!");
-    rm.warp(221024400);
+    rm.warp(221023200);
 }

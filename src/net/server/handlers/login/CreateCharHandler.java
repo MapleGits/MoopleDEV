@@ -61,17 +61,18 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         if (!newchar.isGM()) {
             if (job == 0) { // Knights of Cygnus
                 newchar.setJob(MapleJob.NOBLESSE);
+                newchar.setMapId(130030000);
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
             } else if (job == 1) { // Adventurer
+                newchar.setJob(MapleJob.BEGINNER);
+                newchar.setMapId(/*specialJobType == 2 ? 3000600 : */10000);
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
             } else if (job == 2) { // Aran
                 newchar.setJob(MapleJob.LEGEND);
+                newchar.setMapId(914000000);
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
             } else {
-                if (c.gmLevel() == 0) {
-                    c.disconnect(false, false); //Muhaha
-                }
-                System.out.println("[CHAR CREATION] A new job ID has been found: " + job); //I should ban for packet editing!
+                c.announce(MaplePacketCreator.deleteCharResponse(0, 9));
                 return;
             }
         }
@@ -97,7 +98,10 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         Item eq_weapon = MapleItemInformationProvider.getInstance().getEquipById(weapon);
         eq_weapon.setPosition((byte) -11);
         equip.addFromDB(eq_weapon.copy());
-        newchar.saveToDB(false);
+        if (!newchar.insertNewChar()) {
+            c.announce(MaplePacketCreator.deleteCharResponse(0, 9));
+            return;
+        }
         c.announce(MaplePacketCreator.addNewCharEntry(newchar));
     }
 }

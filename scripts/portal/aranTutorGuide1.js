@@ -22,14 +22,13 @@
 /*
 By kevintjuh93
 */
-function enter(pi) {   
-	if (pi.getAranIntroState("chain=o")) {
-		pi.blockPortal();
+function enter(pi) { 
+	pi.blockPortal();  
+	if (pi.containsAreaInfo(21002, "chain=o")) {
 		return false;
 	}
-	pi.updateAranIntroState("normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o");  
-    pi.message("You can use Consecutive Attacks by pressing the Ctrl key multiple times.");
-    pi.showInfo("Effect/OnUserEff.img/guideEffect/aranTutorial/tutorialGuide2");   
-    pi.blockPortal();
-    return true; 
+    	pi.mapEffect("aran/tutorialGuide2");
+    	pi.message("You can use Consecutive Attacks by pressing the Ctrl key multiple times."); 
+	pi.updateAreaInfo(21002, "normal=o;arr0=o;arr1=o;mo1=o;chain=o;mo2=o;mo3=o;mo4=o");    
+    	return true; 
 }  

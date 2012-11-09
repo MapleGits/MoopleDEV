@@ -1,23 +1,23 @@
 /*
-This file is part of the OdinMS Maple Story Server
-Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-Matthias Butz <matze@odinms.de>
-Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation version 3 as published by
-the Free Software Foundation. You may not use, modify or distribute
-this program under any other version of the GNU Affero General Public
-License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
@@ -425,7 +425,6 @@ public class MapleMap {
     private void spawnDrop(final Item idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
         final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId()))) {
@@ -443,7 +442,6 @@ public class MapleMap {
         final MapleMapItem mdrop = new MapleMapItem(meso, droppos, dropper, owner, droptype, playerDrop);
 
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
@@ -543,6 +541,12 @@ public class MapleMap {
             } finally {
                 monster.monsterLock.unlock();
             }
+            if (monster.getStats().selfDestruction() != null && monster.getStats().selfDestruction().getHp() > -1) {// should work ;p
+                if (monster.getHp() <= monster.getStats().selfDestruction().getHp()) {
+                    killMonster(monster, chr, true, false, monster.getStats().selfDestruction().getAction());
+                    return true;
+                }
+            }
             if (killed && monster != null) {
                 killMonster(monster, chr, true);
             }
@@ -558,7 +562,6 @@ public class MapleMap {
     public void killMonster(final MapleMonster monster, final MapleCharacter chr, final boolean withDrops, final boolean secondTime, int animation) {
         if (monster.getId() == 8810018 && !secondTime) {
             TimerManager.getInstance().schedule(new Runnable() {
-
                 @Override
                 public void run() {
                     killMonster(monster, chr, withDrops, true, 1);
@@ -575,11 +578,11 @@ public class MapleMap {
             return;
         }
         /*if (chr.getQuest(MapleQuest.getInstance(29400)).getStatus().equals(MapleQuestStatus.Status.STARTED)) {
-        if (chr.getLevel() >= 120 && monster.getStats().getLevel() >= 120) {
-        //FIX MEDAL SHET
-        } else if (monster.getStats().getLevel() >= chr.getLevel()) {
-        }
-        }*/
+         if (chr.getLevel() >= 120 && monster.getStats().getLevel() >= 120) {
+         //FIX MEDAL SHET
+         } else if (monster.getStats().getLevel() >= chr.getLevel()) {
+         }
+         }*/
         int buff = monster.getBuffToGive();
         if (buff > -1) {
             MapleItemInformationProvider mii = MapleItemInformationProvider.getInstance();
@@ -686,7 +689,6 @@ public class MapleMap {
         reactor.setTimerActive(false);
         if (reactor.getDelay() > 0) {
             tMan.schedule(new Runnable() {
-
                 @Override
                 public void run() {
                     respawnReactor(reactor);
@@ -748,7 +750,8 @@ public class MapleMap {
     }
 
     /**
-     * Automagically finds a new controller for the given monster from the chars on the map...
+     * Automagically finds a new controller for the given monster from the chars
+     * on the map...
      *
      * @param monster
      */
@@ -820,7 +823,8 @@ public class MapleMap {
     }
 
     /**
-     * returns a monster with the given oid, if no such monster exists returns null
+     * returns a monster with the given oid, if no such monster exists returns
+     * null
      *
      * @param oid
      * @return
@@ -883,7 +887,6 @@ public class MapleMap {
 
     private void monsterItemDrop(final MapleMonster m, final Item item, long delay) {
         final ScheduledFuture<?> monsterItemDrop = TimerManager.getInstance().register(new Runnable() {
-
             @Override
             public void run() {
                 if (MapleMap.this.getMonsterById(m.getId()) != null) {
@@ -908,7 +911,7 @@ public class MapleMap {
     public Point getGroundBelow(Point pos) {
         Point spos = new Point(pos.x, pos.y - 1);
         spos = calcPointBelow(spos);
-        spos.y--;
+        spos.y--;//shouldn't be null!
         return spos;
     }
 
@@ -916,7 +919,6 @@ public class MapleMap {
         monster.setMap(this);
 
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(MaplePacketCreator.spawnMonster(monster, false));
@@ -932,7 +934,6 @@ public class MapleMap {
         }
         monster.setMap(this);
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(MaplePacketCreator.spawnMonster(monster, true));
@@ -951,10 +952,9 @@ public class MapleMap {
         }
         spawnedMonstersOnMap.incrementAndGet();
         final selfDestruction selfDestruction = monster.getStats().selfDestruction();
-        if (monster.getStats().removeAfter() > 0 || selfDestruction != null) {
+        if (monster.getStats().removeAfter() > 0 || selfDestruction != null && selfDestruction.getHp() < 0) {
             if (selfDestruction == null) {
                 TimerManager.getInstance().schedule(new Runnable() {
-
                     @Override
                     public void run() {
                         killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false);
@@ -962,7 +962,6 @@ public class MapleMap {
                 }, monster.getStats().removeAfter() * 1000);
             } else {
                 TimerManager.getInstance().schedule(new Runnable() {
-
                     @Override
                     public void run() {
                         killMonster(monster, (MapleCharacter) getAllPlayer().get(0), false, false, selfDestruction.getAction());
@@ -990,7 +989,6 @@ public class MapleMap {
             monster.disableDrops();
         }
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(MaplePacketCreator.spawnMonster(monster, true, effect));
@@ -1008,7 +1006,6 @@ public class MapleMap {
         monster.setMap(this);
         monster.setFake(true);
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(MaplePacketCreator.spawnFakeMonster(monster, 0));
@@ -1027,7 +1024,6 @@ public class MapleMap {
     public void spawnReactor(final MapleReactor reactor) {
         reactor.setMap(this);
         spawnAndAddRangedMapObject(reactor, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(reactor.makeSpawnData());
@@ -1044,7 +1040,6 @@ public class MapleMap {
 
     public void spawnDoor(final MapleDoor door) {
         spawnAndAddRangedMapObject(door, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.announce(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
@@ -1055,7 +1050,6 @@ public class MapleMap {
                 c.announce(MaplePacketCreator.enableActions());
             }
         }, new SpawnCondition() {
-
             @Override
             public boolean canSpawn(MapleCharacter chr) {
                 return chr.getMapId() == door.getTarget().getId() || chr == door.getOwner() && chr.getParty() == null;
@@ -1083,7 +1077,6 @@ public class MapleMap {
 
     public void spawnSummon(final MapleSummon summon) {
         spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 if (summon != null) {
@@ -1100,7 +1093,6 @@ public class MapleMap {
         final ScheduledFuture<?> poisonSchedule;
         if (poison) {
             Runnable poisonTask = new Runnable() {
-
                 @Override
                 public void run() {
                     List<MapleMapObject> affectedMonsters = getMapObjectsInBox(mist.getBox(), Collections.singletonList(MapleMapObjectType.MONSTER));
@@ -1117,7 +1109,6 @@ public class MapleMap {
             poisonSchedule = null;
         }
         tMan.schedule(new Runnable() {
-
             @Override
             public void run() {
                 removeMapObject(mist);
@@ -1134,7 +1125,6 @@ public class MapleMap {
         final MapleMapItem drop = new MapleMapItem(item, droppos, dropper, owner, (byte) (ffaDrop ? 2 : 0), playerDrop);
 
         spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
-
             @Override
             public void sendPackets(MapleClient c) {
                 c.getSession().write(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
@@ -1184,7 +1174,6 @@ public class MapleMap {
         mapEffect = new MapleMapEffect(msg, itemId);
         broadcastMessage(mapEffect.makeStartData());
         TimerManager.getInstance().schedule(new Runnable() {
-
             @Override
             public void run() {
                 broadcastMessage(mapEffect.makeDestroyData());
@@ -1200,6 +1189,7 @@ public class MapleMap {
         } finally {
             chrWLock.unlock();
         }
+        chr.setMapId(mapid);
         if (onFirstUserEnter.length() != 0 && !chr.hasEntered(onFirstUserEnter, mapid) && MapScriptManager.getInstance().scriptExists(onFirstUserEnter, true)) {
             if (getAllPlayer().size() <= 1) {
                 chr.enteredScript(onFirstUserEnter, mapid);
@@ -1221,7 +1211,6 @@ public class MapleMap {
         } else if (mapid == 910110000) { // Henesys Party Quest
             chr.getClient().announce(MaplePacketCreator.getClock(15 * 60));
             TimerManager.getInstance().register(new Runnable() {
-
                 @Override
                 public void run() {
                     if (mapid == 910110000) {
@@ -1279,7 +1268,6 @@ public class MapleMap {
         }
         if (mapid == 914000200 || mapid == 914000210 || mapid == 914000220) {
             TimerManager.getInstance().schedule(new Runnable() {
-
                 @Override
                 public void run() {
                     chr.getClient().announce(MaplePacketCreator.aranGodlyStats());
@@ -1573,6 +1561,7 @@ public class MapleMap {
 
     /**
      * it's threadsafe, gtfo :D
+     *
      * @param monster
      * @param mobTime
      */
@@ -1792,7 +1781,6 @@ public class MapleMap {
                     reactor.setTimerActive(false);
                     if (reactor.getDelay() > 0) {
                         tMan.schedule(new Runnable() {
-
                             @Override
                             public void run() {
                                 reactor.setState((byte) 0);
@@ -1962,7 +1950,6 @@ public class MapleMap {
         timeLimit = System.currentTimeMillis() + (time * 1000);
         broadcastMessage(MaplePacketCreator.getClock(time));
         mapMonitor = TimerManager.getInstance().register(new Runnable() {
-
             @Override
             public void run() {
                 if (timeLimit != 0 && timeLimit < System.currentTimeMillis()) {

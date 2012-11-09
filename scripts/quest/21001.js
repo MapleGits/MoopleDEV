@@ -28,7 +28,7 @@ var status = -1;
 function start(mode, type, selection) {
     status++;
 	if (mode != 1) {
-	    if(type == 1 && mode == 0) {
+	    if(type == 15 && mode == 0) {
 		qm.sendNext("*Sob* Aran has declined my request!");
 		    qm.dispose();
 			return;
@@ -40,8 +40,8 @@ function start(mode, type, selection) {
 		if (status == 0) {
 			qm.sendAcceptDecline("*Sniff sniff* I was so scared... Please take me to Athena Pierce.");
 		} else if (status == 1) {
-			qm.forceStartQuest();
 			qm.gainItem(4001271, 1);
+			qm.forceStartQuest();
 			qm.warp(914000300);
 			qm.dispose();
 		}	
@@ -50,20 +50,17 @@ function start(mode, type, selection) {
 function end(mode, type, selection) {
     status++;
 	if (mode != 1) {
-	    if(type == 1 && mode == 0) {
-			qm.sendNext("What about the child? Please give me the child!");
-		    qm.dispose();
-			return;
-		}else{
-		    qm.dispose();
-			return;
-		}
+	    if (type == 2 && mode == 0) {
+		qm.sendNext("What about the child? Please give me the child!");
+	    }
+		qm.dispose();
+		return;
 	}	
 		if (status == 0)
 			qm.sendYesNo("You made it back safely! What about the child?! Did you bring the child with you?!");
 		else if (status == 1) {
 			qm.gainItem(4001271, -1);
-			qm.removeAranPoleArm();
+			qm.removeEquipFromSlot(-11);
 			qm.forceCompleteQuest();
 			qm.sendNext("Oh, what a relief. I'm so glad...", 9);
 		} else if (status == 2)

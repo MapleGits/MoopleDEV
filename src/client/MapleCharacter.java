@@ -128,6 +128,7 @@ import server.partyquest.MonsterCarnivalParty;
 import server.partyquest.PartyQuest;
 import server.quest.MapleQuest;
 import tools.DatabaseConnection;
+import tools.FilePrinter;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.Randomizer;
@@ -237,7 +238,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long portaldelay = 0, lastcombo = 0;
     private short combocounter = 0;
     private List<String> blockedPortals = new ArrayList<>();
-    public ArrayList<String> area_data = new ArrayList<>();
+    private Map<Short, String> area_info = new LinkedHashMap<>();
     private AutobanManager autoban;
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
@@ -1287,7 +1288,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         getMap().broadcastMessage(this, MaplePacketCreator.updateCharLook(this), false);
         recalcLocalStats();
         enforceMaxHpMp();
-        //saveToDB(true);
         if (getMessenger() != null) {
             Server.getInstance().getWorld(world).updateMessenger(getMessenger(), getName(), getWorld(), client.getChannel());
         }
@@ -1335,8 +1335,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                         }
                         toberemove.clear();
                     }
-                    //announce(MaplePacketCreator.enableActions());
-                    //saveToDB(true);
                 }
             }, 60000);
         }
@@ -2492,7 +2490,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             client.getWorldServer().broadcastPacket(MaplePacketCreator.serverNotice(6, String.format(LEVEL_200, names, names)));
         }
         guildUpdate();
-        //saveToDB(true); NAH!
     }
 
     public static MapleCharacter loadCharFromDB(int charid, MapleClient client, boolean channelserver) throws SQLException {
@@ -2658,6 +2655,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             rs = ps.executeQuery();
             if (rs.next()) {
                 ret.getClient().setAccountName(rs.getString("name"));
+            }
+            rs.close();
+            ps.close();
+            ps = con.prepareStatement("SELECT `area`,`info` FROM area_info WHERE charid = ?");
+            ps.setInt(1, ret.id);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ret.area_info.put(rs.getShort("area"), rs.getString("info"));
             }
             rs.close();
             ps.close();
@@ -3329,17 +3334,134 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         savedLocations[SavedLocationType.fromString(type).ordinal()] = new SavedLocation(getMapId(), closest != null ? closest.getId() : 0);
     }
 
-    public void saveToDB(boolean update) {
+    public final boolean insertNewChar() {
+        final Connection con = DatabaseConnection.getConnection();
+        PreparedStatement ps = null;
+
+        try {
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            con.setAutoCommit(false);
+            ps = con.prepareStatement("INSERT INTO characters (str, dex, luk, `int`, gm, skincolor, gender, job, hair, face, map, meso, spawnpoint, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps.setInt(1, 12);
+            ps.setInt(2, 5);
+            ps.setInt(3, 4);
+            ps.setInt(4, 4);
+            ps.setInt(5, gmLevel);
+            ps.setInt(6, skinColor.getId());
+            ps.setInt(7, gender);
+            ps.setInt(8, getJob().getId());
+            ps.setInt(9, hair);
+            ps.setInt(10, face);
+            ps.setInt(11, mapid);
+            ps.setInt(12, Math.abs(meso.get()));
+            ps.setInt(13, 0);
+            ps.setInt(14, accountid);
+            ps.setString(15, name);
+            ps.setInt(16, world);
+
+            int updateRows = ps.executeUpdate();
+            if (updateRows < 1) {
+                ps.close();
+                FilePrinter.printError(FilePrinter.INSERT_CHAR, "Error trying to insert " + name);
+                return false;
+            }
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                this.id = rs.getInt(1);
+                rs.close();
+                ps.close();
+            } else {
+                rs.close();
+                ps.close();
+                FilePrinter.printError(FilePrinter.INSERT_CHAR, "Inserting char failed " + name);
+                return false;
+                //throw new RuntimeException("Inserting char failed.");
+            }
+
+            ps = con.prepareStatement("INSERT INTO keymap (characterid, `key`, `type`, `action`) VALUES (?, ?, ?, ?)");
+            ps.setInt(1, id);
+            for (int i = 0; i < DEFAULT_KEY.length; i++) {
+                ps.setInt(2, DEFAULT_KEY[i]);
+                ps.setInt(3, DEFAULT_TYPE[i]);
+                ps.setInt(4, DEFAULT_ACTION[i]);
+                ps.execute();
+            }
+            ps.close();
+
+            final List<Pair<Item, MapleInventoryType>> itemsWithType = new ArrayList<>();
+
+            for (MapleInventory iv : inventory) {
+                for (Item item : iv.list()) {
+                    itemsWithType.add(new Pair<>(item, iv.getType()));
+                }
+            }
+
+            ItemFactory.INVENTORY.saveItems(itemsWithType, id);
+
+            /*//jobs start with skills :|
+             ps = con.prepareStatement("INSERT INTO skills (characterid, skillid, skilllevel, masterlevel, expiration) VALUES (?, ?, ?, ?, ?)");
+             ps.setInt(1, id);
+             for (final Entry<Skill, SkillEntry> skill : skills.entrySet()) {
+             ps.setInt(2, skill.getKey().getId());
+             ps.setInt(3, skill.getValue().skillevel);
+             ps.setInt(4, skill.getValue().masterlevel);
+             ps.setLong(5, skill.getValue().expiration);
+             ps.execute();
+             }
+             ps.close();
+
+             //sometimes starts with quests too :|
+             ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`) VALUES (DEFAULT, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+             try (PreparedStatement pse = con.prepareStatement("INSERT INTO questprogress VALUES (DEFAULT, ?, ?, ?)")) {
+             ps.setInt(1, id);
+             for (MapleQuestStatus q : quests.values()) {
+             ps.setInt(2, q.getQuest().getId());
+             ps.setInt(3, q.getStatus().getId());
+             ps.setLong(4, q.getCompletionTime());
+             ps.setInt(5, q.getForfeited());
+             ps.executeUpdate();
+             try (ResultSet rse = ps.getGeneratedKeys()) {
+             rse.next();
+             for (int mob : q.getProgress().keySet()) {
+             pse.setInt(1, rse.getInt(1));
+             pse.setInt(2, mob);
+             pse.setString(3, q.getProgress(mob));
+             pse.addBatch();
+             }
+             pse.executeBatch();
+             }
+             }
+             } don't think this is needed for v83*/
+
+            con.commit();
+            return true;
+        } catch (Throwable t) {
+            FilePrinter.printError(FilePrinter.INSERT_CHAR, t, "Error creating " + name + " Level: " + level + " Job: " + job.getId());
+            try {
+                con.rollback();
+            } catch (SQLException se) {
+                FilePrinter.printError(FilePrinter.INSERT_CHAR, se, "Error trying to rollback " + name);
+            }
+            return false;
+        } finally {
+            try {
+                if (ps != null && !ps.isClosed()) {
+                    ps.close();
+                }
+                con.setAutoCommit(true);
+                con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            } catch (SQLException e) {
+            }
+        }
+    }
+
+    public void saveToDB() {
         Connection con = DatabaseConnection.getConnection();
         try {
             con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             con.setAutoCommit(false);
             PreparedStatement ps;
-            if (update) {
-                ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, gachaexp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
-            } else {
-                ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, gachaexp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpMpUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, mountlevel, mounttiredness, mountexp, equipslots, useslots, setupslots, etcslots, monsterbookcover, vanquisherStage, dojopoints, lastDojoStage, finishedDojoTutorial, vanquisherKills, matchcardwins, matchcardlosses, matchcardties, omokwins, omoklosses, omokties, accountid, name, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-            }
+            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, gachaexp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             if (gmLevel < 1 && level > 199) {
                 ps.setInt(1, isCygnus() ? 120 : 200);
             } else {
@@ -3364,21 +3486,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(18, job.getId());
             ps.setInt(19, hair);
             ps.setInt(20, face);
-            if (map == null) {
-                if (getJob() == MapleJob.BEGINNER) {
-                    ps.setInt(21, 0);
-                } else if (getJob() == MapleJob.NOBLESSE) {
-                    ps.setInt(21, 130030000);
-                } else if (getJob() == MapleJob.LEGEND) {
-                    ps.setInt(21, 914000000);
-                } else if (getJob() == MapleJob.GM || getJob() == MapleJob.SUPERGM) {
-                    ps.setInt(21, 180000000);
-                }
+            if (map == null || (cashshop != null && cashshop.isOpened())) {
+                ps.setInt(24, mapid);
             } else {
                 if (map.getForcedReturnId() != 999999999) {
-                    ps.setInt(21, map.getForcedReturnId());
+                    ps.setInt(24, map.getForcedReturnId());
                 } else {
-                    ps.setInt(21, map.getId());
+                    ps.setInt(24, getHp() < 1 ? map.getReturnMapId() : map.getId());
                 }
             }
             ps.setInt(22, meso.get());
@@ -3419,9 +3533,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 ps.setInt(i + 31, getSlots(i));
             }
 
-            if (update) {
-                monsterbook.saveCards(getId());
-            }
+            monsterbook.saveCards(getId());
+
             ps.setInt(36, bookCover);
             ps.setInt(37, vanquisherStage);
             ps.setInt(38, dojoPoints);
@@ -3434,22 +3547,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(45, omokwins);
             ps.setInt(46, omoklosses);
             ps.setInt(47, omokties);
-            if (update) {
-                ps.setInt(48, id);
-            } else {
-                ps.setInt(48, accountid);
-                ps.setString(49, name);
-                ps.setInt(50, world);
-            }
+            ps.setInt(48, id);
+
             int updateRows = ps.executeUpdate();
-            if (!update) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    this.id = rs.getInt(1);
-                } else {
-                    throw new RuntimeException("Inserting char failed.");
-                }
-            } else if (updateRows < 1) {
+            if (updateRows < 1) {
                 throw new RuntimeException("Character not in database (" + id + ")");
             }
             for (int i = 0; i < 3; i++) {
@@ -3543,6 +3644,15 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     ps.setString(3, entry.getGroup());
                     ps.addBatch();
                 }
+            }
+            ps.executeBatch();
+            deleteWhereCharacterId(con, "DELETE FROM area_info WHERE charid = ?");
+            ps = con.prepareStatement("INSERT INTO area_info (id, charid, area, info) VALUES (DEFAULT, ?, ?, ?)");
+            ps.setInt(1, id);
+            for (Entry<Short, String> area : area_info.entrySet()) {
+                ps.setInt(2, area.getKey());
+                ps.setString(3, area.getValue());
+                ps.addBatch();
             }
             ps.executeBatch();
             deleteWhereCharacterId(con, "DELETE FROM eventstats WHERE characterid = ?");
@@ -4062,7 +4172,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (slots <= 96) {
             inventory[type].setSlotLimit(slots);
 
-            saveToDB(true);
+            saveToDB();
             if (update) {
                 client.announce(MaplePacketCreator.updateInventorySlotLimit(type, slots));
             }
@@ -4401,43 +4511,25 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return blockedPortals;
     }
 
-    public boolean getAranIntroState(String mode) {
-        if (area_data.contains(mode)) {
-            return true;
+    public boolean containsAreaInfo(int area, String info) {
+        Short area_ = Short.valueOf((short) area);
+        if (area_info.containsKey(area_)) {
+            return area_info.get(area_).contains(info);
         }
         return false;
     }
 
-    public void addAreaData(int quest, String data) {
-        if (!this.area_data.contains(data)) {
-            this.area_data.add(data);
-            try {
-                Connection con = DatabaseConnection.getConnection();
-                try (PreparedStatement ps = con.prepareStatement("INSERT INTO char_area_info VALUES (DEFAULT, ?, ?, ?)")) {
-                    ps.setInt(1, getId());
-                    ps.setInt(2, quest);
-                    ps.setString(3, data);
-                    ps.executeUpdate();
-                }
-            } catch (SQLException ex) {
-                System.out.println("[AREA DATA] An error has occured.");
-                ex.printStackTrace();
-            }
-        }
+    public void updateAreaInfo(int area, String info) {
+        area_info.put(Short.valueOf((short) area), info);
+        announce(MaplePacketCreator.updateAreaInfo(area, info));
     }
 
-    public void removeAreaData() {
-        this.area_data.clear();
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            try (PreparedStatement ps = con.prepareStatement("DELETE FROM char_area_info WHERE charid = ?")) {
-                ps.setInt(1, getId());
-                ps.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            System.out.println("[AREA DATA] An error has occured.");
-            ex.printStackTrace();
-        }
+    public String getAreaInfo(int area) {
+        return area_info.get(Short.valueOf((short) area));
+    }
+
+    public Map<Short, String> getAreaInfos() {
+        return area_info;
     }
 
     public void autoban(String reason, int greason) {
@@ -4734,5 +4826,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public boolean isLoggedin() {
         return loggedIn;
+    }
+
+    public void setMapId(int mapid) {
+        this.mapid = mapid;
     }
 }

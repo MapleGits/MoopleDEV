@@ -23,9 +23,7 @@ package scripting.map;
 
 import client.MapleClient;
 import client.MapleQuestStatus;
-import client.SkillFactory;
 import scripting.AbstractPlayerInteraction;
-import server.TimerManager;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 
@@ -58,17 +56,6 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         }
     }
 
-    public void arriveIceCave() {
-        unlockUI();
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000014), (byte) -1, 0, -1);
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000015), (byte) -1, 0, -1);
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000016), (byte) -1, 0, -1);
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000017), (byte) -1, 0, -1);
-        c.getPlayer().changeSkillLevel(SkillFactory.getSkill(20000018), (byte) -1, 0, -1);
-        c.getPlayer().setRemainingSp(0);
-        c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/ClickLilin"));
-    }
-
     public void startExplorerExperience() {
         if (c.getPlayer().getMapId() == 1020100) //Swordman
         {
@@ -85,14 +72,6 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         } else if (c.getPlayer().getMapId() == 1020500) //Pirate
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/pirate/Scene" + c.getPlayer().getGender()));
-        }
-    }
-
-    public void enterRien() {
-        if (c.getPlayer().getJob().getId() == 2100 && !c.getPlayer().getAranIntroState("ck=1")) {
-            c.getPlayer().addAreaData(21019, "miss=o;arr=o;ck=1;helper=clear");
-            c.announce(MaplePacketCreator.updateAreaInfo("miss=o;arr=o;ck=1;helper=clear", 21019));
-            unlockUI();
         }
     }
 

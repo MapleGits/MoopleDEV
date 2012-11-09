@@ -626,7 +626,7 @@ public class MapleClient {
             //final MapleGuildCharacter chrg = player.getMGC();
 
             removePlayer();
-            player.saveToDB(true);
+            player.saveToDB();
             if (channel == -1 || shutdown) {
                 player = null;
                 return;

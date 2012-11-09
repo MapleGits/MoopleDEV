@@ -38,13 +38,13 @@ function start(mode, type, selection) {
     }
 
     if (status == 0) 
-	qm.sendNext("I just heard someone say, 'The hero has returned!' Did I hear wrong, or is it...is it really true? So this...this person standing before me is the hero?!")		
+	qm.sendNext("Wait, are you... No way.... Are you the hero that #p1201000# has been talking about all this time?! #p1201000#! Don't just nod... Tell me! Is this the hero you've been waiting for?! ")		
     else if (status == 1) {
-	qm.sendNextPrev("#i4001172#");
+	qm.sendNextPrev("   #i4001171#");
     } else if (status == 2) {
-	qm.sendNextPrev("Oh this is unreal... I can't believe I am staring right at a hero of Maple World! It's an honor! Here, let me shake your hand...and if you could give me a hug... Hehe, could you please sign this, too?");
+	qm.sendNextPrev("I'm sorry. I'm just so overcome with emotions... *Sniff sniff* My goodness, I'm starting to tear up. You must be so happy, #p1201000#.");
     } else if (status == 3) {
-	qm.sendAcceptDecline("Ah, I'm so sorry. I was so happy to have finally met you that I guess I got a little carried away. Whew, deep breaths. Deep breaths. Okay, I feel better now. But um...can I ask you a favor? Please?");
+	qm.sendAcceptDecline("Wait a minute... You're not carrying any weapons. From what I've heard, each of the heroes had a special weapon. Oh, you must have lost it during the battle against the Black Mage.");
     } else if (status == 4) {
 	qm.forceStartQuest();
 	qm.sendOk("My brother #bPuir #kis just down the street, and he's been dying to meet you! I know you're busy, but could you please stop by and say hello to Puir? Please...");

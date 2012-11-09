@@ -119,14 +119,14 @@ CREATE TABLE `buddies` (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for `char_area_info`
+-- Table structure for `area_info`
 -- ----------------------------
-DROP TABLE IF EXISTS `char_area_info`;
-CREATE TABLE `char_area_info` (
+DROP TABLE IF EXISTS `area_info`;
+CREATE TABLE `area_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `charid` int(11) NOT NULL,
-  `infoid` int(11) NOT NULL,
-  `area_data` varchar(120) NOT NULL,
+  `area` int(11) NOT NULL,
+  `info` varchar(120) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `cid` (`charid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -147,14 +147,14 @@ CREATE TABLE `characters` (
   `level` int(11) NOT NULL DEFAULT '0',
   `exp` int(11) NOT NULL DEFAULT '0',
   `gachaexp` int(11) NOT NULL DEFAULT '0',
-  `str` int(11) NOT NULL DEFAULT '0',
-  `dex` int(11) NOT NULL DEFAULT '0',
-  `luk` int(11) NOT NULL DEFAULT '0',
-  `int` int(11) NOT NULL DEFAULT '0',
-  `hp` int(11) NOT NULL DEFAULT '0',
-  `mp` int(11) NOT NULL DEFAULT '0',
-  `maxhp` int(11) NOT NULL DEFAULT '0',
-  `maxmp` int(11) NOT NULL DEFAULT '0',
+  `str` int(11) NOT NULL DEFAULT '12',
+  `dex` int(11) NOT NULL DEFAULT '5',
+  `luk` int(11) NOT NULL DEFAULT '4',
+  `int` int(11) NOT NULL DEFAULT '4',
+  `hp` int(11) NOT NULL DEFAULT '50',
+  `mp` int(11) NOT NULL DEFAULT '5',
+  `maxhp` int(11) NOT NULL DEFAULT '50',
+  `maxmp` int(11) NOT NULL DEFAULT '5',
   `meso` int(11) NOT NULL DEFAULT '0',
   `hpMpUsed` int(11) unsigned NOT NULL DEFAULT '0',
   `job` int(11) NOT NULL DEFAULT '0',

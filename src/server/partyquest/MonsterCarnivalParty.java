@@ -11,7 +11,7 @@ import tools.MaplePacketCreator;
  */
 public class MonsterCarnivalParty {
 
-    private List<MapleCharacter> members = new LinkedList<MapleCharacter>();
+    private List<MapleCharacter> members = new LinkedList<>();
     private MapleCharacter leader;
     private byte team;
     private short availableCP = 0, totalCP = 0;

@@ -55,6 +55,9 @@ public class MapleDataTool {
     }
 
     public static int getInt(MapleData data) {
+        if (data == null || data.getData() == null) {
+            return 0;// DEF?
+        }
         return ((Integer) data.getData()).intValue();
     }
 

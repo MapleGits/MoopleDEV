@@ -20,9 +20,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 function enter(pi) {
-	if (!pi.isQuestCompleted(21014))
+	if (pi.getPlayer().getJob().getId() == 2000 && !pi.isQuestCompleted(21014))
 		pi.warp(140000000, 1);
 	else
-		pi.warp(140000000, 3);
+		pi.warp(140000000, "west00");
 	return true;
 }

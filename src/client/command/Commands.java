@@ -422,7 +422,7 @@ public class Commands {
                         player.getMap().removePlayer(player);//LOL FORGOT THIS ><                    
                         c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
                         player.setWorld(worldb);
-                        player.saveToDB(true);//To set the new world :O (true because else 2 player instances are created, one in both worlds)
+                        player.saveToDB();//To set the new world :O (true because else 2 player instances are created, one in both worlds)
                         c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
                     } catch (UnknownHostException | NumberFormatException ex) {
                         player.message("Error when trying to change worlds, are you sure the world you are trying to warp to has the same amount of channels?");
@@ -432,10 +432,10 @@ public class Commands {
                     player.message("Invalid world; highest number available: " + (server.getWorlds().size() - 1));
                 }
                 break;
-            case "saveall":
+            case "saveall"://fyi this is a stupid command
                 for (World world : Server.getInstance().getWorlds()) {
                     for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters()) {
-                        chr.saveToDB(true);
+                        chr.saveToDB();
                     }
                 }
                 break;
