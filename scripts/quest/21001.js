@@ -50,7 +50,7 @@ function start(mode, type, selection) {
 function end(mode, type, selection) {
     status++;
 	if (mode != 1) {
-	    if (type == 2 && mode == 0) {
+	    if (type == 1 && mode == 0) {
 		qm.sendNext("What about the child? Please give me the child!");
 	    }
 		qm.dispose();

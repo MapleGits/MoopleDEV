@@ -58,23 +58,21 @@ public final class CreateCharHandler extends AbstractMaplePacketHandler {
         int weapon = slea.readInt();
         newchar.setGender(slea.readByte());
         newchar.setName(name);
-        if (!newchar.isGM()) {
-            if (job == 0) { // Knights of Cygnus
-                newchar.setJob(MapleJob.NOBLESSE);
-                newchar.setMapId(130030000);
-                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
-            } else if (job == 1) { // Adventurer
-                newchar.setJob(MapleJob.BEGINNER);
-                newchar.setMapId(/*specialJobType == 2 ? 3000600 : */10000);
-                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
-            } else if (job == 2) { // Aran
-                newchar.setJob(MapleJob.LEGEND);
-                newchar.setMapId(914000000);
-                newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
-            } else {
-                c.announce(MaplePacketCreator.deleteCharResponse(0, 9));
-                return;
-            }
+        if (job == 0) { // Knights of Cygnus
+            newchar.setJob(MapleJob.NOBLESSE);
+            newchar.setMapId(130030000);
+            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (byte) 0, (short) 1));
+        } else if (job == 1) { // Adventurer
+            newchar.setJob(MapleJob.BEGINNER);
+            newchar.setMapId(/*specialJobType == 2 ? 3000600 : */10000);
+            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (byte) 0, (short) 1));
+        } else if (job == 2) { // Aran
+            newchar.setJob(MapleJob.LEGEND);
+            newchar.setMapId(914000000);
+            newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (byte) 0, (short) 1));
+        } else {
+            c.announce(MaplePacketCreator.deleteCharResponse(0, 9));
+            return;
         }
         //CHECK FOR EQUIPS
         MapleInventory equip = newchar.getInventory(MapleInventoryType.EQUIPPED);

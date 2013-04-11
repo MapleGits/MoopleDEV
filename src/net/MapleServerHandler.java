@@ -24,6 +24,8 @@ package net;
 import client.MapleClient;
 import constants.ServerConstants;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import net.server.Server;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
@@ -39,6 +41,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     private PacketProcessor processor;
     private int world = -1, channel = -1;
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
     public MapleServerHandler() {
         this.processor = PacketProcessor.getProcessor(-1, -1);
@@ -73,7 +76,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
                 return;
             }
         } else {
-            System.out.println("IoSession with " + session.getRemoteAddress() + " opened.");
+            FilePrinter.print(FilePrinter.SESSION, "IoSession with " + session.getRemoteAddress() + " opened on " + sdf.format(Calendar.getInstance().getTime()), false);
         }
 
         byte key[] = {0x13, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, (byte) 0xB4, 0x00, 0x00, 0x00, 0x1B, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x52, 0x00, 0x00, 0x00};
@@ -97,7 +100,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
             try {
                 boolean inCashShop = false;
                 if (client.getPlayer() != null) {
-                    inCashShop = client.getPlayer().getCashShop().isOpened();
+                    inCashShop = client.getPlayer().getCashShop().isOpened();                  
                 }
                 client.disconnect(false, inCashShop);
             } catch (Throwable t) {

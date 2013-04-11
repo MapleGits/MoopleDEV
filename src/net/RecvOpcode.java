@@ -116,6 +116,7 @@ public enum RecvOpcode {
     USE_ITEM_REWARD(0x70),
     MAKER_SKILL(0x71),
     USE_REMOTE(0x74),
+    ADMIN_CHAT(0x76),
     PARTYCHAT(0x77),
     WHISPER(0x78),
     MESSENGER(0x7A),
@@ -168,6 +169,7 @@ public enum RecvOpcode {
     SNOWBALL(0xD3),
     LEFT_KNOCKBACK(0xD4),
     COCONUT(0xD5),
+    MATCH_TABLE(0xD6),//Would be cool if I ever get it to work :)
     MONSTER_CARNIVAL(0xDA),
     PARTY_SEARCH_REGISTER(0xDC),
     PARTY_SEARCH_START(0xDE),

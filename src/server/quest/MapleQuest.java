@@ -41,14 +41,14 @@ import tools.MaplePacketCreator;
  * @author Matze
  */
 public class MapleQuest {
-    private static Map<Integer, MapleQuest> quests = new HashMap<Integer, MapleQuest>();
+    private static Map<Integer, MapleQuest> quests = new HashMap<>();
     protected short infoNumber, infoex, id;
     protected int timeLimit, timeLimit2;
-    protected List<MapleQuestRequirement> startReqs;
-    protected List<MapleQuestRequirement> completeReqs;
-    protected List<MapleQuestAction> startActs;
-    protected List<MapleQuestAction> completeActs;
-    protected List<Integer> relevantMobs;
+    protected List<MapleQuestRequirement> startReqs = new LinkedList<>();
+    protected List<MapleQuestRequirement> completeReqs = new LinkedList<>();
+    protected List<MapleQuestAction> startActs = new LinkedList<>();
+    protected List<MapleQuestAction> completeActs = new LinkedList<>();
+    protected List<Integer> relevantMobs = new LinkedList<>();
     private boolean autoStart;
     private boolean autoPreComplete;
     private boolean repeatable = false;
@@ -59,9 +59,11 @@ public class MapleQuest {
 
     private MapleQuest(int id) {
         this.id = (short) id;
-        relevantMobs = new LinkedList<Integer>();
-        MapleData startReqData = requirements.getChildByPath(String.valueOf(id)).getChildByPath("0");
-        startReqs = new LinkedList<MapleQuestRequirement>();
+        MapleData reqData = requirements.getChildByPath(String.valueOf(id));
+        if (reqData == null) {//most likely infoEx
+            return;
+        }
+        MapleData startReqData = reqData.getChildByPath("0");
         if (startReqData != null) {
             for (MapleData startReq : startReqData.getChildren()) {
                 MapleQuestRequirementType type = MapleQuestRequirementType.getByWZName(startReq.getName());
@@ -77,8 +79,7 @@ public class MapleQuest {
                 startReqs.add(req);
             }
         }
-        MapleData completeReqData = requirements.getChildByPath(String.valueOf(id)).getChildByPath("1");
-        completeReqs = new LinkedList<MapleQuestRequirement>();
+        MapleData completeReqData = reqData.getChildByPath("1");
         if (completeReqData != null) {
             for (MapleData completeReq : completeReqData.getChildren()) {
                 MapleQuestRequirement req = new MapleQuestRequirement(this, MapleQuestRequirementType.getByWZName(completeReq.getName()), completeReq);
@@ -100,8 +101,11 @@ public class MapleQuest {
                 completeReqs.add(req);
             }
         }
-        MapleData startActData = actions.getChildByPath(String.valueOf(id)).getChildByPath("0");
-        startActs = new LinkedList<MapleQuestAction>();
+        MapleData actData = actions.getChildByPath(String.valueOf(id));
+        if (actData == null) {
+                return;
+            }
+        final MapleData startActData = actData.getChildByPath("0");
         if (startActData != null) {
             for (MapleData startAct : startActData.getChildren()) {
                 MapleQuestActionType questActionType = MapleQuestActionType.getByWZName(startAct.getName());
@@ -109,7 +113,6 @@ public class MapleQuest {
             }
         }
         MapleData completeActData = actions.getChildByPath(String.valueOf(id)).getChildByPath("1");
-        completeActs = new LinkedList<MapleQuestAction>();
         if (completeActData != null) {
             for (MapleData completeAct : completeActData.getChildren()) {
                 completeActs.add(new MapleQuestAction(MapleQuestActionType.getByWZName(completeAct.getName()), completeAct, this));
@@ -214,15 +217,10 @@ public class MapleQuest {
     }
 
     public boolean forceComplete(MapleCharacter c, int npc) {
-        if (!canComplete(c, npc)) return false;
-
         MapleQuestStatus newStatus = new MapleQuestStatus(this, MapleQuestStatus.Status.COMPLETED, npc);
         newStatus.setForfeited(c.getQuest(this).getForfeited());
         newStatus.setCompletionTime(System.currentTimeMillis());
-        c.announce(MaplePacketCreator.showSpecialEffect(9));
-        c.getMap().broadcastMessage(c, MaplePacketCreator.showForeignEffect(c.getId(), 9), false);
         c.updateQuest(newStatus);
-
         return true;
     }
 

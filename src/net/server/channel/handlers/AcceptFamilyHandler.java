@@ -42,6 +42,6 @@ public final class AcceptFamilyHandler extends AbstractMaplePacketHandler {
         if (inviter != null) {
             inviter.getClient().announce(MaplePacketCreator.sendFamilyJoinResponse(true, c.getPlayer().getName()));
         }
-        c.announce(MaplePacketCreator.sendFamilyMessage());
+        c.announce(MaplePacketCreator.sendFamilyMessage(0, 0));
     }
 }

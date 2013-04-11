@@ -74,7 +74,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
             case 0x02: // Exp
                 c.getPlayer().setExp(slea.readInt());
                 break;
-            case 0x03: // Ban
+            case 0x03: // /ban <name>
                 victim = slea.readMapleAsciiString();
                 String reason = victim + " permanent banned by " + c.getPlayer().getName();
                 target = c.getChannelServer().getPlayerStorage().getCharacterByName(victim);
@@ -91,9 +91,9 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.getGMEffect(6, (byte) 1));
                 }
                 break;
-            case 0x04: // Block
+            case 0x04: // /block <name> <duration (in days)> <HACK/BOT/AD/HARASS/CURSE/SCAM/MISCONDUCT/SELL/ICASH/TEMP/GM/IPROGRAM/MEGAPHONE>
                 victim = slea.readMapleAsciiString();
-                slea.readByte(); //type
+                int type = slea.readByte(); //reason
                 int duration = slea.readInt();
                 String description = slea.readMapleAsciiString();
                 reason = c.getPlayer().getName() + " used /ban to ban";
@@ -105,7 +105,8 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     if (duration == -1) {
                         target.ban(description + " " + reason);
                     } else {
-                        //target.tempban(reason, duration, type);
+                        target.block(type, duration, description);
+                        target.sendPolice(duration, reason, 6000);
                     }
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
                 } else if (MapleCharacter.ban(victim, reason, false)) {
@@ -114,13 +115,22 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.getGMEffect(6, (byte) 1));
                 }
                 break;
-            case 0x10: // /h, information by vana
-                StringBuilder sb = new StringBuilder("USERS ON THIS MAP: ");
-                for (MapleCharacter mc : c.getPlayer().getMap().getCharacters()) {
-                    sb.append(mc.getName());
-                    sb.append(" ");
+            case 0x10: // /h, information by vana (and tele mode f1) ... hide ofcourse
+                c.getPlayer().Hide(slea.readByte() == 1);
+                break;
+            case 0x11: // Entering a map
+                switch (slea.readByte()) {
+                    case 0:// /u
+                        StringBuilder sb = new StringBuilder("USERS ON THIS MAP: ");
+                        for (MapleCharacter mc : c.getPlayer().getMap().getCharacters()) {
+                            sb.append(mc.getName());
+                            sb.append(" ");
+                        }
+                        c.getPlayer().message(sb.toString());
+                        break;
+                    case 12:// /uclip and entering a map
+                        break;
                 }
-                c.getPlayer().message(sb.toString());
                 break;
             case 0x12: // Send
                 victim = slea.readMapleAsciiString();
@@ -170,6 +180,8 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                 } else {
                     c.announce(MaplePacketCreator.getGMEffect(0x1E, (byte) 0));
                 }
+                break;
+            case 0x24:// /Artifact Ranking
                 break;
             case 0x77: //Testing purpose
                 if (slea.available() == 4) {

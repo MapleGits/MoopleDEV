@@ -199,7 +199,9 @@ public class Commands {
             player.changeJob(MapleJob.getById(Integer.parseInt(sub[1])));
             player.equipChanged();
         } else if (sub[0].equals("kill")) {
-            cserv.getPlayerStorage().getCharacterByName(sub[1]).setHpMp(0);
+            if (sub.length >= 2) {
+                cserv.getPlayerStorage().getCharacterByName(sub[1]).setHpMp(0);
+            }
         } else if (sub[0].equals("killall")) {
             List<MapleMapObject> monsters = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
             MapleMap map = player.getMap();

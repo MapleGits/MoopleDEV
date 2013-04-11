@@ -578,13 +578,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void setCombo(short count) {
-        if (combocounter > 30000) {
-            combocounter = 30000;
-            return;
-        } else {
-            combocounter = count;
+        if (count < combocounter) {
+            cancelEffectFromBuffStat(MapleBuffStat.ARAN_COMBO);
         }
-        announce(MaplePacketCreator.showCombo(combocounter));
+        combocounter = (short) Math.min(30000, count);
+        if (count > 0) {
+            announce(MaplePacketCreator.showCombo(combocounter));
+        }
     }
 
     public void setLastCombo(long time) {;
@@ -715,22 +715,30 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
     }
 
-    public void toggleHide(boolean login) {
-        if (isGM()) {
-            if (isHidden()) {
+    public void Hide(boolean hide, boolean login) {
+        if (isGM() && hide != this.hidden) {
+            if (!hide) {
                 this.hidden = false;
                 announce(MaplePacketCreator.getGMEffect(0x10, (byte) 0));
-                getMap().broadcastNONGMMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
+                getMap().broadcastMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
                 updatePartyMemberHP();
             } else {
                 this.hidden = true;
                 announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
                 if (!login) {
-                    getMap().broadcastNONGMMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
+                    getMap().broadcastMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
                 }
             }
             announce(MaplePacketCreator.enableActions());
-        }
+        }        
+    }
+    
+    public void Hide(boolean hide) {
+        Hide(hide, false);
+    }
+    
+    public void toggleHide(boolean login) {
+        Hide(!isHidden());
     }
 
     private void cancelFullnessSchedule(int petSlot) {
@@ -2623,6 +2631,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                         ret.messengerposition = position;
                     }
                 }
+                ret.loggedIn = true;
             }
             rs.close();
             ps.close();
@@ -3487,12 +3496,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(19, hair);
             ps.setInt(20, face);
             if (map == null || (cashshop != null && cashshop.isOpened())) {
-                ps.setInt(24, mapid);
+                ps.setInt(21, mapid);
             } else {
                 if (map.getForcedReturnId() != 999999999) {
-                    ps.setInt(24, map.getForcedReturnId());
+                    ps.setInt(21, map.getForcedReturnId());
                 } else {
-                    ps.setInt(24, getHp() < 1 ? map.getReturnMapId() : map.getId());
+                    ps.setInt(21, getHp() < 1 ? map.getReturnMapId() : map.getId());
                 }
             }
             ps.setInt(22, meso.get());
@@ -3699,11 +3708,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             ps.close();
             con.commit();
-        } catch (SQLException | RuntimeException e) {
-            e.printStackTrace();
+        } catch (SQLException | RuntimeException t) {
+            FilePrinter.printError(FilePrinter.SAVE_CHAR, t, "Error saving " + name + " Level: " + level + " Job: " + job.getId());
             try {
                 con.rollback();
             } catch (SQLException se) {
+                FilePrinter.printError(FilePrinter.SAVE_CHAR, se, "Error trying to rollback " + name);
             }
         } finally {
             try {
@@ -3715,7 +3725,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void sendPolice(int greason, String reason, int duration) {
-        announce(MaplePacketCreator.sendPolice(greason, reason, duration));
+        announce(MaplePacketCreator.sendPolice(String.format("You have been blocked by #bPolice %s for the %s reason.#k", "Moople", "HACK")));
         this.isbanned = true;
         TimerManager.getInstance().schedule(new Runnable() {
             @Override
@@ -4547,6 +4557,23 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
         } catch (SQLException e) {
         }
+    }
+    
+    public void block(int reason, int days, String desc) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, days);
+        Timestamp TS = new Timestamp(cal.getTimeInMillis());
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banreason = ?, tempban = ?, greason = ? WHERE id = ?")) {
+                ps.setString(1, desc);
+                ps.setTimestamp(2, TS);
+                ps.setInt(3, reason);
+                ps.setInt(4, accountid);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+        }        
     }
 
     public boolean isBanned() {

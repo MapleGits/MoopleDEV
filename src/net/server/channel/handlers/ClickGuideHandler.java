@@ -33,6 +33,7 @@ import tools.data.input.SeekableLittleEndianAccessor;
  * @author kevintjuh93
  */
 public class ClickGuideHandler extends AbstractMaplePacketHandler {
+    @Override
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (c.getPlayer().getJob().equals(MapleJob.NOBLESSE)) {
                 NPCScriptManager.getInstance().start(c, 1101008, null, null);

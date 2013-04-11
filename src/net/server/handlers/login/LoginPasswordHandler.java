@@ -25,7 +25,6 @@ import client.MapleClient;
 import java.util.Calendar;
 import net.MaplePacketHandler;
 import server.TimerManager;
-import tools.DateUtil;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
@@ -50,8 +49,7 @@ public final class LoginPasswordHandler implements MaplePacketHandler {
         Calendar tempban = c.getTempBanCalendar();
         if (tempban != null) {
             if (tempban.getTimeInMillis() > System.currentTimeMillis()) {
-                long till = DateUtil.getFileTimestamp(tempban.getTimeInMillis());
-                c.announce(MaplePacketCreator.getTempBan(till, c.getGReason()));
+                c.announce(MaplePacketCreator.getTempBan(tempban.getTimeInMillis(), c.getGReason()));
                 return;
             }
         }

@@ -117,8 +117,9 @@ public class FilePrinter {
             }
             out = new FileOutputStream(file, true);
             out.write(s.getBytes());
+            out.write("\r\n".getBytes());
             if (line) {
-                out.write("\r\n---------------------------------\r\n".getBytes());
+                out.write("---------------------------------\r\n".getBytes());
             }
         } catch (IOException ess) {
         } finally {

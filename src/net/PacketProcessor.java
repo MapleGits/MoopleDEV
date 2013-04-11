@@ -222,6 +222,7 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
             registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());
             registerHandler(RecvOpcode.WEDDING_ACTION, new WeddingHandler());
+            registerHandler(RecvOpcode.ADMIN_CHAT, new AdminChatHandler());
         }
     }
 }

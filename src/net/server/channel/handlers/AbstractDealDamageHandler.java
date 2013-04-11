@@ -23,7 +23,6 @@ package net.server.channel.handlers;
 
 import client.MapleBuffStat;
 import client.MapleCharacter;
-import client.MapleJob;
 import client.MapleStat;
 import client.Skill;
 import client.SkillFactory;
@@ -35,7 +34,6 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import constants.ItemConstants;
-import constants.skills.Aran;
 import constants.skills.Assassin;
 import constants.skills.Bandit;
 import constants.skills.Bishop;
@@ -320,43 +318,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                         if (attackEffect.makeChanceResult()) {
                             monster.applyStatus(player, new MonsterStatusEffect(attackEffect.getMonsterStati(), theSkill, null, false), attackEffect.isPoison(), attackEffect.getDuration());
                         }
-                    }
-                    if (player.getJob().equals(MapleJob.LEGEND) || player.getJob().isA(MapleJob.ARAN4)) {
-                        byte comboLevel = (byte) (player.getJob().equals(MapleJob.LEGEND) ? 10 : player.getSkillLevel(Aran.COMBO_ABILITY));
-                        if (comboLevel > 0) {
-                            final long currentTime = System.currentTimeMillis();
-                            short combo = 0;
-                            if (attack.skill == Aran.COMBO_SMASH || attack.skill == Aran.COMBO_PENRIL || attack.skill == Aran.COMBO_TEMPEST) {
-                                player.setCombo(combo);//WHY NOT USE COMBO LOL
-                            }
-                            for (Integer amount : onedList) {
-                                combo = player.getCombo();
-                                if ((currentTime - player.getLastCombo()) > 3000 && combo > 0) {
-                                    combo = 0;
-                                    player.cancelEffectFromBuffStat(MapleBuffStat.ARAN_COMBO);
-                                }
-                                combo++;
-                                switch (combo) {
-                                    case 10:
-                                    case 20:
-                                    case 30:
-                                    case 40:
-                                    case 50:
-                                    case 60:
-                                    case 70:
-                                    case 80:
-                                    case 90:
-                                    case 100:
-                                        if ((combo / 10) <= comboLevel) {
-                                            SkillFactory.getSkill(21000000).getEffect(combo / 10).applyComboBuff(player, combo);
-                                        }
-                                        break;
-                                }
-                                player.setCombo(combo);
-                            }
-                            player.setLastCombo(currentTime);
-                        }
-                    }
+                    }                 
                     if (attack.isHH && !monster.isBoss()) {
                         map.damageMonster(player, monster, monster.getHp() - 1);
                     } else if (attack.isHH) {

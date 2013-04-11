@@ -49,7 +49,7 @@ public final class ItemRewardHandler extends AbstractMaplePacketHandler {
         Pair<Integer, List<RewardItem>> rewards = ii.getItemReward(itemId);
         for (RewardItem reward : rewards.getRight()) {
             if (!MapleInventoryManipulator.checkSpace(c, reward.itemid, reward.quantity, "")) {
-                c.announce(MaplePacketCreator.showInventoryFull());
+                c.announce(MaplePacketCreator.getShowInventoryFull());
                 break;
             }
             if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) {//Is it even possible to get an item with prob 1?

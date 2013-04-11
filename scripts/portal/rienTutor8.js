@@ -24,13 +24,13 @@
 function enter(pi) {
 	if (pi.getPlayer().getJob().getId() == 2000) {
 		if (pi.isQuestStarted(21015)) {
-			pi.getInfoMessage("You must exit to the right in order to find Murupas.");
+			pi.showInfoText("You must exit to the right in order to find Murupas.");
 			return;
 		} else if (pi.isQuestStarted(21016)) {
-			pi.getInfoMessage("You must exit to the right in order to find Murupias.");
+			pi.showInfoText("You must exit to the right in order to find Murupias.");
 			return;
 		} else if (pi.isQuestStarted(21017)) {
-			pi.getInfoMessage("You must exit to the right in order to find MuruMurus.");
+			pi.showInfoText("You must exit to the right in order to find MuruMurus.");
 			return;
 		}
 	}

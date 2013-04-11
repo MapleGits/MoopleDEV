@@ -510,6 +510,7 @@ public class Server implements Runnable {
             @Override
             public void run() {
                 System.out.println((restart ? "Restarting" : "Shutting down") + " the server!\r\n");
+                if (getWorlds() == null) return;//already shutdown
                 for (World w : getWorlds()) {
                     w.shutdown();
                 }

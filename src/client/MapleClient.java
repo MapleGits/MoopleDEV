@@ -414,18 +414,16 @@ public class MapleClient {
             ps = con.prepareStatement("SELECT `tempban` FROM accounts WHERE id = ?");
             ps.setInt(1, getAccID());
             rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
             long blubb = rs.getLong("tempban");
             if (blubb == 0) { // basically if timestamp in db is 0000-00-00
                 return null;
             }
-            final Calendar today = Calendar.getInstance();
             lTempban.setTimeInMillis(rs.getTimestamp("tempban").getTime());
-            if (today.getTimeInMillis() < lTempban.getTimeInMillis()) {
-                return lTempban;
-            }
-            return null;
+            return lTempban;
         } catch (SQLException e) {
-            //idc
         } finally {
             try {
                 if (ps != null) {

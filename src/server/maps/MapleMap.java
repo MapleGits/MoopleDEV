@@ -1266,13 +1266,9 @@ public class MapleMap {
         if (mapEffect != null) {
             mapEffect.sendStartData(chr.getClient());
         }
+        chr.getClient().announce(MaplePacketCreator.resetForcedStats());
         if (mapid == 914000200 || mapid == 914000210 || mapid == 914000220) {
-            TimerManager.getInstance().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    chr.getClient().announce(MaplePacketCreator.aranGodlyStats());
-                }
-            }, 1500);
+            chr.getClient().announce(MaplePacketCreator.aranGodlyStats());
         }
         if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
             chr.getClient().announce(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));

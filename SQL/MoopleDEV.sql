@@ -144,7 +144,7 @@ CREATE TABLE `characters` (
   `accountid` int(11) NOT NULL DEFAULT '0',
   `world` int(11) NOT NULL DEFAULT '0',
   `name` varchar(13) NOT NULL DEFAULT '',
-  `level` int(11) NOT NULL DEFAULT '0',
+  `level` int(11) NOT NULL DEFAULT '1',
   `exp` int(11) NOT NULL DEFAULT '0',
   `gachaexp` int(11) NOT NULL DEFAULT '0',
   `str` int(11) NOT NULL DEFAULT '12',

@@ -155,14 +155,22 @@ public class AbstractPlayerInteraction {
     }
 
     public void gainItem(int id, short quantity) {
-        gainItem(id, quantity, false);
+        gainItem(id, quantity, false, false);
+    }
+
+    public void gainItem(int id, short quantity, boolean show) {//this will fk randomStats equip :P
+        gainItem(id, quantity, false, show);
+    }
+
+    public void gainItem(int id, boolean show) {
+        gainItem(id, (short) 1, false, show);
     }
 
     public void gainItem(int id) {
-        gainItem(id, (short) 1, false);
+        gainItem(id, (short) 1, false, false);
     }
 
-    public void gainItem(int id, short quantity, boolean randomStats) {
+    public void gainItem(int id, short quantity, boolean randomStats, boolean showMessage) {
         if (id >= 5000000 && id <= 5000100) {
             MapleInventoryManipulator.addById(c, id, (short) 1, null, MaplePet.createPet(id), -1);
         }
@@ -185,7 +193,9 @@ public class AbstractPlayerInteraction {
         } else {
             MapleInventoryManipulator.removeById(c, MapleItemInformationProvider.getInstance().getInventoryType(id), id, -quantity, true, false);
         }
-        c.announce(MaplePacketCreator.getShowItemGain(id, quantity, true));
+        if (showMessage) {
+            c.announce(MaplePacketCreator.getShowItemGain(id, quantity, true));
+        }
     }
 
     public void changeMusic(String songName) {
@@ -402,6 +412,11 @@ public class AbstractPlayerInteraction {
         c.announce(MaplePacketCreator.lockUI(false));
     }
 
+    
+    public void playSound(String sound) {
+        getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(sound, 4));
+    }
+    
     public void environmentChange(String env, int mode) {
         getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(env, mode));
     }

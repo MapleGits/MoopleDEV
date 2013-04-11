@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package constants;
 
 import constants.skills.Aran;
 
 /**
  *
- * @author Kevin
+ * @author kevintjuh93
  */
 public class GameConstants {
 
@@ -22,5 +18,9 @@ public class GameConstants {
                 return Aran.OVER_SWING;
         }
         return skill;
+    }
+        
+    public static boolean isAran(final int job) {
+        return job == 2000 || (job >= 2100 && job <= 2112);
     }
 }

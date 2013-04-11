@@ -40,12 +40,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import net.server.channel.Channel;
-import net.server.world.MapleParty;
-import net.server.world.MaplePartyCharacter;
 import net.server.Server;
+import net.server.channel.Channel;
 import net.server.guild.MapleAlliance;
 import net.server.guild.MapleGuild;
+import net.server.world.MapleParty;
+import net.server.world.MaplePartyCharacter;
 import provider.MapleData;
 import provider.MapleDataProviderFactory;
 import scripting.AbstractPlayerInteraction;
@@ -210,10 +210,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void showEffect(String effect) {
         getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(effect, 3));
-    }
-
-    public void playSound(String sound) {
-        getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(sound, 4));
     }
 
     public void setHair(int hair) {
