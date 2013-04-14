@@ -30,7 +30,7 @@ public class CustomPacketHandler implements MaplePacketHandler {
     @Override
     public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         if (slea.available() > 0 && c.gmLevel() == 4) {//w/e       
-            c.getSession().write(MaplePacketCreator.customPacket(slea.read((int) slea.available())));
+            c.announce(MaplePacketCreator.customPacket(slea.read((int) slea.available())));
         }
     }
 

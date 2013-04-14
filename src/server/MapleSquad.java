@@ -79,7 +79,7 @@ public class MapleSquad {
             return false;
         } else {
             members.add(member);
-            getLeader().getClient().getSession().write(MaplePacketCreator.serverNotice(5, member.getName() + " has joined the fight!"));
+            getLeader().getClient().announce(MaplePacketCreator.serverNotice(5, member.getName() + " has joined the fight!"));
             return true;
         }
     }

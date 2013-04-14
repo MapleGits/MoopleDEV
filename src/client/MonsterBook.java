@@ -42,19 +42,19 @@ public final class MonsterBook {
         for (Entry<Integer, Integer> all : cards.entrySet()) {
             if (all.getKey() == cardid) {
                 if (all.getValue() > 4) {
-                    c.getSession().write(MaplePacketCreator.addCard(true, cardid, all.getValue()));
+                    c.announce(MaplePacketCreator.addCard(true, cardid, all.getValue()));
                 } else {
                     all.setValue(all.getValue() + 1);
-                    c.getSession().write(MaplePacketCreator.addCard(false, cardid, all.getValue()));
-                    c.getSession().write(MaplePacketCreator.showGainCard());
+                    c.announce(MaplePacketCreator.addCard(false, cardid, all.getValue()));
+                    c.announce(MaplePacketCreator.showGainCard());
                     calculateLevel();
                 }
                 return;
             }
         }
         cards.put(cardid, 1);
-        c.getSession().write(MaplePacketCreator.addCard(false, cardid, 1));
-        c.getSession().write(MaplePacketCreator.showGainCard());
+        c.announce(MaplePacketCreator.addCard(false, cardid, 1));
+        c.announce(MaplePacketCreator.showGainCard());
         calculateLevel();
         c.getPlayer().saveToDB();
     }

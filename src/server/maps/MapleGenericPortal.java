@@ -128,7 +128,7 @@ public class MapleGenericPortal implements MaplePortal {
             changed = true;
         }
         if (!changed) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.announce(MaplePacketCreator.enableActions());
         }
     }
 

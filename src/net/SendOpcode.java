@@ -274,7 +274,7 @@ public enum SendOpcode {
     REACTOR_HIT(0x115),
     REACTOR_SPAWN(0x117),
     REACTOR_DESTROY(0x118),
-    ROLL_SNOWBALL(0x119),
+    SNOWBALL_STATE(0x119),
     HIT_SNOWBALL(0x11A),
     SNOWBALL_MESSAGE(0x11B),
     LEFT_KNOCK_BACK(0x11C),
@@ -314,7 +314,7 @@ public enum SendOpcode {
     TOURNAMENT_UEW(0x13E),
     TOURNAMENT_CHARACTERS(0x13F),//they never coded this :|
     
-    WEDDING_PROGRESS(0x140),
+    WEDDING_PROGRESS(0x140),//byte step, int groomid, int brideid
     WEDDING_CEREMONY_END(0x141),
     
     PARCEL(0x142),

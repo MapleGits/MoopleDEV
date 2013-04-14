@@ -29,7 +29,7 @@ function action(mode, type, selection) {
             cm.sendNext("If you want to go to Nautilus press next!");
         }
         else if (status == 1) {
-            cm.warp(04001147,0);
+            cm.warp(120000100,0);//guess so... lol?
             cm.dispose();
             }
         }

@@ -132,6 +132,7 @@ public class WZFile implements MapleDataProvider {
         return new WZIMGFile(this.wzfile, entry, provideImages, ListWZFile.isModernImgFile(fullPath));
     }
 
+    @Override
     public synchronized MapleData getData(String path) {
         try {
             WZIMGFile imgFile = getImgFile(path);
@@ -145,6 +146,7 @@ public class WZFile implements MapleDataProvider {
         return null;
     }
 
+    @Override
     public MapleDataDirectoryEntry getRoot() {
         return root;
     }

@@ -57,7 +57,7 @@ public class XMLWZFile implements MapleDataProvider {
         File dataFile = new File(root, path + ".xml");
         File imageDataDir = new File(root, path);
         if (!dataFile.exists()) {
-            throw new RuntimeException("Datafile " + path + " does not exist in " + root.getAbsolutePath());
+            return null;//bitches
         }
         FileInputStream fis;
         try {

@@ -273,7 +273,7 @@ public class MapleGuild {
         for (MapleGuildCharacter mgc : members) {
             for (Channel cs : Server.getInstance().getChannelsFromWorld(world)) {
                 if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
-                    cs.getPlayerStorage().getCharacterById(mgc.getId()).getClient().getSession().write(serverNotice);
+                    cs.getPlayerStorage().getCharacterById(mgc.getId()).getClient().announce(serverNotice);
                     break;
                 }
             }
@@ -508,7 +508,7 @@ public class MapleGuild {
         if (mc.getGuildId() > 0) {
             return MapleGuildResponse.ALREADY_IN_GUILD;
         }
-        mc.getClient().getSession().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName()));
+        mc.getClient().announce(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName()));
         return null;
     }
 
@@ -517,7 +517,7 @@ public class MapleGuild {
             ResultSet rs;
             try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT `name`, `GP`, `logoBG`, `logoBGColor`, " + "`logo`, `logoColor` FROM guilds ORDER BY `GP` DESC LIMIT 50")) {
                 rs = ps.executeQuery();
-                c.getSession().write(MaplePacketCreator.showGuildRanks(npcid, rs));
+                c.announce(MaplePacketCreator.showGuildRanks(npcid, rs));
             }
             rs.close();
         } catch (SQLException e) {

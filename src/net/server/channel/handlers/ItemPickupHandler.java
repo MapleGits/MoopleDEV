@@ -1,32 +1,32 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation version 3 as published by
-    the Free Software Foundation. You may not use, modify or distribute
-    this program under any other version of the GNU Affero General Public
-    License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.server.channel.handlers;
 
 import client.MapleCharacter;
-import net.server.world.MaplePartyCharacter;
 import client.MapleClient;
 import client.autoban.AutobanFactory;
 import java.awt.Point;
 import net.AbstractMaplePacketHandler;
+import net.server.world.MaplePartyCharacter;
 import scripting.item.ItemScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -41,6 +41,8 @@ import tools.data.input.SeekableLittleEndianAccessor;
  * @author Matze
  */
 public final class ItemPickupHandler extends AbstractMaplePacketHandler {
+
+    @Override
     public final void handlePacket(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         slea.readInt(); //Timestamp
         slea.readByte();
@@ -48,6 +50,9 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
         int oid = slea.readInt();
         MapleCharacter chr = c.getPlayer();
         MapleMapObject ob = chr.getMap().getMapObject(oid);
+        if (ob == null) {
+            return;
+        }
         if (chr.getInventory(MapleItemInformationProvider.getInstance().getInventoryType(ob.getObjectId())).getNextFreeSlot() > -1) {
             if (chr.getMapId() > 209000000 && chr.getMapId() < 209000016) {//happyville trees
                 MapleMapItem mapitem = (MapleMapItem) ob;
@@ -121,14 +126,15 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                         if (info.runOnPickup()) {
                             ItemScriptManager ism = ItemScriptManager.getInstance();
                             String scriptName = info.getScript();
-                            if (ism.scriptExists(scriptName))
+                            if (ism.scriptExists(scriptName)) {
                                 ism.getItemScript(c, scriptName);
-                            
+                            }
+
                         } else {
-                           if (!MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true)) {
-                               c.announce(MaplePacketCreator.enableActions());
-                               return;
-                           }
+                            if (!MapleInventoryManipulator.addFromDrop(c, mapitem.getItem(), true)) {
+                                c.announce(MaplePacketCreator.enableActions());
+                                return;
+                            }
                         }
                     } else if (useItem(c, mapitem.getItem().getItemId())) {
                         if (mapitem.getItem().getItemId() / 10000 == 238) {
@@ -145,7 +151,7 @@ public final class ItemPickupHandler extends AbstractMaplePacketHandler {
                     chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
                     chr.getMap().removeMapObject(ob);
                 }
-            }            
+            }
         }
         c.announce(MaplePacketCreator.enableActions());
     }

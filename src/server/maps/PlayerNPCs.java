@@ -118,7 +118,7 @@ public class PlayerNPCs extends AbstractMapleMapObject {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.spawnPlayerNPC(this));
-        client.getSession().write(MaplePacketCreator.getPlayerNPC(this));
+        client.announce(MaplePacketCreator.spawnPlayerNPC(this));
+        client.announce(MaplePacketCreator.getPlayerNPC(this));
     }
 }

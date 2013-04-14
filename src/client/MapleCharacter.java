@@ -805,6 +805,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     }
 
     public void changeJob(MapleJob newJob) {
+        if (newJob == null) {
+            return;//the fuck you doing idiot!
+        }
         this.job = newJob;
         this.remainingSp++;
         if (newJob.getId() % 10 == 2) {
@@ -1184,7 +1187,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }, skill.getDuration());
 
             diseases.put(disease, new DiseaseValueHolder(System.currentTimeMillis(), skill.getDuration()));
-            client.getSession().write(MaplePacketCreator.giveDebuff(debuff, skill));
+            client.announce(MaplePacketCreator.giveDebuff(debuff, skill));
             map.broadcastMessage(this, MaplePacketCreator.giveForeignDebuff(id, debuff, skill), false);
         }
     }
@@ -4371,8 +4374,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         cancelFullnessSchedule(getPetIndex(pet));
         getMap().broadcastMessage(this, MaplePacketCreator.showPet(this, pet, true, hunger), true);
-        client.getSession().write(MaplePacketCreator.petStatUpdate(this));
-        client.getSession().write(MaplePacketCreator.enableActions());
+        client.announce(MaplePacketCreator.petStatUpdate(this));
+        client.announce(MaplePacketCreator.enableActions());
         removePet(pet, shift_left);
     }
 

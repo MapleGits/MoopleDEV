@@ -21,11 +21,9 @@
 */
 package net.server.channel.handlers;
 
-import net.server.channel.handlers.AbstractMovementPacketHandler;
+import client.MapleClient;
 import java.awt.Point;
 import java.util.List;
-import client.MapleClient;
-import tools.Randomizer;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.life.MobSkillFactory;
@@ -34,9 +32,11 @@ import server.maps.MapleMapObjectType;
 import server.movement.LifeMovementFragment;
 import tools.MaplePacketCreator;
 import tools.Pair;
+import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MoveLifeHandler extends AbstractMovementPacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int objectid = slea.readInt();
         short moveid = slea.readShort();
@@ -45,7 +45,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             return;
         }
         MapleMonster monster = (MapleMonster) mmo;
-        List<LifeMovementFragment> res = null;
+        List<LifeMovementFragment> res;
         byte skillByte = slea.readByte();
         byte skill = slea.readByte();
         int skill_1 = slea.readByte() & 0xFF;

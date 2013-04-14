@@ -85,7 +85,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
     public void broadcastToVisitors(final byte[] packet) {
         for (MapleCharacter visitor : visitors) {
             if (visitor != null) {
-                visitor.getClient().getSession().write(packet);
+                visitor.getClient().announce(packet);
             }
         }
     }
@@ -121,7 +121,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null) {
                 visitors[i].setHiredMerchant(null);
-                visitors[i].getClient().getSession().write(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
+                visitors[i].getClient().announce(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
                 if (message.length() > 0) {
                     visitors[i].dropMessage(1, message);
                 }
@@ -395,7 +395,7 @@ public class HiredMerchant extends AbstractMapleMapObject {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.spawnHiredMerchant(this));
+        client.announce(MaplePacketCreator.spawnHiredMerchant(this));
     }
 
     public class SoldItem {

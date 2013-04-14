@@ -104,15 +104,16 @@ public class Commands {
         Server srv = Server.getInstance();
         if (sub[0].equals("ap")) {
             player.setRemainingAp(Integer.parseInt(sub[1]));
-        } else if (sub[0].equals("gmchat")) {
-            String message = joinStringFrom(sub, 1);
-            Server.getInstance().gmChat(player.getName() + " : " + message, null);
         } else if (sub[0].equals("buffme")) {
             final int[] array = {9001000, 9101002, 9101003, 9101008, 2001002, 1101007, 1005, 2301003, 5121009, 1111002, 4111001, 4111002, 4211003, 4211005, 1321000, 2321004, 3121002};
             for (int i : array) {
                 SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
             }
         } else if (sub[0].equals("spawn")) {
+            MapleMonster monster = MapleLifeFactory.getMonster(Integer.parseInt(sub[1]));
+            if (monster == null) {
+                return true;
+            }
             if (sub.length > 2) {
                 for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
                     player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
@@ -442,6 +443,9 @@ public class Commands {
                 }
                 break;
             case "npc":
+                if (sub.length < 1) {
+                    break;
+                }
                 MapleNPC npc = MapleLifeFactory.getNPC(Integer.parseInt(sub[1]));
                 if (npc != null) {
                     npc.setPosition(player.getPosition());

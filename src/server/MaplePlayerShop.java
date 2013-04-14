@@ -151,7 +151,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
     public void broadcastToVisitors(final byte[] packet) {
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null) {
-                visitors[i].getClient().getSession().write(packet);
+                visitors[i].getClient().announce(packet);
             }
         }
     }
@@ -160,7 +160,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
         try {
             for (int i = 0; i < 3; i++) {
                 if (visitors[i] != null) {
-                    visitors[i].getClient().getSession().write(MaplePacketCreator.shopErrorMessage(10, 1));
+                    visitors[i].getClient().announce(MaplePacketCreator.shopErrorMessage(10, 1));
                     removeVisitor(visitors[i]);
                 }
             }
@@ -183,7 +183,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
 
     public void broadcast(final byte[] packet) {
         if (owner.getClient() != null && owner.getClient().getSession() != null) {
-            owner.getClient().getSession().write(packet);
+            owner.getClient().announce(packet);
         }
         broadcastToVisitors(packet);
     }
@@ -204,7 +204,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
     }
 
     public void sendShop(MapleClient c) {
-        c.getSession().write(MaplePacketCreator.getPlayerShop(c, this, isOwner(c.getPlayer())));
+        c.announce(MaplePacketCreator.getPlayerShop(c, this, isOwner(c.getPlayer())));
     }
 
     public MapleCharacter getOwner() {
@@ -244,7 +244,7 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
         }
         for (int i = 0; i < 3; i++) {
             if (visitors[i] != null && visitors[i].getName().equals(name)) {
-                visitors[i].getClient().getSession().write(MaplePacketCreator.shopErrorMessage(5, 1));
+                visitors[i].getClient().announce(MaplePacketCreator.shopErrorMessage(5, 1));
                 removeVisitor(visitors[i]);
             }
             return;
@@ -257,12 +257,12 @@ public class MaplePlayerShop extends AbstractMapleMapObject {
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.removeCharBox(this.getOwner()));
+        client.announce(MaplePacketCreator.removeCharBox(this.getOwner()));
     }
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.addCharBox(this.getOwner(), 4));
+        client.announce(MaplePacketCreator.addCharBox(this.getOwner(), 4));
     }
 
     @Override

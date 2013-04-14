@@ -74,7 +74,7 @@ public class MapleShop {
 
     public void sendShop(MapleClient c) {
         c.getPlayer().setShop(this);
-        c.getSession().write(MaplePacketCreator.getNPCShop(c, getNpcId(), items));
+        c.announce(MaplePacketCreator.getNPCShop(c, getNpcId(), items));
     }
 
     public void buy(MapleClient c, short slot, int itemId, short quantity) {
@@ -100,12 +100,12 @@ public class MapleShop {
                         MapleInventoryManipulator.addById(c, itemId, quantity);
                         c.getPlayer().gainMeso(-item.getPrice(), false);
                     }
-                    c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
+                    c.announce(MaplePacketCreator.shopTransaction((byte) 0));
                 } else 
-                    c.getSession().write(MaplePacketCreator.shopTransaction((byte) 3));
+                    c.announce(MaplePacketCreator.shopTransaction((byte) 3));
                 
             } else
-                c.getSession().write(MaplePacketCreator.shopTransaction((byte) 2));
+                c.announce(MaplePacketCreator.shopTransaction((byte) 2));
 
         } else if (item != null && item.getPitch() > 0) {
                 if (c.getPlayer().getInventory(MapleInventoryType.ETC).countById(4310000) >= (long) item.getPitch() * quantity) {
@@ -119,9 +119,9 @@ public class MapleShop {
                             MapleInventoryManipulator.addById(c, itemId, quantity);
                             MapleInventoryManipulator.removeById(c, MapleInventoryType.ETC, 4310000, item.getPitch() * quantity, false, false);
                         }
-                        c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
+                        c.announce(MaplePacketCreator.shopTransaction((byte) 0));
                     } else
-                        c.getSession().write(MaplePacketCreator.shopTransaction((byte) 3));
+                        c.announce(MaplePacketCreator.shopTransaction((byte) 3));
                 }
 
             } else if (c.getPlayer().getInventory(MapleInventoryType.CASH).countById(token) != 0) {
@@ -140,11 +140,11 @@ public class MapleShop {
                         }
                         c.getPlayer().gainMeso(diff, false);
                     } else {
-                        c.getSession().write(MaplePacketCreator.shopTransaction((byte) 3));
+                        c.announce(MaplePacketCreator.shopTransaction((byte) 3));
                     }
-                    c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0));
+                    c.announce(MaplePacketCreator.shopTransaction((byte) 0));
                 } else
-                    c.getSession().write(MaplePacketCreator.shopTransaction((byte) 2));
+                    c.announce(MaplePacketCreator.shopTransaction((byte) 2));
             }
     }
 
@@ -177,7 +177,7 @@ public class MapleShop {
             if (price != -1 && recvMesos > 0) {
                 c.getPlayer().gainMeso(recvMesos, false);
             }
-            c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0x8));
+            c.announce(MaplePacketCreator.shopTransaction((byte) 0x8));
         }
     }
 
@@ -197,10 +197,10 @@ public class MapleShop {
                 item.setQuantity(slotMax);
                 c.getPlayer().forceUpdateItem(item);
                 c.getPlayer().gainMeso(-price, false, true, false);
-                c.getSession().write(MaplePacketCreator.shopTransaction((byte) 0x8));
+                c.announce(MaplePacketCreator.shopTransaction((byte) 0x8));
             } else {
-                c.getSession().write(MaplePacketCreator.serverNotice(1, "You do not have enough mesos."));
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.serverNotice(1, "You do not have enough mesos."));
+                c.announce(MaplePacketCreator.enableActions());
             }
         }
     }

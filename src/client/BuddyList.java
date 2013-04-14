@@ -137,7 +137,7 @@ public class BuddyList {
     public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, int channelFrom) {
         put(new BuddylistEntry(nameFrom, "Default Group", cidFrom, channelFrom, false));
         if (pendingRequests.isEmpty()) {
-            c.getSession().write(MaplePacketCreator.requestBuddylistAdd(cidFrom, c.getPlayer().getId(), nameFrom));
+            c.announce(MaplePacketCreator.requestBuddylistAdd(cidFrom, c.getPlayer().getId(), nameFrom));
         } else {
             pendingRequests.push(new CharacterNameAndId(cidFrom, nameFrom));
         }

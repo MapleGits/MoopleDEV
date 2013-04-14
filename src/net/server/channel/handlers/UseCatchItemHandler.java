@@ -60,7 +60,7 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                     MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                     MapleInventoryManipulator.addById(c, 1902000, (short) 1, "", -1);
                  }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270001:
                 if (mob.getId() == 9500197) {
@@ -72,10 +72,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                             MapleInventoryManipulator.addById(c, 4031830, (short) 1, "", -1);
                         } else {
                             abm.spam(10);
-                            c.getSession().write(MaplePacketCreator.catchMessage(0));
+                            c.announce(MaplePacketCreator.catchMessage(0));
                         }
                     }
-                    c.getSession().write(MaplePacketCreator.enableActions());
+                    c.announce(MaplePacketCreator.enableActions());
                 }
                 break;
             case 2270002:
@@ -92,10 +92,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                             }
                             abm.spam(10);
                         } else {
-                            c.getSession().write(MaplePacketCreator.catchMessage(0));
+                            c.announce(MaplePacketCreator.catchMessage(0));
                         }
                     }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 }
                 break;
             case 2270003:
@@ -106,10 +106,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                         MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                         MapleInventoryManipulator.addById(c, 4031887, (short) 1, "", -1);
                     } else {
-                        c.getSession().write(MaplePacketCreator.catchMessage(0));
+                        c.announce(MaplePacketCreator.catchMessage(0));
                     }
                 }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270005:
                 if (mob.getId() == 9300187) {
@@ -119,10 +119,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                         MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                         MapleInventoryManipulator.addById(c, 2109001, (short) 1, "", -1);
                     } else {
-                        c.getSession().write(MaplePacketCreator.catchMessage(0));
+                        c.announce(MaplePacketCreator.catchMessage(0));
                     }
                 }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270006:
                 if (mob.getId() == 9300189) {
@@ -132,10 +132,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                         MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                         MapleInventoryManipulator.addById(c, 2109002, (short) 1, "", -1);
                     } else {
-                        c.getSession().write(MaplePacketCreator.catchMessage(0));
+                        c.announce(MaplePacketCreator.catchMessage(0));
                     }
                 }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270007:
                 if (mob.getId() == 9300191) {
@@ -145,10 +145,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                         MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                         MapleInventoryManipulator.addById(c, 2109003, (short) 1, "", -1);
                     } else {
-                        c.getSession().write(MaplePacketCreator.catchMessage(0));
+                        c.announce(MaplePacketCreator.catchMessage(0));
                     }
                 }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270004:
                 if (mob.getId() == 9300175) {
@@ -158,10 +158,10 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                     MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, true);
                     MapleInventoryManipulator.addById(c, 4001169, (short) 1, "", -1);
                     } else {
-                    c.getSession().write(MaplePacketCreator.catchMessage(0));
+                    c.announce(MaplePacketCreator.catchMessage(0));
                     }
                 }
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 break;
             case 2270008:
                 if (mob.getId() == 9500336) {
@@ -174,7 +174,7 @@ public final class UseCatchItemHandler extends AbstractMaplePacketHandler {
                     } else {
                         chr.message("You cannot use the Fishing Net yet.");
                     }
-                    c.getSession().write(MaplePacketCreator.enableActions());
+                    c.announce(MaplePacketCreator.enableActions());
                 }
                 break;
             default:

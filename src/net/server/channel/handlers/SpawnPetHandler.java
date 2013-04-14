@@ -56,7 +56,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
         {
             if (chr.haveItem(petid + 1)) {
                 chr.dropMessage(5, "You can't hatch your " + (petid == 5000028 ? "Dragon egg" : "Robo egg") + " if you already have a Baby " + (petid == 5000028 ? "Dragon." : "Robo."));
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             } else {
                 int evolveid = MapleDataTool.getInt("info/evol1", dataRoot.getData("Pet/" + petid + ".img"));
@@ -74,7 +74,7 @@ public final class SpawnPetHandler extends AbstractMaplePacketHandler {
                 long expiration = chr.getInventory(MapleInventoryType.CASH).getItem(slot).getExpiration();
                 MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, petid, (short) 1, false, false);
                 MapleInventoryManipulator.addById(c, evolveid, (short) 1, null, petId, expiration);
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.announce(MaplePacketCreator.enableActions());
                 return;
             }
         }

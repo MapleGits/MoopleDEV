@@ -32,7 +32,7 @@ public class WeddingHandler extends AbstractMaplePacketHandler {
                 MapleInventoryType type = MapleItemInformationProvider.getInstance().getInventoryType(itemid);
                 Item item = chr.getInventory(type).getItem(slot);
                 if (itemid == item.getItemId() && quantity <= item.getQuantity()) {
-                    c.getSession().write(MaplePacketCreator.addItemToWeddingRegistry(chr, item));
+                    c.announce(MaplePacketCreator.addItemToWeddingRegistry(chr, item));
                 }
         }
     }

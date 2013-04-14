@@ -46,17 +46,17 @@ public class MapleNPC extends AbstractLoadedMapleLife {
     public void sendSpawnData(MapleClient client) {
         if (!this.isHidden()) {
             if (this.getId() > 9010010 && this.getId() < 9010014) {
-                client.getSession().write(MaplePacketCreator.spawnNPCRequestController(this, false));
+                client.announce(MaplePacketCreator.spawnNPCRequestController(this, false));
             } else {
-                client.getSession().write(MaplePacketCreator.spawnNPC(this));
-                client.getSession().write(MaplePacketCreator.spawnNPCRequestController(this, true));
+                client.announce(MaplePacketCreator.spawnNPC(this));
+                client.announce(MaplePacketCreator.spawnNPCRequestController(this, true));
             }
         }
     }
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(MaplePacketCreator.removeNPC(getObjectId()));
+        client.announce(MaplePacketCreator.removeNPC(getObjectId()));
     }
 
     @Override

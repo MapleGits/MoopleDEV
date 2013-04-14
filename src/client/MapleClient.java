@@ -962,7 +962,7 @@ public class MapleClient {
         }
     }
 
-    public void announce(final byte[] packet) {
+    public synchronized void announce(final byte[] packet) {//MINA CORE IS A FUCKING BITCH AND I HATE IT <3
         session.write(packet);
     }
 }

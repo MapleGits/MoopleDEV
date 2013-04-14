@@ -135,12 +135,12 @@ public class MapleMist extends AbstractMapleMapObject {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(makeSpawnData());
+        client.announce(makeSpawnData());
     }
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(makeDestroyData());
+        client.announce(makeDestroyData());
     }
 
     public boolean makeChanceResult() {

@@ -28,19 +28,16 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class ChangeMapSpecialHandler extends AbstractMaplePacketHandler {
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         slea.readByte();
         String startwp = slea.readMapleAsciiString();
         slea.readShort();
         MaplePortal portal = c.getPlayer().getMap().getPortal(startwp);
-        if ((c.getPlayer().portalDelay() > System.currentTimeMillis()) || c.getPlayer().getBlockedPortals().contains(portal.getScriptName())) {
+        if (portal == null || c.getPlayer().portalDelay() > System.currentTimeMillis() || c.getPlayer().getBlockedPortals().contains(portal.getScriptName())) {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
-        if (portal != null) {
-            portal.enterPortal(c);
-        } else {
-            c.announce(MaplePacketCreator.enableActions());
-        }       
+        portal.enterPortal(c);   
     }
 }

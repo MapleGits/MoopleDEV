@@ -108,7 +108,7 @@ public class MapleReactor extends AbstractMapleMapObject {
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(makeDestroyData());
+        client.announce(makeDestroyData());
     }
 
     public final byte[] makeDestroyData() {
@@ -117,7 +117,7 @@ public class MapleReactor extends AbstractMapleMapObject {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(makeSpawnData());
+        client.announce(makeSpawnData());
     }
 
     public final byte[] makeSpawnData() {

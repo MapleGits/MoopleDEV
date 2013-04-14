@@ -6304,13 +6304,13 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] rollSnowBall(boolean entermap, int type, MapleSnowball ball0, MapleSnowball ball1) {
+    public static byte[] rollSnowBall(boolean entermap, int state, MapleSnowball ball0, MapleSnowball ball1) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.ROLL_SNOWBALL.getValue());
+        mplew.writeShort(SendOpcode.SNOWBALL_STATE.getValue());
         if (entermap) {
             mplew.skip(21);
         } else {
-            mplew.write(type);// 0 = move, 1 = roll, 2 is down disappear, 3 is up disappear
+            mplew.write(state);// 0 = move, 1 = roll, 2 is down disappear, 3 is up disappear
             mplew.writeInt(ball0.getSnowmanHP() / 75);
             mplew.writeInt(ball1.getSnowmanHP() / 75);
             mplew.writeShort(ball0.getPosition());//distance snowball down, 84 03 = max
